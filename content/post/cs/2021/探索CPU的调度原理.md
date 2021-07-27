@@ -274,7 +274,7 @@ MLFQ主要根据任务是否有主动让出CPU的行为来判断其是否是交�
 
 CFS给每个任务都维护一个`vruntime`值，每当任务被调度之后，就累加它的`vruntime`。比如，当任务A运行了5ms的时间片之后，则更新为`vruntime += 5ms`。**CFS在下次调度时，选择`vruntime`值最小的任务来调度**，比如：
 
-![](https://tva1.sinaimg.cn/large/008i3skNgy1gstinfj1tcj315k0m0gpw.jpg)
+![](https://tva1.sinaimg.cn/large/008i3skNgy1gsw2xk6bfej31980oitdu.jpg)
 
 *那CFS应该什么时候进行任务切换呢*？切换得频繁些，任务的调度会更加的公平，但是上下文切换带来的消耗也越大。因此，CFS给用户提供了个可配参数`sched_latency`，让用户来决定切换的时机。CFS将每个任务分到的时间片设置为 `time_slice = sched_latency / n`（n为当前的任务数） ，以确保在`sched_latency`周期内，各任务能够均分CPU，保证公平性。
 
