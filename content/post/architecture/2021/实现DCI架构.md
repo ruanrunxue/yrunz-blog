@@ -1,9 +1,10 @@
 ---
 title: 实现DCI架构
 date: 2021-10-10
+description: 将DCI架构总结成一句话就是：领域对象（Object）在不同的场景（Context）中扮演（Cast）不同的角色（Role），角色之间通过交互（Interactive）来完成具体的业务逻辑。
 categories:
-- 架构
-  tags:
+- 架构  
+tags:
 - 架构
 - DCI
 ---
