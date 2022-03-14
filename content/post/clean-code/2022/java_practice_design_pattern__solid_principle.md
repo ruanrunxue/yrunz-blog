@@ -1,5 +1,5 @@
 ---
-title: 实践GoF的23种设计模式：SOLID原则
+title: 【Java实现】实践GoF的23种设计模式：SOLID原则
 description: 如果把设计模式类比为武侠世界里的武功招式，那么SOLID原则就是内功内力。通常来说，先把内功练好，再来学习招式，会达到事半功倍的效果
 date: 2022-02-26
 categories:
@@ -7,6 +7,7 @@ categories:
 tags:
  - 设计模式
  - 实践GoF的23种设计模式
+ - Java
 ---
 
 
