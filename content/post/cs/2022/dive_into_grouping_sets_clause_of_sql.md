@@ -190,7 +190,11 @@ Sort [city#138 ASC NULLS FIRST, car_model#139 ASC NULLS FIRST], true
 
 从 Optimized Logical Plan 来看，虽然 Union All 版本和 Grouping Sets 版本的效果一致，但它们的底层实现有着巨大的差别。
 
-其中，Grouping Sets 版本的 Plan 中最关键的是 Expand 节点，目前，我们只知道数据经过它之后，多出了 `spark_grouping_id` 列。而且从最终结果来看，`spark_grouping_id` 只是 Spark SQL 的内部实现细节，对用户并不体现。那么：
+其中，Grouping Sets 版本的 Plan 中最关键的是 Expand 节点，目前，我们只知道数据经过它之后，多出了 `spark_grouping_id` 列。而且从最终结果来看，`spark_grouping_id` 只是 Spark SQL 的内部实现细节，对用户并不体现。
+
+> `spark_grouping_id` 其实可通过 `GROUPING_ID()` 函数查询得到，但一般用户不必关注。
+
+那么：
 
 1. **Expand 的实现逻辑是怎样的，为什么能达到 `Union All` 的效果？**
 2. **Expand 节点的输出数据是怎样的**？
@@ -332,6 +336,35 @@ object UnsafeProjection
 3. **`spark_grouping_id` 列的作用是什么**？
 
    `spark_grouping_id` 给每个 grouping set 进行编号，这样，即使在 Expand 阶段把数据先联合起来，在 Aggregate 阶段（把 `spark_grouping_id` 加入到分组规则）也能保证数据能够按照每个 grouping set 分别聚合，确保了结果的正确性。
+   
+   我们可以通过在 `SELECT` 语句后加上 `GROUPING_ID()` 函数来查询 `spark_grouping_id`：
+   
+   ```scala
+   spark-sql> SELECT city, car_model, sum(quantity) AS sum, GROUPING_ID() as spark_grouping_id FROM dealer 
+            > GROUP BY GROUPING SETS ((city, car_model), (city), (car_model), ()) 
+            > ORDER BY city, car_model;
+   +--------+------------+---+-----------------+
+   |    city|   car_model|sum|spark_grouping_id|
+   +--------+------------+---+-----------------+
+   |    null|        null| 78|                3|
+   |    null|Honda Accord| 33|                2|
+   |    null|   Honda CRV| 10|                2|
+   |    null| Honda Civic| 35|                2|
+   |  Dublin|        null| 33|                1|
+   |  Dublin|Honda Accord| 10|                0|
+   |  Dublin|   Honda CRV|  3|                0|
+   |  Dublin| Honda Civic| 20|                0|
+   | Fremont|        null| 32|                1|
+   | Fremont|Honda Accord| 15|                0|
+   | Fremont|   Honda CRV|  7|                0|
+   | Fremont| Honda Civic| 10|                0|
+   |San Jose|        null| 13|                1|
+   |San Jose|Honda Accord|  8|                0|
+   |San Jose| Honda Civic|  5|                0|
+   +--------+------------+---+-----------------+
+   ```
+   
+   这样，我们就能清晰看出每一条记录对应的 grouping set 是哪个了。
 
 ## 查询性能对比
 
