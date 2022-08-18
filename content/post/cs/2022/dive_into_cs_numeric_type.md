@@ -1,3 +1,15 @@
+---
+title: 深入理解计算机系统的数值类型
+description: 数值类型是计算机编程的基础，用的很多，也很重要，理解它的底层原理，有助于写出正确的代码，避免一些意料之外的错误。
+date: 2022-08-19
+categories:
+  - 基础
+tags:
+  - 计算机基础
+  - CSAPP
+---
+
+
 ## 前言
 
 在日常编程中，**数值类型**（**numeric types**）是我们打交道最多的类型，可能没有之一。除了最熟悉的 `int`，还有 `long`、`float`、`double` 等。正因太熟悉，我们往往不会深究它们的底层原理。因为平时的工作中，知道个大概，也够用了。
@@ -7,7 +19,7 @@
 另外，数值类型也是一个容易被黑客攻击的点，考虑如下一段代码：
 
 ```go
-// C语言
+// C++
 /* Declaration of library function memcpy */
 void *memcpy(void *dest, void *src, size_t n);
 /* Kernel memory region holding user-accessible data */
@@ -22,7 +34,7 @@ int copy_from_kernel(void *user_dest, int maxlen) {
 }
 ```
 
-如何你熟悉数值类型的原理，一定会敏锐察觉出第 10 行存在 `int` 到 `size_t` 的类型转换。在 64 位系统中，`size_t` 通常被定义为 `unsigned long` 类型，如果攻击者在调用 `copy_from_kernel` 时，特意传入一个负数的 `maxlen`，转型到 `memcpy`  中的 `n` 将会是一个很大的正数，从而导致了内存拷贝的越界！
+如果你熟悉数值类型的原理，一定会敏锐察觉出第 10 行存在 `int` 到 `size_t` 的类型转换。在 64 位系统中，`size_t` 通常被定义为 `unsigned long` 类型，如果攻击者在调用 `copy_from_kernel` 时，特意传入一个负数的 `maxlen`，转型到 `memcpy`  中的 `n` 将会是一个很大的正数，从而导致了内存拷贝的越界！
 
 **数值类型是计算机编程的基础，用的很多，也很重要，理解它的底层原理，有助于写出正确的代码，避免一些意料之外的错误**。
 
@@ -63,13 +75,20 @@ x = \sum_{i=0}^{w-1}x_i \cdot 2^i
 $$
 比如，w = 4 场景下的一些例子：
 $$
-\begin{align}
-[0001]_b&=0\cdot2^3+0\cdot2^2+0\cdot2^1+1\cdot2^0=0+0+0+1=1\\
-[0101]_b&=0\cdot2^3+1\cdot2^2+0\cdot2^1+1\cdot2^0=0+4+0+1=5\\
-[1011]_b&=1\cdot2^3+0\cdot2^2+1\cdot2^1+1\cdot2^0=8+0+2+1=11\\
-[1111]_b&=1\cdot2^3+1\cdot2^2+1\cdot2^1+1\cdot2^0=8+4+2+1=15
-\end{align}
+[0001]_b=0\cdot2^3+0\cdot2^2+0\cdot2^1+1\cdot2^0=0+0+0+1=1
 $$
+$$
+[0101]_b=0\cdot2^3+1\cdot2^2+0\cdot2^1+1\cdot2^0=0+4+0+1=5
+$$
+
+$$
+[1011]_b=1\cdot2^3+0\cdot2^2+1\cdot2^1+1\cdot2^0=8+0+2+1=11
+$$
+
+$$
+[1111]_b=1\cdot2^3+1\cdot2^2+1\cdot2^1+1\cdot2^0=8+4+2+1=15
+$$
+
 ![](https://tva1.sinaimg.cn/large/e6c9d24egy1h4xa9d9ry9j218y0nyaf1.jpg)
 
 由上述可知，**无符号编码无法表示负数，因此只能表示无符号整数**。为了表示有符号整数，还要探寻另一种编码方式。
@@ -82,13 +101,20 @@ x = (-1)^{x_{w-1}} \cdot \sum_{i=0}^{w-2}x_i2^i
 $$
 比如，w = 4 场景下的一些例子：
 $$
-\begin{align}
-[0001]_b&=(-1)^0\cdot(0\cdot2^2+0\cdot2^1+1\cdot2^0)=1\cdot(0+0+1)=1\\
-[0101]_b&=(-1)^0\cdot(1\cdot2^2+0\cdot2^1+1\cdot2^0)=1\cdot(4+0+1)=5\\
-[1011]_b&=(-1)^1\cdot(0\cdot2^2+1\cdot2^1+1\cdot2^0)=-1\cdot(0+2+1)=-3\\
-[1111]_b&=(-1)^1\cdot(1\cdot2^2+1\cdot2^1+1\cdot2^0)=-1\cdot(4+2+1)=-7
-\end{align}
+[0001]_b=(-1)^0\cdot(0\cdot2^2+0\cdot2^1+1\cdot2^0)=1\cdot(0+0+1)=1
 $$
+$$
+[0101]_b=(-1)^0\cdot(1\cdot2^2+0\cdot2^1+1\cdot2^0)=1\cdot(4+0+1)=5
+$$
+
+$$
+[1011]_b=(-1)^1\cdot(0\cdot2^2+1\cdot2^1+1\cdot2^0)=-1\cdot(0+2+1)=-3
+$$
+
+$$
+[1111]_b=(-1)^1\cdot(1\cdot2^2+1\cdot2^1+1\cdot2^0)=-1\cdot(4+2+1)=-7
+$$
+
 ![](https://tva1.sinaimg.cn/large/e6c9d24egy1h4xbbrcj4jj21820ny43g.jpg)
 
 虽然原码编码方式简单直观，但它还存在两个问题：
@@ -115,13 +141,20 @@ $$
 
 比如，w = 4 场景下的一些例子：
 $$
-\begin{align}
-[0001]_b&=-0\cdot2^3 +0\cdot2^2+0\cdot2^1+1\cdot2^0)=0+0+0+1=1\\
-[0101]_b&=-0\cdot2^3+1\cdot2^2+0\cdot2^1+1\cdot2^0=0+4+0+1)=5\\
-[1011]_b&=-1\cdot2^3+0\cdot2^2+1\cdot2^1+1\cdot2^0=-8+0+2+1=-5\\
-[1111]_b&=-1\cdot2^3+1\cdot2^2+1\cdot2^1+1\cdot2^0=-8+4+2+1=-1
-\end{align}
+[0001]_b=-0\cdot2^3 +0\cdot2^2+0\cdot2^1+1\cdot2^0)=0+0+0+1=1
 $$
+$$
+[0101]_b=-0\cdot2^3+1\cdot2^2+0\cdot2^1+1\cdot2^0=0+4+0+1)=5
+$$
+
+$$
+[1011]_b=-1\cdot2^3+0\cdot2^2+1\cdot2^1+1\cdot2^0=-8+0+2+1=-5
+$$
+
+$$
+[1111]_b=-1\cdot2^3+1\cdot2^2+1\cdot2^1+1\cdot2^0=-8+4+2+1=-1
+$$
+
 ![](https://tva1.sinaimg.cn/large/e6c9d24egy1h4xj4k404ij21440lm0wp.jpg)
 
 补码编码很巧妙地解决了原码编码的两个问题：
@@ -358,7 +391,7 @@ $$
 比如，w = 8 场景下的例子：
 
 ```c
-// C语言
+// C++
 int main() {
     uint8_t i1 = 0;
     uint8_t i2 = -i1;
@@ -398,7 +431,7 @@ $$
 比如，w = 8 场景下的例子：
 
 ```c
-// C语言
+// C++
 int main() {
     int8_t i1 = -128;
     int8_t i2 = -i1;
@@ -427,7 +460,7 @@ i3=100
 比如，w = 8 时，无符号整数的例子：
 
 ```c
-// C语言
+// C++
 int main() {
     uint8_t i1 = 100;
     uint8_t i2 = 2;
@@ -452,7 +485,7 @@ overflow: i4 * i5 = 100 * 3 = 44
 比如，w = 8 时，有符号整数的例子：
 
 ```c
-// C语言
+// C++
 int main() {
     int8_t i1 = -50;
     int8_t i2 = 2;
@@ -476,11 +509,7 @@ overflow: i4 * i5 = -128 * 127 = -128
 
 如果不考虑截断，对 $x=[x_{w-1}, x_{w-2}, ..., x_0]_b$ 左移 k 位，会得到:
 $$
-\begin{align}
-[x_{w-1}, x_{w-2}, ..., x_0,0,...,0]_b&=\sum_{i=0}^{w-1}x_i\cdot 2^{i+k}\\
-&=[\sum_{i=0}^{w-1}x_i\cdot 2^i]\cdot 2^k\\
-&=x\cdot 2^k
-\end{align}
+[x_{w-1}, x_{w-2}, ..., x_0,0,...,0]_b=\sum_{i=0}^{w-1}x_i\cdot 2^{i+k}=[\sum_{i=0}^{w-1}x_i\cdot 2^i]\cdot 2^k=x\cdot 2^k
 $$
 **也即，对** $x$ **左移 k 位 相当于乘以** $2^k$ 。
 
@@ -489,7 +518,7 @@ $$
 比如，w = 8 时，无符号整数的例子：
 
 ```c
-// C语言
+// C++
 int main() {
     uint8_t i1 = 100;
     uint8_t i2 = 4;
@@ -509,7 +538,7 @@ i1 << k = 100 << 2 = 144
 有符号整数的例子：
 
 ```c
-// C语言
+// C++
 int main() {
     int8_t i1 = -50;
     int8_t i2 = 4;
@@ -532,14 +561,16 @@ i1 << k = -50 << 2 = 56
 
 假设只存在一个连续的 1 序列，从高到低， 位于 n 到 m 位，比如 14 中，n = 3，m = 1，那么：
 $$
-x\cdot K=(x<<n)+(x<<n-1)+...+(x<<m) \\
-或\\
-x\cdot K=(x<<(n+1))-(x<<m)
+x\cdot K=(x<< n)+(x<< n-1)+...+(x<< m)
 $$
-比如，$x\cdot14$  就可以表示成 $(x<<3)+(x<<2)+(x<<1)$ 或者 $(x<<4)-(x<<1)$：
+$$
+x\cdot K=(x<< (n+1))-(x<< m)
+$$
+
+比如，$x\cdot14$  就可以表示成 $(x<< 3)+(x<< 2)+(x<< 1)$ 或者 $(x<< 4)-(x<< 1)$：
 
 ```c
-// C语言
+// C++
 int main() {
     int8_t x = 5;
     int8_t K = 14;
@@ -560,14 +591,14 @@ x * 14 = 70
 
 **除法运算比乘法运算更慢，通常需要 30 个 CPU 时钟以上**。同理， $x/2^k$ 也可以转换成右移运算，注意结果的取整：
 $$
-\begin{align}
-&\lfloor x/2^k\rfloor = x >> k\ or\ x >>>k \\
-&\lceil x/2^k \rceil = (x+(1<<k)-1)>>k\ or (x+(1<<k)-1)>>>k
-\end{align}
+\lfloor x/2^k\rfloor = x >> k\ or\ x >>> k
 $$
 
+$$
+\lceil x/2^k \rceil = (x+(1<< k)-1)>> k\ or\ (x+(1<< k)-1)>>> k
+$$
 ```c
-// C语言
+// C++
 int main() {
     int8_t x = -50;
     int8_t K = 4;
@@ -597,7 +628,7 @@ y >>> 2 = 12
 考虑如下一段代码：
 
 ```java
-// Java语言
+// Java
 public class Example {
     public static void main(String[] args) {
         int i = 12345;
@@ -832,11 +863,335 @@ IEEE 浮点数标准中，并没采用 “四舍五入” 法，定义了如下 
 
 这些规则对二进制也生效，比如，Round-to-even 规则，在二进制中，0 代表偶数，1 表示奇数。下面例子中，需要按照 Round-to-even 近似保留 2 位小数：
 
-| 原值     | 向下 | 中点 | 向上 | Round-to-even |
-| -------- | ---- | ---- | ---- | ------------- |
-| 10.00011 |      |      |      |               |
-|          |      |      |      |               |
-|          |      |      |      |               |
-|          |      |      |      |               |
-|          |      |      |      |               |
+| 二进制（十进制） | 向下          | 中点  | 向上          | Round-to-even |
+| ---------------- | ------------- | ----- | ------------- | ------------- |
+| 10.00011 (67/32) | 10.00 (64/32) | 68/32 | 10.01 (72/32) | 10.00 (64/32) |
+| 10.00110 (70/32) | 10.00 (64/32) | 68/32 | 10.01 (72/32) | 10.01 (72/32) |
+| 10.11100 (23/8)  | 10.11 (22/8)  | 23/8  | 11.00 (24/8)  | 11.00 (24/8)  |
+| 10.10100 (21/8)  | 10.10 (20/8)  | 21/8  | 10.11 (22/8)  | 10.10 (20/8)  |
+
+上述例子中，前 2 个按照就近原则近似；后 2 个处于中点位置，往偶数方向靠。
+
+![](https://tva1.sinaimg.cn/large/e6c9d24egy1h5920eqgedj21bq0rgq9q.jpg)
+
+注意，**IEEE 标准规定 Round-to-even 为默认的近似规则**。
+
+### 浮点数运算
+
+浮点数的运算规则比较简单，令 $\oplus$ 指代后一类的运算符，x 和 y 为浮点数类型，那么 $x \oplus y$ 的运算结果为 $Round(x \oplus y)$，也即对真实计算结果进行近似。
+
+注意，算术运算的**结合律**、**分配率**在浮点数运算下是不生效的，比如：
+
+```java
+// Java
+public static void main(String[] args) {
+    // 结合律不满足示例
+    float f1 = 3.14F;
+    float f2 = 1e10F;
+    float f3 = (f1 + f2) - f2;
+    float f4 = f1 + (f2 - f2);
+    System.out.printf("(3.14 + 1e10) - 1e10 = %f\n", f3);
+    System.out.printf("3.14 + (1e10 - 1e10) = %f\n", f4);
+
+    // 分配律不满足示例
+    float f5 = 1e20F;
+    float f6 = f5 * (f5 - f5);
+    float f7 = f5 * f5 - f5 * f5;
+    System.out.printf("1e20 * (1e20 - 1e20) = %f\n", f6);
+    System.out.printf("1e20 * 1e20 - 1e20 * 1e20 = %f\n", f7);
+}
+// 输出结果
+(3.14 + 1e10) - 1e10 = 0.000000
+3.14 + (1e10 - 1e10) = 3.140000
+1e20 * (1e20 - 1e20) = 0.000000
+1e20 * 1e20 - 1e20 * 1e20 = NaN
+```
+
+结合律例子中，`(3.14+1e10)-1e10` 结果是 0，因为 3.14 在近似时，精度丢失了，也即 `3.14+1e10=1e10`；类似，分配律例子中，`1e20*1e20` 的结果超出了 float 类型的表示范围，得到 `Infinity`，而 `Infinity - Infinity` 的结果是 `NaN`。
+
+注意，**浮点数运算结果，如果超出了浮点数表示范围，会得到 `Infinity/-Infinity`**。这与整数运算的溢出机制有所区别。
+
+## 数值类型转换
+
+数值类型间的转换，可以分成 2 类：**宽转换**（Widening Conversion）和 **窄转换**（Narrowing Conversion）。
+
+宽转换指往表示范围更广的类型转换，比如从 int 到 long、从 long 到 float；窄转换则相反。
+
+### 整型间转换
+
+**（1）宽转换**
+
+整型间的宽转换不会产生溢出，无符号整数场景，高位补零；有符号整数场景，高位补符号位。
+
+```c++
+// C++
+int main() {
+    int8_t i1 = 100;
+    cout << "int8_t  i1: " << bitset<8>(i1) << endl;
+    cout << "int16_t i1: " << bitset<16>((int16_t) i1) << endl;
+
+    int8_t i2 = -100;
+    cout << "int8_t  i2: " << bitset<8>(i2) << endl;
+    cout << "int16_t i2: " << bitset<16>((int16_t) i2) << endl;
+
+    uint8_t i3 = 200;
+    cout << "uint8_t  i3: " << bitset<8>(i3) << endl;
+    cout << "uint16_t i3: " << bitset<16>((uint16_t) i3) << endl;
+    return 0;
+}
+// 输出结果
+int8_t  i1: 01100100
+int16_t i1: 0000000001100100
+int8_t  i2: 10011100
+int16_t i2: 1111111110011100
+uint8_t  i3: 11001000
+uint16_t i3: 0000000011001000
+```
+
+**（2）窄转换**
+
+整型间的窄转换直接进行高位截断，只保留低 n 位。比如 16 位的 `int16` 转换为 8 位的 `int8`，直接保留 `int16` 类型值的低 8 位作为转换结果。
+
+```c++
+// C++
+int main() {
+    int16_t i1 = 200;
+    cout << "int16_t i1: " << bitset<16>(i1) << endl;
+    cout << "int8_t  i1: " << bitset<8>((int8_t) i1) << endl;
+
+    int16_t i2 = -200;
+    cout << "int16_t i2: " << bitset<16>(i2) << endl;
+    cout << "int8_t  i2: " << bitset<8>((int8_t) i2) << endl;
+
+    uint16_t i3 = 300;
+    cout << "uint16_t i3: " << bitset<16>(i3) << endl;
+    cout << "uint8_t  i3: " << bitset<8>((uint8_t) i3) << endl;
+    return 0;
+}
+// 输出结果
+int16_t i1: 0000000011001000
+int8_t  i1: 11001000
+int16_t i2: 1111111100111000
+int8_t  i2: 00111000
+uint16_t i3: 0000000100101100
+uint8_t  i3: 00101100
+```
+
+**（3）无符号整数与有符号整数间的转换**
+
+无符号整数与有符号整数间的转换规则是：
+
+- 如果两者二进制位数一致，比如 `int8` 到 `uint8` 的转换，则二进制数值不变，只是改变编码方式；
+- 如果位数不一致，比如 `int16` 到 `uint8` 的转换，则二进制数值，先按照宽转换或窄转换规则转换，再改变编码方式。
+
+```c++
+// C++
+int main() {
+    uint8_t i1 = 200;
+    cout << "uint8_t i1, decimal: " << +i1 << ", binary: " << bitset<8>(i1) << endl;
+    cout << "int8_t  i1, decimal: " << +(int8_t) i1 << ", binary: " << bitset<8>((int8_t) i1) << endl;
+
+    int16_t i2 = -300;
+    cout << "int16_t i2, decimal: " << +i2 << ", binary: " << bitset<16>(i2) << endl;
+    cout << "uint8_t i2, decimal: " << +(uint8_t) i2 << ",  binary: " << bitset<8>((uint8_t) i2) << endl;
+    return 0;
+}
+// 输出结果
+uint8_t i1, decimal: 200, binary: 11001000
+int8_t  i1, decimal: -56, binary: 11001000
+int16_t i2, decimal: -300, binary: 1111111011010100
+uint8_t i2, decimal: 212,  binary: 11010100
+```
+
+### 整数与浮点数间转型
+
+**（1）宽转换**
+
+整型到浮点数类型的转换这一方向，为宽转换：
+
+- 如果浮点数的精度，能够表示整数，则正常转换。
+- 如果浮点数精度，无法表示整数，则需要近似，会导致精度丢失。
+
+```java
+// Java
+public static void main(String[] args) {
+    int i1 = 1234567;
+    System.out.printf("int i1: %d, float i1: ", i1);
+    System.out.println((float) i1);
+
+    int i2 = 123456789;
+    System.out.printf("int i2: %d, float i2: ", i2);
+    System.out.println((float) i2);
+}
+// 输出结果
+int i1: 1234567, float i1: 1234567.0
+int i2: 123456789, float i2: 1.23456792E8
+```
+
+上述例子中，`i2=123456789` 超过 `float` 类型能够表示的精度，所以为近似后的结果 `1.23456792E8`。
+
+那么，为什么 `123456789` 会近似为 `1.23456792E8`？
+
+要解释该问题，首先要把它们转换成二进制表示：
+
+```java
+public static void main(String[] args) {
+    ...
+    System.out.println("int i2:   " + int2BinaryStr(i2));
+    System.out.println("float i2: " + float2BinaryStr((float) i2));
+}
+// 输出结果
+int i2:   00000111010110111100110100010101
+float i2: 01001100111010110111100110100011
+```
+
+接下来，我们根据 IEEE 浮点数的编码规则，尝试将 `int i2` 转换成 `float i2`：
+
+1. `int i2` 的二进制 $00000111010110111100110100010101_b$，可以写成 $1.11010110111100110100010101\cdot2^{26}$，对应到 $V=(-1)^s\cdot M\cdot2^E$ 的形式，可以确认 s = 0，E = 26，M = 1.11010110111100110100010101。
+2. float 类型中 k = 8，有，$E = e - (2^{8-1}-1) = 26$，得出 e = 153，按 k 位无符号编码表示为 $[10011001]_b$。
+3. 同理，由 $M = 1 + 0.m_{n-1}m_{n-2}...m_0=1.11010110111100110100010101$，但由于 float 类型的 n = 23，而 m 一共有 26 位，因此需要按照 round-to-even 规则，对 0.11010110111100110100010101进行近似，保留 23 位小数，得到 0.11010110111100110100011，所以 m 为 $[11010110111100110100011]_b$
+4. 最后，将 s、e、m 按照 float 单精度的编码格式组合起来，就是 $[0\ 10011001\ 11010110111100110100011]_b$，转换成十进制，就是 `1.23456792E8`。
+
+**（2）窄转换**
+
+浮点数类型到整型的转换这一方向，为窄转换：
+
+- 如果浮点数的整数部分，能够用整型表示，则直接舍去小数，保留整数部分。
+- 如果超出了整型范围，则结果为该整型的最大/最小值。
+
+```java
+// Java
+public static void main(String[] args) {
+    float f1 = 12345.123F;
+    System.out.print("float f1: ");
+    System.out.print(f1);
+    System.out.printf(",  int f1: %d\n", (int) f1);
+
+    float f2 = 1.2345E20F;
+    System.out.print("float f2: ");
+    System.out.print(f2);
+    System.out.printf(",  int f2: %d\n", (int) f2);
+
+    float f3 = -1.2345E20F;
+    System.out.print("float f3: ");
+    System.out.print(f3);
+    System.out.printf(", int f3: %d\n", (int) f3);
+ }
+// 输出结果
+float f1: 12345.123,  int f1: 12345
+float f2: 1.2345E20,  int f2: 2147483647
+float f3: -1.2345E20, int f3: -2147483648
+```
+
+### 浮点数间转型
+
+**（1）宽转换**
+
+单精度 `float` 到 双精度 `double` 为宽转换，不会出现精度丢失的问题。
+
+对于 $V=(-1)^s\cdot M\cdot2^E$ ，规则如下：
+
+- s 保持不变。
+- 在 E 保持不变的前提下，因为 `float` 的 k = 8，而 `double` 的 k = 11，所以两者的 e 会有所不同。
+- 在 M 保持不变的前提下，`float` 的 n = 23，而 `double` 的 n =52，所以 m 需要低位补 52 - 23 = 29 个 0。
+
+```java
+// Java
+public static void main(String[] args) {
+    float f1 = 1.2345E20F;
+    System.out.print("float  f1: ");
+    System.out.print(f1);
+    System.out.print(", double f1: ");
+    System.out.println((double) f1);
+
+    System.out.println("float  f1: " + float2BinaryStr(f1));
+    System.out.println("double f1: " + double2BinaryStr((double) f1));
+}
+// 输出结果
+float  f1: 1.2345E20, double f1: 1.2344999897320129E20
+float  f1: 01100000110101100010011011010000
+double f1: 0100010000011010110001001101101000000000000000000000000000000000
+```
+
+![](https://tva1.sinaimg.cn/large/e6c9d24egy1h5bdjw84z9j21hu0s6wmf.jpg)
+
+**（2）窄转换**
+
+`double` 到 `float` 为窄转换，会存在精度丢失问题。
+
+如果 `double` 值超出了 `float` 的表示范围，则转换结果为 `Infinity`：
+
+```java
+// Java
+public static void main(String[] args) {
+    double d1 = 1E200;
+    System.out.print("double d1: ");
+    System.out.println(d1);
+    System.out.print("float d1: ");
+    System.out.println((float) d1);
+
+    double d2 = -1E200;
+    System.out.print("double d2: ");
+    System.out.println(d2);
+    System.out.print("float d2: ");
+    System.out.println((float) d2);
+ }
+// 输出结果
+double d1: 1.0E200
+float d1: Infinity
+double d2: -1.0E200
+float d2: -Infinity
+```
+
+如果 `double` 值还在 `float` 的表示范围内，则按照如下转换规则：
+
+- s 保持不变。
+- 在 E 保持不变的前提下，因为 `float` 的 k = 8，而 `double` 的 k = 11，所以两者的 e 会有所不同。
+- 对于 M，因为 `float` 的 n = 23，而 `double` 的 n = 52，所以转换到 float 之后，需要进行截断，只保留高 23 位。
+
+```java
+// Java
+public static void main(String[] args) {
+    double d1 = 3.267393471324506;
+    System.out.print("double d1: ");
+    System.out.println(d1);
+    System.out.print("float  d1: ");
+    System.out.println((float) d1);
+    System.out.println("double d1: " + double2BinaryStr(d1));
+    System.out.println("float  d1: " + float2BinaryStr((float) d1));
+}
+// 输出结果
+double d1: 3.267393471324506
+float  d1: 3.2673936
+double d1: 0100000000001010001000111001111100110000001101000000010101110110
+float  d1: 01000000010100010001110011111010
+```
+
+![](https://tva1.sinaimg.cn/large/e6c9d24egy1h5bdl0qb8dj21ia0sido4.jpg)
+
+## 最后
+
+本文花了很长的篇幅，深入介绍了计算机系统对数值类型的编码、运算、转换的底层原理。
+
+**数值类型间的转换是最容易出现隐藏 bug 的地方**，特别是无符号整数与有符号整数之间的转换。所以，很多现代的编程语言，如 Java、Go 等都不再支持无符号整数，根除了该隐患。
+
+另外，浮点数的编码方式，注定它只能精确表示一小部分的数值范围，大部分都是近似，所以才有了**不能用等号来比较两个浮点数**的说法。
+
+数值类型虽然很基础，但使用时一定要多加小心。希望本文能够加深你对数值类型的理解，让你写出更健壮的程序。
+
+### 文章配图
+
+可以在 [用Keynote画出手绘风格的配图](https://mp.weixin.qq.com/s/-sYW-oa6KzTR9LNdMWCSnQ) 中找到文章的绘图方法。
+
+> #### 参考
+>
+> [1] [Computer Systems: A Programmer's Perspective (3rd edition)](https://csapp.cs.cmu.edu), Randal E. Bryant .etc
+>
+> [2] [The Java® Language Specification (Java SE 18 Edition)](https://docs.oracle.com/javase/specs/jls/se18/html/index.html), James Gosling .etc
+>
+> [3] [IEEE Standard 754 Floating-Point Representation](https://standards.ieee.org/ieee/754/6210/), IEEE
+>
+> [4] [漫话：为什么计算机用补码存储数据？](https://www.51cto.com/article/625058.html), 漫话编程
+>
+> 更多文章请关注微信公众号：**元闰子的邀请**
 
