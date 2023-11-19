@@ -68,7 +68,7 @@ This is C.
 
 跟Oop一样，Klass也有一个继承体系，如下图所示：
 
-![Klass继承体系](https://tva1.sinaimg.cn/large/006tNbRwgy1gbhp5vm4rtj31gy0pinpe.jpg)
+![Klass继承体系](http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-12-154716.jpg)
 
 ```C++
 // hotspot/src/share/vm/oops/oopsHierarchy.hpp
@@ -207,7 +207,7 @@ inline Method* InstanceKlass::method_at_vtable(int index)  {
 
 一个`klassVtable`可看成是由多个`vtableEntry`组成的数组，其中每个元素`vtableEntry`里面都包含了一个方法的地址。在进行虚分派时，JVM会根据方法在`klassVtable`中的索引，找到对应的`vtableEntry`，进而得到方法的实际地址，最后根据该地址找到方法的字节码并执行。
 
-![vtalbe结构](https://tva1.sinaimg.cn/large/006tNbRwgy1gbhwk4e0zbj30xm0k0b29.jpg)
+![vtalbe结构](http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-12-154741.jpg)
 
 ## 总结
 
@@ -215,4 +215,4 @@ inline Method* InstanceKlass::method_at_vtable(int index)  {
 
 最后，我们通过一张图来总结这两篇文章所讲述的内容：
 
-![Oop-Klass对象模型在内存中的分布](https://tva1.sinaimg.cn/large/006tNbRwgy1gbi1us6gx0j31gw0u0hdv.jpg)
+![Oop-Klass对象模型在内存中的分布](http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-12-154800.jpg)

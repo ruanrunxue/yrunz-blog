@@ -57,13 +57,13 @@ typedef class     typeArrayOopDesc*            typeArrayOop;
 ...
 ```
 
-![Oop继承体系](https://tva1.sinaimg.cn/large/006tNbRwgy1gb0siqioykj317s0po7wi.jpg)
+![Oop继承体系](http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-12-154538.jpg)
 
 每个Java对象都有它独有的生命周期，我们使用`new`操作符将它创建出来，然后对它执行各式各样的操作（如获取成员属性、调用成员函数、加锁等），最后被GC回收掉。那么Java对象的这一系列经历，JVM又是怎么实现的呢？JVM使用Oop来表示一个Java对象，自然地，这些经历都会跟`oop`有关。
 
 `oop`的子类有两个，分别是`instanceOop`和`arrayOop`。前者表示Java中普通的对象，后者则表示数组对象。`arrayOop`也有两个子类，`objArrayOop`表示普通对象类型的数组，而`typeArrayOopDesc`则表示基础类型的数组。如下图所示，`oop`的存储结构主要由对象头和对象体组成。
 
-![Java对象的存储结构](https://tva1.sinaimg.cn/large/006tNbRwgy1gb15iov73kj318k0q84qq.jpg)
+![Java对象的存储结构](http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-12-154559.jpg)
 
 ## oop对象头
 
@@ -93,7 +93,7 @@ class oopDesc {
 
 `markOop`的存储结构在32位和64位系统中有所差异，但是具体存储的信息是一样的，本节只介绍它在32位系统中的存储结构。在32位系统中，`markOop`一共占32位，存储结构如图下所示：
 
-![markOop存储结构](https://tva1.sinaimg.cn/large/006tNbRwgy1gb13b09y5fj31g80ganpd.jpg)
+![markOop存储结构](http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-12-154614.jpg)
 
 从图中可知，诸如对象hash值、线程ID、分代年龄等信息都是存储在`markOop`中，而且在不同的状态下，其结构也是略有不同。**无锁**指一个对象没有被加锁时的状态；**偏向锁**，顾名思义会偏向于第一个访问锁的线程，当同步锁只有一个线程访问时，JVM会将其优化为偏向锁，此时就相当于没有同步语义；当发生多线程竞争时，偏向锁就会膨胀为**轻量级锁**，后者采用CAS（Compare And Swap）实现，避免了用户态和内核态之间的切换；如果某个线程获取轻量级锁失败，该锁就会继续膨胀为**重量级锁**，此时JVM会向操作系统申请互斥量，因此性能消耗也是最高的。
 
@@ -250,7 +250,7 @@ inline void oopDesc::encode_store_heap_oop(oop* p, oop v) {
 
 由上述代码片段可知，每个field在`oop`中都有一个对应的偏移量（offset），`oop`通过该偏移量得到该field的地址，再根据地址得到具体数据。因此，*Java对象中的field存储的并不是对象本身，而是对象的地址*。
 
-![图1-11 Java对象field的存储结构](https://tva1.sinaimg.cn/large/006tNbRwgy1gbfj4ojehqj318s0nc1ky.jpg)
+![图1-11 Java对象field的存储结构](http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-12-154632.jpg)
 
 ## 总结
 

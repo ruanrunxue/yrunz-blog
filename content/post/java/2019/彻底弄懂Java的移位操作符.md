@@ -31,7 +31,7 @@ public static void main(String[] args) {
 
 Java的`int`占32位，因此对`i = -1`转换成二进制数，然后左移10位，其结果是左边高10位丢弃，右边低10位补`0`，再转换为十进制，得到`i = -1024`的结果。
 
-![int -1 << 10 = -1024](https://tva1.sinaimg.cn/large/006tNbRwly1ga5hmfaa9kj317e0fgx6q.jpg)
+![int -1 << 10 = -1024](http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-11-133027.png)
 
 因此，上述例子的输出结果为：
 
@@ -67,7 +67,7 @@ public static void main(String[] args) {
 
 例子中，`i1 = 4992`转换成二进制数，右移10位，其结果是左边高10位补`0`，右边低10位丢弃，再转换为十进制，得到`i1 = 4`的结果。同理，`i2 = -4992`，右移10位，左边高10位补`1`，右边低10位丢弃，得到`i2 = -5`的结果。
 
-![int 4992 >> 10 = 4 和 int -4992 >> 10 = -5](https://tva1.sinaimg.cn/large/006tNbRwly1ga5j0f98r1j317v0u0qvb.jpg)
+![int 4992 >> 10 = 4 和 int -4992 >> 10 = -5](http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-11-133103.png)
 
 因此，上述例子的输出结果为：
 
@@ -99,7 +99,7 @@ public static void main(String[] args) {
 
 同样对`i3 = -4992`进行操作，转换成二进制数后，右移10位，其结果为左边高10位补`0`，右边低10位丢弃，再转换成十进制，得到`i3 = 4194299`的结果。
 
-![int -4992 >>> 10 = 4194299](https://tva1.sinaimg.cn/large/006tNbRwly1ga5jpv18dzj31bi0huqv7.jpg)
+![int -4992 >>> 10 = 4194299](http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-11-133131.png)
 
 因此，上述例子的输出结果为：
 
@@ -129,7 +129,7 @@ public static void main(String[] args) {
 
 Java的`byte`占8位，按照前面讲述的原理，对`b = -1`转换为二进制数后，右移6位，左边高6位补`0`，右边低位丢弃，其结果应该是`b = 3`。
 
-![int -1 >>> 6 = 3 ?](https://tva1.sinaimg.cn/large/006tNbRwly1ga5kik778aj31bq0gee83.jpg)
+![int -1 >>> 6 = 3 ?](http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-11-133204.png)
 
 真的这样吗？我们看一下例子运行的结果：
 
@@ -165,7 +165,7 @@ b's binary string is 11111111111111111111111111
 
 因此，第一个例子中实际的运算过程应该是这样：
 
-![byte -1 >>> 6 = -1](https://tva1.sinaimg.cn/large/006tNbRwly1ga5l8h7ogxj31go0rkhdy.jpg)
+![byte -1 >>> 6 = -1](http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-11-133229.png)
 
 对于`short`和`char`的移位操作原理也一样，读者可以自行进行实验验证。
 
@@ -189,17 +189,17 @@ public static void main(String[] args) {
 
 根据前面讲述的原理，对于`i4 >>> 31`我们很容易得出结果为`1`。
 
-![int -1 >>> 31 = 1](https://tva1.sinaimg.cn/large/006tNbRwly1ga5m7iq40rj31gc0hcx6r.jpg)
+![int -1 >>> 31 = 1](http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-11-133251.png)
 
 *那么，`i4 >>> 32`的结果会是`0`吗？*
 
 **NO**！Java对移位操作符的右操作数`rhs`有特别的处理，对于`int`类型，只取其低5位，也就是取`rhs % 32`的结果；对于long类型，只取其低6位，也即是取`rhs % 64`的结果。因此，对于`i4 >>> 32`，实际上是`i4 >>> (32 % 32) `，也即`i4 >>> 0 `，结果仍然是`-1`。
 
-![int -1 >>> 32 = -1](https://tva1.sinaimg.cn/large/006tNbRwly1ga5mjmiy5jj31eq0hmx6r.jpg)
+![int -1 >>> 32 = -1](http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-11-133323.png)
 
 同理，对于`i4 >>> 33`等同于`i4 >>> 1`，其结果为`2147483647`。
 
-![int -1 >>> 33 = 2147483647](https://tva1.sinaimg.cn/large/006tNbRwly1ga5mnx7mh2j31hq0hi4qs.jpg)
+![int -1 >>> 33 = 2147483647](http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-11-133342.png)
 
 因此，上述例子的输出结果如下：
 
