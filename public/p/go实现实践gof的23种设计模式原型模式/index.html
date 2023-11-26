@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='原型模式（Prototype Pattern）主要解决对象复制的问题，它的核心就是 Clone() 方法，返回原型对象的复制品。'><title>【Go实现】实践GoF的23种设计模式：原型模式</title>
+
+<link rel='canonical' href='https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%8E%9F%E5%9E%8B%E6%A8%A1%E5%BC%8F/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='【Go实现】实践GoF的23种设计模式：原型模式'>
+<meta property='og:description' content='原型模式（Prototype Pattern）主要解决对象复制的问题，它的核心就是 Clone() 方法，返回原型对象的复制品。'>
+<meta property='og:url' content='https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%8E%9F%E5%9E%8B%E6%A8%A1%E5%BC%8F/'>
+<meta property='og:site_name' content='元闰子的邀请'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='设计模式' /><meta property='article:tag' content='实践GoF的23种设计模式' /><meta property='article:tag' content='Go' /><meta property='article:published_time' content='2022-06-02T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2022-06-02T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="【Go实现】实践GoF的23种设计模式：原型模式">
+<meta name="twitter:description" content="原型模式（Prototype Pattern）主要解决对象复制的问题，它的核心就是 Clone() 方法，返回原型对象的复制品。">
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "light");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/yrz_hudc7c8721ecce4b724df5002339c76402_174377_300x0_resize_box_2.png" width="300"
+                            height="306" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://www.yrunz.com">元闰子的邀请</a></h1>
+        <h2 class="site-description">阅读、写作、生活（个人技术分享）</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>首页</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>博客</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%85%B3%E4%BA%8E%E5%85%83%E9%97%B0%E5%AD%90/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24"
+     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+     stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z"/>
+    <circle cx="12" cy="7" r="4"/>
+    <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/>
+</svg>
+
+                
+                <span>关于元闰子</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%8F%8B%E6%83%85%E9%93%BE%E6%8E%A5/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-friends" width="44" height="44"
+     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+    <circle cx="7" cy="5" r="2"/>
+    <path d="M5 22v-5l-1 -1v-4a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4l-1 1v5"/>
+    <circle cx="17" cy="5" r="2"/>
+    <path d="M15 22v-4h-2l2 -6a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1l2 6h-2v4"/>
+</svg>
+
+                
+                <span>友情链接</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>暗色模式</span>
+            </li>
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://www.yrunz.com" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E5%86%99%E5%A5%BD%E4%BB%A3%E7%A0%81/" >
+                写好代码
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%8E%9F%E5%9E%8B%E6%A8%A1%E5%BC%8F/">【Go实现】实践GoF的23种设计模式：原型模式</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        原型模式（Prototype Pattern）主要解决对象复制的问题，它的核心就是 Clone() 方法，返回原型对象的复制品。
+    </h3>
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Jun 02, 2022</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <blockquote>
+<p>上一篇：<a class="link" href="https://mp.weixin.qq.com/s/RqqE6f3N_CzEWjdKluZhHg"  target="_blank" rel="noopener"
+    >【Go实现】实践GoF的23种设计模式：抽象工厂模式</a></p>
+<p><strong>简单的分布式应用系统</strong>（示例代码工程）：<a class="link" href="https://github.com/ruanrunxue/Practice-Design-Pattern--Go-Implementation"  target="_blank" rel="noopener"
+    >https://github.com/ruanrunxue/Practice-Design-Pattern&ndash;Go-Implementation</a></p>
+</blockquote>
+<h2 id="简介">简介</h2>
+<p><strong>原型模式</strong>（Prototype Pattern）主要解决<strong>对象复制</strong>的问题，它的核心就是 <code>Clone()</code> 方法，返回原型对象的复制品。</p>
+<p>最简单直接的对象复制方式是这样的：重新实例化一个该对象的实例，然后遍历原始对象的所有成员变量， 并将成员变量值复制到新实例中。但这种方式的缺点也很明显：</p>
+<ol>
+<li>客户端程序必须清楚对象的实现细节。暴露细节往往不是件好事，它会导致代码耦合过深。</li>
+<li>对象可能存在一些私有属性，客户端程序无法访问它们，也就无法复制。</li>
+<li>很难保证所有的客户端程序都能完整不漏地把所有成员属性复制完。</li>
+</ol>
+<p>更好的方法是使用原型模式，<strong>将复制逻辑委托给对象本身</strong>，这样，上述两个问题也都解决了。</p>
+<h3 id="uml-结构">UML 结构</h3>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1ghky39ichjj319u0gqhdt.jpg" alt=""  /></p>
+<h2 id="场景上下文">场景上下文</h2>
+<p>在<a class="link" href="https://github.com/ruanrunxue/Practice-Design-Pattern--Go-Implementation/blob/main/docs/go_ractice_design_pattern__solid_principle.md"  target="_blank" rel="noopener"
+    >简单的分布式应用系统</a>（示例代码工程）中，我们设计了一个服务消息中介（Service Mediator）服务，可以把它看成是一个消息路由器，负责服务发现和消息转发：</p>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1gzn32jkkduj213g0o00xq.jpg" alt=""  /></p>
+<p>消息转发也就意味着它必须<strong>将上游服务的请求原封不动地转发给下游服务</strong>，这是一个典型的对象复制场景。不过，在我们的实现里，服务消息中介会先修改上行请求的 URI，之后再转发给下游服务。因为上行请求 URI 中携带了下游服务的类型信息，用来做服务发现，在转发给下游服务时必须剔除。</p>
+<p>比如，订单服务（order service）要发请求给库存服务（stock service），那么：</p>
+<ol>
+<li>订单服务先往服务消息中介发出 HTTP 请求，其中 URI 为 <code>/stock-service/api/v1/stock</code>。</li>
+<li>服务消息中介收到上行请求后，会从 URI 中提取出下游服务类型 <code>stock-service</code> ，通过服务注册中心发现库存服务的 Endpoint。</li>
+<li>随后，服务消息中介将修改后的请求转发给库存服务，其中 URI 为 <code>/api/v1/stock</code>。</li>
+</ol>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h2u6m6f4xqj21f20t2ai0.jpg" alt=""  /></p>
+<h2 id="代码实现">代码实现</h2>
+<p>如果按照简单直接的对象复制方式，实现是这样的：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// 服务消息中介
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">ServiceMediator</span> <span class="kd">struct</span> <span class="p">{</span>
+    <span class="nx">registryEndpoint</span> <span class="nx">network</span><span class="p">.</span><span class="nx">Endpoint</span>
+    <span class="nx">localIp</span>          <span class="kt">string</span>
+    <span class="nx">server</span>           <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Server</span>
+    <span class="nx">sidecarFactory</span>   <span class="nx">sidecar</span><span class="p">.</span><span class="nx">Factory</span>
+<span class="p">}</span>
+
+<span class="c1">// Forward 转发请求，请求URL为 /{serviceType}+ServiceUri 的形式，如/serviceA/api/v1/task
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">ServiceMediator</span><span class="p">)</span> <span class="nf">Forward</span><span class="p">(</span><span class="nx">req</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Response</span> <span class="p">{</span>
+    <span class="c1">// 提取上行请求URI中的服务类型
+</span><span class="c1"></span>    <span class="nx">svcType</span> <span class="o">:=</span> <span class="nx">s</span><span class="p">.</span><span class="nf">svcTypeOf</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nf">Uri</span><span class="p">())</span>
+    <span class="c1">// 剔除服务类型之后的请求URI
+</span><span class="c1"></span>    <span class="nx">svcUri</span> <span class="o">:=</span> <span class="nx">s</span><span class="p">.</span><span class="nf">svcUriOf</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nf">Uri</span><span class="p">())</span>
+    <span class="c1">// 根据服务类型做服务发现
+</span><span class="c1"></span>    <span class="nx">dest</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">s</span><span class="p">.</span><span class="nf">discovery</span><span class="p">(</span><span class="nx">svcType</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+        <span class="o">...</span> <span class="c1">// 异常处理
+</span><span class="c1"></span>    <span class="p">}</span>
+    <span class="c1">// 复制上行请求，将URI更改为剔除服务类型之后的URI
+</span><span class="c1"></span>    <span class="nx">forwardReq</span> <span class="o">:=</span> <span class="nx">http</span><span class="p">.</span><span class="nf">EmptyRequest</span><span class="p">().</span>
+        <span class="nf">AddUri</span><span class="p">(</span><span class="nx">svcUri</span><span class="p">).</span>
+        <span class="nf">AddMethod</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nf">Method</span><span class="p">()).</span>
+        <span class="nf">AddHeaders</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nf">Headers</span><span class="p">()).</span>
+        <span class="nf">AddQueryParams</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nf">QueryParams</span><span class="p">()).</span>
+        <span class="nf">AddBody</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nf">Body</span><span class="p">())</span>
+
+    <span class="c1">// 转发请求给下游服务  
+</span><span class="c1"></span>    <span class="nx">client</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">http</span><span class="p">.</span><span class="nf">NewClient</span><span class="p">(</span><span class="nx">s</span><span class="p">.</span><span class="nx">sidecarFactory</span><span class="p">.</span><span class="nf">Create</span><span class="p">(),</span> <span class="nx">s</span><span class="p">.</span><span class="nx">localIp</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+        <span class="o">...</span> <span class="c1">// 异常处理
+</span><span class="c1"></span>    <span class="p">}</span>
+    <span class="k">defer</span> <span class="nx">client</span><span class="p">.</span><span class="nf">Close</span><span class="p">()</span>
+    <span class="nx">resp</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">client</span><span class="p">.</span><span class="nf">Send</span><span class="p">(</span><span class="nx">dest</span><span class="p">,</span> <span class="nx">forwardReq</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+        <span class="o">...</span> <span class="c1">// 异常处理
+</span><span class="c1"></span>    <span class="p">}</span>
+    
+    <span class="c1">// 复制下行响应，将ReqId更改为上行请求的ReqId，其他保持不变
+</span><span class="c1"></span>    <span class="k">return</span> <span class="nx">http</span><span class="p">.</span><span class="nf">NewResponse</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nf">ReqId</span><span class="p">()).</span>
+        <span class="nf">AddHeaders</span><span class="p">(</span><span class="nx">resp</span><span class="p">.</span><span class="nf">Headers</span><span class="p">()).</span>
+        <span class="nf">AddStatusCode</span><span class="p">(</span><span class="nx">resp</span><span class="p">.</span><span class="nf">StatusCode</span><span class="p">()).</span>
+        <span class="nf">AddProblemDetails</span><span class="p">(</span><span class="nx">resp</span><span class="p">.</span><span class="nf">ProblemDetails</span><span class="p">()).</span>
+        <span class="nf">AddBody</span><span class="p">(</span><span class="nx">resp</span><span class="p">.</span><span class="nf">Body</span><span class="p">())</span>
+<span class="p">}</span>
+<span class="o">...</span>
+</code></pre></div><p>上述实现中有 2 处进行了对象的复制：上行请求的复制和下行响应的复制。且不说直接进行对象复制具有前文提到的 3 种缺点，就代码可读性上来看也是稍显冗余。下面，我们使用原型模式进行优化。</p>
+<p>首先，为 <code>http.Request</code> 和 <code>http.Response</code> 定义 <code>Clone</code> 方法：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// demo/network/http/http_request.go
+</span><span class="c1"></span><span class="kn">package</span> <span class="nx">http</span>
+
+<span class="kd">type</span> <span class="nx">Request</span> <span class="kd">struct</span> <span class="p">{</span>
+    <span class="nx">reqId</span>       <span class="nx">ReqId</span>
+    <span class="nx">method</span>      <span class="nx">Method</span>
+    <span class="nx">uri</span>         <span class="nx">Uri</span>
+    <span class="nx">queryParams</span> <span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span>
+    <span class="nx">headers</span>     <span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span>
+    <span class="nx">body</span>        <span class="kd">interface</span><span class="p">{}</span>
+<span class="p">}</span>
+
+<span class="c1">// 关键点1: 定义原型复制方法Clone
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">r</span> <span class="o">*</span><span class="nx">Request</span><span class="p">)</span> <span class="nf">Clone</span><span class="p">()</span> <span class="o">*</span><span class="nx">Request</span> <span class="p">{</span>
+  <span class="c1">// reqId重新生成，其他都拷贝原来的值
+</span><span class="c1"></span>    <span class="nx">reqId</span> <span class="o">:=</span> <span class="nx">rand</span><span class="p">.</span><span class="nf">Uint32</span><span class="p">()</span> <span class="o">%</span> <span class="mi">10000</span>
+    <span class="k">return</span> <span class="o">&amp;</span><span class="nx">Request</span><span class="p">{</span>
+        <span class="nx">reqId</span><span class="p">:</span>       <span class="nf">ReqId</span><span class="p">(</span><span class="nx">reqId</span><span class="p">),</span>
+        <span class="nx">method</span><span class="p">:</span>      <span class="nx">r</span><span class="p">.</span><span class="nx">method</span><span class="p">,</span>
+        <span class="nx">uri</span><span class="p">:</span>         <span class="nx">r</span><span class="p">.</span><span class="nx">uri</span><span class="p">,</span>
+        <span class="nx">queryParams</span><span class="p">:</span> <span class="nx">r</span><span class="p">.</span><span class="nx">queryParams</span><span class="p">,</span>
+        <span class="nx">headers</span><span class="p">:</span>     <span class="nx">r</span><span class="p">.</span><span class="nx">headers</span><span class="p">,</span>
+        <span class="nx">body</span><span class="p">:</span>        <span class="nx">r</span><span class="p">.</span><span class="nx">body</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="o">...</span>
+
+<span class="c1">// demo/network/http/http_response.go
+</span><span class="c1"></span>
+<span class="kd">type</span> <span class="nx">Response</span> <span class="kd">struct</span> <span class="p">{</span>
+    <span class="nx">reqId</span>          <span class="nx">ReqId</span>
+    <span class="nx">statusCode</span>     <span class="nx">StatusCode</span>
+    <span class="nx">headers</span>        <span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span>
+    <span class="nx">body</span>           <span class="kd">interface</span><span class="p">{}</span>
+    <span class="nx">problemDetails</span> <span class="kt">string</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">r</span> <span class="o">*</span><span class="nx">Response</span><span class="p">)</span> <span class="nf">Clone</span><span class="p">()</span> <span class="o">*</span><span class="nx">Response</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="o">&amp;</span><span class="nx">Response</span><span class="p">{</span>
+        <span class="nx">reqId</span><span class="p">:</span>          <span class="nx">r</span><span class="p">.</span><span class="nx">reqId</span><span class="p">,</span>
+        <span class="nx">statusCode</span><span class="p">:</span>     <span class="nx">r</span><span class="p">.</span><span class="nx">statusCode</span><span class="p">,</span>
+        <span class="nx">headers</span><span class="p">:</span>        <span class="nx">r</span><span class="p">.</span><span class="nx">headers</span><span class="p">,</span>
+        <span class="nx">body</span><span class="p">:</span>           <span class="nx">r</span><span class="p">.</span><span class="nx">body</span><span class="p">,</span>
+        <span class="nx">problemDetails</span><span class="p">:</span> <span class="nx">r</span><span class="p">.</span><span class="nx">problemDetails</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="o">...</span>
+</code></pre></div><p>最后，在客户端程序处通过 <code>Clone</code> 方法来完成对象的复制：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// demo/service/mediator/service_mediator.go
+</span><span class="c1"></span>
+<span class="kd">type</span> <span class="nx">ServiceMediator</span> <span class="kd">struct</span> <span class="p">{</span><span class="o">...</span><span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">ServiceMediator</span><span class="p">)</span> <span class="nf">Forward</span><span class="p">(</span><span class="nx">req</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Response</span> <span class="p">{</span>
+    <span class="o">...</span>
+    <span class="nx">dest</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">s</span><span class="p">.</span><span class="nf">discovery</span><span class="p">(</span><span class="nx">svcType</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+        <span class="o">...</span>
+    <span class="p">}</span>
+    <span class="c1">// 关键点2: 通过Clone方法完成对象的复制，然后在此基础上进行进一步的修改
+</span><span class="c1"></span>    <span class="nx">forwardReq</span> <span class="o">:=</span> <span class="nx">req</span><span class="p">.</span><span class="nf">Clone</span><span class="p">().</span><span class="nf">AddUri</span><span class="p">(</span><span class="nx">svcUri</span><span class="p">)</span>
+    <span class="o">...</span>
+    <span class="nx">resp</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">client</span><span class="p">.</span><span class="nf">Send</span><span class="p">(</span><span class="nx">dest</span><span class="p">,</span> <span class="nx">forwardReq</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+        <span class="o">...</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nx">resp</span><span class="p">.</span><span class="nf">Clone</span><span class="p">().</span><span class="nf">AddReqId</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nf">ReqId</span><span class="p">())</span>
+<span class="p">}</span>
+</code></pre></div><p>原型模式的实现相对简单，可总结为 2 个关键点：</p>
+<ol>
+<li>为原型对象定义 <code>Clone</code> 方法，在此方法上完成成员属性的拷贝。</li>
+<li>在客户端程序中通过 <code>Clone</code> 来完成对象的复制。</li>
+</ol>
+<p>需要注意的是，我们<strong>不一定非得遵循标准的原型模式 UML 结构定义一个原型接口</strong>，然后让原型对象实现它，比如：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// Cloneable 原型复制接口
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Cloneable</span> <span class="kd">interface</span> <span class="p">{</span>
+    <span class="nf">Clone</span><span class="p">()</span> <span class="nx">Cloneable</span>
+<span class="p">}</span>
+
+<span class="kd">type</span> <span class="nx">Response</span> <span class="kd">struct</span> <span class="p">{</span><span class="o">...</span><span class="p">}</span>
+<span class="c1">// 实现原型复制接口
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">r</span> <span class="o">*</span><span class="nx">Response</span><span class="p">)</span> <span class="nf">Clone</span><span class="p">()</span> <span class="nx">Cloneable</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="o">&amp;</span><span class="nx">Response</span><span class="p">{</span>
+        <span class="nx">reqId</span><span class="p">:</span>          <span class="nx">r</span><span class="p">.</span><span class="nx">reqId</span><span class="p">,</span>
+        <span class="nx">statusCode</span><span class="p">:</span>     <span class="nx">r</span><span class="p">.</span><span class="nx">statusCode</span><span class="p">,</span>
+        <span class="nx">headers</span><span class="p">:</span>        <span class="nx">r</span><span class="p">.</span><span class="nx">headers</span><span class="p">,</span>
+        <span class="nx">body</span><span class="p">:</span>           <span class="nx">r</span><span class="p">.</span><span class="nx">body</span><span class="p">,</span>
+        <span class="nx">problemDetails</span><span class="p">:</span> <span class="nx">r</span><span class="p">.</span><span class="nx">problemDetails</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div><p>在当前场景下，这样并不会给程序带来任何好处，反而新增一次类型强转，让程序变得更复杂了：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">ServiceMediator</span><span class="p">)</span> <span class="nf">Forward</span><span class="p">(</span><span class="nx">req</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Response</span> <span class="p">{</span>
+    <span class="o">...</span>
+    <span class="nx">resp</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">client</span><span class="p">.</span><span class="nf">Send</span><span class="p">(</span><span class="nx">dest</span><span class="p">,</span> <span class="nx">forwardReq</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+        <span class="o">...</span>
+    <span class="p">}</span>
+    <span class="c1">// 因为Clone方法返回的是Cloneable接口，因此需要转型为*http.Response
+</span><span class="c1"></span>    <span class="k">return</span> <span class="nx">resp</span><span class="p">.</span><span class="nf">Clone</span><span class="p">().(</span><span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Response</span><span class="p">).</span><span class="nf">AddReqId</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nf">ReqId</span><span class="p">())</span>
+<span class="p">}</span>
+</code></pre></div><p><strong>所以，运用设计模式，最重要的是学得其中精髓，而不是仿照其形式，否则很容易适得其反</strong>。</p>
+<h2 id="扩展">扩展</h2>
+<h3 id="原型模式和与建造者模式的结合">原型模式和与建造者模式的结合</h3>
+<p>原型模式和建造者模式相结合，也是常见的场景。还是以 <code>http.Request</code> 为例：</p>
+<p>首先，我们先为它新增一个 <code>requestBuilder</code> 对象来完成对象的构造：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// demo/network/http/http_request_builder.go
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">requestBuilder</span> <span class="kd">struct</span> <span class="p">{</span>
+    <span class="nx">req</span> <span class="o">*</span><span class="nx">Request</span>
+<span class="p">}</span>
+<span class="c1">// 普通Builder工厂方法，新创建一个Request对象
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">NewRequestBuilder</span><span class="p">()</span> <span class="o">*</span><span class="nx">requestBuilder</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="o">&amp;</span><span class="nx">requestBuilder</span><span class="p">{</span><span class="nx">req</span><span class="p">:</span> <span class="nf">EmptyRequest</span><span class="p">()}</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">r</span> <span class="o">*</span><span class="nx">requestBuilder</span><span class="p">)</span> <span class="nf">AddMethod</span><span class="p">(</span><span class="nx">method</span> <span class="nx">Method</span><span class="p">)</span> <span class="o">*</span><span class="nx">requestBuilder</span> <span class="p">{</span>
+    <span class="nx">r</span><span class="p">.</span><span class="nx">req</span><span class="p">.</span><span class="nx">method</span> <span class="p">=</span> <span class="nx">method</span>
+    <span class="k">return</span> <span class="nx">r</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">r</span> <span class="o">*</span><span class="nx">requestBuilder</span><span class="p">)</span> <span class="nf">AddUri</span><span class="p">(</span><span class="nx">uri</span> <span class="nx">Uri</span><span class="p">)</span> <span class="o">*</span><span class="nx">requestBuilder</span> <span class="p">{</span>
+    <span class="nx">r</span><span class="p">.</span><span class="nx">req</span><span class="p">.</span><span class="nx">uri</span> <span class="p">=</span> <span class="nx">uri</span>
+    <span class="k">return</span> <span class="nx">r</span>
+<span class="p">}</span>
+
+<span class="o">...</span> <span class="c1">// 一系列 Addxxx 方法
+</span><span class="c1"></span>
+<span class="kd">func</span> <span class="p">(</span><span class="nx">r</span> <span class="o">*</span><span class="nx">requestBuilder</span><span class="p">)</span> <span class="nf">Builder</span><span class="p">()</span> <span class="o">*</span><span class="nx">Request</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">r</span><span class="p">.</span><span class="nx">req</span>
+<span class="p">}</span>
+</code></pre></div><p>下面，我们为 <code>requestBuilder</code> 新增一个 <code>NewRequestBuilderCopyFrom</code> 工厂方法来达到原型复制的效果：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// demo/network/http/http_request_builder.go
+</span><span class="c1"></span>
+<span class="c1">// 实现原型模式的Builder工厂方法，复制已有的Request对象
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">NewRequestBuilderCopyFrom</span><span class="p">(</span><span class="nx">req</span> <span class="o">*</span><span class="nx">Request</span><span class="p">)</span> <span class="o">*</span><span class="nx">requestBuilder</span> <span class="p">{</span>
+    <span class="nx">reqId</span> <span class="o">:=</span> <span class="nx">rand</span><span class="p">.</span><span class="nf">Uint32</span><span class="p">()</span> <span class="o">%</span> <span class="mi">10000</span>
+    <span class="nx">replica</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">Request</span><span class="p">{</span>
+        <span class="nx">reqId</span><span class="p">:</span>       <span class="nf">ReqId</span><span class="p">(</span><span class="nx">reqId</span><span class="p">),</span>
+        <span class="nx">method</span><span class="p">:</span>      <span class="nx">req</span><span class="p">.</span><span class="nx">method</span><span class="p">,</span>
+        <span class="nx">uri</span><span class="p">:</span>         <span class="nx">req</span><span class="p">.</span><span class="nx">uri</span><span class="p">,</span>
+        <span class="nx">queryParams</span><span class="p">:</span> <span class="nx">req</span><span class="p">.</span><span class="nx">queryParams</span><span class="p">,</span>
+        <span class="nx">headers</span><span class="p">:</span>     <span class="nx">req</span><span class="p">.</span><span class="nx">headers</span><span class="p">,</span>
+        <span class="nx">body</span><span class="p">:</span>        <span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">,</span>
+    <span class="p">}</span>
+  <span class="c1">// 将复制后的对象赋值给requestBuilder
+</span><span class="c1"></span>    <span class="k">return</span> <span class="o">&amp;</span><span class="nx">requestBuilder</span><span class="p">{</span><span class="nx">req</span><span class="p">:</span> <span class="nx">replica</span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div><p>用法如下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">ServiceMediator</span><span class="p">)</span> <span class="nf">Forward</span><span class="p">(</span><span class="nx">req</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Response</span> <span class="p">{</span>
+    <span class="o">...</span>
+    <span class="nx">dest</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">s</span><span class="p">.</span><span class="nf">discovery</span><span class="p">(</span><span class="nx">svcType</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+        <span class="o">...</span>
+    <span class="p">}</span>
+    <span class="c1">// 原型模式和建造者模式相结合的实现
+</span><span class="c1"></span>    <span class="nx">forwardReq</span> <span class="o">:=</span> <span class="nx">http</span><span class="p">.</span><span class="nf">NewRequestBuilderCopyFrom</span><span class="p">(</span><span class="nx">req</span><span class="p">).</span><span class="nf">Builder</span><span class="p">().</span><span class="nf">AddUri</span><span class="p">(</span><span class="nx">svcUri</span><span class="p">)</span>
+    <span class="o">...</span>
+    <span class="nx">resp</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">client</span><span class="p">.</span><span class="nf">Send</span><span class="p">(</span><span class="nx">dest</span><span class="p">,</span> <span class="nx">forwardReq</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+        <span class="o">...</span>
+    <span class="p">}</span>
+    <span class="c1">// 普通原型模式的实现
+</span><span class="c1"></span>    <span class="k">return</span> <span class="nx">resp</span><span class="p">.</span><span class="nf">Clone</span><span class="p">().</span><span class="nf">AddReqId</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nf">ReqId</span><span class="p">())</span>
+<span class="p">}</span>
+</code></pre></div><h3 id="浅拷贝和深拷贝">浅拷贝和深拷贝</h3>
+<p>如果原型对象的成员属性包含了指针类型，那么就会存在浅拷贝和深拷贝两种复制方式，比如对于原型对象 <code>ServiceProfile</code>，其中的 <code>Region</code> 属性为指针类型：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// demo/service/registry/model/service_profile.go
+</span><span class="c1"></span><span class="kn">package</span> <span class="nx">model</span>
+
+<span class="c1">// ServiceProfile 服务档案，其中服务ID唯一标识一个服务实例，一种服务类型可以有多个服务实例
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">ServiceProfile</span> <span class="kd">struct</span> <span class="p">{</span>
+    <span class="nx">Id</span>       <span class="kt">string</span>           <span class="c1">// 服务ID
+</span><span class="c1"></span>    <span class="nx">Type</span>     <span class="nx">ServiceType</span>      <span class="c1">// 服务类型
+</span><span class="c1"></span>    <span class="nx">Status</span>   <span class="nx">ServiceStatus</span>    <span class="c1">// 服务状态
+</span><span class="c1"></span>    <span class="nx">Endpoint</span> <span class="nx">network</span><span class="p">.</span><span class="nx">Endpoint</span> <span class="c1">// 服务Endpoint
+</span><span class="c1"></span>    <span class="nx">Region</span>   <span class="o">*</span><span class="nx">Region</span>          <span class="c1">// 服务所属region
+</span><span class="c1"></span>    <span class="nx">Priority</span> <span class="kt">int</span>              <span class="c1">// 服务优先级，范围0～100，值越低，优先级越高
+</span><span class="c1"></span>    <span class="nx">Load</span>     <span class="kt">int</span>              <span class="c1">// 服务负载，负载越高表示服务处理的业务压力越大
+</span><span class="c1"></span><span class="p">}</span>
+</code></pre></div><p>浅拷贝的做法是直接复制指针：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// 浅拷贝实现
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">ServiceProfile</span><span class="p">)</span> <span class="nf">Clone</span><span class="p">()</span> <span class="nx">Cloneable</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="o">&amp;</span><span class="nx">ServiceProfile</span><span class="p">{</span>
+        <span class="nx">Id</span><span class="p">:</span>       <span class="nx">s</span><span class="p">.</span><span class="nx">Id</span><span class="p">,</span>
+        <span class="nx">Type</span><span class="p">:</span>     <span class="nx">s</span><span class="p">.</span><span class="nx">Type</span><span class="p">,</span>
+        <span class="nx">Status</span><span class="p">:</span>   <span class="nx">s</span><span class="p">.</span><span class="nx">Status</span><span class="p">,</span>
+        <span class="nx">Endpoint</span><span class="p">:</span> <span class="nx">s</span><span class="p">.</span><span class="nx">Endpoint</span><span class="p">,</span>
+        <span class="nx">Region</span><span class="p">:</span>   <span class="nx">s</span><span class="p">.</span><span class="nx">Region</span><span class="p">,</span> <span class="c1">// 指针复制，浅拷贝
+</span><span class="c1"></span>        <span class="nx">Priority</span><span class="p">:</span> <span class="nx">s</span><span class="p">.</span><span class="nx">Priority</span><span class="p">,</span>
+        <span class="nx">Load</span><span class="p">:</span>     <span class="nx">s</span><span class="p">.</span><span class="nx">Load</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div><p>深拷贝的做法则是创建新的 <code>Region</code> 对象：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// 深拷贝实现
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">ServiceProfile</span><span class="p">)</span> <span class="nf">Clone</span><span class="p">()</span> <span class="nx">Cloneable</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="o">&amp;</span><span class="nx">ServiceProfile</span><span class="p">{</span>
+        <span class="nx">Id</span><span class="p">:</span>       <span class="nx">s</span><span class="p">.</span><span class="nx">Id</span><span class="p">,</span>
+        <span class="nx">Type</span><span class="p">:</span>     <span class="nx">s</span><span class="p">.</span><span class="nx">Type</span><span class="p">,</span>
+        <span class="nx">Status</span><span class="p">:</span>   <span class="nx">s</span><span class="p">.</span><span class="nx">Status</span><span class="p">,</span>
+        <span class="nx">Endpoint</span><span class="p">:</span> <span class="nx">s</span><span class="p">.</span><span class="nx">Endpoint</span><span class="p">,</span>
+        <span class="nx">Region</span><span class="p">:</span> <span class="o">&amp;</span><span class="nx">Region</span><span class="p">{</span> <span class="c1">// 新创建一个Region对象，深拷贝
+</span><span class="c1"></span>            <span class="nx">Id</span><span class="p">:</span>      <span class="nx">s</span><span class="p">.</span><span class="nx">Region</span><span class="p">.</span><span class="nx">Id</span><span class="p">,</span>
+            <span class="nx">Name</span><span class="p">:</span>    <span class="nx">s</span><span class="p">.</span><span class="nx">Region</span><span class="p">.</span><span class="nx">Name</span><span class="p">,</span>
+            <span class="nx">Country</span><span class="p">:</span> <span class="nx">s</span><span class="p">.</span><span class="nx">Region</span><span class="p">.</span><span class="nx">Country</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="nx">Priority</span><span class="p">:</span> <span class="nx">s</span><span class="p">.</span><span class="nx">Priority</span><span class="p">,</span>
+        <span class="nx">Load</span><span class="p">:</span>     <span class="nx">s</span><span class="p">.</span><span class="nx">Load</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div><p>具体使用哪种方式，因不同业务场景而异。浅拷贝直接复制指针，在性能上会好点；但某些场景下，引用同一个对象实例可能会导致业务异常，这时候就必须使用深拷贝了。</p>
+<h2 id="典型使用场景">典型使用场景</h2>
+<ol>
+<li>不管是复杂还是简单的对象，只要存在对象复制的场景，都适合使用原型模式。</li>
+</ol>
+<h2 id="优缺点">优缺点</h2>
+<h3 id="优点">优点</h3>
+<ol>
+<li>对客户端隐藏实现细节，有利于避免代码耦合。</li>
+<li>让客户端代码更简洁，有利于提升可读性。</li>
+<li>可方便地复制复杂对象，有利于杜绝客户端复制对象时的低级错误，比如漏复制属性。</li>
+</ol>
+<h3 id="缺点">缺点</h3>
+<ol>
+<li>某些业务场景需要警惕浅拷贝问题。</li>
+</ol>
+<h2 id="与其他模式的关联">与其他模式的关联</h2>
+<p>如前文提到的，原型模式和建造者模式相结合也是一种常见的应用场景。</p>
+<blockquote>
+<h4 id="参考">参考</h4>
+<p>[1] <a class="link" href="https://mp.weixin.qq.com/s/s3aD4mK2Aw4v99tbCIe9HA"  target="_blank" rel="noopener"
+    >【Go实现】实践GoF的23种设计模式：SOLID原则</a>, 元闰子</p>
+<p>[2] <a class="link" href="https://mp.weixin.qq.com/s/LHezb8zWEFR7mRseqO2B_Q"  target="_blank" rel="noopener"
+    >【Go实现】实践GoF的23种设计模式：建造者模式</a>, 元闰子</p>
+<p>[3] <a class="link" href="https://learning.oreilly.com/library/view/design-patterns-elements/0201633612/"  target="_blank" rel="noopener"
+    >Design Patterns, Chapter 3. Creational Patterns</a>, GoF</p>
+<p>更多文章请关注微信公众号：<strong>元闰子的邀请</strong></p>
+</blockquote>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">设计模式</a>
+        
+            <a href="/tags/%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">实践GoF的23种设计模式</a>
+        
+            <a href="/tags/go/">Go</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>CC BY 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%A4%87%E5%BF%98%E5%BD%95%E6%A8%A1%E5%BC%8F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">【Go实现】实践GoF的23种设计模式：备忘录模式</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%91%BD%E4%BB%A4%E6%A8%A1%E5%BC%8F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">【Go实现】实践GoF的23种设计模式：命令模式</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">【Go实现】实践GoF的23种设计模式：代理模式</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E8%AE%BF%E9%97%AE%E8%80%85%E6%A8%A1%E5%BC%8F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">【Go实现】实践GoF的23种设计模式：访问者模式</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E8%BF%AD%E4%BB%A3%E5%99%A8%E6%A8%A1%E5%BC%8F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">【Go实现】实践GoF的23种设计模式：迭代器模式</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+
+    
+        
+    <script src="https://utteranc.es/client.js" 
+        repo="ruanrunxue/yrunz-comments"
+        issue-term="pathname"
+        
+        label="yrunz"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
+
+<style>
+    .utterances {
+        max-width: unset;
+    }
+</style>
+
+<script>
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
+        }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+        setUtterancesTheme(document.body.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        setUtterancesTheme(e.detail)
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_SVG"></script>
+    <section class="copyright">
+        &copy;
+        
+            2019 -
+        
+        2023 元闰子的邀请
+    </section>
+
+    <section class="powerby">
+        
+
+        <a href="https://beian.miit.gov.cn/">粤ICP备19152659号 | </a>Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.3.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        <br />
+    </section>
+</footer>
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='前言 在进行软件开发时，我们常常会追求软件的高可维护性，高可维护性意味着当有新需求来时，系统易扩展；当出现bug时，开发人员易定位。而当我们说一个系统的可维护性太差时，往往指的是该系统太过复杂，导致给系统增加新功能时容易出现bug，而出现bug之后又难以定位。
+那么，软件的复杂性又是如何定义的呢？
+John Ousterhout给出的定义如下：
+ Complexity is anything related to the structure of a software system that makes it hard to understand and modify the system.
+ 可见，软件的复杂性是一个很泛的概念，任何使软件难以理解和难以修改的东西，都属于软件的复杂性。为此，John Ousterhout提出了一个公式来度量一个系统的复杂性： $$ C = \sum_{p}c_{p}t_{p} $$
+ 式中，$p$表示系统中的模块，$c_{p}$表示该模块的认知负担（Cognitive Load，即一个模块难以理解的程度），$t_{p}$表示在日常开发中在该模块花费的开发时间。
+ 从公式上看，一个软件的复杂性由它的各个模块的复杂性累加而成，而 模块复杂性 = 模块认知负担 * 模块开发时间，也就是模块的复杂性即和模块本身有关，也跟在该模块上花费的开发时间有关。需要注意的是，如果一个模块非常难以理解，但是后续开发过程中几乎没有涉及到它，那么它的复杂性也是很低的。
+导致软件复杂的原因 导致软件复杂的原因可以细分出很多种来，而概括起来莫过于两种：依赖（dependencies） 和 隐晦（obscurity）。前者会让修改起来很费劲而且容易出现bug，比如当修改模块1时，往往也涉及到模块2、模块3、... 的改动；后者会让软件难以理解，定位一个bug，甚至是仅仅读懂一段代码都需要花费大量的时间。
+软件的复杂性往往伴随着如下几种症状：
+霰弹式修改（Change amplification）。当只需要修改一个功能，但又不得不对许多模块作出改动时，我们称之为霰弹式修改。这通常是因为模块之间耦合过重，相互依赖太多导致的。 比如，有一组Web页面，每个页面都是一个HTML文件，每个HTML都有一个背景属性。由于各个HTML的背景属性都是分开定义的，因此如果需要把背景颜色从橙色修改为蓝色时，就需要改动所有的HTML文件。
+认知负担（Cognitive load）。当我们说一个模块隐晦、难以理解时，它就有过重的认知负担，这种情况下往往需要读者花费大量时间才能明白该模块的功能。比如，提供一个不带任何注释的calculate接口，它有2个int类型的入参和一个int类型的返回值。从该函数的签名上看，调用者根本无法得知函数的功能是什么，他只能通过花时间去阅读源码来确定函数功能后才敢去调用该函数。
+int calculate(int val1, int val2); 不确定性（Unknown unknowns）。相比于前两种症状，不确定性的破坏性更大，它通常指一些在开发需求时，你必须注意的，但是又无从得知的点。它常常是因为一些隐晦的依赖导致的，会让你在开发完一个需求之后感觉心里很没谱，隐约觉得自己的代码哪里有问题，但又不清楚问题在哪，只能祈祷在测试阶段能够暴露而不要漏洞商用阶段。
+如何降低软件的复杂性 对 “战术编程” Say No！ 很多程序员在进行特性开发或bug修复时，关注点往往是如何简单快速让程序跑起来，这就是典型的战术编程（Tactical programming）方法，它追求的是短期的效益——节省开发时间。战术编程最普遍的体现就是在编码之前没有进行模块设计，想到哪里就写到哪里。战术编程在系统前期可能会比较方便，一旦系统庞大起来、模块之间的耦合变重之后，添加或修改功能、修复bug都会变得寸步难行。随着系统变得越来越复杂，最后不得不对系统进行重构甚至重写。'><title>一步步降低软件复杂度</title>
+
+<link rel='canonical' href='https://www.yrunz.com/p/%E4%B8%80%E6%AD%A5%E6%AD%A5%E9%99%8D%E4%BD%8E%E8%BD%AF%E4%BB%B6%E5%A4%8D%E6%9D%82%E5%BA%A6/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='一步步降低软件复杂度'>
+<meta property='og:description' content='前言 在进行软件开发时，我们常常会追求软件的高可维护性，高可维护性意味着当有新需求来时，系统易扩展；当出现bug时，开发人员易定位。而当我们说一个系统的可维护性太差时，往往指的是该系统太过复杂，导致给系统增加新功能时容易出现bug，而出现bug之后又难以定位。
+那么，软件的复杂性又是如何定义的呢？
+John Ousterhout给出的定义如下：
+ Complexity is anything related to the structure of a software system that makes it hard to understand and modify the system.
+ 可见，软件的复杂性是一个很泛的概念，任何使软件难以理解和难以修改的东西，都属于软件的复杂性。为此，John Ousterhout提出了一个公式来度量一个系统的复杂性： $$ C = \sum_{p}c_{p}t_{p} $$
+ 式中，$p$表示系统中的模块，$c_{p}$表示该模块的认知负担（Cognitive Load，即一个模块难以理解的程度），$t_{p}$表示在日常开发中在该模块花费的开发时间。
+ 从公式上看，一个软件的复杂性由它的各个模块的复杂性累加而成，而 模块复杂性 = 模块认知负担 * 模块开发时间，也就是模块的复杂性即和模块本身有关，也跟在该模块上花费的开发时间有关。需要注意的是，如果一个模块非常难以理解，但是后续开发过程中几乎没有涉及到它，那么它的复杂性也是很低的。
+导致软件复杂的原因 导致软件复杂的原因可以细分出很多种来，而概括起来莫过于两种：依赖（dependencies） 和 隐晦（obscurity）。前者会让修改起来很费劲而且容易出现bug，比如当修改模块1时，往往也涉及到模块2、模块3、... 的改动；后者会让软件难以理解，定位一个bug，甚至是仅仅读懂一段代码都需要花费大量的时间。
+软件的复杂性往往伴随着如下几种症状：
+霰弹式修改（Change amplification）。当只需要修改一个功能，但又不得不对许多模块作出改动时，我们称之为霰弹式修改。这通常是因为模块之间耦合过重，相互依赖太多导致的。 比如，有一组Web页面，每个页面都是一个HTML文件，每个HTML都有一个背景属性。由于各个HTML的背景属性都是分开定义的，因此如果需要把背景颜色从橙色修改为蓝色时，就需要改动所有的HTML文件。
+认知负担（Cognitive load）。当我们说一个模块隐晦、难以理解时，它就有过重的认知负担，这种情况下往往需要读者花费大量时间才能明白该模块的功能。比如，提供一个不带任何注释的calculate接口，它有2个int类型的入参和一个int类型的返回值。从该函数的签名上看，调用者根本无法得知函数的功能是什么，他只能通过花时间去阅读源码来确定函数功能后才敢去调用该函数。
+int calculate(int val1, int val2); 不确定性（Unknown unknowns）。相比于前两种症状，不确定性的破坏性更大，它通常指一些在开发需求时，你必须注意的，但是又无从得知的点。它常常是因为一些隐晦的依赖导致的，会让你在开发完一个需求之后感觉心里很没谱，隐约觉得自己的代码哪里有问题，但又不清楚问题在哪，只能祈祷在测试阶段能够暴露而不要漏洞商用阶段。
+如何降低软件的复杂性 对 “战术编程” Say No！ 很多程序员在进行特性开发或bug修复时，关注点往往是如何简单快速让程序跑起来，这就是典型的战术编程（Tactical programming）方法，它追求的是短期的效益——节省开发时间。战术编程最普遍的体现就是在编码之前没有进行模块设计，想到哪里就写到哪里。战术编程在系统前期可能会比较方便，一旦系统庞大起来、模块之间的耦合变重之后，添加或修改功能、修复bug都会变得寸步难行。随着系统变得越来越复杂，最后不得不对系统进行重构甚至重写。'>
+<meta property='og:url' content='https://www.yrunz.com/p/%E4%B8%80%E6%AD%A5%E6%AD%A5%E9%99%8D%E4%BD%8E%E8%BD%AF%E4%BB%B6%E5%A4%8D%E6%9D%82%E5%BA%A6/'>
+<meta property='og:site_name' content='元闰子的邀请'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='模块设计' /><meta property='article:tag' content='写好代码' /><meta property='article:published_time' content='2019-12-08T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2019-12-08T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="一步步降低软件复杂度">
+<meta name="twitter:description" content="前言 在进行软件开发时，我们常常会追求软件的高可维护性，高可维护性意味着当有新需求来时，系统易扩展；当出现bug时，开发人员易定位。而当我们说一个系统的可维护性太差时，往往指的是该系统太过复杂，导致给系统增加新功能时容易出现bug，而出现bug之后又难以定位。
+那么，软件的复杂性又是如何定义的呢？
+John Ousterhout给出的定义如下：
+ Complexity is anything related to the structure of a software system that makes it hard to understand and modify the system.
+ 可见，软件的复杂性是一个很泛的概念，任何使软件难以理解和难以修改的东西，都属于软件的复杂性。为此，John Ousterhout提出了一个公式来度量一个系统的复杂性： $$ C = \sum_{p}c_{p}t_{p} $$
+ 式中，$p$表示系统中的模块，$c_{p}$表示该模块的认知负担（Cognitive Load，即一个模块难以理解的程度），$t_{p}$表示在日常开发中在该模块花费的开发时间。
+ 从公式上看，一个软件的复杂性由它的各个模块的复杂性累加而成，而 模块复杂性 = 模块认知负担 * 模块开发时间，也就是模块的复杂性即和模块本身有关，也跟在该模块上花费的开发时间有关。需要注意的是，如果一个模块非常难以理解，但是后续开发过程中几乎没有涉及到它，那么它的复杂性也是很低的。
+导致软件复杂的原因 导致软件复杂的原因可以细分出很多种来，而概括起来莫过于两种：依赖（dependencies） 和 隐晦（obscurity）。前者会让修改起来很费劲而且容易出现bug，比如当修改模块1时，往往也涉及到模块2、模块3、... 的改动；后者会让软件难以理解，定位一个bug，甚至是仅仅读懂一段代码都需要花费大量的时间。
+软件的复杂性往往伴随着如下几种症状：
+霰弹式修改（Change amplification）。当只需要修改一个功能，但又不得不对许多模块作出改动时，我们称之为霰弹式修改。这通常是因为模块之间耦合过重，相互依赖太多导致的。 比如，有一组Web页面，每个页面都是一个HTML文件，每个HTML都有一个背景属性。由于各个HTML的背景属性都是分开定义的，因此如果需要把背景颜色从橙色修改为蓝色时，就需要改动所有的HTML文件。
+认知负担（Cognitive load）。当我们说一个模块隐晦、难以理解时，它就有过重的认知负担，这种情况下往往需要读者花费大量时间才能明白该模块的功能。比如，提供一个不带任何注释的calculate接口，它有2个int类型的入参和一个int类型的返回值。从该函数的签名上看，调用者根本无法得知函数的功能是什么，他只能通过花时间去阅读源码来确定函数功能后才敢去调用该函数。
+int calculate(int val1, int val2); 不确定性（Unknown unknowns）。相比于前两种症状，不确定性的破坏性更大，它通常指一些在开发需求时，你必须注意的，但是又无从得知的点。它常常是因为一些隐晦的依赖导致的，会让你在开发完一个需求之后感觉心里很没谱，隐约觉得自己的代码哪里有问题，但又不清楚问题在哪，只能祈祷在测试阶段能够暴露而不要漏洞商用阶段。
+如何降低软件的复杂性 对 “战术编程” Say No！ 很多程序员在进行特性开发或bug修复时，关注点往往是如何简单快速让程序跑起来，这就是典型的战术编程（Tactical programming）方法，它追求的是短期的效益——节省开发时间。战术编程最普遍的体现就是在编码之前没有进行模块设计，想到哪里就写到哪里。战术编程在系统前期可能会比较方便，一旦系统庞大起来、模块之间的耦合变重之后，添加或修改功能、修复bug都会变得寸步难行。随着系统变得越来越复杂，最后不得不对系统进行重构甚至重写。">
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "light");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/yrz_hudc7c8721ecce4b724df5002339c76402_174377_300x0_resize_box_2.png" width="300"
+                            height="306" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://www.yrunz.com">元闰子的邀请</a></h1>
+        <h2 class="site-description">阅读、写作、生活（个人技术分享）</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>首页</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>博客</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%85%B3%E4%BA%8E%E5%85%83%E9%97%B0%E5%AD%90/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24"
+     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+     stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z"/>
+    <circle cx="12" cy="7" r="4"/>
+    <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/>
+</svg>
+
+                
+                <span>关于元闰子</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%8F%8B%E6%83%85%E9%93%BE%E6%8E%A5/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-friends" width="44" height="44"
+     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+    <circle cx="7" cy="5" r="2"/>
+    <path d="M5 22v-5l-1 -1v-4a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4l-1 1v5"/>
+    <circle cx="17" cy="5" r="2"/>
+    <path d="M15 22v-4h-2l2 -6a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1l2 6h-2v4"/>
+</svg>
+
+                
+                <span>友情链接</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>暗色模式</span>
+            </li>
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://www.yrunz.com" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E5%86%99%E5%A5%BD%E4%BB%A3%E7%A0%81/" >
+                写好代码
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/%E4%B8%80%E6%AD%A5%E6%AD%A5%E9%99%8D%E4%BD%8E%E8%BD%AF%E4%BB%B6%E5%A4%8D%E6%9D%82%E5%BA%A6/">一步步降低软件复杂度</a>
+    </h2>
+
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Dec 08, 2019</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <h2 id="前言">前言</h2>
+<p>在进行软件开发时，我们常常会追求软件的高可维护性，高可维护性意味着当有新需求来时，系统易扩展；当出现bug时，开发人员易定位。而当我们说一个系统的可维护性太差时，往往指的是该系统太过复杂，导致给系统增加新功能时容易出现bug，而出现bug之后又难以定位。</p>
+<p><em>那么，软件的复杂性又是如何定义的呢？</em></p>
+<p>John Ousterhout给出的定义如下：</p>
+<blockquote>
+<p>Complexity is anything related to the structure of a software system that makes it hard to understand and modify the system.</p>
+</blockquote>
+<p>可见，软件的复杂性是一个很泛的概念，任何使软件难以理解和难以修改的东西，都属于软件的复杂性。为此，John Ousterhout提出了一个公式来度量一个系统的复杂性：
+$$
+C = \sum_{p}c_{p}t_{p}
+$$</p>
+<blockquote>
+<p>式中，$p$表示系统中的模块，$c_{p}$表示该模块的认知负担（Cognitive Load，即一个模块难以理解的程度），$t_{p}$表示在日常开发中在该模块花费的开发时间。</p>
+</blockquote>
+<p>从公式上看，一个软件的复杂性由它的各个模块的复杂性累加而成，而 <code>模块复杂性 = 模块认知负担 * 模块开发时间</code>，也就是模块的复杂性即和模块本身有关，也跟在该模块上花费的开发时间有关。需要注意的是，如果一个模块非常难以理解，但是后续开发过程中几乎没有涉及到它，那么它的复杂性也是很低的。</p>
+<h2 id="导致软件复杂的原因">导致软件复杂的原因</h2>
+<p>导致软件复杂的原因可以细分出很多种来，而概括起来莫过于两种：<em>依赖（dependencies）</em> 和 <em>隐晦（obscurity）</em>。前者会让修改起来很费劲而且容易出现bug，比如当修改<code>模块1</code>时，往往也涉及到<code>模块2</code>、<code>模块3</code>、<code>...</code> 的改动；后者会让软件难以理解，定位一个bug，甚至是仅仅读懂一段代码都需要花费大量的时间。</p>
+<p>软件的复杂性往往伴随着如下几种症状：</p>
+<p><strong>霰弹式修改（Change amplification）</strong>。当只需要修改一个功能，但又不得不对许多模块作出改动时，我们称之为霰弹式修改。这通常是因为模块之间耦合过重，相互依赖太多导致的。 比如，有一组Web页面，每个页面都是一个HTML文件，每个HTML都有一个<code>背景</code>属性。由于各个HTML的<code>背景</code>属性都是分开定义的，因此如果需要把背景颜色从橙色修改为蓝色时，就需要改动所有的HTML文件。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-11-132417.png" alt="霰弹式修改的典型例子"  /></p>
+<p><strong>认知负担（Cognitive load）</strong>。当我们说一个模块隐晦、难以理解时，它就有过重的认知负担，这种情况下往往需要读者花费大量时间才能明白该模块的功能。比如，提供一个不带任何注释的<code>calculate</code>接口，它有2个<code>int</code>类型的入参和一个<code>int</code>类型的返回值。从该函数的签名上看，调用者根本无法得知函数的功能是什么，他只能通过花时间去阅读源码来确定函数功能后才敢去调用该函数。</p>
+<div class="highlight"><pre class="chroma"><code class="language-Java" data-lang="Java"><span class="kt">int</span> <span class="nf">calculate</span><span class="o">(</span><span class="kt">int</span> <span class="n">val1</span><span class="o">,</span> <span class="kt">int</span> <span class="n">val2</span><span class="o">);</span>
+</code></pre></div><p><strong>不确定性（Unknown unknowns）</strong>。相比于前两种症状，不确定性的破坏性更大，它通常指一些在开发需求时，你必须注意的，但是又无从得知的点。它常常是因为一些隐晦的依赖导致的，会让你在开发完一个需求之后感觉心里很没谱，隐约觉得自己的代码哪里有问题，但又不清楚问题在哪，只能祈祷在测试阶段能够暴露而不要漏洞商用阶段。</p>
+<h2 id="如何降低软件的复杂性">如何降低软件的复杂性</h2>
+<h3 id="对-战术编程-say-no">对 “战术编程” Say No！</h3>
+<p>很多程序员在进行特性开发或bug修复时，关注点往往是如何简单快速让程序跑起来，这就是典型的<em>战术编程</em>（Tactical programming）方法，它追求的是<strong>短期的效益</strong>——节省开发时间。战术编程最普遍的体现就是在编码之前没有进行模块设计，想到哪里就写到哪里。战术编程在系统前期可能会比较方便，一旦系统庞大起来、模块之间的耦合变重之后，添加或修改功能、修复bug都会变得寸步难行。随着系统变得越来越复杂，最后不得不对系统进行重构甚至重写。</p>
+<p>与战术编程相对的就是<em>战略编程</em>（Strategic programming），它追求的是<strong>长期的效益</strong>——增加系统可维护性。仅仅是让程序跑起来还不足以满足，还需要考虑程序的可维护性，让后续在添加或修改功能、修复bug时都能够快速响应。因为考虑的点比较多，也就注定战略编程需要花费一定的时间去进行模块设计，但相比于战术编程后期导致的问题，这一点时间也是完全值得的。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-11-132247.png" alt="战术编程 VS 战略编程"  /></p>
+<h3 id="让模块更深一点">让模块更“深”一点！</h3>
+<p>一个模块由接口（interface）和实现（implementation）两部分组成，如果把一个模块比喻成一个矩形，那么接口就是矩形顶部的边，而实现就是矩形的面积（也可以把实现看成是模块提供的功能）。当一个模块提供的功能一定时，<em>深模块</em>（Deep module）的特点就是矩形顶部的边比较短，整体形状高瘦，也即接口比较简单；<em>浅模块</em>（Shallow module）的特点就是矩形顶部的边比较长，整体形状矮胖，也即接口比较复杂。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-11-132541.png" alt="深模块 VS 浅模块"  /></p>
+<p>模块的使用者往往只看到接口，模块越深，模块暴露给调用者的信息就越少，调用者与该模块的耦合性也就越低。因此，把<strong>模块设计得更“深”一点</strong>，有助于降低系统的复杂性。</p>
+<p><em>那么，怎样才能设计出一个深模块呢？</em></p>
+<ul>
+<li>
+<h4 id="更简单的接口">更简单的接口</h4>
+<p>简单的接口比简单的实现更重要，更简单的接口意味着模块的易用性更好，调用者使用起来更方便。而<code>简单的实现 + 复杂的接口</code>这种形式，一方面影响了接口的易用性，另一方面则加深了调用者与模块的耦合。因此，在进行模块设计时，最好遵守“<strong>把简单留给别人，把复杂留给自己</strong>”的原则。</p>
+<blockquote>
+<p>异常也属于接口的一部分，在编码过程中，应该杜绝没经过处理，就随意将异常往上抛的现象，这样只会增加系统的复杂性。</p>
+</blockquote>
+</li>
+<li>
+<h4 id="更通用的接口">更通用的接口</h4>
+<p>在设计接口时，你往往有两种选择：（1）设计成专用的接口；（2）设计成通用的接口。前者实现起来更方便，而且完全可以满足当前的需求，但可扩展性低，属于战术编程；后者则需要花时间对系统进行抽象，但可扩展性高，属于战略编程。通用的接口意味着该接口适用的场景不止一个，典型的就是“ <strong>一个接口，多个实现</strong> ”的形式。</p>
+<p>有些程序员可能会反驳，在无法预知未来变化的情况下，通用就意味着过度设计。过度通用确实属于过度设计，但对接口进行适度的抽象并不是，相反它可以使系统更有层次感，可维护性也更高。</p>
+</li>
+<li>
+<h4 id="隐藏细节">隐藏细节</h4>
+<p>在进行模块设计时，还要学会区分对于调用者而言，哪些信息是重要的，哪些信息是不重要的。隐藏细节指的就是<strong>只给调用者暴露重要的信息，把不重要的细节隐藏起来</strong>。隐藏细节一则使模块接口更简单，二则使系统更易维护。</p>
+<blockquote>
+<p>如何判断细节对于调用者是否重要？以下有几个例子：</p>
+<p>1、对于Java的<code>Map</code>接口，<em>重要的细节</em>：<code>Map</code>中每一个元素都是由<code>&lt;Key, Value&gt;</code>组成的；<em>不重要的细节</em>：<code>Map</code>底层是如何存储这些元素、如何实现线程安全等。</p>
+<p>2、对于文件系统中的<code>read</code>函数，<em>重要的细节</em>：每次读操作从哪个文件读、读多少字节；<em>不重要的细节</em>：如何切换到内核态、如何从硬盘里读数据等。</p>
+<p>3、对于多线程应用程序，<em>重要的细节</em>：如何创建一个线程；<em>不重要的细节</em>：多核CPU如何调度该线程。</p>
+</blockquote>
+</li>
+</ul>
+<h3 id="进行分层设计">进行分层设计！</h3>
+<p>设计良好的软件架构都有一个特点，就是层次清晰，每一层都提供了不同的抽象，各个层次之间的依赖明确。不管是经典的Web三层架构、DDD所提倡的四层架构以及六边形架构，抑或是所谓的Clean Architecture，都有着鲜明的层次感。</p>
+<table>
+<thead>
+<tr>
+<th><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-11-132636.png" alt="Web三层架构"  /></th>
+<th><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-11-132703.png" alt="DDD四层架构"  /></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-11-132742.png" alt="六边形架构"  /></td>
+<td><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-11-132807.png" alt="Clean Architecture"  /></td>
+</tr>
+</tbody>
+</table>
+<p>在进行分层设计时，需要注意的是，每一层都应该提供不同的抽象，并要尽量避免在一个模块中出现大量的<em>Pass-Through Mehod</em>。比如在DDD的四层架构中，<strong>领域层</strong>提供了对领域业务逻辑的抽象，<strong>应用层</strong>提供了对系统用例的抽象，<strong>接口层</strong>提供了对系统访问接口的抽象，<strong>基础设施层</strong>则提供对如数据库访问这类的基础服务的抽象。</p>
+<p>所谓的<em>Pass-Through Mehod</em>是指那些“在函数体内直接调用其他函数，而本身只做了极少的事情”的函数，通常其函数签名与被其调用的函数签名很类似。<em>Pass-Through Mehod</em>所在的模块通常都是浅模块，让系统增加了无谓的层次和函数调用，会使系统更加复杂。</p>
+<p><img src="https://tva1.sinaimg.cn/large/006tNbRwly1g9pfiotbcxj31380u0qq6.jpg" alt="Pass-Through Mehod（选自《A Philosophy of Software Design》中的例子）"  /></p>
+<h3 id="学会写代码注释">学会写代码注释！</h3>
+<p><em>注释</em>是软件开发过程中的性价比极高的一种手法，它只需要花费20%的时间，即可获取80%的价值。它可以<strong>提高晦涩难懂的代码的可读性</strong>；可以起到<strong>隐藏代码复杂细节</strong>的作用，比如接口注释可以帮助开发者在没有阅读代码的情况下快速了解该接口的功能和用法；如果写的好，它还可以<strong>改善系统的设计</strong>。</p>
+<blockquote>
+<p>具体如何写好代码注释，参考<a class="link" href="https://www.yrunz.com/archives/%E6%95%99%E4%BD%A0%E5%86%99%E5%A5%BD%E4%BB%A3%E7%A0%81%E6%B3%A8%E9%87%8A"  target="_blank" rel="noopener"
+    >《教你写好代码注释》</a>一文。</p>
+</blockquote>
+<h2 id="总结">总结</h2>
+<p><em>软件的复杂性</em>是我们程序员在日常开发中所必须面对的东西，学会如何 “<strong>弄清楚什么是软件复杂性，找到导致软件复杂的原因，并利用各种手法去战胜软件的复杂性</strong>” 是一门必备的能力。有句话说得很好，“代码质量决定生活质量”，当你把软件的复杂性降低了，bug减少了，系统可维护性更高了，自然也就带来了更好的生活质量。</p>
+<p><em>模块设计</em>是降低软件复杂度最有效的手段，学会使用“<em>战略编程</em>”的方法，并坚持下去。我们常常提倡“一次把事情做对”，但这对于模块设计而言并不适用，几乎没有人可以第一次就把一个模块设计成完美的模样。<em>二次设计</em>是一个非常有效的手法，与其在系统腐化之后再花大量时间进行重构或重写，还不如在第一次完成模块设计后，再花点时间进行二次设计，多问问自己：是否有更简单的接口？是否有更通用的设计？是否有更简洁高效的实现？</p>
+<p><strong>&ldquo;罗马不是一天建成的&rdquo;，降低软件的复杂性也一样，贵在坚持。</strong></p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/%E6%A8%A1%E5%9D%97%E8%AE%BE%E8%AE%A1/">模块设计</a>
+        
+            <a href="/tags/%E5%86%99%E5%A5%BD%E4%BB%A3%E7%A0%81/">写好代码</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>CC BY 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/%E6%95%99%E4%BD%A0%E5%86%99%E5%A5%BD%E4%BB%A3%E7%A0%81%E6%B3%A8%E9%87%8A/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">教你写好代码注释</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%A4%87%E5%BF%98%E5%BD%95%E6%A8%A1%E5%BC%8F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">【Go实现】实践GoF的23种设计模式：备忘录模式</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%91%BD%E4%BB%A4%E6%A8%A1%E5%BC%8F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">【Go实现】实践GoF的23种设计模式：命令模式</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">【Go实现】实践GoF的23种设计模式：代理模式</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E8%AE%BF%E9%97%AE%E8%80%85%E6%A8%A1%E5%BC%8F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">【Go实现】实践GoF的23种设计模式：访问者模式</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+
+    
+        
+    <script src="https://utteranc.es/client.js" 
+        repo="ruanrunxue/yrunz-comments"
+        issue-term="pathname"
+        
+        label="yrunz"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
+
+<style>
+    .utterances {
+        max-width: unset;
+    }
+</style>
+
+<script>
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
+        }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+        setUtterancesTheme(document.body.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        setUtterancesTheme(e.detail)
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_SVG"></script>
+    <section class="copyright">
+        &copy;
+        
+            2019 -
+        
+        2023 元闰子的邀请
+    </section>
+
+    <section class="powerby">
+        
+
+        <a href="https://beian.miit.gov.cn/">粤ICP备19152659号 | </a>Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.3.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        <br />
+    </section>
+</footer>
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

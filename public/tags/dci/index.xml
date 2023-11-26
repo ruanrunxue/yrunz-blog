@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>DCI on 元闰子的邀请</title>
+    <link>https://www.yrunz.com/tags/dci/</link>
+    <description>Recent content in DCI on 元闰子的邀请</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 10 Oct 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://www.yrunz.com/tags/dci/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>实现DCI架构</title>
+      <link>https://www.yrunz.com/p/%E5%AE%9E%E7%8E%B0dci%E6%9E%B6%E6%9E%84/</link>
+      <pubDate>Sun, 10 Oct 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E5%AE%9E%E7%8E%B0dci%E6%9E%B6%E6%9E%84/</guid>
+      <description>前言 在面向对象编程的理念里，应用程序是对现实世界的抽象，我们经常会将现实中的事物建模为编程语言中的类/对象（“是什么”），而事物的行为则建模为方法（“做什么”）。面向对象编程有三大基本特性（封装、继承/组合、多态）和五大基本原则（单一职责原则、开放封闭原则、里氏替换原则、依赖倒置原则、接口分离原则），但知道这些还并不足以让我们设计出好的程序，于是很多方法论就涌现了出来。
+近来最火的当属领域驱动设计（DDD），其中战术建模提出的实体、值对象、聚合等建模方法，能够很好的指导我们设计出符合现实世界的领域模型。但DDD也不是万能的，在某些应用场景下，按照传统的战术建模/面向对象方法设计出来的程序，也会存在可维护性差、违反单一职责原则等问题。
+本文介绍的DCI建模方法可以看成是战术建模的一种辅助，在某些场景下，它可以很好的弥补DDD战术建模的一些缺点。接下来，我们将会通过一个案例来介绍DCI是如何解决DDD战术建模的这些缺点的。
+ 本文涉及的代码归档在github项目：https://github.com/ruanrunxue/DCI-Architecture-Implementation
+ 案例 考虑一个普通人的生活日常，他会在学校上课，也会趁着暑假去公司工作，在工作之余去公园游玩，也会像普通人一样在家吃喝玩乐。当然，一个人的生活还远不止这些，为了讲解方便，本文只针对这几个典型的场景进行建模示例。
+使用DDD建模 按照DDD战术建模的思路，首先，我们会列出该案例的通用语言：
+ 人、身份证、银行卡、家、吃饭、睡觉、玩游戏、学校、学生卡、学习、考试、公司、工卡、上班、下班、公园、购票、游玩
+ 接着，我们使用战术建模技术（值对象、实体、聚合、领域服务、资源库）对通用语言进行领域建模。
+DDD建模后的代码目录结构如下：
+- aggregate:聚合- company.go- home.go- park.go- school.go- entity:实体- people.go- vo:值对象- account.go- identity_card.go- student_card.go- work_card.go我们将身份证、学生卡、工卡、银行卡这几个概念，建模为值对象（Value Object）：
+package vo // 身份证 type IdentityCard struct { Id uint32 Name string } // 学生卡 type StudentCard struct { Id uint32 Name string School string } // 工卡 type WorkCard struct { Id uint32 Name string Company string } // 银行卡 type Account struct { Id uint32 Balance int } .</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>单元测试 on 元闰子的邀请</title>
+    <link>https://www.yrunz.com/tags/%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95/</link>
+    <description>Recent content in 单元测试 on 元闰子的邀请</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 10 Jan 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://www.yrunz.com/tags/%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>如何高效编写Go单元测试（二）</title>
+      <link>https://www.yrunz.com/p/%E5%A6%82%E4%BD%95%E9%AB%98%E6%95%88%E7%BC%96%E5%86%99go%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E4%BA%8C/</link>
+      <pubDate>Sun, 10 Jan 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E5%A6%82%E4%BD%95%E9%AB%98%E6%95%88%E7%BC%96%E5%86%99go%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E4%BA%8C/</guid>
+      <description>前言 上一篇文章《如何高效编写Go单元测试（一）》主要介绍了如何使用第三方断言库来使Go单元测试的代码更加简洁和具备可读性，本文我们来聊聊单元测试中的“打桩”。
+// 判断一个字符串s是否是回文字符串 func IsPalindrome(s string) bool { for i := range s { if s[i] != s[len(s)-1-i] { return false } } return true } go test框架足以应对像上述IsPalindrome这种简单的方法的单元测试，但是对于一些较为复杂的方法和模块，go test多多少少会显得力不从心。比如当你需要对依赖了很多第三方库或者跟平台、环境强相关的模块进行单元测试时，仅仅使用go test往往不能使测试用例正常的执行结束，更别说达到代码验证的目的了。
+// 判断/opt/container/config.properties文件中是否包含str字符串 func isConfigFileContain(str string) bool { file, err := os.Open(&amp;#34;/opt/container/config.properties&amp;#34;) if err != nil { panic(err) } content, err := ioutil.ReadAll(file) if err != nil { panic(err) } return strings.Contains(string(content), str) } 假设想要对上述isConfigFileContain函数进行单元测试，因为函数本身依赖了程序实际运行环境才有的/opt/container/config.properties文件，所以如果对其进行如下的单元测试，运行结果肯定出错。
+func TestIsConfigFileContain(t *testing.T) { ast := assert.</description>
+    </item>
+    
+    <item>
+      <title>如何高效编写Go单元测试（一）</title>
+      <link>https://www.yrunz.com/p/%E5%A6%82%E4%BD%95%E9%AB%98%E6%95%88%E7%BC%96%E5%86%99go%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E4%B8%80/</link>
+      <pubDate>Tue, 22 Dec 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E5%A6%82%E4%BD%95%E9%AB%98%E6%95%88%E7%BC%96%E5%86%99go%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E4%B8%80/</guid>
+      <description>前言 单元测试是用来对一个模块、一个函数或者一个类来进行正确性检验的测试工作。我们根据它来检验代码的行为是否和预期的一样，如果单元测试不通过，要么代码有bug，要么测试条件输入不正确，总之，需要修复使单元测试能够通过。单元测试一个最大的好处，就是确保一个程序模块的行为符合我们设计的预期，在将来对代码进行修改/重构时，还能最大限度地保证代码的行为仍然正确。
+Go对单元测试的支持已经相当友好了，原生的go test标准库就是专门用来进行单元测试的编写的。使用go test编写单元测试时需要遵循一些约定，比如所有测试代码都需要添加到_test.go结尾的测试文件中，这样在使用go build进行构建时，测试代码才会被排除在外。另外，每个测试函数都必须导入testing包，测试函数的名字必须以Test开头，且跟在Test后面的后缀名必须以大写开头，因此测试函数的声明应该是这样的：
+func TestSin(t *testing.T) { /* ... */ } func TestCos(t *testing.T) { /* ... */ } func TestLog(t *testing.T) { /* ... */ } _test.go测试文件通常和需要被测试的文件放在同一个包内，比如有如下的一段待测试的代码（在word包目录下的word.go文件）：
+package word // 判断一个字符串s是否时回文字符串 func IsPalindrome(s string) bool { for i := range s { if s[i] != s[len(s)-1-i] { return false } } return true } 那么在编写测试时，我们同样在word包目录下，创建一个word_test.go文件，单元测试的代码如下：
+package word import &amp;#34;testing&amp;#34; func TestPalindrome(t *testing.T) { // &amp;#34;detartrated&amp;#34;是一个回文字符串，因此IsPalindrome(&amp;#34;detartrated&amp;#34;)的返回值应该为true  // 如果返回false，则表示其实现有问题，需要使用t.</description>
+    </item>
+    
+  </channel>
+</rss>

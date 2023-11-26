@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='软件架构、操作系统、数据库、软件开发... 做一个全栈的软件工程师'><title>计算机软件类书籍</title>
+
+<link rel='canonical' href='https://www.yrunz.com/p/%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%BD%AF%E4%BB%B6%E7%B1%BB%E4%B9%A6%E7%B1%8D/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='计算机软件类书籍'>
+<meta property='og:description' content='软件架构、操作系统、数据库、软件开发... 做一个全栈的软件工程师'>
+<meta property='og:url' content='https://www.yrunz.com/p/%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%BD%AF%E4%BB%B6%E7%B1%BB%E4%B9%A6%E7%B1%8D/'>
+<meta property='og:site_name' content='元闰子的邀请'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='书单' /><meta property='article:published_time' content='2021-06-05T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2021-06-05T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="计算机软件类书籍">
+<meta name="twitter:description" content="软件架构、操作系统、数据库、软件开发... 做一个全栈的软件工程师">
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "light");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/yrz_hudc7c8721ecce4b724df5002339c76402_174377_300x0_resize_box_2.png" width="300"
+                            height="306" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://www.yrunz.com">元闰子的邀请</a></h1>
+        <h2 class="site-description">阅读、写作、生活（个人技术分享）</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>首页</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>博客</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%85%B3%E4%BA%8E%E5%85%83%E9%97%B0%E5%AD%90/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24"
+     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+     stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z"/>
+    <circle cx="12" cy="7" r="4"/>
+    <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/>
+</svg>
+
+                
+                <span>关于元闰子</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%8F%8B%E6%83%85%E9%93%BE%E6%8E%A5/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-friends" width="44" height="44"
+     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+    <circle cx="7" cy="5" r="2"/>
+    <path d="M5 22v-5l-1 -1v-4a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4l-1 1v5"/>
+    <circle cx="17" cy="5" r="2"/>
+    <path d="M15 22v-4h-2l2 -6a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1l2 6h-2v4"/>
+</svg>
+
+                
+                <span>友情链接</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>暗色模式</span>
+            </li>
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://www.yrunz.com" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E8%AF%BB%E4%B9%A6%E7%9A%84%E5%9C%B0%E6%96%B9/" >
+                读书的地方
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%BD%AF%E4%BB%B6%E7%B1%BB%E4%B9%A6%E7%B1%8D/">计算机软件类书籍</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        软件架构、操作系统、数据库、软件开发... 做一个全栈的软件工程师
+    </h3>
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Jun 05, 2021</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <h2 id="进行中">进行中</h2>
+<p>《<strong>Database System Concepts(7th Edition)</strong>》，10%，数据库必读书籍，相比第 6 版增加了很多新内容，结合 CMU 的公开课，很棒。</p>
+<p>《<strong>Spark SQL 内核剖析</strong>》，5%，作为阅读 Spark SQL 源码的引导还是不错的。</p>
+<h2 id="挂起中">挂起中</h2>
+<p>《<strong>Fundamentals of Software Architecture</strong>》，80%，架构师的入门指南，书中介绍各种常用的架构模式，教你如何设计一个好的软件系统，而且也会教你如何成为一个优秀的Tech Leader。</p>
+<p>《<strong>Designing Data-Intensive Applications</strong>》，90%，值得时常温习的一本后端技术大全，每读一章都醍醐灌顶。</p>
+<p>《<strong>The Programmer’s Brain</strong>》：20%， 从认知科学的角度教你如何更好地阅读代码、理解代码、编写代码，对于程序员新手来说值得一读。书中提到的很多学习程序的方法，感觉就是将有经验的程序员的一些学习方法，结合认知科学的理论更好地呈现了出来。</p>
+<p>《<strong>Operating Systems: Three Easy Pieces</strong>》，90%，巩固一下操作系统基础，这本书将操作系统的知识点讲得非常清晰易懂。</p>
+<p>《<strong>Database Internals：A deep-dive into how distributed data systems work</strong>》，5%，复习一下数据库知识。</p>
+<h2 id="已完成">已完成</h2>
+<p>《<strong>大数据处理框架 Apache Spark 设计与实现</strong>》，100%，将 Spark 的一些核心流程介绍得很易懂，而且有很多图片示范，但是还不够深入，没有结合源码来介绍。</p>
+<p>《<strong>Trino - The Definitive Guide</strong>》，100%，入门 Presto / Trino 的不错书籍，对架构、核心流程介绍的比官方文档要详细些。但是也不够深入，主要面向的是框架用户，而不是框架内核开发。</p>
+<p>《<strong>凤凰架构</strong>》，100%，周志明老师的又一力作，从架构的视角介绍了如何构建大型分布式系统，全书的话题涉猎很广，基本把分布式系统所能涉及的知识点都讲解了，比如远程服务调用、事务、安全、一致性等。书中罗列了很多参考阅读材料，可作为进阶架构师的一本导航书，如果把其中提到的知识点都研究透，那么可以就成为专家了。</p>
+<p>《<strong>软件架构设计：大型网站技术架构与业务架构融合之道</strong>》，100%，可以作为架构设计的入门书籍，知识面很广，但是不够深入。</p>
+<p>《<strong>Microservices vs. Service-Oriented Architecture</strong>》，100%，比较微服务架构和面向服务架构的异同点。</p>
+<p>《<strong>Go: Design Patterns for Real-World Projects</strong>》，100%，主要通过TDD的流程来讲解如何使用Go实现经典的23种设计模式，其中也介绍了Go的一些基础知识。书的整体水准一般，但也算是开卷有益。</p>
+<p>《<strong>Go语言程序设计语言</strong>》，100%，Go语言圣经，学习Go语言的必读之书，也是需要时常温习的一本经典书籍。</p>
+<p>《<strong>On Java 8</strong>》，100%，《Java编程思想》的<strong>Java 8</strong>版本，全面而详细地介绍了Java 8的各种基础知识。即使已经使用Java两年了，读这本书的过程中的还是获益匪浅，仔细阅读每一句话，会有意想不到的收获。</p>
+<p>《<strong>Java 8 实战</strong>》，100%，介绍了<strong>Java 8</strong>的各种新特性，新的日期API、Stream、Optional等都非常地好用，读完这本书，可以让你写出可读性更好的Java 8风格代码。</p>
+<p>《<strong>A Philosophy of Software Design</strong>》，100%，介绍降低软件复杂性的一些很实用的方法，比如写好代码注释，做好接口设计等。</p>
+<p>《<strong>微服务架构设计模式</strong>》，100%，深入浅出地把<strong>微服务</strong>的架构设计、开发、测试和发布运维都介绍了一遍，而且提供了很多例子，有助于加深理解微服务的各种概念。</p>
+<p>《<strong>实践领域驱动设计</strong>》，100%，对我影响很深的一本技术类书籍，对提升软件设计能力、写出优雅代码很有帮助。相比于Eric Evans的那本《领域驱动设计》，该书结合了大量的例子，让<strong>DDD</strong>中的各种概念更容易理解些。</p>
+<p>《<strong>领域驱动设计：软件核心复杂性应对之道</strong>》，100%，领域驱动设计的开山之作，内容比较偏理论。初读晦涩难懂，只依稀记得几个概念，再读时，对里面的一些概念也就理解清晰了许多。</p>
+<p>《<strong>架构整洁之道</strong>》，100%，《代码整洁之道》作者的又一力作，涵盖软件研发完整过程及所有核心架构模式。</p>
+<p>《<strong>Streaming Systems</strong>》，100%，目前流式计算框架五花八门，这本书以Apache Beam框架为例子，介绍了<strong>流式系统</strong>的一些通用概念。先了解Apache Beam，再来读这本书，里面的概念更容易理解些。</p>
+<p>《<strong>企业IT架构转型之道：阿里巴巴中台战略思想与架构实践</strong>》，100%，介绍阿里巴巴架构的演变过程，帮助了解时下热门的 “<strong>中台</strong>“ 概念的由来和含义。</p>
+<p>《<strong>聊聊“架构”</strong>》，100%，与“<strong>架构</strong>”相关的概念居多，没有太多的干货。</p>
+<p>《<strong>重构：改善既有代码的设计</strong>》，100%，深入浅出介绍了重构的各种常见方法，对写好代码很有帮助。</p>
+<p>《<strong>HBase不睡觉书</strong>》，100%，介绍了<strong>HBase</strong>的架构原理和用法，适合入门，相对于《HBase权威指南》，这本书确实不容易让人睡觉。</p>
+<p>《<strong>Apache Kafka源码剖析</strong>》，100%，介绍Kafka的设计思想和实现，对Kafka的使用者而言，很值得一读。</p>
+<p>《<strong>构建之法</strong>》，100%，介绍软件工程的一些概念，对技术管理很有帮助。</p>
+<p>《<strong>Redis设计与实现</strong>》，100%，介绍Redis的设计原理和数据结构。</p>
+<p>《<strong>MySQL技术内幕：InnoDB存储引擎</strong>》，100%，介绍InnoDB的技术原理和工作机制，对理解数据库技术很有帮助。</p>
+<p>《<strong>编写可读代码的艺术</strong>》，100%，提升代码可读性。</p>
+<p>《<strong>程序员的自我修养 : 链接、装载与库</strong>》，100%，主要讲C/C++运行库的工作原理。</p>
+<p>《<strong>STL源码剖析</strong>》，100%，侯捷老师是何等的功力深厚，才能讲STL剖析得如此清楚。</p>
+<p>《<strong>Effective C++：改善程序与设计的55个具体做法</strong>》，100%，可以将C++水平提升一个档次的书籍。</p>
+<p>《<strong>C++ Primer</strong>》，100%，值得反复翻看的C++经典书籍。</p>
+<h2 id="计划中">计划中</h2>
+<p>《<strong>HBase原理与实践</strong>》</p>
+<p>《<strong>Apache Kafka实战</strong>》</p>
+<p>《<strong>Go语言笔记</strong>》</p>
+<p>《<strong>反应式设计模式</strong>》</p>
+<p>《<strong>Principles of Computer System Design</strong>》</p>
+<p>《<strong>敏捷整洁之道：回归本源</strong>》</p>
+<p>《<strong>Transaction Processing</strong>》</p>
+<p>《<strong>The Garbage Collection Handbook</strong>》</p>
+<p>《<strong>Category Theory for Programmers</strong>》</p>
+<p>《<strong>The Effective Engineer：How to Leverage Your Efforts in Software Engineering to Make a Disproportionate and Meaningful Impact</strong>》</p>
+<p>《<strong>TCP/IP Illustrated, Volume 1: The Protocols</strong>》</p>
+<p>《<strong>API Design Patterns</strong>》</p>
+<p>《<strong>Righting Software</strong>》</p>
+<p>《<strong>Software Architecture: The Hard Parts</strong>》</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/%E4%B9%A6%E5%8D%95/">书单</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>CC BY 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/%E4%BA%BA%E6%96%87%E7%A4%BE%E7%A7%91%E7%B1%BB%E4%B9%A6%E7%B1%8D/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">人文社科类书籍</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E7%A7%91%E6%99%AE%E7%B1%BB%E4%B9%A6%E7%B1%8D/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">科普类书籍</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E7%BB%8F%E6%B5%8E%E6%8A%95%E8%B5%84%E7%B1%BB%E4%B9%A6%E7%B1%8D/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">经济投资类书籍</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E7%BA%B3%E7%93%A6%E5%B0%94%E5%AE%9D%E5%85%B8%E5%A6%82%E4%BD%95%E8%8E%B7%E5%BE%97%E5%B9%B8%E7%A6%8F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">《纳瓦尔宝典》：如何获得幸福？</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E7%BA%B3%E7%93%A6%E5%B0%94%E5%AE%9D%E5%85%B8%E5%A6%82%E4%BD%95%E7%A7%AF%E7%B4%AF%E8%B4%A2%E5%AF%8C/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">《纳瓦尔宝典》：如何积累财富？</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+
+    
+        
+    <script src="https://utteranc.es/client.js" 
+        repo="ruanrunxue/yrunz-comments"
+        issue-term="pathname"
+        
+        label="yrunz"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
+
+<style>
+    .utterances {
+        max-width: unset;
+    }
+</style>
+
+<script>
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
+        }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+        setUtterancesTheme(document.body.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        setUtterancesTheme(e.detail)
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_SVG"></script>
+    <section class="copyright">
+        &copy;
+        
+            2019 -
+        
+        2023 元闰子的邀请
+    </section>
+
+    <section class="powerby">
+        
+
+        <a href="https://beian.miit.gov.cn/">粤ICP备19152659号 | </a>Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.3.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        <br />
+    </section>
+</footer>
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

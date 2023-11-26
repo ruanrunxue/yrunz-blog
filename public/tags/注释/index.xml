@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>注释 on 元闰子的邀请</title>
+    <link>https://www.yrunz.com/tags/%E6%B3%A8%E9%87%8A/</link>
+    <description>Recent content in 注释 on 元闰子的邀请</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 04 Dec 2019 00:00:00 +0000</lastBuildDate><atom:link href="https://www.yrunz.com/tags/%E6%B3%A8%E9%87%8A/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>教你写好代码注释</title>
+      <link>https://www.yrunz.com/p/%E6%95%99%E4%BD%A0%E5%86%99%E5%A5%BD%E4%BB%A3%E7%A0%81%E6%B3%A8%E9%87%8A/</link>
+      <pubDate>Wed, 04 Dec 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E6%95%99%E4%BD%A0%E5%86%99%E5%A5%BD%E4%BB%A3%E7%A0%81%E6%B3%A8%E9%87%8A/</guid>
+      <description>前言 相信大家都会遇到这种情况：一周前自己写的代码，现在再拿出来看，发现读不懂了，“ 这代码是我写的？？？”。这时候，代码注释就可以发挥它的作用了——提高晦涩难懂的代码的可读性；注释可以起到隐藏代码复杂细节的作用，比如接口注释可以帮助开发者在没有阅读代码的情况下快速了解该接口的功能和用法；如果写的好，注释还可以改善系统的设计。
+既然注释这么多好处，为什么我们程序员还是不愿意写注释？
+“代码都写不完了，哪有时间写注释，以后再补吧“
+时间不够论。这是最常见的原因，在交付速度飞快的今天，“代码写不完”是一个再常见不过的情况了，但写注释真的会导致需求延迟吗？绝不！相对于写一个接口的实现，写接口注释的时间可能只需要花费前者的5%。但不写注释，后面使用接口的人必须要多花费**50%**的时间去读懂代码！而且对于大部分程序员而言，“以后再补“大概要到2910年才能落实。
+“好的代码就是最好的注释，我的代码可读性很好，没必要写注释”
+好代码胜过注释论。不少程序员认为，好的代码就是最好的注释，只要代码可读性好，注释就可以省去。然而一个软件系统很多信息是无法通过代码呈现出来的，比如系统的设计思路、函数执行的预置条件等等。此外，代码可读性也不是绝对的，对于一个没有使用过Java 8 的 Lambda表达式的开发者而言，通篇的箭头“-&amp;gt;“简直就是一场噩梦。
+”过期的注释容易误导人“
+过期注释论。不可否认，过期的注释很容易误导读者，但是这并不能成为否认注释的借口。除非是重大的重构或重写，对注释进行大改动的情况很少出现。通常，在更改代码之后，只需花费极少的时间去更新注释，就可以避免过期注释这种情况了。
+注释的分类 注释大致可以分成四类：接口注释、数据成员注释、实现注释和模块依赖注释。
+接口注释 平时我们所说的接口，通常指的是一个类（包括interface、class、enum）和方法。对类而言，接口注释主要描述该类提供的功能；对方法而言，除了描述方法功能之外，方法的入参和返回值都要进行说明。当然，使用类/方法的一些预置条件和副作用等信息都需要在接口注释中提到。
+/** * Returns the length of this string. * The length is equal to the number of &amp;lt;a href=&amp;#34;Character.html#unicode&amp;#34;&amp;gt;Unicode * code units&amp;lt;/a&amp;gt; in the string. * * @return the length of the sequence of characters represented by this * object. */ public int length() { return value.length; }  典型的接口注释（选自JDK 1.8中的String类）
+ 数据成员注释 数据成员注释和接口注释在大多数情况下都是必须的，这对于让读者快速读懂代码有很大的帮助。数据成员包括类的普通成员变量和静态成员变量，数据成员注释除了描述数据成员的本身用途之外，成员的默认值、副作用等信息都需要提及。</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='将DCI架构总结成一句话就是：领域对象（Object）在不同的场景（Context）中扮演（Cast）不同的角色（Role），角色之间通过交互（Interactive）来完成具体的业务逻辑。'><title>实现DCI架构</title>
+
+<link rel='canonical' href='https://www.yrunz.com/p/%E5%AE%9E%E7%8E%B0dci%E6%9E%B6%E6%9E%84/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='实现DCI架构'>
+<meta property='og:description' content='将DCI架构总结成一句话就是：领域对象（Object）在不同的场景（Context）中扮演（Cast）不同的角色（Role），角色之间通过交互（Interactive）来完成具体的业务逻辑。'>
+<meta property='og:url' content='https://www.yrunz.com/p/%E5%AE%9E%E7%8E%B0dci%E6%9E%B6%E6%9E%84/'>
+<meta property='og:site_name' content='元闰子的邀请'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='架构' /><meta property='article:tag' content='DCI' /><meta property='article:published_time' content='2021-10-10T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2021-10-10T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="实现DCI架构">
+<meta name="twitter:description" content="将DCI架构总结成一句话就是：领域对象（Object）在不同的场景（Context）中扮演（Cast）不同的角色（Role），角色之间通过交互（Interactive）来完成具体的业务逻辑。">
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "light");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/yrz_hudc7c8721ecce4b724df5002339c76402_174377_300x0_resize_box_2.png" width="300"
+                            height="306" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://www.yrunz.com">元闰子的邀请</a></h1>
+        <h2 class="site-description">阅读、写作、生活（个人技术分享）</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>首页</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>博客</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%85%B3%E4%BA%8E%E5%85%83%E9%97%B0%E5%AD%90/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24"
+     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+     stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z"/>
+    <circle cx="12" cy="7" r="4"/>
+    <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/>
+</svg>
+
+                
+                <span>关于元闰子</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%8F%8B%E6%83%85%E9%93%BE%E6%8E%A5/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-friends" width="44" height="44"
+     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+    <circle cx="7" cy="5" r="2"/>
+    <path d="M5 22v-5l-1 -1v-4a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4l-1 1v5"/>
+    <circle cx="17" cy="5" r="2"/>
+    <path d="M15 22v-4h-2l2 -6a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1l2 6h-2v4"/>
+</svg>
+
+                
+                <span>友情链接</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>暗色模式</span>
+            </li>
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://www.yrunz.com" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E6%9E%B6%E6%9E%84/" >
+                架构
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/%E5%AE%9E%E7%8E%B0dci%E6%9E%B6%E6%9E%84/">实现DCI架构</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        将DCI架构总结成一句话就是：领域对象（Object）在不同的场景（Context）中扮演（Cast）不同的角色（Role），角色之间通过交互（Interactive）来完成具体的业务逻辑。
+    </h3>
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Oct 10, 2021</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <h2 id="前言">前言</h2>
+<p>在面向对象编程的理念里，应用程序是对现实世界的抽象，我们经常会将现实中的事物建模为编程语言中的类/对象（“<strong>是什么</strong>”），而事物的行为则建模为方法（“<strong>做什么</strong>”）。面向对象编程有<strong>三大基本特性</strong>（封装、继承/组合、多态）和<strong>五大基本原则</strong>（单一职责原则、开放封闭原则、里氏替换原则、依赖倒置原则、接口分离原则），但知道这些还并不足以让我们设计出好的程序，于是很多方法论就涌现了出来。</p>
+<p>近来最火的当属领域驱动设计（DDD），其中战术建模提出的实体、值对象、聚合等建模方法，能够很好的指导我们设计出符合现实世界的领域模型。但DDD也不是万能的，在某些应用场景下，按照传统的战术建模/面向对象方法设计出来的程序，也会存在可维护性差、违反单一职责原则等问题。</p>
+<p>本文介绍的<strong>DCI建模方法</strong>可以看成是战术建模的一种辅助，在某些场景下，它可以很好的弥补DDD战术建模的一些缺点。接下来，我们将会通过一个案例来介绍DCI是如何解决DDD战术建模的这些缺点的。</p>
+<blockquote>
+<p>本文涉及的代码归档在github项目：https://github.com/ruanrunxue/DCI-Architecture-Implementation</p>
+</blockquote>
+<h2 id="案例">案例</h2>
+<p>考虑一个普通人的生活日常，他会在学校上课，也会趁着暑假去公司工作，在工作之余去公园游玩，也会像普通人一样在家吃喝玩乐。当然，一个人的生活还远不止这些，为了讲解方便，本文只针对这几个典型的场景进行建模示例。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNgy1gulxnp2uryj61400l6q7202.jpg" alt=""  /></p>
+<h2 id="使用ddd建模">使用DDD建模</h2>
+<p>按照DDD战术建模的思路，首先，我们会列出该案例的<strong>通用语言</strong>：</p>
+<blockquote>
+<p>人、身份证、银行卡、家、吃饭、睡觉、玩游戏、学校、学生卡、学习、考试、公司、工卡、上班、下班、公园、购票、游玩</p>
+</blockquote>
+<p>接着，我们使用战术建模技术（<strong>值对象</strong>、<strong>实体</strong>、<strong>聚合</strong>、<strong>领域服务</strong>、<strong>资源库</strong>）对通用语言进行领域建模。</p>
+<p>DDD建模后的代码目录结构如下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml">- <span class="nt">aggregate</span><span class="p">:</span><span class="w"> </span><span class="l">聚合</span><span class="w">
+</span><span class="w">  </span>- <span class="l">company.go</span><span class="w">
+</span><span class="w">  </span>- <span class="l">home.go</span><span class="w">
+</span><span class="w">  </span>- <span class="l">park.go</span><span class="w">
+</span><span class="w">  </span>- <span class="l">school.go</span><span class="w">
+</span><span class="w"></span>- <span class="nt">entity</span><span class="p">:</span><span class="w"> </span><span class="l">实体</span><span class="w">
+</span><span class="w">  </span>- <span class="l">people.go</span><span class="w">
+</span><span class="w"></span>- <span class="nt">vo</span><span class="p">:</span><span class="w"> </span><span class="l">值对象</span><span class="w">
+</span><span class="w">  </span>- <span class="l">account.go</span><span class="w">
+</span><span class="w">  </span>- <span class="l">identity_card.go</span><span class="w">
+</span><span class="w">  </span>- <span class="l">student_card.go</span><span class="w">
+</span><span class="w">  </span>- <span class="l">work_card.go</span><span class="w">
+</span></code></pre></div><p>我们将身份证、学生卡、工卡、银行卡这几个概念，建模为<strong>值对象</strong>（Value Object）：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">vo</span>
+
+<span class="c1">// 身份证
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">IdentityCard</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">Id</span>   <span class="kt">uint32</span>
+	<span class="nx">Name</span> <span class="kt">string</span>
+<span class="p">}</span>
+
+<span class="c1">// 学生卡
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">StudentCard</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">Id</span>     <span class="kt">uint32</span>
+	<span class="nx">Name</span>   <span class="kt">string</span>
+	<span class="nx">School</span> <span class="kt">string</span>
+<span class="p">}</span>
+
+<span class="c1">// 工卡
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">WorkCard</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">Id</span>      <span class="kt">uint32</span>
+	<span class="nx">Name</span>    <span class="kt">string</span>
+	<span class="nx">Company</span> <span class="kt">string</span>
+<span class="p">}</span>
+
+<span class="c1">// 银行卡
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Account</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">Id</span>      <span class="kt">uint32</span>
+	<span class="nx">Balance</span> <span class="kt">int</span>
+<span class="p">}</span>
+
+<span class="o">...</span>
+</code></pre></div><p>接着我们将人建模成<strong>实体</strong>（Entity），他包含了身份证、学生卡等值对象，也具备吃饭、睡觉等行为：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">entity</span>
+
+<span class="c1">// 人
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">People</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">vo</span><span class="p">.</span><span class="nx">IdentityCard</span>
+	<span class="nx">vo</span><span class="p">.</span><span class="nx">StudentCard</span>
+	<span class="nx">vo</span><span class="p">.</span><span class="nx">WorkCard</span>
+	<span class="nx">vo</span><span class="p">.</span><span class="nx">Account</span>
+<span class="p">}</span>
+
+<span class="c1">// 学习
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">People</span><span class="p">)</span> <span class="nf">Study</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Student %+v studying\n&#34;</span><span class="p">,</span> <span class="nx">p</span><span class="p">.</span><span class="nx">StudentCard</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="c1">// 考试
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">People</span><span class="p">)</span> <span class="nf">Exam</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Student %+v examing\n&#34;</span><span class="p">,</span> <span class="nx">p</span><span class="p">.</span><span class="nx">StudentCard</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="c1">// 吃饭
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">People</span><span class="p">)</span> <span class="nf">Eat</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%+v eating\n&#34;</span><span class="p">,</span> <span class="nx">p</span><span class="p">.</span><span class="nx">IdentityCard</span><span class="p">)</span>
+	<span class="nx">p</span><span class="p">.</span><span class="nx">Account</span><span class="p">.</span><span class="nx">Balance</span><span class="o">--</span>
+<span class="p">}</span>
+<span class="c1">// 睡觉
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">People</span><span class="p">)</span> <span class="nf">Sleep</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%+v sleeping\n&#34;</span><span class="p">,</span> <span class="nx">p</span><span class="p">.</span><span class="nx">IdentityCard</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="c1">// 玩游戏
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">People</span><span class="p">)</span> <span class="nf">PlayGame</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%+v playing game\n&#34;</span><span class="p">,</span> <span class="nx">p</span><span class="p">.</span><span class="nx">IdentityCard</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="c1">// 上班
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">People</span><span class="p">)</span> <span class="nf">Work</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%+v working\n&#34;</span><span class="p">,</span> <span class="nx">p</span><span class="p">.</span><span class="nx">WorkCard</span><span class="p">)</span>
+	<span class="nx">p</span><span class="p">.</span><span class="nx">Account</span><span class="p">.</span><span class="nx">Balance</span><span class="o">++</span>
+<span class="p">}</span>
+<span class="c1">// 下班
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">People</span><span class="p">)</span> <span class="nf">OffWork</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%+v getting off work\n&#34;</span><span class="p">,</span> <span class="nx">p</span><span class="p">.</span><span class="nx">WorkCard</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="c1">// 购票
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">People</span><span class="p">)</span> <span class="nf">BuyTicket</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%+v buying a ticket\n&#34;</span><span class="p">,</span> <span class="nx">p</span><span class="p">.</span><span class="nx">IdentityCard</span><span class="p">)</span>
+	<span class="nx">p</span><span class="p">.</span><span class="nx">Account</span><span class="p">.</span><span class="nx">Balance</span><span class="o">--</span>
+<span class="p">}</span>
+<span class="c1">// 游玩
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">People</span><span class="p">)</span> <span class="nf">Enjoy</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%+v enjoying park scenery\n&#34;</span><span class="p">,</span> <span class="nx">p</span><span class="p">.</span><span class="nx">IdentityCard</span><span class="p">)</span>
+<span class="p">}</span>
+
+</code></pre></div><p>最后，我们将学校、公司、公园、家建模成<strong>聚合</strong>（Aggregate），聚合由一个或多个实体、值对象组合而成，组织它们完成具体的业务逻辑：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">aggregate</span>
+
+<span class="c1">// 家
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Home</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">me</span> <span class="o">*</span><span class="nx">entity</span><span class="p">.</span><span class="nx">People</span>
+<span class="p">}</span>
+<span class="kd">func</span> <span class="p">(</span><span class="nx">h</span> <span class="o">*</span><span class="nx">Home</span><span class="p">)</span> <span class="nf">ComeBack</span><span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">entity</span><span class="p">.</span><span class="nx">People</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%+v come back home\n&#34;</span><span class="p">,</span> <span class="nx">p</span><span class="p">.</span><span class="nx">IdentityCard</span><span class="p">)</span>
+	<span class="nx">h</span><span class="p">.</span><span class="nx">me</span> <span class="p">=</span> <span class="nx">p</span>
+<span class="p">}</span>
+<span class="c1">// 执行Home的业务逻辑
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">h</span> <span class="o">*</span><span class="nx">Home</span><span class="p">)</span> <span class="nf">Run</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">h</span><span class="p">.</span><span class="nx">me</span><span class="p">.</span><span class="nf">Eat</span><span class="p">()</span>
+	<span class="nx">h</span><span class="p">.</span><span class="nx">me</span><span class="p">.</span><span class="nf">PlayGame</span><span class="p">()</span>
+	<span class="nx">h</span><span class="p">.</span><span class="nx">me</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">()</span>
+<span class="p">}</span>
+
+<span class="c1">// 学校
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">School</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">Name</span>     <span class="kt">string</span>
+	<span class="nx">students</span> <span class="p">[]</span><span class="o">*</span><span class="nx">entity</span><span class="p">.</span><span class="nx">People</span>
+<span class="p">}</span>
+<span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">School</span><span class="p">)</span> <span class="nf">Receive</span><span class="p">(</span><span class="nx">student</span> <span class="o">*</span><span class="nx">entity</span><span class="p">.</span><span class="nx">People</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">student</span><span class="p">.</span><span class="nx">StudentCard</span> <span class="p">=</span> <span class="nx">vo</span><span class="p">.</span><span class="nx">StudentCard</span><span class="p">{</span>
+		<span class="nx">Id</span><span class="p">:</span>     <span class="nx">rand</span><span class="p">.</span><span class="nf">Uint32</span><span class="p">(),</span>
+		<span class="nx">Name</span><span class="p">:</span>   <span class="nx">student</span><span class="p">.</span><span class="nx">IdentityCard</span><span class="p">.</span><span class="nx">Name</span><span class="p">,</span>
+		<span class="nx">School</span><span class="p">:</span> <span class="nx">s</span><span class="p">.</span><span class="nx">Name</span><span class="p">,</span>
+	<span class="p">}</span>
+	<span class="nx">s</span><span class="p">.</span><span class="nx">students</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">s</span><span class="p">.</span><span class="nx">students</span><span class="p">,</span> <span class="nx">student</span><span class="p">)</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%s Receive stduent %+v\n&#34;</span><span class="p">,</span> <span class="nx">s</span><span class="p">.</span><span class="nx">Name</span><span class="p">,</span> <span class="nx">student</span><span class="p">.</span><span class="nx">StudentCard</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="c1">// 执行School的业务逻辑
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">School</span><span class="p">)</span> <span class="nf">Run</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%s start class\n&#34;</span><span class="p">,</span> <span class="nx">s</span><span class="p">.</span><span class="nx">Name</span><span class="p">)</span>
+	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">student</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">s</span><span class="p">.</span><span class="nx">students</span> <span class="p">{</span>
+		<span class="nx">student</span><span class="p">.</span><span class="nf">Study</span><span class="p">()</span>
+	<span class="p">}</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;students start to eating&#34;</span><span class="p">)</span>
+	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">student</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">s</span><span class="p">.</span><span class="nx">students</span> <span class="p">{</span>
+		<span class="nx">student</span><span class="p">.</span><span class="nf">Eat</span><span class="p">()</span>
+	<span class="p">}</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;students start to exam&#34;</span><span class="p">)</span>
+	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">student</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">s</span><span class="p">.</span><span class="nx">students</span> <span class="p">{</span>
+		<span class="nx">student</span><span class="p">.</span><span class="nf">Exam</span><span class="p">()</span>
+	<span class="p">}</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%s finish class\n&#34;</span><span class="p">,</span> <span class="nx">s</span><span class="p">.</span><span class="nx">Name</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// 公司
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Company</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">Name</span>    <span class="kt">string</span>
+	<span class="nx">workers</span> <span class="p">[]</span><span class="o">*</span><span class="nx">entity</span><span class="p">.</span><span class="nx">People</span>
+<span class="p">}</span>
+<span class="kd">func</span> <span class="p">(</span><span class="nx">c</span> <span class="o">*</span><span class="nx">Company</span><span class="p">)</span> <span class="nf">Employ</span><span class="p">(</span><span class="nx">worker</span> <span class="o">*</span><span class="nx">entity</span><span class="p">.</span><span class="nx">People</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">worker</span><span class="p">.</span><span class="nx">WorkCard</span> <span class="p">=</span> <span class="nx">vo</span><span class="p">.</span><span class="nx">WorkCard</span><span class="p">{</span>
+		<span class="nx">Id</span><span class="p">:</span>      <span class="nx">rand</span><span class="p">.</span><span class="nf">Uint32</span><span class="p">(),</span>
+		<span class="nx">Name</span><span class="p">:</span>    <span class="nx">worker</span><span class="p">.</span><span class="nx">IdentityCard</span><span class="p">.</span><span class="nx">Name</span><span class="p">,</span>
+		<span class="nx">Company</span><span class="p">:</span> <span class="nx">c</span><span class="p">.</span><span class="nx">Name</span><span class="p">,</span>
+	<span class="p">}</span>
+	<span class="nx">c</span><span class="p">.</span><span class="nx">workers</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">c</span><span class="p">.</span><span class="nx">workers</span><span class="p">,</span> <span class="nx">worker</span><span class="p">)</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%s Employ worker %s\n&#34;</span><span class="p">,</span> <span class="nx">c</span><span class="p">.</span><span class="nx">Name</span><span class="p">,</span> <span class="nx">worker</span><span class="p">.</span><span class="nx">WorkCard</span><span class="p">.</span><span class="nx">Name</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="c1">// 执行Company的业务逻辑
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">c</span> <span class="o">*</span><span class="nx">Company</span><span class="p">)</span> <span class="nf">Run</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%s start work\n&#34;</span><span class="p">,</span> <span class="nx">c</span><span class="p">.</span><span class="nx">Name</span><span class="p">)</span>
+	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">worker</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">c</span><span class="p">.</span><span class="nx">workers</span> <span class="p">{</span>
+		<span class="nx">worker</span><span class="p">.</span><span class="nf">Work</span><span class="p">()</span>
+	<span class="p">}</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;worker start to eating&#34;</span><span class="p">)</span>
+	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">worker</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">c</span><span class="p">.</span><span class="nx">workers</span> <span class="p">{</span>
+		<span class="nx">worker</span><span class="p">.</span><span class="nf">Eat</span><span class="p">()</span>
+	<span class="p">}</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;worker get off work&#34;</span><span class="p">)</span>
+	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">worker</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">c</span><span class="p">.</span><span class="nx">workers</span> <span class="p">{</span>
+		<span class="nx">worker</span><span class="p">.</span><span class="nf">OffWork</span><span class="p">()</span>
+	<span class="p">}</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%s finish work\n&#34;</span><span class="p">,</span> <span class="nx">c</span><span class="p">.</span><span class="nx">Name</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// 公园
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Park</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">Name</span>     <span class="kt">string</span>
+	<span class="nx">enjoyers</span> <span class="p">[]</span><span class="o">*</span><span class="nx">entity</span><span class="p">.</span><span class="nx">People</span>
+<span class="p">}</span>
+<span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">Park</span><span class="p">)</span> <span class="nf">Welcome</span><span class="p">(</span><span class="nx">enjoyer</span> <span class="o">*</span><span class="nx">entity</span><span class="p">.</span><span class="nx">People</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%+v come to park %s\n&#34;</span><span class="p">,</span> <span class="nx">enjoyer</span><span class="p">.</span><span class="nx">IdentityCard</span><span class="p">,</span> <span class="nx">p</span><span class="p">.</span><span class="nx">Name</span><span class="p">)</span>
+	<span class="nx">p</span><span class="p">.</span><span class="nx">enjoyers</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">p</span><span class="p">.</span><span class="nx">enjoyers</span><span class="p">,</span> <span class="nx">enjoyer</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="c1">// 执行Park的业务逻辑
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">Park</span><span class="p">)</span> <span class="nf">Run</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%s start to sell tickets\n&#34;</span><span class="p">,</span> <span class="nx">p</span><span class="p">.</span><span class="nx">Name</span><span class="p">)</span>
+	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">enjoyer</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">p</span><span class="p">.</span><span class="nx">enjoyers</span> <span class="p">{</span>
+		<span class="nx">enjoyer</span><span class="p">.</span><span class="nf">BuyTicket</span><span class="p">()</span>
+	<span class="p">}</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%s start a show\n&#34;</span><span class="p">,</span> <span class="nx">p</span><span class="p">.</span><span class="nx">Name</span><span class="p">)</span>
+	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">enjoyer</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">p</span><span class="p">.</span><span class="nx">enjoyers</span> <span class="p">{</span>
+		<span class="nx">enjoyer</span><span class="p">.</span><span class="nf">Enjoy</span><span class="p">()</span>
+	<span class="p">}</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;show finish\n&#34;</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div><p>那么，根据上述方法建模出来的模型是这样的：</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNgy1gulxqehxg5j61ga0ts46v02.jpg" alt=""  /></p>
+<p>模型的运行方法如下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">paul</span> <span class="o">:=</span> <span class="nx">entity</span><span class="p">.</span><span class="nf">NewPeople</span><span class="p">(</span><span class="s">&#34;Paul&#34;</span><span class="p">)</span>
+<span class="nx">mit</span> <span class="o">:=</span> <span class="nx">aggregate</span><span class="p">.</span><span class="nf">NewSchool</span><span class="p">(</span><span class="s">&#34;MIT&#34;</span><span class="p">)</span>
+<span class="nx">google</span> <span class="o">:=</span> <span class="nx">aggregate</span><span class="p">.</span><span class="nf">NewCompany</span><span class="p">(</span><span class="s">&#34;Google&#34;</span><span class="p">)</span>
+<span class="nx">home</span> <span class="o">:=</span> <span class="nx">aggregate</span><span class="p">.</span><span class="nf">NewHome</span><span class="p">()</span>
+<span class="nx">summerPalace</span> <span class="o">:=</span> <span class="nx">aggregate</span><span class="p">.</span><span class="nf">NewPark</span><span class="p">(</span><span class="s">&#34;Summer Palace&#34;</span><span class="p">)</span>
+<span class="c1">// 上学
+</span><span class="c1"></span><span class="nx">mit</span><span class="p">.</span><span class="nf">Receive</span><span class="p">(</span><span class="nx">paul</span><span class="p">)</span>
+<span class="nx">mit</span><span class="p">.</span><span class="nf">Run</span><span class="p">()</span>
+<span class="c1">// 回家
+</span><span class="c1"></span><span class="nx">home</span><span class="p">.</span><span class="nf">ComeBack</span><span class="p">(</span><span class="nx">paul</span><span class="p">)</span>
+<span class="nx">home</span><span class="p">.</span><span class="nf">Run</span><span class="p">()</span>
+<span class="c1">// 工作
+</span><span class="c1"></span><span class="nx">google</span><span class="p">.</span><span class="nf">Employ</span><span class="p">(</span><span class="nx">paul</span><span class="p">)</span>
+<span class="nx">google</span><span class="p">.</span><span class="nf">Run</span><span class="p">()</span>
+<span class="c1">// 公园游玩
+</span><span class="c1"></span><span class="nx">summerPalace</span><span class="p">.</span><span class="nf">Welcome</span><span class="p">(</span><span class="nx">paul</span><span class="p">)</span>
+<span class="nx">summerPalace</span><span class="p">.</span><span class="nf">Run</span><span class="p">()</span>
+</code></pre></div><h2 id="贫血模型-vs-充血模型工程派-vs-学院派">贫血模型 VS 充血模型（工程派 VS 学院派）</h2>
+<p>上一节中，我们使用DDD的战术建模完成了该案例领域模型。模型的核心是<code>People</code>实体，它有<code>IdentityCard</code>、<code>StudentCard</code>等数据属性，也有<code>Eat()</code>、<code>Study()</code>、<code>Work()</code>等业务行为 ，非常符合现实世界中定义。这也是<strong>学院派</strong>所倡导的，同时拥有数据属性和业务行为的<strong>充血模型</strong>。</p>
+<p><em>然而，充血模型并非完美，它也有很多问题，比较典型的是这两个：</em></p>
+<p><strong>问题一：上帝类</strong></p>
+<p><code>People</code>这个实体包含了太多的职责，导致它变成了一个名副其实的上帝类。试想，这里还是裁剪了很多“人”所包含的属性和行为，如果要建模一个完整的模型，其属性和方法之多，无法想象。<strong>上帝类违反了单一职责原则，会导致代码的可维护性变得极差</strong>。</p>
+<p><strong>问题二：模块间耦合</strong></p>
+<p><code>School</code>与<code>Company</code>本应该是相互独立的，<code>School</code>不必关注上班与否，<code>Company</code>也不必关注考试与否。但是现在因为它们都依赖了<code>People</code>这个实体，<code>School</code>可以调用与<code>Company</code>相关的<code>Work()</code>和<code>OffWork()</code>方法，反之亦然。这导致<strong>模块间产生了不必要的耦合，违反了接口隔离原则</strong>。</p>
+<p>这些问题都是<strong>工程派</strong>不能接受的，从软件工程的角度，它们会使得代码难以维护。解决这类问题的方法，比较常见的是对实体进行拆分，比如将实体的行为建模成<strong>领域服务</strong>，像这样：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">type</span> <span class="nx">People</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">vo</span><span class="p">.</span><span class="nx">IdentityCard</span>
+	<span class="nx">vo</span><span class="p">.</span><span class="nx">StudentCard</span>
+	<span class="nx">vo</span><span class="p">.</span><span class="nx">WorkCard</span>
+	<span class="nx">vo</span><span class="p">.</span><span class="nx">Account</span>
+<span class="p">}</span>
+
+<span class="kd">type</span> <span class="nx">StudentService</span> <span class="kd">struct</span><span class="p">{}</span>
+<span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">StudentService</span><span class="p">)</span> <span class="nf">Study</span><span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">entity</span><span class="p">.</span><span class="nx">People</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Student %+v studying\n&#34;</span><span class="p">,</span> <span class="nx">p</span><span class="p">.</span><span class="nx">StudentCard</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">StudentService</span><span class="p">)</span> <span class="nf">Exam</span><span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">entity</span><span class="p">.</span><span class="nx">People</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Student %+v examing\n&#34;</span><span class="p">,</span> <span class="nx">p</span><span class="p">.</span><span class="nx">StudentCard</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">type</span> <span class="nx">WorkerService</span> <span class="kd">struct</span><span class="p">{}</span>
+<span class="kd">func</span> <span class="p">(</span><span class="nx">w</span> <span class="o">*</span><span class="nx">WorkerService</span><span class="p">)</span> <span class="nf">Work</span><span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">entity</span><span class="p">.</span><span class="nx">People</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%+v working\n&#34;</span><span class="p">,</span> <span class="nx">p</span><span class="p">.</span><span class="nx">WorkCard</span><span class="p">)</span>
+	<span class="nx">p</span><span class="p">.</span><span class="nx">Account</span><span class="p">.</span><span class="nx">Balance</span><span class="o">++</span>
+<span class="p">}</span>
+<span class="kd">func</span> <span class="p">(</span><span class="nx">w</span> <span class="o">*</span><span class="nx">WorkerService</span><span class="p">)</span> <span class="nf">OffWOrk</span><span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">entity</span><span class="p">.</span><span class="nx">People</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%+v getting off work\n&#34;</span><span class="p">,</span> <span class="nx">p</span><span class="p">.</span><span class="nx">WorkCard</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// ...
+</span></code></pre></div><p><img src="https://tva1.sinaimg.cn/large/008i3skNgy1gv9h5miav4j617i0o8n2402.jpg" alt=""  /></p>
+<p>这种建模方法，解决了上述两个问题，但也变成了所谓的<strong>贫血模型</strong>：<code>People</code>变成了一个纯粹的数据类，没有任何业务行为。在人的心理上，这样的模型并不能在建立起对现实世界的对应关系，不容易让人理解，因此被学院派所抵制。</p>
+<p>到目前为止，贫血模型和充血模型都有各有优缺点，工程派和学院派谁都无法说服对方。接下来，轮到本文的主角出场了。</p>
+<h2 id="dci架构">DCI架构</h2>
+<p><strong>DCI</strong>（Data，Context，Interactive）架构是一种面向对象的软件架构模式，在《<a class="link" href="https://www.artima.com/articles/the-dci-architecture-a-new-vision-of-object-oriented-programming"  target="_blank" rel="noopener"
+    >The DCI Architecture: A New Vision of Object-Oriented Programming</a>》一文中被首次提出。与传统的面向对象相比，DCI能更好地对数据和行为之间的关系进行建模，从而更容易被人理解。</p>
+<ul>
+<li><strong>Data</strong>，也即数据/领域对象，用来描述系统“是什么”，通常采用DDD中的战术建模来识别当前模型的领域对象，等同于DDD分层架构中的领域层。</li>
+<li><strong>Context</strong>，也即场景，可理解为是系统的Use Case，代表了系统的业务处理流程，等同于DDD分层架构中的应用层。</li>
+<li><strong>Interactive</strong>，也即交互，是DCI相对于传统面向对象的最大发展，它认为我们应该显式地对领域对象（<strong>Object</strong>）在每个业务场景（Context）中扮演（<strong>Cast</strong>）的角色（<strong>Role</strong>）进行建模。<strong>Role代表了领域对象在业务场景中的业务行为（“做什么”），Role之间通过交互完成完整的义务流程</strong>。</li>
+</ul>
+<blockquote>
+<p>这种角色扮演的模型我们并不陌生，在现实的世界里也是随处可见，比如，一个演员可以在这部电影里扮演英雄的角色，也可以在另一部电影里扮演反派的角色。</p>
+</blockquote>
+<p>DCI认为，对Role的建模应该是面向Context的，因为特定的业务行为只有在特定的业务场景下才会有意义。通过对Role的建模，我们就能够将领域对象的方法拆分出去，从而避免了上帝类的出现。最后，领域对象通过组合或继承的方式将Role集成起来，从而具备了扮演角色的能力。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNgy1guqhelrwoej61ei0ss45e02.jpg" alt=""  /></p>
+<p>DCI架构一方面通过角色扮演模型使得领域模型易于理解，另一方面通过“<strong>小类大对象</strong>”的手法避免了上帝类的问题，从而较好地解决了贫血模型和充血模型之争。另外，将领域对象的行为根据Role拆分之后，模块更加的高内聚、低耦合了。</p>
+<h2 id="使用dci建模">使用DCI建模</h2>
+<p>回到前面的案例，使用DCI的建模思路，我们可以将“人”的几种行为按照不同的角色进行划分。吃完、睡觉、玩游戏，是作为<strong>人类</strong>角色的行为；学习、考试，是作为<strong>学生</strong>角色的行为；上班、下班，是作为<strong>员工</strong>角色的行为；购票、游玩，则是作为<strong>游玩者</strong>角色的行为。“人”在<strong>家</strong>这个场景中，充当的是人类的角色；在<strong>学校</strong>这个场景中，充当的是学生的角色；在<strong>公司</strong>这个场景中，充当的是员工的角色；在<strong>公园</strong>这个场景中，充当的是游玩者的角色。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNgy1gus2bxbcbbj61220jq78c02.jpg" alt=""  /></p>
+<blockquote>
+<p>需要注意的是，学生、员工、游玩者，这些角色都应该具备人类角色的行为，比如在学校里，学生也需要吃饭。</p>
+</blockquote>
+<p>最后，根据DCI建模出来的模型，应该是这样的：</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNgy1gv9gzqe2xrj612q0om43502.jpg" alt=""  /></p>
+<p>在DCI模型中，<code>People</code>不再是一个包含众多属性和方法的“上帝类”，这些属性和方法被拆分到多个Role中实现，而<code>People</code>由这些Role组合而成。</p>
+<p>另外，<code>School</code>与<code>Company</code>也不再耦合，<code>School</code>只引用了<code>Student</code>，不能调用与<code>Company</code>相关的<code>Worker</code>的<code>Work()</code>和<code>OffWorker()</code>方法。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNgy1gv9i5utlk1j619w0q0tep02.jpg" alt=""  /></p>
+<h2 id="代码实现dci模型">代码实现DCI模型</h2>
+<p>DCI建模后的代码目录结构如下；</p>
+<div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml">- <span class="nt">context</span><span class="p">:</span><span class="w"> </span><span class="l">场景</span><span class="w">
+</span><span class="w">  </span>- <span class="l">company.go</span><span class="w">
+</span><span class="w">  </span>- <span class="l">home.go</span><span class="w">
+</span><span class="w">  </span>- <span class="l">park.go</span><span class="w">
+</span><span class="w">  </span>- <span class="l">school.go</span><span class="w">
+</span><span class="w"></span>- <span class="nt">object</span><span class="p">:</span><span class="w"> </span><span class="l">对象</span><span class="w">
+</span><span class="w">  </span>- <span class="l">people.go</span><span class="w">
+</span><span class="w"></span>- <span class="nt">data</span><span class="p">:</span><span class="w"> </span><span class="l">数据</span><span class="w">
+</span><span class="w">  </span>- <span class="l">account.go</span><span class="w">
+</span><span class="w">  </span>- <span class="l">identity_card.go</span><span class="w">
+</span><span class="w">  </span>- <span class="l">student_card.go</span><span class="w">
+</span><span class="w">  </span>- <span class="l">work_card.go</span><span class="w">
+</span><span class="w"></span>- <span class="nt">role</span><span class="p">:</span><span class="w"> </span><span class="l">角色</span><span class="w">
+</span><span class="w">  </span>- <span class="l">enjoyer.go</span><span class="w">
+</span><span class="w">  </span>- <span class="l">human.go</span><span class="w">
+</span><span class="w">  </span>- <span class="l">student.go</span><span class="w">
+</span><span class="w">  </span>- <span class="l">worker.go</span><span class="w">
+</span></code></pre></div><p>从代码目录结构上看，DDD和DCI架构相差并不大，<code>aggregate</code>目录演变成了<code>context</code>目录；<code>vo</code>目录演变成了<code>data</code>目录；<code>entity</code>目录则演变成了<code>object</code>和<code>role</code>目录。</p>
+<p>首先，我们实现基础角色<code>Human</code>，<code>Student</code>、<code>Worker</code>、<code>Enjoyer</code>都需要组合它：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">role</span>
+
+<span class="c1">// 人类角色
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Human</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">data</span><span class="p">.</span><span class="nx">IdentityCard</span>
+	<span class="nx">data</span><span class="p">.</span><span class="nx">Account</span>
+<span class="p">}</span>
+<span class="kd">func</span> <span class="p">(</span><span class="nx">h</span> <span class="o">*</span><span class="nx">Human</span><span class="p">)</span> <span class="nf">Eat</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%+v eating\n&#34;</span><span class="p">,</span> <span class="nx">h</span><span class="p">.</span><span class="nx">IdentityCard</span><span class="p">)</span>
+	<span class="nx">h</span><span class="p">.</span><span class="nx">Account</span><span class="p">.</span><span class="nx">Balance</span><span class="o">--</span>
+<span class="p">}</span>
+<span class="kd">func</span> <span class="p">(</span><span class="nx">h</span> <span class="o">*</span><span class="nx">Human</span><span class="p">)</span> <span class="nf">Sleep</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%+v sleeping\n&#34;</span><span class="p">,</span> <span class="nx">h</span><span class="p">.</span><span class="nx">IdentityCard</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="kd">func</span> <span class="p">(</span><span class="nx">h</span> <span class="o">*</span><span class="nx">Human</span><span class="p">)</span> <span class="nf">PlayGame</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%+v playing game\n&#34;</span><span class="p">,</span> <span class="nx">h</span><span class="p">.</span><span class="nx">IdentityCard</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div><p>接着，我们再实现其他角色，需要注意的是，<strong><code>Student</code>、<code>Worker</code>、<code>Enjoyer</code>不能直接组合<code>Human</code></strong>，否则<code>People</code>对象将会有4个<code>Human</code>子对象，与模型不符：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// 错误的实现
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Worker</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">Human</span>
+<span class="p">}</span>
+<span class="kd">func</span> <span class="p">(</span><span class="nx">w</span> <span class="o">*</span><span class="nx">Worker</span><span class="p">)</span> <span class="nf">Work</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%+v working\n&#34;</span><span class="p">,</span> <span class="nx">w</span><span class="p">.</span><span class="nx">WorkCard</span><span class="p">)</span>
+	<span class="nx">w</span><span class="p">.</span><span class="nx">Balance</span><span class="o">++</span>
+<span class="p">}</span>
+<span class="o">...</span>
+<span class="kd">type</span> <span class="nx">People</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">Human</span>
+	<span class="nx">Student</span>
+	<span class="nx">Worker</span>
+	<span class="nx">Enjoyer</span>
+<span class="p">}</span>
+<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">people</span> <span class="o">:=</span> <span class="nx">People</span><span class="p">{}</span>
+  <span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;People: %+v&#34;</span><span class="p">,</span> <span class="nx">people</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="c1">// 结果输出, People中有4个Human：
+</span><span class="c1">// People: {Human:{} Student:{Human:{}} Worker:{Human:{}} Enjoyer:{Human:{}}}
+</span></code></pre></div><p>为解决该问题，我们引入了<code>xxxTrait</code>接口：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// 人类角色特征
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">HumanTrait</span> <span class="kd">interface</span> <span class="p">{</span>
+	<span class="nf">CastHuman</span><span class="p">()</span> <span class="o">*</span><span class="nx">Human</span>
+<span class="p">}</span>
+<span class="c1">// 学生角色特征
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">StudentTrait</span> <span class="kd">interface</span> <span class="p">{</span>
+	<span class="nf">CastStudent</span><span class="p">()</span> <span class="o">*</span><span class="nx">Student</span>
+<span class="p">}</span>
+<span class="c1">// 员工角色特征
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">WorkerTrait</span> <span class="kd">interface</span> <span class="p">{</span>
+	<span class="nf">CastWorker</span><span class="p">()</span> <span class="o">*</span><span class="nx">Worker</span>
+<span class="p">}</span>
+<span class="c1">// 游玩者角色特征
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">EnjoyerTrait</span> <span class="kd">interface</span> <span class="p">{</span>
+	<span class="nf">CastEnjoyer</span><span class="p">()</span> <span class="o">*</span><span class="nx">Enjoyer</span>
+<span class="p">}</span>
+</code></pre></div><p><code>Student</code>、<code>Worker</code>、<code>Enjoyer</code>组合<code>HumanTrait</code>，并通过<code>Compose(HumanTrait)</code>方法进行特征注入，只要在注入的时候保证<code>Human</code>是同一个，就可以解决该问题了。</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// 学生角色
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Student</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="c1">// Student同时也是个普通人，因此组合了Human角色
+</span><span class="c1"></span>	<span class="nx">HumanTrait</span>
+	<span class="nx">data</span><span class="p">.</span><span class="nx">StudentCard</span>
+<span class="p">}</span>
+<span class="c1">// 注入人类角色特征
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">Student</span><span class="p">)</span> <span class="nf">Compose</span><span class="p">(</span><span class="nx">trait</span> <span class="nx">HumanTrait</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">s</span><span class="p">.</span><span class="nx">HumanTrait</span> <span class="p">=</span> <span class="nx">trait</span>
+<span class="p">}</span>
+<span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">Student</span><span class="p">)</span> <span class="nf">Study</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Student %+v studying\n&#34;</span><span class="p">,</span> <span class="nx">s</span><span class="p">.</span><span class="nx">StudentCard</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">Student</span><span class="p">)</span> <span class="nf">Exam</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Student %+v examing\n&#34;</span><span class="p">,</span> <span class="nx">s</span><span class="p">.</span><span class="nx">StudentCard</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// 员工角色
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Worker</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="c1">// Worker同时也是个普通人，因此组合了Human角色
+</span><span class="c1"></span>	<span class="nx">HumanTrait</span>
+	<span class="nx">data</span><span class="p">.</span><span class="nx">WorkCard</span>
+<span class="p">}</span>
+<span class="c1">// 注入人类角色特征
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">w</span> <span class="o">*</span><span class="nx">Worker</span><span class="p">)</span> <span class="nf">Compose</span><span class="p">(</span><span class="nx">trait</span> <span class="nx">HumanTrait</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">w</span><span class="p">.</span><span class="nx">HumanTrait</span> <span class="p">=</span> <span class="nx">trait</span>
+<span class="p">}</span>
+<span class="kd">func</span> <span class="p">(</span><span class="nx">w</span> <span class="o">*</span><span class="nx">Worker</span><span class="p">)</span> <span class="nf">Work</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%+v working\n&#34;</span><span class="p">,</span> <span class="nx">w</span><span class="p">.</span><span class="nx">WorkCard</span><span class="p">)</span>
+	<span class="nx">w</span><span class="p">.</span><span class="nf">CastHuman</span><span class="p">().</span><span class="nx">Balance</span><span class="o">++</span>
+<span class="p">}</span>
+<span class="kd">func</span> <span class="p">(</span><span class="nx">w</span> <span class="o">*</span><span class="nx">Worker</span><span class="p">)</span> <span class="nf">OffWork</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%+v getting off work\n&#34;</span><span class="p">,</span> <span class="nx">w</span><span class="p">.</span><span class="nx">WorkCard</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// 游玩者角色
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Enjoyer</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="c1">// Enjoyer同时也是个普通人，因此组合了Human角色
+</span><span class="c1"></span>	<span class="nx">HumanTrait</span>
+<span class="p">}</span>
+<span class="c1">// 注入人类角色特征
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">e</span> <span class="o">*</span><span class="nx">Enjoyer</span><span class="p">)</span> <span class="nf">Compose</span><span class="p">(</span><span class="nx">trait</span> <span class="nx">HumanTrait</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">e</span><span class="p">.</span><span class="nx">HumanTrait</span> <span class="p">=</span> <span class="nx">trait</span>
+<span class="p">}</span>
+<span class="kd">func</span> <span class="p">(</span><span class="nx">e</span> <span class="o">*</span><span class="nx">Enjoyer</span><span class="p">)</span> <span class="nf">BuyTicket</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%+v buying a ticket\n&#34;</span><span class="p">,</span> <span class="nx">e</span><span class="p">.</span><span class="nf">CastHuman</span><span class="p">().</span><span class="nx">IdentityCard</span><span class="p">)</span>
+	<span class="nx">e</span><span class="p">.</span><span class="nf">CastHuman</span><span class="p">().</span><span class="nx">Balance</span><span class="o">--</span>
+<span class="p">}</span>
+<span class="kd">func</span> <span class="p">(</span><span class="nx">e</span> <span class="o">*</span><span class="nx">Enjoyer</span><span class="p">)</span> <span class="nf">Enjoy</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%+v enjoying scenery\n&#34;</span><span class="p">,</span> <span class="nx">e</span><span class="p">.</span><span class="nf">CastHuman</span><span class="p">().</span><span class="nx">IdentityCard</span><span class="p">)</span>
+<span class="p">}</span>
+
+</code></pre></div><p>最后，实现<code>People</code>这一领域对象：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">object</span>
+
+<span class="kd">type</span> <span class="nx">People</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="c1">// People对象扮演的角色
+</span><span class="c1"></span>	<span class="nx">role</span><span class="p">.</span><span class="nx">Human</span>
+	<span class="nx">role</span><span class="p">.</span><span class="nx">Student</span>
+	<span class="nx">role</span><span class="p">.</span><span class="nx">Worker</span>
+	<span class="nx">role</span><span class="p">.</span><span class="nx">Enjoyer</span>
+<span class="p">}</span>
+<span class="c1">// People实现了HumanTrait、StudentTrait、WorkerTrait、EnjoyerTrait等特征接口
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">People</span><span class="p">)</span> <span class="nf">CastHuman</span><span class="p">()</span> <span class="o">*</span><span class="nx">role</span><span class="p">.</span><span class="nx">Human</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="o">&amp;</span><span class="nx">p</span><span class="p">.</span><span class="nx">Human</span>
+<span class="p">}</span>
+<span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">People</span><span class="p">)</span> <span class="nf">CastStudent</span><span class="p">()</span> <span class="o">*</span><span class="nx">role</span><span class="p">.</span><span class="nx">Student</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="o">&amp;</span><span class="nx">p</span><span class="p">.</span><span class="nx">Student</span>
+<span class="p">}</span>
+<span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">People</span><span class="p">)</span> <span class="nf">CastWorker</span><span class="p">()</span> <span class="o">*</span><span class="nx">role</span><span class="p">.</span><span class="nx">Worker</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="o">&amp;</span><span class="nx">p</span><span class="p">.</span><span class="nx">Worker</span>
+<span class="p">}</span>
+<span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">People</span><span class="p">)</span> <span class="nf">CastEnjoyer</span><span class="p">()</span> <span class="o">*</span><span class="nx">role</span><span class="p">.</span><span class="nx">Enjoyer</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="o">&amp;</span><span class="nx">p</span><span class="p">.</span><span class="nx">Enjoyer</span>
+<span class="p">}</span>
+<span class="c1">// People在初始化时，完成对角色特征的注入
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">NewPeople</span><span class="p">(</span><span class="nx">name</span> <span class="kt">string</span><span class="p">)</span> <span class="o">*</span><span class="nx">People</span> <span class="p">{</span>
+  <span class="c1">// 一些初始化的逻辑...
+</span><span class="c1"></span>	<span class="nx">people</span><span class="p">.</span><span class="nx">Student</span><span class="p">.</span><span class="nf">Compose</span><span class="p">(</span><span class="nx">people</span><span class="p">)</span>
+	<span class="nx">people</span><span class="p">.</span><span class="nx">Worker</span><span class="p">.</span><span class="nf">Compose</span><span class="p">(</span><span class="nx">people</span><span class="p">)</span>
+	<span class="nx">people</span><span class="p">.</span><span class="nx">Enjoyer</span><span class="p">.</span><span class="nf">Compose</span><span class="p">(</span><span class="nx">people</span><span class="p">)</span>
+	<span class="k">return</span> <span class="nx">people</span>
+<span class="p">}</span>
+</code></pre></div><p>进行角色拆分之后，在实现<code>Home</code>、<code>School</code>、<code>Company</code>、<code>Park</code>等场景时，只需依赖相应的角色即可，不再需要依赖<code>People</code>这一领域对象：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// 家
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Home</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">me</span> <span class="o">*</span><span class="nx">role</span><span class="p">.</span><span class="nx">Human</span>
+<span class="p">}</span>
+<span class="kd">func</span> <span class="p">(</span><span class="nx">h</span> <span class="o">*</span><span class="nx">Home</span><span class="p">)</span> <span class="nf">ComeBack</span><span class="p">(</span><span class="nx">human</span> <span class="o">*</span><span class="nx">role</span><span class="p">.</span><span class="nx">Human</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%+v come back home\n&#34;</span><span class="p">,</span> <span class="nx">human</span><span class="p">.</span><span class="nx">IdentityCard</span><span class="p">)</span>
+	<span class="nx">h</span><span class="p">.</span><span class="nx">me</span> <span class="p">=</span> <span class="nx">human</span>
+<span class="p">}</span>
+<span class="c1">// 执行Home的业务逻辑
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">h</span> <span class="o">*</span><span class="nx">Home</span><span class="p">)</span> <span class="nf">Run</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">h</span><span class="p">.</span><span class="nx">me</span><span class="p">.</span><span class="nf">Eat</span><span class="p">()</span>
+	<span class="nx">h</span><span class="p">.</span><span class="nx">me</span><span class="p">.</span><span class="nf">PlayGame</span><span class="p">()</span>
+	<span class="nx">h</span><span class="p">.</span><span class="nx">me</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">()</span>
+<span class="p">}</span>
+
+<span class="c1">// 学校
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">School</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">Name</span>     <span class="kt">string</span>
+	<span class="nx">students</span> <span class="p">[]</span><span class="o">*</span><span class="nx">role</span><span class="p">.</span><span class="nx">Student</span>
+<span class="p">}</span>
+<span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">School</span><span class="p">)</span> <span class="nf">Receive</span><span class="p">(</span><span class="nx">student</span> <span class="o">*</span><span class="nx">role</span><span class="p">.</span><span class="nx">Student</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// 初始化StduentCard逻辑 ...
+</span><span class="c1"></span>	<span class="nx">s</span><span class="p">.</span><span class="nx">students</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">s</span><span class="p">.</span><span class="nx">students</span><span class="p">,</span> <span class="nx">student</span><span class="p">)</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%s Receive stduent %+v\n&#34;</span><span class="p">,</span> <span class="nx">s</span><span class="p">.</span><span class="nx">Name</span><span class="p">,</span> <span class="nx">student</span><span class="p">.</span><span class="nx">StudentCard</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="c1">// 执行School的业务逻辑
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">School</span><span class="p">)</span> <span class="nf">Run</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%s start class\n&#34;</span><span class="p">,</span> <span class="nx">s</span><span class="p">.</span><span class="nx">Name</span><span class="p">)</span>
+	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">student</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">s</span><span class="p">.</span><span class="nx">students</span> <span class="p">{</span>
+		<span class="nx">student</span><span class="p">.</span><span class="nf">Study</span><span class="p">()</span>
+	<span class="p">}</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;students start to eating&#34;</span><span class="p">)</span>
+	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">student</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">s</span><span class="p">.</span><span class="nx">students</span> <span class="p">{</span>
+		<span class="nx">student</span><span class="p">.</span><span class="nf">CastHuman</span><span class="p">().</span><span class="nf">Eat</span><span class="p">()</span>
+	<span class="p">}</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;students start to exam&#34;</span><span class="p">)</span>
+	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">student</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">s</span><span class="p">.</span><span class="nx">students</span> <span class="p">{</span>
+		<span class="nx">student</span><span class="p">.</span><span class="nf">Exam</span><span class="p">()</span>
+	<span class="p">}</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%s finish class\n&#34;</span><span class="p">,</span> <span class="nx">s</span><span class="p">.</span><span class="nx">Name</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// 公司
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Company</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">Name</span>    <span class="kt">string</span>
+	<span class="nx">workers</span> <span class="p">[]</span><span class="o">*</span><span class="nx">role</span><span class="p">.</span><span class="nx">Worker</span>
+<span class="p">}</span>
+<span class="kd">func</span> <span class="p">(</span><span class="nx">c</span> <span class="o">*</span><span class="nx">Company</span><span class="p">)</span> <span class="nf">Employ</span><span class="p">(</span><span class="nx">worker</span> <span class="o">*</span><span class="nx">role</span><span class="p">.</span><span class="nx">Worker</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// 初始化WorkCard逻辑 ...
+</span><span class="c1"></span>  <span class="nx">c</span><span class="p">.</span><span class="nx">workers</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">c</span><span class="p">.</span><span class="nx">workers</span><span class="p">,</span> <span class="nx">worker</span><span class="p">)</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%s Employ worker %s\n&#34;</span><span class="p">,</span> <span class="nx">c</span><span class="p">.</span><span class="nx">Name</span><span class="p">,</span> <span class="nx">worker</span><span class="p">.</span><span class="nx">WorkCard</span><span class="p">.</span><span class="nx">Name</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="c1">// 执行Company的业务逻辑
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">c</span> <span class="o">*</span><span class="nx">Company</span><span class="p">)</span> <span class="nf">Run</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%s start work\n&#34;</span><span class="p">,</span> <span class="nx">c</span><span class="p">.</span><span class="nx">Name</span><span class="p">)</span>
+	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">worker</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">c</span><span class="p">.</span><span class="nx">workers</span> <span class="p">{</span>
+		<span class="nx">worker</span><span class="p">.</span><span class="nf">Work</span><span class="p">()</span>
+	<span class="p">}</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;worker start to eating&#34;</span><span class="p">)</span>
+	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">worker</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">c</span><span class="p">.</span><span class="nx">workers</span> <span class="p">{</span>
+		<span class="nx">worker</span><span class="p">.</span><span class="nf">CastHuman</span><span class="p">().</span><span class="nf">Eat</span><span class="p">()</span>
+	<span class="p">}</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;worker get off work&#34;</span><span class="p">)</span>
+	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">worker</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">c</span><span class="p">.</span><span class="nx">workers</span> <span class="p">{</span>
+		<span class="nx">worker</span><span class="p">.</span><span class="nf">OffWork</span><span class="p">()</span>
+	<span class="p">}</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%s finish work\n&#34;</span><span class="p">,</span> <span class="nx">c</span><span class="p">.</span><span class="nx">Name</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// 公园
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Park</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">Name</span>     <span class="kt">string</span>
+	<span class="nx">enjoyers</span> <span class="p">[]</span><span class="o">*</span><span class="nx">role</span><span class="p">.</span><span class="nx">Enjoyer</span>
+<span class="p">}</span>
+<span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">Park</span><span class="p">)</span> <span class="nf">Welcome</span><span class="p">(</span><span class="nx">enjoyer</span> <span class="o">*</span><span class="nx">role</span><span class="p">.</span><span class="nx">Enjoyer</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%+v come park %s\n&#34;</span><span class="p">,</span> <span class="nx">enjoyer</span><span class="p">.</span><span class="nf">CastHuman</span><span class="p">().</span><span class="nx">IdentityCard</span><span class="p">,</span> <span class="nx">p</span><span class="p">.</span><span class="nx">Name</span><span class="p">)</span>
+	<span class="nx">p</span><span class="p">.</span><span class="nx">enjoyers</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">p</span><span class="p">.</span><span class="nx">enjoyers</span><span class="p">,</span> <span class="nx">enjoyer</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="c1">// 执行Park的业务逻辑
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">Park</span><span class="p">)</span> <span class="nf">Run</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%s start to sell tickets\n&#34;</span><span class="p">,</span> <span class="nx">p</span><span class="p">.</span><span class="nx">Name</span><span class="p">)</span>
+	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">enjoyer</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">p</span><span class="p">.</span><span class="nx">enjoyers</span> <span class="p">{</span>
+		<span class="nx">enjoyer</span><span class="p">.</span><span class="nf">BuyTicket</span><span class="p">()</span>
+	<span class="p">}</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%s start a show\n&#34;</span><span class="p">,</span> <span class="nx">p</span><span class="p">.</span><span class="nx">Name</span><span class="p">)</span>
+	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">enjoyer</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">p</span><span class="p">.</span><span class="nx">enjoyers</span> <span class="p">{</span>
+		<span class="nx">enjoyer</span><span class="p">.</span><span class="nf">Enjoy</span><span class="p">()</span>
+	<span class="p">}</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;show finish\n&#34;</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div><p>模型的运行方法如下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">paul</span> <span class="o">:=</span> <span class="nx">object</span><span class="p">.</span><span class="nf">NewPeople</span><span class="p">(</span><span class="s">&#34;Paul&#34;</span><span class="p">)</span>
+<span class="nx">mit</span> <span class="o">:=</span> <span class="nx">context</span><span class="p">.</span><span class="nf">NewSchool</span><span class="p">(</span><span class="s">&#34;MIT&#34;</span><span class="p">)</span>
+<span class="nx">google</span> <span class="o">:=</span> <span class="nx">context</span><span class="p">.</span><span class="nf">NewCompany</span><span class="p">(</span><span class="s">&#34;Google&#34;</span><span class="p">)</span>
+<span class="nx">home</span> <span class="o">:=</span> <span class="nx">context</span><span class="p">.</span><span class="nf">NewHome</span><span class="p">()</span>
+<span class="nx">summerPalace</span> <span class="o">:=</span> <span class="nx">context</span><span class="p">.</span><span class="nf">NewPark</span><span class="p">(</span><span class="s">&#34;Summer Palace&#34;</span><span class="p">)</span>
+
+<span class="c1">// 上学
+</span><span class="c1"></span><span class="nx">mit</span><span class="p">.</span><span class="nf">Receive</span><span class="p">(</span><span class="nx">paul</span><span class="p">.</span><span class="nf">CastStudent</span><span class="p">())</span>
+<span class="nx">mit</span><span class="p">.</span><span class="nf">Run</span><span class="p">()</span>
+<span class="c1">// 回家
+</span><span class="c1"></span><span class="nx">home</span><span class="p">.</span><span class="nf">ComeBack</span><span class="p">(</span><span class="nx">paul</span><span class="p">.</span><span class="nf">CastHuman</span><span class="p">())</span>
+<span class="nx">home</span><span class="p">.</span><span class="nf">Run</span><span class="p">()</span>
+<span class="c1">// 工作
+</span><span class="c1"></span><span class="nx">google</span><span class="p">.</span><span class="nf">Employ</span><span class="p">(</span><span class="nx">paul</span><span class="p">.</span><span class="nf">CastWorker</span><span class="p">())</span>
+<span class="nx">google</span><span class="p">.</span><span class="nf">Run</span><span class="p">()</span>
+<span class="c1">// 公园游玩
+</span><span class="c1"></span><span class="nx">summerPalace</span><span class="p">.</span><span class="nf">Welcome</span><span class="p">(</span><span class="nx">paul</span><span class="p">.</span><span class="nf">CastEnjoyer</span><span class="p">())</span>
+<span class="nx">summerPalace</span><span class="p">.</span><span class="nf">Run</span><span class="p">()</span>
+</code></pre></div><h2 id="写在最后">写在最后</h2>
+<p>从前文所描述的场景中，我们可以发现传统的DDD/面向对象设计方法在对行为进行建模方面存在着不足，进而导致了所谓的<strong>贫血模型和充血模型之争</strong>。</p>
+<p>DCI架构的出现很好的弥补了这一点，它通过引入<strong>角色扮演</strong>的思想，巧妙地解决了充血模型中上帝类和模块间耦合问题，而且不影响模型的正确性。当然，DCI架构也不是万能的，在行为较少的业务模型中，使用DCI来建模并不合适。</p>
+<p>最后，将DCI架构总结成一句话就是：<em><strong>领域对象（Object）在不同的场景（Context）中扮演（Cast）不同的角色（Role），角色之间通过交互（Interactive）来完成具体的业务逻辑</strong></em>。</p>
+<blockquote>
+<p>参考</p>
+<p><a class="link" href="https://www.artima.com/articles/the-dci-architecture-a-new-vision-of-object-oriented-programming"  target="_blank" rel="noopener"
+    >The DCI Architecture: A New Vision of Object-Oriented Programming</a>, <strong>Trygve Reenskaug</strong>, <strong>James O. Coplien</strong></p>
+<p><a class="link" href="https://www.jianshu.com/p/18d1d582f5c2"  target="_blank" rel="noopener"
+    >软件设计的演变过程</a>, <strong>_张晓龙_</strong></p>
+<p><a class="link" href="https://www.jianshu.com/p/9fc3654b8165"  target="_blank" rel="noopener"
+    >Implement Domain Object in Golang</a>, <strong>_张晓龙_</strong></p>
+<p><a class="link" href="https://blog.csdn.net/chelsea/article/details/7093693"  target="_blank" rel="noopener"
+    >DCI: 代码的可理解性</a>, <strong>chelsea</strong></p>
+<p><a class="link" href="https://www.jianshu.com/p/bb9c35606d29"  target="_blank" rel="noopener"
+    >DCI in C++</a>, <strong>MagicBowen</strong></p>
+<p>更多文章请关注微信公众号：<strong>元闰子的邀请</strong></p>
+</blockquote>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/%E6%9E%B6%E6%9E%84/">架构</a>
+        
+            <a href="/tags/dci/">DCI</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>CC BY 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E4%BA%94%E4%B9%8B%E6%9C%8D%E5%8A%A1%E5%8C%96%E6%9E%B6%E6%9E%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">从分层架构到微服务架构（五）之服务化架构</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E5%9B%9B%E4%B9%8B%E5%BE%AE%E5%86%85%E6%A0%B8%E6%9E%B6%E6%9E%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">从分层架构到微服务架构（四）之微内核架构</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E4%B8%89%E4%B9%8B%E7%AE%A1%E9%81%93%E6%9E%B6%E6%9E%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">从分层架构到微服务架构（三）之管道架构</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E4%BA%8C%E4%B9%8B%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">从分层架构到微服务架构（二）之分层架构</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E4%B8%80/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">从分层架构到微服务架构（一）</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+
+    
+        
+    <script src="https://utteranc.es/client.js" 
+        repo="ruanrunxue/yrunz-comments"
+        issue-term="pathname"
+        
+        label="yrunz"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
+
+<style>
+    .utterances {
+        max-width: unset;
+    }
+</style>
+
+<script>
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
+        }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+        setUtterancesTheme(document.body.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        setUtterancesTheme(e.detail)
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_SVG"></script>
+    <section class="copyright">
+        &copy;
+        
+            2019 -
+        
+        2023 元闰子的邀请
+    </section>
+
+    <section class="powerby">
+        
+
+        <a href="https://beian.miit.gov.cn/">粤ICP备19152659号 | </a>Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.3.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        <br />
+    </section>
+</footer>
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

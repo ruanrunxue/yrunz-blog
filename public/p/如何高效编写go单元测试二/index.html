@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='前言 上一篇文章《如何高效编写Go单元测试（一）》主要介绍了如何使用第三方断言库来使Go单元测试的代码更加简洁和具备可读性，本文我们来聊聊单元测试中的“打桩”。
+// 判断一个字符串s是否是回文字符串 func IsPalindrome(s string) bool { for i := range s { if s[i] != s[len(s)-1-i] { return false } } return true } go test框架足以应对像上述IsPalindrome这种简单的方法的单元测试，但是对于一些较为复杂的方法和模块，go test多多少少会显得力不从心。比如当你需要对依赖了很多第三方库或者跟平台、环境强相关的模块进行单元测试时，仅仅使用go test往往不能使测试用例正常的执行结束，更别说达到代码验证的目的了。
+// 判断/opt/container/config.properties文件中是否包含str字符串 func isConfigFileContain(str string) bool { file, err := os.Open(&amp;#34;/opt/container/config.properties&amp;#34;) if err != nil { panic(err) } content, err := ioutil.ReadAll(file) if err != nil { panic(err) } return strings.Contains(string(content), str) } 假设想要对上述isConfigFileContain函数进行单元测试，因为函数本身依赖了程序实际运行环境才有的/opt/container/config.properties文件，所以如果对其进行如下的单元测试，运行结果肯定出错。
+func TestIsConfigFileContain(t *testing.T) { ast := assert.'><title>如何高效编写Go单元测试（二）</title>
+
+<link rel='canonical' href='https://www.yrunz.com/p/%E5%A6%82%E4%BD%95%E9%AB%98%E6%95%88%E7%BC%96%E5%86%99go%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E4%BA%8C/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='如何高效编写Go单元测试（二）'>
+<meta property='og:description' content='前言 上一篇文章《如何高效编写Go单元测试（一）》主要介绍了如何使用第三方断言库来使Go单元测试的代码更加简洁和具备可读性，本文我们来聊聊单元测试中的“打桩”。
+// 判断一个字符串s是否是回文字符串 func IsPalindrome(s string) bool { for i := range s { if s[i] != s[len(s)-1-i] { return false } } return true } go test框架足以应对像上述IsPalindrome这种简单的方法的单元测试，但是对于一些较为复杂的方法和模块，go test多多少少会显得力不从心。比如当你需要对依赖了很多第三方库或者跟平台、环境强相关的模块进行单元测试时，仅仅使用go test往往不能使测试用例正常的执行结束，更别说达到代码验证的目的了。
+// 判断/opt/container/config.properties文件中是否包含str字符串 func isConfigFileContain(str string) bool { file, err := os.Open(&amp;#34;/opt/container/config.properties&amp;#34;) if err != nil { panic(err) } content, err := ioutil.ReadAll(file) if err != nil { panic(err) } return strings.Contains(string(content), str) } 假设想要对上述isConfigFileContain函数进行单元测试，因为函数本身依赖了程序实际运行环境才有的/opt/container/config.properties文件，所以如果对其进行如下的单元测试，运行结果肯定出错。
+func TestIsConfigFileContain(t *testing.T) { ast := assert.'>
+<meta property='og:url' content='https://www.yrunz.com/p/%E5%A6%82%E4%BD%95%E9%AB%98%E6%95%88%E7%BC%96%E5%86%99go%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E4%BA%8C/'>
+<meta property='og:site_name' content='元闰子的邀请'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='golang' /><meta property='article:tag' content='单元测试' /><meta property='article:published_time' content='2021-01-10T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2021-01-10T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="如何高效编写Go单元测试（二）">
+<meta name="twitter:description" content="前言 上一篇文章《如何高效编写Go单元测试（一）》主要介绍了如何使用第三方断言库来使Go单元测试的代码更加简洁和具备可读性，本文我们来聊聊单元测试中的“打桩”。
+// 判断一个字符串s是否是回文字符串 func IsPalindrome(s string) bool { for i := range s { if s[i] != s[len(s)-1-i] { return false } } return true } go test框架足以应对像上述IsPalindrome这种简单的方法的单元测试，但是对于一些较为复杂的方法和模块，go test多多少少会显得力不从心。比如当你需要对依赖了很多第三方库或者跟平台、环境强相关的模块进行单元测试时，仅仅使用go test往往不能使测试用例正常的执行结束，更别说达到代码验证的目的了。
+// 判断/opt/container/config.properties文件中是否包含str字符串 func isConfigFileContain(str string) bool { file, err := os.Open(&amp;#34;/opt/container/config.properties&amp;#34;) if err != nil { panic(err) } content, err := ioutil.ReadAll(file) if err != nil { panic(err) } return strings.Contains(string(content), str) } 假设想要对上述isConfigFileContain函数进行单元测试，因为函数本身依赖了程序实际运行环境才有的/opt/container/config.properties文件，所以如果对其进行如下的单元测试，运行结果肯定出错。
+func TestIsConfigFileContain(t *testing.T) { ast := assert.">
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "light");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/yrz_hudc7c8721ecce4b724df5002339c76402_174377_300x0_resize_box_2.png" width="300"
+                            height="306" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://www.yrunz.com">元闰子的邀请</a></h1>
+        <h2 class="site-description">阅读、写作、生活（个人技术分享）</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>首页</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>博客</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%85%B3%E4%BA%8E%E5%85%83%E9%97%B0%E5%AD%90/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24"
+     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+     stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z"/>
+    <circle cx="12" cy="7" r="4"/>
+    <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/>
+</svg>
+
+                
+                <span>关于元闰子</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%8F%8B%E6%83%85%E9%93%BE%E6%8E%A5/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-friends" width="44" height="44"
+     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+    <circle cx="7" cy="5" r="2"/>
+    <path d="M5 22v-5l-1 -1v-4a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4l-1 1v5"/>
+    <circle cx="17" cy="5" r="2"/>
+    <path d="M15 22v-4h-2l2 -6a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1l2 6h-2v4"/>
+</svg>
+
+                
+                <span>友情链接</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>暗色模式</span>
+            </li>
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://www.yrunz.com" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/golang/" >
+                Golang
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/%E5%A6%82%E4%BD%95%E9%AB%98%E6%95%88%E7%BC%96%E5%86%99go%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E4%BA%8C/">如何高效编写Go单元测试（二）</a>
+    </h2>
+
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Jan 10, 2021</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <h2 id="前言">前言</h2>
+<p>上一篇文章《如何高效编写Go单元测试（一）》主要介绍了如何使用第三方断言库来使Go单元测试的代码更加简洁和具备可读性，本文我们来聊聊单元测试中的“<strong>打桩</strong>”。</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// 判断一个字符串s是否是回文字符串
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">IsPalindrome</span><span class="p">(</span><span class="nx">s</span> <span class="kt">string</span><span class="p">)</span> <span class="kt">bool</span> <span class="p">{</span>
+    <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">s</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="nx">s</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">!=</span> <span class="nx">s</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="nx">s</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="o">-</span><span class="nx">i</span><span class="p">]</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="kc">false</span>
+        <span class="p">}</span> 
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="kc">true</span>
+<span class="p">}</span>
+</code></pre></div><p><code>go test</code>框架足以应对像上述<code>IsPalindrome</code>这种简单的方法的单元测试，但是对于一些较为复杂的方法和模块，<code>go test</code>多多少少会显得力不从心。比如当你需要对依赖了很多第三方库或者跟平台、环境强相关的模块进行单元测试时，仅仅使用<code>go test</code>往往不能使测试用例正常的执行结束，更别说达到代码验证的目的了。</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// 判断/opt/container/config.properties文件中是否包含str字符串
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">isConfigFileContain</span><span class="p">(</span><span class="nx">str</span> <span class="kt">string</span><span class="p">)</span> <span class="kt">bool</span> <span class="p">{</span>
+	<span class="nx">file</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">os</span><span class="p">.</span><span class="nf">Open</span><span class="p">(</span><span class="s">&#34;/opt/container/config.properties&#34;</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+	<span class="p">}</span>
+	<span class="nx">content</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">ioutil</span><span class="p">.</span><span class="nf">ReadAll</span><span class="p">(</span><span class="nx">file</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="nx">strings</span><span class="p">.</span><span class="nf">Contains</span><span class="p">(</span><span class="nb">string</span><span class="p">(</span><span class="nx">content</span><span class="p">),</span> <span class="nx">str</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div><p>假设想要对上述<code>isConfigFileContain</code>函数进行单元测试，因为函数本身依赖了程序实际运行环境才有的<code>/opt/container/config.properties</code>文件，所以如果对其进行如下的单元测试，运行结果肯定出错。</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">TestIsConfigFileContain</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">ast</span> <span class="o">:=</span> <span class="nx">assert</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="nx">t</span><span class="p">)</span>
+	<span class="nx">ast</span><span class="p">.</span><span class="nf">True</span><span class="p">(</span><span class="nf">isConfigFileContain</span><span class="p">(</span><span class="s">&#34;test&#34;</span><span class="p">))</span>
+<span class="p">}</span>
+</code></pre></div><p>运行结果如下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="o">==</span><span class="p">=</span> <span class="nx">RUN</span>   <span class="nx">TestIsConfigFileContain</span>
+<span class="o">---</span> <span class="nx">FAIL</span><span class="p">:</span> <span class="nf">TestIsConfigFileContain</span> <span class="p">(</span><span class="mf">0.00</span><span class="nx">s</span><span class="p">)</span>
+<span class="nx">panic</span><span class="p">:</span> <span class="nx">open</span> <span class="o">/</span><span class="nx">opt</span><span class="o">/</span><span class="nx">container</span><span class="o">/</span><span class="nx">config</span><span class="p">.</span><span class="nx">properties</span><span class="p">:</span> <span class="nx">no</span> <span class="nx">such</span> <span class="nx">file</span> <span class="nx">or</span> <span class="nx">directory</span> <span class="p">[</span><span class="nx">recovered</span><span class="p">]</span>
+	<span class="nx">panic</span><span class="p">:</span> <span class="nx">open</span> <span class="o">/</span><span class="nx">opt</span><span class="o">/</span><span class="nx">container</span><span class="o">/</span><span class="nx">config</span><span class="p">.</span><span class="nx">properties</span><span class="p">:</span> <span class="nx">no</span> <span class="nx">such</span> <span class="nx">file</span> <span class="nx">or</span> <span class="nx">directory</span>
+</code></pre></div><p>果不其然，由于单元测试的环境并没有<code>/opt/container/config.properties</code>文件，因此用例执行失败。</p>
+<p>解决该问题的思路有两种，（1）在运行单元测试用例之前先把<code>/opt/container/config.properties</code>文件创建好；（2）使用一种技术手段让测试用例在调用<code>os.Open(&quot;/opt/container/config.properties&quot;)</code>时能够按照我们的预想返回相应的结果。</p>
+<p><em>这两种思路都属于广义上的“打桩”，那么我们常说的单元测试中的“打桩”究竟是什么？它又是用来解决什么问题的呢？</em></p>
+<h2 id="什么是打桩">什么是“打桩”</h2>
+<p>在单元测试中，通常可以将所涉及的对象分为两种，主要测试对象和次要测试对象。比如在上述例子中，我们测试的主要测试对象就是<code>IsPalindrome</code>函数，而次要测试对象则是<code>os.Open</code>和<code>ioutil.ReadAll</code>函数。一般地，在测试用例中我们只需关注主要测试对象的行为是否正确。<strong>对于次要测试对象，我们通常只会关注主要测试对象和次要测试对象之间的交互，比如是否被调用、调用参数、调用的次数、调用的结果等，至于次要测试对象是如何执行的，这些细节过程我们并不关注</strong>。</p>
+<p>因此，在进行单元测试中（特别是次要测试对象需要依赖特定的条件时，比如上述例子中依赖于<code>/opt/container/config.properties</code>文件的存在），我们常常选择使用一个<strong>模拟对象</strong>来替换次要测试对象，以此来模拟真实场景，对主要测试对象进行测试。而“<em>使用一个模拟对象来替换次要测试对象</em>”这个行为，我们通常称之为“<strong>打桩</strong>”。因此，<strong>“打桩”的作用就是在单元测试中让我们从次要测试对象的繁琐依赖中解脱出来，进而能够聚焦于对主要测试对象的测试上</strong>。</p>
+<h2 id="stub与mock的区别">stub与mock的区别</h2>
+<p>stub和mock是两种最常见的打桩手段，它们都能够用来替换次要测试对象，从而实现对一些复杂依赖的隔离，但是它们在实现和关注点上又有所区别。为了解它们之间的区别，考虑以下一段代码：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// 邮箱消息
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Message</span> <span class="kd">struct</span> <span class="p">{}</span>
+
+<span class="c1">// 邮箱服务
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">MailService</span> <span class="kd">interface</span> <span class="p">{</span>
+  <span class="nf">Start</span><span class="p">()</span>
+	<span class="nf">Send</span><span class="p">(</span><span class="nx">msg</span> <span class="nx">Message</span><span class="p">)</span>
+  <span class="nf">Stop</span><span class="p">()</span>
+<span class="p">}</span>
+
+<span class="c1">// 订单
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Order</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">mailService</span> <span class="nx">MailService</span>
+<span class="p">}</span>
+
+<span class="c1">// 创建新订单
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">NewOrder</span><span class="p">(</span><span class="nx">service</span> <span class="nx">MailService</span><span class="p">)</span> <span class="o">*</span><span class="nx">Order</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="o">&amp;</span><span class="nx">Order</span><span class="p">{</span><span class="nx">mailService</span><span class="p">:</span><span class="nx">service</span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// 进行一些业务操作
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">o</span> <span class="o">*</span><span class="nx">Order</span><span class="p">)</span> <span class="nf">DoSomething</span><span class="p">()</span> <span class="p">{</span>
+	<span class="o">...</span>
+<span class="p">}</span>
+
+<span class="c1">// 关闭订单时，会发送邮件
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">o</span> <span class="o">*</span><span class="nx">Order</span><span class="p">)</span> <span class="nf">Close</span><span class="p">()</span> <span class="p">{</span>
+  <span class="o">...</span>
+  <span class="nx">o</span><span class="p">.</span><span class="nx">mailService</span><span class="p">.</span><span class="nf">Send</span><span class="p">(</span><span class="nx">Message</span><span class="p">{})</span>
+<span class="p">}</span>
+
+</code></pre></div><p>假设有一个订单业务<code>Order</code> ，它依赖了一个邮箱服务<code>MailService</code>。系统在创建订单之后，执行<code>DoSometing</code>方法进行一些业务操作，并在关闭订单时使用邮箱服务发送一个消息通知用户。现在我们要测试在订单关闭时，是否已经发送邮件。由于在单元测试中，一般不会使用真实的邮箱服务进行邮件发送，因此需要采用打桩技术来隔离邮箱服务的真实行为。下面，我们分别使用stub和mock来完成这一次的打桩。</p>
+<p>如果使用stub来对<code>MailService</code>进行打桩，那么就要进行如下的实现：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">type</span> <span class="nx">StubMailService</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">messages</span> <span class="p">[]</span><span class="nx">Message</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">StubMailService</span><span class="p">)</span> <span class="nf">Start</span><span class="p">()</span> <span class="p">{</span>
+  <span class="c1">// 空实现
+</span><span class="c1"></span><span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">StubMailService</span><span class="p">)</span> <span class="nf">Send</span><span class="p">(</span><span class="nx">msg</span> <span class="nx">Message</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">s</span><span class="p">.</span><span class="nx">messages</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">s</span><span class="p">.</span><span class="nx">messages</span><span class="p">,</span> <span class="nx">msg</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">StubMailService</span><span class="p">)</span> <span class="nf">Stop</span><span class="p">()</span> <span class="p">{</span>
+  <span class="c1">// 空实现
+</span><span class="c1"></span><span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">StubMailService</span><span class="p">)</span> <span class="nf">SendNum</span><span class="p">()</span> <span class="kt">int</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="nx">s</span><span class="p">.</span><span class="nx">messages</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">NewStubMailService</span><span class="p">()</span> <span class="o">*</span><span class="nx">StubMailService</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="o">&amp;</span><span class="nx">StubMailService</span><span class="p">{</span><span class="nx">messages</span><span class="p">:</span><span class="nb">make</span><span class="p">([]</span><span class="nx">Message</span><span class="p">,</span> <span class="mi">0</span><span class="p">)}</span>
+<span class="p">}</span>
+</code></pre></div><p>对应的测试用例如下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">TestOrder_Stub</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">stub</span> <span class="o">:=</span> <span class="nf">NewStubMailService</span><span class="p">()</span>
+	<span class="nx">order</span> <span class="o">:=</span> <span class="nf">NewOrder</span><span class="p">(</span><span class="nx">stub</span><span class="p">)</span>
+	<span class="nx">order</span><span class="p">.</span><span class="nf">DoSomething</span><span class="p">()</span>
+	<span class="nx">order</span><span class="p">.</span><span class="nf">Close</span><span class="p">()</span>
+	<span class="nx">assert</span><span class="p">.</span><span class="nf">Equal</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nx">stub</span><span class="p">.</span><span class="nf">SendNum</span><span class="p">())</span>
+<span class="p">}</span>
+</code></pre></div><p>如果使用mock来对<code>MailService</code>进行打桩（这里我们采用的是go mock框架），则对应的测试用例如下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">TestOrder_Mock</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">ctrl</span> <span class="o">:=</span> <span class="nx">gomock</span><span class="p">.</span><span class="nf">NewController</span><span class="p">(</span><span class="nx">t</span><span class="p">)</span>
+	<span class="k">defer</span> <span class="nx">ctrl</span><span class="p">.</span><span class="nf">Finish</span><span class="p">()</span>
+	<span class="nx">mock</span> <span class="o">:=</span> <span class="nf">NewMockMailService</span><span class="p">(</span><span class="nx">ctrl</span><span class="p">)</span>
+	<span class="nx">mock</span><span class="p">.</span><span class="nf">EXPECT</span><span class="p">().</span><span class="nf">Send</span><span class="p">(</span><span class="nx">Message</span><span class="p">{}).</span><span class="nf">Times</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+	<span class="nx">order</span> <span class="o">:=</span> <span class="nf">NewOrder</span><span class="p">(</span><span class="nx">mock</span><span class="p">)</span>
+	<span class="nx">order</span><span class="p">.</span><span class="nf">DoSomething</span><span class="p">()</span>
+	<span class="nx">order</span><span class="p">.</span><span class="nf">Close</span><span class="p">()</span>
+<span class="p">}</span>
+</code></pre></div><p>从上述两个测试用例可以看出，在实现上，使用stub进行打桩时，我们需要自己实现<code>MailService</code>接口；而使用mock时，则直接利用框架的能力生成一个实现了<code>MailService</code>接口的mock对象。对比来看，<strong>mock更加简单一些，只需关注主要测试方法，也就是所谓的“just enough”；而stub则要实现具体的逻辑，即使是不需要关注的次要测试方法，也需要给出空实现</strong>。</p>
+<p>Martin Fowler在<a class="link" href="https://www.martinfowler.com/articles/mocksArentStubs.html"  target="_blank" rel="noopener"
+    >《Mocks Aren’t Stubs》</a>一文中将单元测试中的验证（verification）分为<strong>state verification</strong>和<strong>behavior verification</strong>两种，stub属于前者，mock则属于后者。正如它们的名称所描述，state verification关注的是测试对象的状态；behavior verification关注的是测试对象的行为。如上述例子，同样是验证<code>Order.DoSomething</code>的逻辑，stub通过记录发送过的消息数量来实现，也即是状态；mock则通过<code>mock.EXPECT().Send(Message{}).Times(1)</code>来验证<code>MailService.Send</code>的调用次数来实现，也即是行为。</p>
+<h2 id="go单元测试中的打桩">Go单元测试中的“打桩”</h2>
+<h3 id="为全局变量打桩">为全局变量打桩</h3>
+<p>全局变量也经常在代码中用到，因为它具有全局性，如果在单元测试用例中对全局变量做了修改，则在用例结束时，需要将其恢复为原来的值，避免对其他用例造成影响，比如：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">TestGlobalVal</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">val1</span> <span class="o">:=</span> <span class="nx">global</span><span class="p">.</span><span class="nx">Val1</span> <span class="c1">// 步骤1：记住原来的值
+</span><span class="c1"></span>	<span class="nx">global</span><span class="p">.</span><span class="nx">Val1</span> <span class="p">=</span> <span class="mi">5</span>     <span class="c1">// 步骤2：赋予新的值
+</span><span class="c1"></span>	<span class="o">...</span>                 <span class="c1">// 测试用例代码
+</span><span class="c1"></span>	<span class="nx">global</span><span class="p">.</span><span class="nx">Val1</span> <span class="p">=</span> <span class="nx">val1</span>  <span class="c1">// 步骤3：恢复原来的值
+</span><span class="c1"></span><span class="p">}</span>
+
+</code></pre></div><p>如果测试用例涉及到的全局变量很多，这样就需要对每个全局变量都执行上述3个步骤，显得代码很不简洁：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">TestGlobalVal</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">val1</span> <span class="o">:=</span> <span class="nx">global</span><span class="p">.</span><span class="nx">Val1</span>
+	<span class="nx">val2</span> <span class="o">:=</span> <span class="nx">global</span><span class="p">.</span><span class="nx">Val2</span>
+	<span class="nx">val3</span> <span class="o">:=</span> <span class="nx">global</span><span class="p">.</span><span class="nx">Val3</span>
+	<span class="nx">global</span><span class="p">.</span><span class="nx">Val1</span> <span class="p">=</span> <span class="mi">5</span>
+	<span class="nx">global</span><span class="p">.</span><span class="nx">Val2</span> <span class="p">=</span> <span class="mi">7</span>
+	<span class="nx">global</span><span class="p">.</span><span class="nx">Val3</span> <span class="p">=</span> <span class="mi">6</span>
+	<span class="o">...</span> <span class="c1">// 测试用例代码
+</span><span class="c1"></span>	<span class="nx">global</span><span class="p">.</span><span class="nx">Val1</span> <span class="p">=</span> <span class="nx">val1</span>
+	<span class="nx">global</span><span class="p">.</span><span class="nx">Val2</span> <span class="p">=</span> <span class="nx">val2</span>
+	<span class="nx">global</span><span class="p">.</span><span class="nx">Val3</span> <span class="p">=</span> <span class="nx">val3</span>
+<span class="p">}</span>
+</code></pre></div><p>针对全局变量的打桩，<a class="link" href="https://github.com/prashantv/gostub"  target="_blank" rel="noopener"
+    >gostub</a>为我们提供了一个简洁的实现方式。</p>
+<blockquote>
+<p>gostub：https://github.com/prashantv/gostub</p>
+</blockquote>
+<p>对上述例子，下面使用gostub对其进行优化：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">TestGlobalVal</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
+	<span class="c1">// 对全局变量进行打桩
+</span><span class="c1"></span>	<span class="nx">stub</span> <span class="o">:=</span> <span class="nx">gostub</span><span class="p">.</span><span class="nf">Stub</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">global</span><span class="p">.</span><span class="nx">Val1</span><span class="p">,</span> <span class="mi">5</span><span class="p">).</span>
+		<span class="nf">Stub</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">global</span><span class="p">.</span><span class="nx">Val2</span><span class="p">,</span> <span class="mi">7</span><span class="p">).</span>
+		<span class="nf">Stub</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">global</span><span class="p">.</span><span class="nx">Val3</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+	<span class="o">...</span> <span class="c1">// 测试用例代码，这里使用这3个全局变量时的值分别为5，7，6
+</span><span class="c1"></span>	<span class="c1">// 对全局变量进行复原
+</span><span class="c1"></span>	<span class="nx">stub</span><span class="p">.</span><span class="nf">Reset</span><span class="p">()</span>
+<span class="p">}</span>
+</code></pre></div><p>从上述例子来看，使用gostub为全局变量打桩使得代码更加简洁，可读性更好了。</p>
+<p>除了为全局变量打桩，gostub也可以对函数/方法进行打桩，但是其对代码有一定的限制条件，因此易用性并不是十分好。下一节，我们将介绍一个更加好用的函数/方法打桩神器。</p>
+<h3 id="为函数方法打桩">为函数/方法打桩</h3>
+<p>Go语言中，如果在函数声明时给它加上一个接收者，即将该函数附加到一种类型上，就变成了方法。比如，在前文中<code>func IsPalindrome(s string) bool</code>就是一个典型的函数声明；而<code>func (s *StubMailService) Send(msg Message)</code> 则是一个典型的方法声明。</p>
+<p>在Go单元测试中，用来对函数和方法进行打桩的框架不少，但是就易用性而言，属<a class="link" href="https://github.com/bouk/monkey"  target="_blank" rel="noopener"
+    >monkey patch</a>最好。</p>
+<blockquote>
+<p>monkey patch：https://github.com/bouk/monkey</p>
+</blockquote>
+<p>如果直接对前言中的<code>isConfigFileContain</code>函数进行单元测试，因为没有<code>/opt/container/config.properties</code>文件，函数中的<code>os.Open</code>和<code>ioutil.ReadAll</code>都会执行失败。前文有提到，解决方法有两种，一种是创建<code>/opt/container/config.properties</code>文件；另一种，我们可以使用mokey patch实现。只要通过monkey patch对<code>os.Open</code>和<code>ioutil.ReadAll</code>进行打桩即可，测试代码如下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">TestIsConfigFileContain_MonkeyPatch</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">ast</span> <span class="o">:=</span> <span class="nx">assert</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="nx">t</span><span class="p">)</span>
+	<span class="c1">// 对os.Open进行打桩，固定返回(&amp;os.File{}, nil)
+</span><span class="c1"></span>	<span class="nx">monkey</span><span class="p">.</span><span class="nf">Patch</span><span class="p">(</span><span class="nx">os</span><span class="p">.</span><span class="nx">Open</span><span class="p">,</span> <span class="kd">func</span><span class="p">(</span><span class="nx">name</span> <span class="kt">string</span><span class="p">)</span> <span class="p">(</span><span class="o">*</span><span class="nx">os</span><span class="p">.</span><span class="nx">File</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="o">&amp;</span><span class="nx">os</span><span class="p">.</span><span class="nx">File</span><span class="p">{},</span> <span class="kc">nil</span>
+	<span class="p">})</span>
+	<span class="c1">// 对ioutil.ReadAll进行打桩，固定返回([]byte(&#34;test for monkey patch&#34;), nil)
+</span><span class="c1"></span>	<span class="nx">monkey</span><span class="p">.</span><span class="nf">Path</span><span class="p">(</span><span class="nx">ioutil</span><span class="p">.</span><span class="nx">ReadAll</span><span class="p">,</span> <span class="kd">func</span><span class="p">(</span><span class="nx">r</span> <span class="nx">io</span><span class="p">.</span><span class="nx">Reader</span><span class="p">)</span> <span class="p">([]</span><span class="kt">byte</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="p">[]</span><span class="nb">byte</span><span class="p">(</span><span class="s">&#34;test for monkey patch&#34;</span><span class="p">),</span> <span class="kc">nil</span>
+	<span class="p">})</span>
+	<span class="c1">// 测试用例结束时，解除打桩，避免影响其他用例
+</span><span class="c1"></span>	<span class="k">defer</span> <span class="nx">monkey</span><span class="p">.</span><span class="nf">UnpatchAll</span><span class="p">()</span>
+	<span class="nx">ast</span><span class="p">.</span><span class="nf">True</span><span class="p">(</span><span class="nf">isConfigFileContain</span><span class="p">(</span><span class="s">&#34;test&#34;</span><span class="p">))</span>
+<span class="p">}</span>
+</code></pre></div><p>monkey patch对函数进行打桩的API很简单，形式如下<code>monkey.Patch(&lt;target function&gt;, &lt;replacement function&gt;)</code>，需要注意的是，在用例结束之后，记得调用<code>monkey.UnpatchAll</code>来解除打桩，避免影响其他用例。</p>
+<p>使用monkey patch对方法的打桩方法与函数的打桩方法稍微有点差异，考虑如下代码：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// 从远端key-value数据库中获取记录
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">GetRecord</span><span class="p">(</span><span class="nx">key</span> <span class="kt">string</span><span class="p">)</span> <span class="p">(</span><span class="kt">string</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">cli</span> <span class="o">:=</span> <span class="nx">db</span><span class="p">.</span><span class="nf">CreateClient</span><span class="p">()</span>
+	<span class="kd">var</span> <span class="nx">val</span> <span class="kt">string</span>
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">cli</span><span class="p">.</span><span class="nf">Get</span><span class="p">(</span><span class="s">&#34;key1&#34;</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">val</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="s">&#34;&#34;</span><span class="p">,</span> <span class="nx">err</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="nx">val</span><span class="p">,</span> <span class="kc">nil</span>
+<span class="p">}</span>
+</code></pre></div><p>其中<code>db.CreateClient</code>创建一个一个连接远端数据库的客户端<code>db.Client</code>，其定义如下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">db</span>
+<span class="o">...</span>
+<span class="c1">// 数据库服务端远程代理，实现db.KvDb接口
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Client</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="c1">// RPC客户端
+</span><span class="c1"></span>	<span class="nx">cli</span> <span class="o">*</span><span class="nx">rpc</span><span class="p">.</span><span class="nx">Client</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">c</span> <span class="o">*</span><span class="nx">Client</span><span class="p">)</span> <span class="nf">Get</span><span class="p">(</span><span class="nx">key</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">reply</span> <span class="o">*</span><span class="kt">string</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+	<span class="kd">var</span> <span class="nx">ret</span> <span class="kt">string</span>
+	<span class="c1">// 通过RPC调用服务端的接口
+</span><span class="c1"></span>	<span class="nx">err</span> <span class="o">:=</span> <span class="nx">c</span><span class="p">.</span><span class="nx">cli</span><span class="p">.</span><span class="nf">Call</span><span class="p">(</span><span class="s">&#34;Server.Get&#34;</span><span class="p">,</span> <span class="nx">key</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">ret</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Call db Server.Get rpc failed, error: %v&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+		<span class="o">*</span><span class="nx">reply</span> <span class="p">=</span> <span class="s">&#34;&#34;</span>
+		<span class="k">return</span> <span class="nx">err</span>
+	<span class="p">}</span>
+	<span class="o">*</span><span class="nx">reply</span> <span class="p">=</span> <span class="nx">ret</span>
+	<span class="k">return</span> <span class="kc">nil</span>
+<span class="p">}</span>
+<span class="o">...</span>
+<span class="c1">// 工厂方法，返回远程代理实例
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">CreateClient</span><span class="p">()</span> <span class="o">*</span><span class="nx">Client</span> <span class="p">{</span>
+	<span class="nx">rpcCli</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">rpc</span><span class="p">.</span><span class="nf">Dial</span><span class="p">(</span><span class="s">&#34;tcp&#34;</span><span class="p">,</span> <span class="s">&#34;192.168.21.34:8088&#34;</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Create rpc client failed, error: %v.&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+		<span class="k">return</span> <span class="kc">nil</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="o">&amp;</span><span class="nx">Client</span><span class="p">{</span><span class="nx">cli</span><span class="p">:</span> <span class="nx">rpcCli</span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div><p>现在需要对<code>GetRecord</code>进行单元测试，因为在测试环境中并没有远端数据库实例，因此直接执行如下的测试用例，会运行失败：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">TestGetRecord</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">val</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nf">GetRecord</span><span class="p">(</span><span class="s">&#34;key1&#34;</span><span class="p">)</span>
+  <span class="nx">assert</span><span class="p">.</span><span class="nf">Nil</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+	<span class="nx">assert</span><span class="p">.</span><span class="nf">Equal</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="s">&#34;value1&#34;</span><span class="p">,</span> <span class="nx">val</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="c1">// 测试结果:
+</span><span class="c1"></span><span class="o">==</span><span class="p">=</span> <span class="nx">RUN</span>   <span class="nx">TestGetRecord</span>
+<span class="nx">Create</span> <span class="nx">rpc</span> <span class="nx">client</span> <span class="nx">failed</span><span class="p">,</span> <span class="kt">error</span><span class="p">:</span> <span class="nx">dial</span> <span class="nx">tcp</span> <span class="mf">192.168.21.34</span><span class="p">:</span><span class="mi">8088</span><span class="p">:</span> <span class="nx">connect</span><span class="p">:</span> <span class="nx">connection</span> <span class="nx">refused</span><span class="p">.</span>
+<span class="o">---</span> <span class="nx">FAIL</span><span class="p">:</span> <span class="nf">TestGetRecord</span> <span class="p">(</span><span class="mf">0.00</span><span class="nx">s</span><span class="p">)</span>
+</code></pre></div><p>现在我们使用monkey patch来解决该问题：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">TestGetRecord_MonkeyPatch</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
+	<span class="kd">var</span> <span class="nx">c</span> <span class="o">*</span><span class="nx">db</span><span class="p">.</span><span class="nx">Client</span> <span class="c1">// 因为&#34;Client.Get&#34;方法的接收者是指针类型，所以这里必须声明为指针类型
+</span><span class="c1"></span>	<span class="nx">monkey</span><span class="p">.</span><span class="nf">PatchInstanceMethod</span><span class="p">(</span><span class="nx">reflect</span><span class="p">.</span><span class="nf">TypeOf</span><span class="p">(</span><span class="nx">c</span><span class="p">),</span> <span class="s">&#34;Get&#34;</span><span class="p">,</span> <span class="kd">func</span><span class="p">(</span><span class="nx">_</span> <span class="o">*</span><span class="nx">db</span><span class="p">.</span><span class="nx">Client</span><span class="p">,</span> <span class="nx">reply</span> <span class="o">*</span><span class="kt">string</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+		<span class="o">*</span><span class="nx">reply</span> <span class="p">=</span> <span class="s">&#34;value1&#34;</span>
+		<span class="k">return</span> <span class="kc">nil</span>
+	<span class="p">})</span>
+	<span class="k">defer</span> <span class="nx">monkey</span><span class="p">.</span><span class="nf">UnpatchAll</span><span class="p">()</span>
+	<span class="nx">val</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nf">GetRecord</span><span class="p">(</span><span class="s">&#34;key1&#34;</span><span class="p">)</span>
+	<span class="nx">assert</span><span class="p">.</span><span class="nf">Nil</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+	<span class="nx">assert</span><span class="p">.</span><span class="nf">Equal</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="s">&#34;value1&#34;</span><span class="p">,</span> <span class="nx">val</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="c1">// 测试结果:
+</span><span class="c1"></span><span class="o">==</span><span class="p">=</span> <span class="nx">RUN</span>   <span class="nx">TestGetRecord</span>
+<span class="o">---</span> <span class="nx">PASS</span><span class="p">:</span> <span class="nf">TestGetRecord</span> <span class="p">(</span><span class="mf">0.00</span><span class="nx">s</span><span class="p">)</span>
+</code></pre></div><p>如代码所述，使用monkey patch为方法进行打桩的用法为<code>monkey.PatchInstanceMethod(&lt;type&gt;, &lt;name&gt;, &lt;replacement&gt;)</code>，其中<code>type</code>通过<code>reflect.TypeOf</code>获得，值得注意的是，<code>type</code>必须跟方法定义的接收者类型一致，如上述代码中，<code>Client.Get</code>方法的接收者是指针类型，因此<code>type</code>必须声明为<code>*Client</code>类型。</p>
+<blockquote>
+<p>monkey patch并不支持对包私有（首字母小写）的函数/方法进行打桩。因为设计者认为包私有的函数/方法是不稳定的，因此对它们进行打桩可能会导致测试用例代码的频繁更改，得不偿失。</p>
+</blockquote>
+<h3 id="为接口打桩">为接口打桩</h3>
+<p>在单元测试中，我们也经常需要对接口<code>interface</code>进行打桩，比如上文所述的订单业务例子就对接口<code>MailService</code>进行了打桩。在该例子中，我们介绍了两种对接口打桩的方式。一是自己创建一个实现了<code>MailService</code>接口的桩对象stub，但是该方法有一定限制，当接口比较复杂或嵌套很多层时，该方式将会变得异常麻烦，考虑如下<code>ComplexItf</code>接口定义：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">type</span> <span class="nx">Itf1</span> <span class="kd">interface</span> <span class="p">{</span>
+	<span class="nf">Func1</span><span class="p">()</span>
+	<span class="nf">Func2</span><span class="p">()</span>
+<span class="p">}</span>
+
+<span class="kd">type</span> <span class="nx">Itf2</span> <span class="kd">interface</span> <span class="p">{</span>
+	<span class="nf">Func3</span><span class="p">(</span><span class="nx">itf</span> <span class="nx">Itf1</span><span class="p">)</span>
+	<span class="nf">Func4</span><span class="p">()</span>
+<span class="p">}</span>
+
+<span class="kd">type</span> <span class="nx">Itf3</span> <span class="kd">interface</span> <span class="p">{</span>
+	<span class="nx">Itf1</span>
+	<span class="nf">Func5</span><span class="p">()</span>
+<span class="p">}</span>
+
+<span class="kd">type</span> <span class="nx">ComplexItf</span> <span class="kd">interface</span> <span class="p">{</span>
+	<span class="nx">Itf2</span>
+	<span class="nx">Itf3</span>
+	<span class="nf">Func6</span><span class="p">()</span>
+	<span class="nf">Func7</span><span class="p">()</span>
+	<span class="nf">Func8</span><span class="p">(</span><span class="nx">itf2</span> <span class="nx">Itf2</span><span class="p">)</span>
+  <span class="nf">Func9</span><span class="p">()</span> <span class="nx">Itf1</span>
+  <span class="o">...</span>
+<span class="p">}</span>
+</code></pre></div><p>对于这么复杂的<code>ComplexItf</code>接口，光是其自身的方法都已经很多，更别提嵌套的<code>Itf2</code>和<code>Itf3</code>了。更好的是采用第二种打桩方法，也就是mock方式，我们通常使用<a class="link" href="https://github.com/golang/mock"  target="_blank" rel="noopener"
+    >gomock</a>框架来实现。</p>
+<blockquote>
+<p>gomock：https://github.com/golang/mock</p>
+</blockquote>
+<p>使用gomock进行打桩时，我们完全将实现接口这一繁琐的工作交给了框架，比如使用gomock对<code>MailService</code>接口打桩时，在安装好gomock之后，只需执行如下命令，mock对象就会自动生成：</p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"> mockgen -source<span class="o">=</span>yrunz/mail_service.go -destination<span class="o">=</span>yrunz/mock_mail_service.go -package<span class="o">=</span>yrunz
+</code></pre></div><p>其中<code>-source</code>表示<code>MailService</code>接口所在文件路径，<code>-destination</code>表示生成的mock对象所做的文件路径，<code>-package</code>表示mock对象的包名。生成的mock对象对应的代码如下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// Code generated by MockGen. DO NOT EDIT.
+</span><span class="c1">// Source: yrunz/mail_service.go
+</span><span class="c1"></span>
+<span class="c1">// Package yrunz is a generated GoMock package.
+</span><span class="c1"></span><span class="kn">package</span> <span class="nx">yrunz</span>
+
+<span class="kn">import</span> <span class="p">(</span>
+	<span class="nx">gomock</span> <span class="s">&#34;github.com/golang/mock/gomock&#34;</span>
+	<span class="nx">reflect</span> <span class="s">&#34;reflect&#34;</span>
+<span class="p">)</span>
+
+<span class="c1">// MockMailService is a mock of MailService interface
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">MockMailService</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">ctrl</span>     <span class="o">*</span><span class="nx">gomock</span><span class="p">.</span><span class="nx">Controller</span>
+	<span class="nx">recorder</span> <span class="o">*</span><span class="nx">MockMailServiceMockRecorder</span>
+<span class="p">}</span>
+
+<span class="c1">// MockMailServiceMockRecorder is the mock recorder for MockMailService
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">MockMailServiceMockRecorder</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">mock</span> <span class="o">*</span><span class="nx">MockMailService</span>
+<span class="p">}</span>
+
+<span class="c1">// NewMockMailService creates a new mock instance
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">NewMockMailService</span><span class="p">(</span><span class="nx">ctrl</span> <span class="o">*</span><span class="nx">gomock</span><span class="p">.</span><span class="nx">Controller</span><span class="p">)</span> <span class="o">*</span><span class="nx">MockMailService</span> <span class="p">{</span>
+	<span class="nx">mock</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">MockMailService</span><span class="p">{</span><span class="nx">ctrl</span><span class="p">:</span> <span class="nx">ctrl</span><span class="p">}</span>
+	<span class="nx">mock</span><span class="p">.</span><span class="nx">recorder</span> <span class="p">=</span> <span class="o">&amp;</span><span class="nx">MockMailServiceMockRecorder</span><span class="p">{</span><span class="nx">mock</span><span class="p">}</span>
+	<span class="k">return</span> <span class="nx">mock</span>
+<span class="p">}</span>
+
+<span class="c1">// EXPECT returns an object that allows the caller to indicate expected use
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">m</span> <span class="o">*</span><span class="nx">MockMailService</span><span class="p">)</span> <span class="nf">EXPECT</span><span class="p">()</span> <span class="o">*</span><span class="nx">MockMailServiceMockRecorder</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="nx">m</span><span class="p">.</span><span class="nx">recorder</span>
+<span class="p">}</span>
+
+<span class="c1">// Start mocks base method
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">m</span> <span class="o">*</span><span class="nx">MockMailService</span><span class="p">)</span> <span class="nf">Start</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">m</span><span class="p">.</span><span class="nx">ctrl</span><span class="p">.</span><span class="nx">T</span><span class="p">.</span><span class="nf">Helper</span><span class="p">()</span>
+	<span class="nx">m</span><span class="p">.</span><span class="nx">ctrl</span><span class="p">.</span><span class="nf">Call</span><span class="p">(</span><span class="nx">m</span><span class="p">,</span> <span class="s">&#34;Start&#34;</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="o">...</span>
+</code></pre></div><p>生成之后就可以使用<code>NewMockMailService</code>工厂方法创建一个mock对象进行单元测试了：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">TestOrder_Mock</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">ctrl</span> <span class="o">:=</span> <span class="nx">gomock</span><span class="p">.</span><span class="nf">NewController</span><span class="p">(</span><span class="nx">t</span><span class="p">)</span>
+	<span class="k">defer</span> <span class="nx">ctrl</span><span class="p">.</span><span class="nf">Finish</span><span class="p">()</span>
+	<span class="nx">mock</span> <span class="o">:=</span> <span class="nf">NewMockMailService</span><span class="p">(</span><span class="nx">ctrl</span><span class="p">)</span>
+	<span class="nx">mock</span><span class="p">.</span><span class="nf">EXPECT</span><span class="p">().</span><span class="nf">Send</span><span class="p">(</span><span class="nx">Message</span><span class="p">{}).</span><span class="nf">Times</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+	<span class="nx">order</span> <span class="o">:=</span> <span class="nf">NewOrder</span><span class="p">(</span><span class="nx">mock</span><span class="p">)</span>
+	<span class="nx">order</span><span class="p">.</span><span class="nf">DoSomething</span><span class="p">()</span>
+	<span class="nx">order</span><span class="p">.</span><span class="nf">Close</span><span class="p">()</span>
+<span class="p">}</span>
+</code></pre></div><p>我们注意到，mockgen工具生成的mock对象都是<code>Mock+接口名</code>的命名形式，并提供了一个<code>New+Mock+接口名</code>命名方式的工厂方法用于创建mock对象，其中工厂方法的入参为<code>*gomock.Controller</code>类型。</p>
+<p>前文有提到，mock属于<strong>behavior verification</strong>，也就是行为验证方式。实际使用gomock框架时，我们通过调用mock对象的<code>EXPECT</code>设定预期返回值、预期动作以及调用次数验证等。比如上述例子中的<code>mock.EXPECT().Send(Message{}).Times(1)</code>表示mock对象的<code>Send</code>方法在测试用例中应该被调用一次，且入参为<code>Message{}</code>，否则用例验证失败。</p>
+<p>gomock的一些常用的行为验证方法如下：</p>
+<blockquote>
+<p>.Do()：声明在匹配时要运行的操作。</p>
+<p>.DoAndReturn()：声明在匹配调用时要运行的操作，并模拟返回该函数的返回值。</p>
+<p>.Return()：在匹配调用时模拟返回该函数的返回值。</p>
+<p>.MaxTimes()：设置最大的调用次数</p>
+<p>.MinTimes()：设置最小的调用次数</p>
+<p>.AnyTimes()：运行调用次数为0或更多次。</p>
+<p>.Times()：设置调用次数为n次。</p>
+</blockquote>
+<p>如果调用方法的入参不固定，可以使用gomock.Any()进行匹配，比如前面的例子中，可以这样：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">mock</span><span class="p">.</span><span class="nf">EXPECT</span><span class="p">().</span><span class="nf">Send</span><span class="p">(</span><span class="nx">gomock</span><span class="p">.</span><span class="nf">Any</span><span class="p">()).</span><span class="nf">Times</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</code></pre></div><p>常用的参数匹配如下：</p>
+<blockquote>
+<p>gomock.Any()：匹配任意值</p>
+<p>gomock.Eq()：通过反射匹配到指定的类型</p>
+<p>gomock.Nil()：匹配nil</p>
+</blockquote>
+<h2 id="总结">总结</h2>
+<p>本文主要主要介绍了单元测试中的“打桩”，<strong>打桩主要作用是在单元测试中让我们从次要测试对象的繁琐依赖中解脱出来，进而能够聚焦于对主要测试对象的测试上</strong>。常见的打桩技术stub和mock也并非完全相同，前者属于state verification，后者属于behavior verification。另外本文还介绍了Go单元测试的几种打桩框架，为全局变量打桩的<strong>gostub</strong>框架、为函数/方法打桩的<strong>monkey patch</strong>框架、为接口打桩的<strong>go mock</strong>框架。熟练地使用这些框架，能够让我们更加高效、优雅地编写Go单元测试。</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/golang/">golang</a>
+        
+            <a href="/tags/%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95/">单元测试</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>CC BY 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/%E5%A6%82%E4%BD%95%E9%AB%98%E6%95%88%E7%BC%96%E5%86%99go%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E4%B8%80/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">如何高效编写Go单元测试（一）</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E4%BD%BF%E7%94%A8go%E5%AE%9E%E7%8E%B0gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B8%89/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">使用Go实现GoF的23种设计模式（三）</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E4%BD%BF%E7%94%A8go%E5%AE%9E%E7%8E%B0gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%BA%8C/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">使用Go实现GoF的23种设计模式（二）</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E4%BD%BF%E7%94%A8go%E5%AE%9E%E7%8E%B0gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B8%80/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">使用Go实现GoF的23种设计模式（一）</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+
+    
+        
+    <script src="https://utteranc.es/client.js" 
+        repo="ruanrunxue/yrunz-comments"
+        issue-term="pathname"
+        
+        label="yrunz"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
+
+<style>
+    .utterances {
+        max-width: unset;
+    }
+</style>
+
+<script>
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
+        }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+        setUtterancesTheme(document.body.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        setUtterancesTheme(e.detail)
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_SVG"></script>
+    <section class="copyright">
+        &copy;
+        
+            2019 -
+        
+        2023 元闰子的邀请
+    </section>
+
+    <section class="powerby">
+        
+
+        <a href="https://beian.miit.gov.cn/">粤ICP备19152659号 | </a>Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.3.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        <br />
+    </section>
+</footer>
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

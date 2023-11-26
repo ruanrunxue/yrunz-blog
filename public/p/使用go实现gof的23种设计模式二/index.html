@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='前言 上一篇文章《使用Go实现GoF的23种设计模式（一）》介绍了23种设计模式中的创建型模式（Creational Pattern），创建型模式是处理对象创建的一类设计模式，主要思想是向对象的使用者隐藏对象创建的具体细节，从而达到解耦的目的。本文主要聚焦在结构型模式（Structural Pattern）上，其主要思想是将多个对象组装成较大的结构，并同时保持结构的灵活和高效，从程序的结构上解决模块之间的耦合问题。
+组合模式（Composite Pattern） 简述 在面向对象编程中，有两个常见的对象设计方法，组合和继承，两者都可以解决代码复用的问题，但是使用后者时容易出现继承层次过深，对象关系过于复杂的副作用，从而导致代码的可维护性变差。因此，一个经典的面向对象设计原则是：组合优于继承。
+我们都知道，组合所表示的语义为“has-a”，也就是部分和整体的关系，最经典的组合模式描述如下：
+ 将对象组合成树形结构以表示“部分-整体”的层次结构，使得用户对单个对象和组合对象的使用具有一致性。
+ Go语言天然就支持了组合模式，而且从它不支持继承关系的特点来看，Go也奉行了组合优于继承的原则，鼓励大家在进行程序设计时多采用组合的方法。Go实现组合模式的方式有两种，分别是直接组合（Direct Composition）和嵌入组合（Embedding Composition），下面我们一起探讨这两种不同的实现方法。
+Go实现 直接组合（Direct Composition）的实现方式类似于Java/C&#43;&#43;，就是将一个对象作为另一个对象的成员属性。
+一个典型的实现如《使用Go实现GoF的23种设计模式（一）》中所举的例子，一个Message结构体，由Header和Body所组成。那么Message就是一个整体，而Header和Body则为消息的组成部分。
+type Message struct { Header *Header Body *Body } 现在，我们来看一个稍微复杂一点的例子，同样考虑上一篇文章中所描述的插件架构风格的消息处理系统。前面我们用抽象工厂模式解决了插件加载的问题，通常，每个插件都会有一个生命周期，常见的就是启动状态和停止状态，现在我们使用组合模式来解决插件的启动和停止问题。
+首先给Plugin接口添加几个生命周期相关的方法：
+package plugin ... // 插件运行状态 type Status uint8 const ( Stopped Status = iota Started ) type Plugin interface { // 启动插件 	Start() // 停止插件 	Stop() // 返回插件当前的运行状态 	Status() Status } // Input、Filter、Output三类插件接口的定义跟上一篇文章类似 // 这里使用Message结构体替代了原来的string，使得语义更清晰 type Input interface { Plugin Receive() *msg.'><title>使用Go实现GoF的23种设计模式（二）</title>
+
+<link rel='canonical' href='https://www.yrunz.com/p/%E4%BD%BF%E7%94%A8go%E5%AE%9E%E7%8E%B0gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%BA%8C/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='使用Go实现GoF的23种设计模式（二）'>
+<meta property='og:description' content='前言 上一篇文章《使用Go实现GoF的23种设计模式（一）》介绍了23种设计模式中的创建型模式（Creational Pattern），创建型模式是处理对象创建的一类设计模式，主要思想是向对象的使用者隐藏对象创建的具体细节，从而达到解耦的目的。本文主要聚焦在结构型模式（Structural Pattern）上，其主要思想是将多个对象组装成较大的结构，并同时保持结构的灵活和高效，从程序的结构上解决模块之间的耦合问题。
+组合模式（Composite Pattern） 简述 在面向对象编程中，有两个常见的对象设计方法，组合和继承，两者都可以解决代码复用的问题，但是使用后者时容易出现继承层次过深，对象关系过于复杂的副作用，从而导致代码的可维护性变差。因此，一个经典的面向对象设计原则是：组合优于继承。
+我们都知道，组合所表示的语义为“has-a”，也就是部分和整体的关系，最经典的组合模式描述如下：
+ 将对象组合成树形结构以表示“部分-整体”的层次结构，使得用户对单个对象和组合对象的使用具有一致性。
+ Go语言天然就支持了组合模式，而且从它不支持继承关系的特点来看，Go也奉行了组合优于继承的原则，鼓励大家在进行程序设计时多采用组合的方法。Go实现组合模式的方式有两种，分别是直接组合（Direct Composition）和嵌入组合（Embedding Composition），下面我们一起探讨这两种不同的实现方法。
+Go实现 直接组合（Direct Composition）的实现方式类似于Java/C&#43;&#43;，就是将一个对象作为另一个对象的成员属性。
+一个典型的实现如《使用Go实现GoF的23种设计模式（一）》中所举的例子，一个Message结构体，由Header和Body所组成。那么Message就是一个整体，而Header和Body则为消息的组成部分。
+type Message struct { Header *Header Body *Body } 现在，我们来看一个稍微复杂一点的例子，同样考虑上一篇文章中所描述的插件架构风格的消息处理系统。前面我们用抽象工厂模式解决了插件加载的问题，通常，每个插件都会有一个生命周期，常见的就是启动状态和停止状态，现在我们使用组合模式来解决插件的启动和停止问题。
+首先给Plugin接口添加几个生命周期相关的方法：
+package plugin ... // 插件运行状态 type Status uint8 const ( Stopped Status = iota Started ) type Plugin interface { // 启动插件 	Start() // 停止插件 	Stop() // 返回插件当前的运行状态 	Status() Status } // Input、Filter、Output三类插件接口的定义跟上一篇文章类似 // 这里使用Message结构体替代了原来的string，使得语义更清晰 type Input interface { Plugin Receive() *msg.'>
+<meta property='og:url' content='https://www.yrunz.com/p/%E4%BD%BF%E7%94%A8go%E5%AE%9E%E7%8E%B0gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%BA%8C/'>
+<meta property='og:site_name' content='元闰子的邀请'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='golang' /><meta property='article:tag' content='设计模式' /><meta property='article:published_time' content='2020-08-23T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2020-08-23T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="使用Go实现GoF的23种设计模式（二）">
+<meta name="twitter:description" content="前言 上一篇文章《使用Go实现GoF的23种设计模式（一）》介绍了23种设计模式中的创建型模式（Creational Pattern），创建型模式是处理对象创建的一类设计模式，主要思想是向对象的使用者隐藏对象创建的具体细节，从而达到解耦的目的。本文主要聚焦在结构型模式（Structural Pattern）上，其主要思想是将多个对象组装成较大的结构，并同时保持结构的灵活和高效，从程序的结构上解决模块之间的耦合问题。
+组合模式（Composite Pattern） 简述 在面向对象编程中，有两个常见的对象设计方法，组合和继承，两者都可以解决代码复用的问题，但是使用后者时容易出现继承层次过深，对象关系过于复杂的副作用，从而导致代码的可维护性变差。因此，一个经典的面向对象设计原则是：组合优于继承。
+我们都知道，组合所表示的语义为“has-a”，也就是部分和整体的关系，最经典的组合模式描述如下：
+ 将对象组合成树形结构以表示“部分-整体”的层次结构，使得用户对单个对象和组合对象的使用具有一致性。
+ Go语言天然就支持了组合模式，而且从它不支持继承关系的特点来看，Go也奉行了组合优于继承的原则，鼓励大家在进行程序设计时多采用组合的方法。Go实现组合模式的方式有两种，分别是直接组合（Direct Composition）和嵌入组合（Embedding Composition），下面我们一起探讨这两种不同的实现方法。
+Go实现 直接组合（Direct Composition）的实现方式类似于Java/C&#43;&#43;，就是将一个对象作为另一个对象的成员属性。
+一个典型的实现如《使用Go实现GoF的23种设计模式（一）》中所举的例子，一个Message结构体，由Header和Body所组成。那么Message就是一个整体，而Header和Body则为消息的组成部分。
+type Message struct { Header *Header Body *Body } 现在，我们来看一个稍微复杂一点的例子，同样考虑上一篇文章中所描述的插件架构风格的消息处理系统。前面我们用抽象工厂模式解决了插件加载的问题，通常，每个插件都会有一个生命周期，常见的就是启动状态和停止状态，现在我们使用组合模式来解决插件的启动和停止问题。
+首先给Plugin接口添加几个生命周期相关的方法：
+package plugin ... // 插件运行状态 type Status uint8 const ( Stopped Status = iota Started ) type Plugin interface { // 启动插件 	Start() // 停止插件 	Stop() // 返回插件当前的运行状态 	Status() Status } // Input、Filter、Output三类插件接口的定义跟上一篇文章类似 // 这里使用Message结构体替代了原来的string，使得语义更清晰 type Input interface { Plugin Receive() *msg.">
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "light");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/yrz_hudc7c8721ecce4b724df5002339c76402_174377_300x0_resize_box_2.png" width="300"
+                            height="306" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://www.yrunz.com">元闰子的邀请</a></h1>
+        <h2 class="site-description">阅读、写作、生活（个人技术分享）</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>首页</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>博客</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%85%B3%E4%BA%8E%E5%85%83%E9%97%B0%E5%AD%90/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24"
+     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+     stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z"/>
+    <circle cx="12" cy="7" r="4"/>
+    <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/>
+</svg>
+
+                
+                <span>关于元闰子</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%8F%8B%E6%83%85%E9%93%BE%E6%8E%A5/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-friends" width="44" height="44"
+     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+    <circle cx="7" cy="5" r="2"/>
+    <path d="M5 22v-5l-1 -1v-4a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4l-1 1v5"/>
+    <circle cx="17" cy="5" r="2"/>
+    <path d="M15 22v-4h-2l2 -6a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1l2 6h-2v4"/>
+</svg>
+
+                
+                <span>友情链接</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>暗色模式</span>
+            </li>
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://www.yrunz.com" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/golang/" >
+                Golang
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/%E4%BD%BF%E7%94%A8go%E5%AE%9E%E7%8E%B0gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%BA%8C/">使用Go实现GoF的23种设计模式（二）</a>
+    </h2>
+
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Aug 23, 2020</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <h2 id="前言">前言</h2>
+<p>上一篇文章<a class="link" href="https://www.yrunz.com/archives/%e4%bd%bf%e7%94%a8Go%e5%ae%9e%e7%8e%b0GoF%e7%9a%8423%e7%a7%8d%e8%ae%be%e8%ae%a1%e6%a8%a1%e5%bc%8f%ef%bc%88%e4%b8%80%ef%bc%89"  target="_blank" rel="noopener"
+    >《使用Go实现GoF的23种设计模式（一）》</a>介绍了23种设计模式中的<strong>创建型模式</strong>（Creational Pattern），创建型模式是处理对象创建的一类设计模式，主要思想是<strong>向对象的使用者隐藏对象创建的具体细节</strong>，从而达到解耦的目的。本文主要聚焦在<strong>结构型模式</strong>（Structural Pattern）上，其主要思想是<strong>将多个对象组装成较大的结构，并同时保持结构的灵活和高效</strong>，从程序的结构上解决模块之间的耦合问题。</p>
+<h2 id="组合模式composite-pattern">组合模式（Composite Pattern）</h2>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1ghvdqutjd5j312k0iue81.jpg" alt="组合模式结构"  /></p>
+<h3 id="简述">简述</h3>
+<p>在面向对象编程中，有两个常见的对象设计方法，<strong>组合</strong>和<strong>继承</strong>，两者都可以解决代码复用的问题，但是使用后者时容易出现继承层次过深，对象关系过于复杂的副作用，从而导致代码的可维护性变差。因此，一个经典的面向对象设计原则是：<strong>组合优于继承</strong>。</p>
+<p>我们都知道，组合所表示的语义为“has-a”，也就是部分和整体的关系，最经典的组合模式描述如下：</p>
+<blockquote>
+<p>将对象组合成树形结构以表示“部分-整体”的层次结构，使得用户对单个对象和组合对象的使用具有一致性。</p>
+</blockquote>
+<p>Go语言天然就支持了组合模式，而且从它不支持继承关系的特点来看，Go也奉行了<strong>组合优于继承</strong>的原则，鼓励大家在进行程序设计时多采用组合的方法。Go实现组合模式的方式有两种，分别是<strong>直接组合</strong>（Direct Composition）和<strong>嵌入组合</strong>（Embedding Composition），下面我们一起探讨这两种不同的实现方法。</p>
+<h3 id="go实现">Go实现</h3>
+<p><em>直接组合（Direct Composition）的实现方式类似于Java/C++，就是将一个对象作为另一个对象的成员属性。</em></p>
+<p>一个典型的实现如<a class="link" href="https://www.yrunz.com/archives/%e4%bd%bf%e7%94%a8Go%e5%ae%9e%e7%8e%b0GoF%e7%9a%8423%e7%a7%8d%e8%ae%be%e8%ae%a1%e6%a8%a1%e5%bc%8f%ef%bc%88%e4%b8%80%ef%bc%89"  target="_blank" rel="noopener"
+    >《使用Go实现GoF的23种设计模式（一）》</a>中所举的例子，一个<code>Message</code>结构体，由<code>Header</code>和<code>Body</code>所组成。那么<code>Message</code>就是一个整体，而<code>Header</code>和<code>Body</code>则为消息的组成部分。</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">type</span> <span class="nx">Message</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">Header</span> <span class="o">*</span><span class="nx">Header</span>
+	<span class="nx">Body</span>   <span class="o">*</span><span class="nx">Body</span>
+<span class="p">}</span>
+</code></pre></div><p>现在，我们来看一个稍微复杂一点的例子，同样考虑上一篇文章中所描述的插件架构风格的消息处理系统。前面我们用<strong>抽象工厂模式</strong>解决了插件加载的问题，通常，每个插件都会有一个生命周期，常见的就是启动状态和停止状态，现在我们使用<strong>组合模式</strong>来解决插件的启动和停止问题。</p>
+<p>首先给<code>Plugin</code>接口添加几个生命周期相关的方法：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">plugin</span>
+<span class="o">...</span>
+<span class="c1">// 插件运行状态
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Status</span> <span class="kt">uint8</span>
+
+<span class="kd">const</span> <span class="p">(</span>
+	<span class="nx">Stopped</span> <span class="nx">Status</span> <span class="p">=</span> <span class="kc">iota</span>
+	<span class="nx">Started</span>
+<span class="p">)</span>
+
+<span class="kd">type</span> <span class="nx">Plugin</span> <span class="kd">interface</span> <span class="p">{</span>
+  <span class="c1">// 启动插件
+</span><span class="c1"></span>	<span class="nf">Start</span><span class="p">()</span>
+  <span class="c1">// 停止插件
+</span><span class="c1"></span>	<span class="nf">Stop</span><span class="p">()</span>
+  <span class="c1">// 返回插件当前的运行状态
+</span><span class="c1"></span>	<span class="nf">Status</span><span class="p">()</span> <span class="nx">Status</span>
+<span class="p">}</span>
+<span class="c1">// Input、Filter、Output三类插件接口的定义跟上一篇文章类似
+</span><span class="c1">// 这里使用Message结构体替代了原来的string，使得语义更清晰
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Input</span> <span class="kd">interface</span> <span class="p">{</span>
+	<span class="nx">Plugin</span>
+	<span class="nf">Receive</span><span class="p">()</span> <span class="o">*</span><span class="nx">msg</span><span class="p">.</span><span class="nx">Message</span>
+<span class="p">}</span>
+
+<span class="kd">type</span> <span class="nx">Filter</span> <span class="kd">interface</span> <span class="p">{</span>
+	<span class="nx">Plugin</span>
+	<span class="nf">Process</span><span class="p">(</span><span class="nx">msg</span> <span class="o">*</span><span class="nx">msg</span><span class="p">.</span><span class="nx">Message</span><span class="p">)</span> <span class="o">*</span><span class="nx">msg</span><span class="p">.</span><span class="nx">Message</span>
+<span class="p">}</span>
+
+<span class="kd">type</span> <span class="nx">Output</span> <span class="kd">interface</span> <span class="p">{</span>
+	<span class="nx">Plugin</span>
+	<span class="nf">Send</span><span class="p">(</span><span class="nx">msg</span> <span class="o">*</span><span class="nx">msg</span><span class="p">.</span><span class="nx">Message</span><span class="p">)</span>
+<span class="p">}</span>
+
+</code></pre></div><p>对于插件化的消息处理系统而言，一切皆是插件，因此我们将<code>Pipeine</code>也设计成一个插件，实现<code>Plugin</code>接口：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">pipeline</span>
+<span class="o">...</span>
+<span class="c1">// 一个Pipeline由input、filter、output三个Plugin组成
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Pipeline</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">status</span> <span class="nx">plugin</span><span class="p">.</span><span class="nx">Status</span>
+	<span class="nx">input</span>  <span class="nx">plugin</span><span class="p">.</span><span class="nx">Input</span>
+	<span class="nx">filter</span> <span class="nx">plugin</span><span class="p">.</span><span class="nx">Filter</span>
+	<span class="nx">output</span> <span class="nx">plugin</span><span class="p">.</span><span class="nx">Output</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">Pipeline</span><span class="p">)</span> <span class="nf">Exec</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">msg</span> <span class="o">:=</span> <span class="nx">p</span><span class="p">.</span><span class="nx">input</span><span class="p">.</span><span class="nf">Receive</span><span class="p">()</span>
+	<span class="nx">msg</span> <span class="p">=</span> <span class="nx">p</span><span class="p">.</span><span class="nx">filter</span><span class="p">.</span><span class="nf">Process</span><span class="p">(</span><span class="nx">msg</span><span class="p">)</span>
+	<span class="nx">p</span><span class="p">.</span><span class="nx">output</span><span class="p">.</span><span class="nf">Send</span><span class="p">(</span><span class="nx">msg</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="c1">// 启动的顺序 output -&gt; filter -&gt; input
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">Pipeline</span><span class="p">)</span> <span class="nf">Start</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">p</span><span class="p">.</span><span class="nx">output</span><span class="p">.</span><span class="nf">Start</span><span class="p">()</span>
+	<span class="nx">p</span><span class="p">.</span><span class="nx">filter</span><span class="p">.</span><span class="nf">Start</span><span class="p">()</span>
+	<span class="nx">p</span><span class="p">.</span><span class="nx">input</span><span class="p">.</span><span class="nf">Start</span><span class="p">()</span>
+	<span class="nx">p</span><span class="p">.</span><span class="nx">status</span> <span class="p">=</span> <span class="nx">plugin</span><span class="p">.</span><span class="nx">Started</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Hello input plugin started.&#34;</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="c1">// 停止的顺序 input -&gt; filter -&gt; output
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">Pipeline</span><span class="p">)</span> <span class="nf">Stop</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">p</span><span class="p">.</span><span class="nx">input</span><span class="p">.</span><span class="nf">Stop</span><span class="p">()</span>
+	<span class="nx">p</span><span class="p">.</span><span class="nx">filter</span><span class="p">.</span><span class="nf">Stop</span><span class="p">()</span>
+	<span class="nx">p</span><span class="p">.</span><span class="nx">output</span><span class="p">.</span><span class="nf">Stop</span><span class="p">()</span>
+	<span class="nx">p</span><span class="p">.</span><span class="nx">status</span> <span class="p">=</span> <span class="nx">plugin</span><span class="p">.</span><span class="nx">Stopped</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Hello input plugin stopped.&#34;</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">Pipeline</span><span class="p">)</span> <span class="nf">Status</span><span class="p">()</span> <span class="nx">plugin</span><span class="p">.</span><span class="nx">Status</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="nx">p</span><span class="p">.</span><span class="nx">status</span>
+<span class="p">}</span>
+
+</code></pre></div><p>一个<code>Pipeline</code>由<code>Input</code>、<code>Filter</code>、<code>Output</code>三类插件组成，形成了“部分-整体”的关系，而且它们都实现了<code>Plugin</code>接口，这就是一个典型的组合模式的实现。Client无需显式地启动和停止<code>Input</code>、<code>Filter</code>和<code>Output</code>插件，在调用<code>Pipeline</code>对象的<code>Start</code>和<code>Stop</code>方法时，<code>Pipeline</code>就已经帮你按顺序完成对应插件的启动和停止。</p>
+<p>相比于上一篇文章，在本文中实现<code>Input</code>、<code>Filter</code>、<code>Output</code>三类插件时，需要多实现3个生命周期的方法。还是以上一篇文章中的<code>HelloInput</code>、<code>UpperFilter</code>和<code>ConsoleOutput</code>作为例子，具体实现如下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">plugin</span>
+<span class="o">...</span>
+<span class="kd">type</span> <span class="nx">HelloInput</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">status</span> <span class="nx">Status</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">h</span> <span class="o">*</span><span class="nx">HelloInput</span><span class="p">)</span> <span class="nf">Receive</span><span class="p">()</span> <span class="o">*</span><span class="nx">msg</span><span class="p">.</span><span class="nx">Message</span> <span class="p">{</span>
+  <span class="c1">// 如果插件未启动，则返回nil
+</span><span class="c1"></span>	<span class="k">if</span> <span class="nx">h</span><span class="p">.</span><span class="nx">status</span> <span class="o">!=</span> <span class="nx">Started</span> <span class="p">{</span>
+		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Hello input plugin is not running, input nothing.&#34;</span><span class="p">)</span>
+		<span class="k">return</span> <span class="kc">nil</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="nx">msg</span><span class="p">.</span><span class="nf">Builder</span><span class="p">().</span>
+		<span class="nf">WithHeaderItem</span><span class="p">(</span><span class="s">&#34;content&#34;</span><span class="p">,</span> <span class="s">&#34;text&#34;</span><span class="p">).</span>
+		<span class="nf">WithBodyItem</span><span class="p">(</span><span class="s">&#34;Hello World&#34;</span><span class="p">).</span>
+		<span class="nf">Build</span><span class="p">()</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">h</span> <span class="o">*</span><span class="nx">HelloInput</span><span class="p">)</span> <span class="nf">Start</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">h</span><span class="p">.</span><span class="nx">status</span> <span class="p">=</span> <span class="nx">Started</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Hello input plugin started.&#34;</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">h</span> <span class="o">*</span><span class="nx">HelloInput</span><span class="p">)</span> <span class="nf">Stop</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">h</span><span class="p">.</span><span class="nx">status</span> <span class="p">=</span> <span class="nx">Stopped</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Hello input plugin stopped.&#34;</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">h</span> <span class="o">*</span><span class="nx">HelloInput</span><span class="p">)</span> <span class="nf">Status</span><span class="p">()</span> <span class="nx">Status</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="nx">h</span><span class="p">.</span><span class="nx">status</span>
+<span class="p">}</span>
+</code></pre></div><div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">plugin</span>
+<span class="o">...</span>
+<span class="kd">type</span> <span class="nx">UpperFilter</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">status</span> <span class="nx">Status</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">u</span> <span class="o">*</span><span class="nx">UpperFilter</span><span class="p">)</span> <span class="nf">Process</span><span class="p">(</span><span class="nx">msg</span> <span class="o">*</span><span class="nx">msg</span><span class="p">.</span><span class="nx">Message</span><span class="p">)</span> <span class="o">*</span><span class="nx">msg</span><span class="p">.</span><span class="nx">Message</span> <span class="p">{</span>
+	<span class="k">if</span> <span class="nx">u</span><span class="p">.</span><span class="nx">status</span> <span class="o">!=</span> <span class="nx">Started</span> <span class="p">{</span>
+		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Upper filter plugin is not running, filter nothing.&#34;</span><span class="p">)</span>
+		<span class="k">return</span> <span class="nx">msg</span>
+	<span class="p">}</span>
+	<span class="k">for</span> <span class="nx">i</span><span class="p">,</span> <span class="nx">val</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">msg</span><span class="p">.</span><span class="nx">Body</span><span class="p">.</span><span class="nx">Items</span> <span class="p">{</span>
+		<span class="nx">msg</span><span class="p">.</span><span class="nx">Body</span><span class="p">.</span><span class="nx">Items</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="p">=</span> <span class="nx">strings</span><span class="p">.</span><span class="nf">ToUpper</span><span class="p">(</span><span class="nx">val</span><span class="p">)</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="nx">msg</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">u</span> <span class="o">*</span><span class="nx">UpperFilter</span><span class="p">)</span> <span class="nf">Start</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">u</span><span class="p">.</span><span class="nx">status</span> <span class="p">=</span> <span class="nx">Started</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Upper filter plugin started.&#34;</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">u</span> <span class="o">*</span><span class="nx">UpperFilter</span><span class="p">)</span> <span class="nf">Stop</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">u</span><span class="p">.</span><span class="nx">status</span> <span class="p">=</span> <span class="nx">Stopped</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Upper filter plugin stopped.&#34;</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">u</span> <span class="o">*</span><span class="nx">UpperFilter</span><span class="p">)</span> <span class="nf">Status</span><span class="p">()</span> <span class="nx">Status</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="nx">u</span><span class="p">.</span><span class="nx">status</span>
+<span class="p">}</span>
+
+</code></pre></div><div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">plugin</span>
+<span class="o">...</span>
+<span class="kd">type</span> <span class="nx">ConsoleOutput</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">status</span> <span class="nx">Status</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">c</span> <span class="o">*</span><span class="nx">ConsoleOutput</span><span class="p">)</span> <span class="nf">Send</span><span class="p">(</span><span class="nx">msg</span> <span class="o">*</span><span class="nx">msg</span><span class="p">.</span><span class="nx">Message</span><span class="p">)</span> <span class="p">{</span>
+	<span class="k">if</span> <span class="nx">c</span><span class="p">.</span><span class="nx">status</span> <span class="o">!=</span> <span class="nx">Started</span> <span class="p">{</span>
+		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Console output is not running, output nothing.&#34;</span><span class="p">)</span>
+		<span class="k">return</span>
+	<span class="p">}</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Output:\n\tHeader:%+v, Body:%+v\n&#34;</span><span class="p">,</span> <span class="nx">msg</span><span class="p">.</span><span class="nx">Header</span><span class="p">.</span><span class="nx">Items</span><span class="p">,</span> <span class="nx">msg</span><span class="p">.</span><span class="nx">Body</span><span class="p">.</span><span class="nx">Items</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">c</span> <span class="o">*</span><span class="nx">ConsoleOutput</span><span class="p">)</span> <span class="nf">Start</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">c</span><span class="p">.</span><span class="nx">status</span> <span class="p">=</span> <span class="nx">Started</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Console output plugin started.&#34;</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">c</span> <span class="o">*</span><span class="nx">ConsoleOutput</span><span class="p">)</span> <span class="nf">Stop</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">c</span><span class="p">.</span><span class="nx">status</span> <span class="p">=</span> <span class="nx">Stopped</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Console output plugin stopped.&#34;</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">c</span> <span class="o">*</span><span class="nx">ConsoleOutput</span><span class="p">)</span> <span class="nf">Status</span><span class="p">()</span> <span class="nx">Status</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="nx">c</span><span class="p">.</span><span class="nx">status</span>
+<span class="p">}</span>
+
+</code></pre></div><p>测试代码如下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">test</span>
+<span class="o">...</span>
+<span class="kd">func</span> <span class="nf">TestPipeline</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">p</span> <span class="o">:=</span> <span class="nx">pipeline</span><span class="p">.</span><span class="nf">Of</span><span class="p">(</span><span class="nx">pipeline</span><span class="p">.</span><span class="nf">DefaultConfig</span><span class="p">())</span>
+	<span class="nx">p</span><span class="p">.</span><span class="nf">Start</span><span class="p">()</span>
+	<span class="nx">p</span><span class="p">.</span><span class="nf">Exec</span><span class="p">()</span>
+	<span class="nx">p</span><span class="p">.</span><span class="nf">Stop</span><span class="p">()</span>
+<span class="p">}</span>
+<span class="c1">// 运行结果
+</span><span class="c1"></span><span class="o">==</span><span class="p">=</span> <span class="nx">RUN</span>   <span class="nx">TestPipeline</span>
+<span class="nx">Console</span> <span class="nx">output</span> <span class="nx">plugin</span> <span class="nx">started</span><span class="p">.</span>
+<span class="nx">Upper</span> <span class="nx">filter</span> <span class="nx">plugin</span> <span class="nx">started</span><span class="p">.</span>
+<span class="nx">Hello</span> <span class="nx">input</span> <span class="nx">plugin</span> <span class="nx">started</span><span class="p">.</span>
+<span class="nx">Pipeline</span> <span class="nx">started</span><span class="p">.</span>
+<span class="nx">Output</span><span class="p">:</span>
+    <span class="nx">Header</span><span class="p">:</span><span class="kd">map</span><span class="p">[</span><span class="nx">content</span><span class="p">:</span><span class="nx">text</span><span class="p">],</span> <span class="nx">Body</span><span class="p">:[</span><span class="nx">HELLO</span> <span class="nx">WORLD</span><span class="p">]</span>
+<span class="nx">Hello</span> <span class="nx">input</span> <span class="nx">plugin</span> <span class="nx">stopped</span><span class="p">.</span>
+<span class="nx">Upper</span> <span class="nx">filter</span> <span class="nx">plugin</span> <span class="nx">stopped</span><span class="p">.</span>
+<span class="nx">Console</span> <span class="nx">output</span> <span class="nx">plugin</span> <span class="nx">stopped</span><span class="p">.</span>
+<span class="nx">Hello</span> <span class="nx">input</span> <span class="nx">plugin</span> <span class="nx">stopped</span><span class="p">.</span>
+<span class="o">---</span> <span class="nx">PASS</span><span class="p">:</span> <span class="nf">TestPipeline</span> <span class="p">(</span><span class="mf">0.00</span><span class="nx">s</span><span class="p">)</span>
+<span class="nx">PASS</span>
+</code></pre></div><p><em>组合模式的另一种实现，嵌入组合（Embedding Composition），其实就是利用了Go语言的匿名成员特性，本质上跟直接组合是一致的。</em></p>
+<p>还是以Message结构体为例，如果采用嵌入组合，则看起来像是这样：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">type</span> <span class="nx">Message</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">Header</span>
+	<span class="nx">Body</span>
+<span class="p">}</span>
+<span class="c1">// 使用时，Message可以引用Header和Body的成员属性，例如：
+</span><span class="c1"></span><span class="nx">msg</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">Message</span><span class="p">{}</span>
+<span class="nx">msg</span><span class="p">.</span><span class="nx">SrcAddr</span> <span class="p">=</span> <span class="s">&#34;192.168.0.1&#34;</span>
+</code></pre></div><h2 id="适配器模式adapter-pattern">适配器模式（Adapter Pattern）</h2>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1ghzyia5t19j315w0k0kjl.jpg" alt="适配器模式结构"  /></p>
+<h3 id="简述-1">简述</h3>
+<p>适配器模式是最常用的结构型模式之一，它让原本因为接口不匹配而无法一起工作的两个对象能够一起工作。在现实生活中，适配器模式也是处处可见，比如电源插头转换器，可以让英式的插头工作在中式的插座上。适配器模式所做的就是<strong>将一个接口<code>Adaptee</code>，通过适配器<code>Adapter</code>转换成Client所期望的另一个接口<code>Target</code>来使用</strong>，实现原理也很简单，就是<code>Adapter</code>通过实现<code>Target</code>接口，并在对应的方法中调用<code>Adaptee</code>的接口实现。</p>
+<p>一个典型的应用场景是，<em>系统中一个老的接口已经过时即将废弃，但因为历史包袱没法立即将老接口全部替换为新接口，这时可以新增一个适配器，将老的接口适配成新的接口来使用</em>。适配器模式很好的践行了面向对象设计原则里的<strong>开闭原则</strong>（open/closed principle），新增一个接口时也无需修改老接口，只需多加一个适配层即可。</p>
+<h3 id="go实现-1">Go实现</h3>
+<p>继续考虑上一节的消息处理系统例子，目前为止，系统的输入都源自于<code>HelloInput</code>，现在假设需要给系统新增从Kafka消息队列中接收数据的功能，其中Kafka消费者的接口如下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">kafka</span>
+<span class="o">...</span>
+<span class="kd">type</span> <span class="nx">Records</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">Items</span> <span class="p">[]</span><span class="kt">string</span>
+<span class="p">}</span>
+
+<span class="kd">type</span> <span class="nx">Consumer</span> <span class="kd">interface</span> <span class="p">{</span>
+	<span class="nf">Poll</span><span class="p">()</span> <span class="nx">Records</span>
+<span class="p">}</span>
+</code></pre></div><p>由于当前<code>Pipeline</code>的设计是通过<code>plugin.Input</code>接口来进行数据接收，因此<code>kafka.Consumer</code>并不能直接集成到系统中。</p>
+<p><em>怎么办？使用适配器模式！</em></p>
+<p>为了能让<code>Pipeline</code>能够使用<code>kafka.Consumer</code>接口，我们需要定义一个适配器如下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">plugin</span>
+<span class="o">...</span>
+<span class="kd">type</span> <span class="nx">KafkaInput</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">status</span> <span class="nx">Status</span>
+	<span class="nx">consumer</span> <span class="nx">kafka</span><span class="p">.</span><span class="nx">Consumer</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">k</span> <span class="o">*</span><span class="nx">KafkaInput</span><span class="p">)</span> <span class="nf">Receive</span><span class="p">()</span> <span class="o">*</span><span class="nx">msg</span><span class="p">.</span><span class="nx">Message</span> <span class="p">{</span>
+	<span class="nx">records</span> <span class="o">:=</span> <span class="nx">k</span><span class="p">.</span><span class="nx">consumer</span><span class="p">.</span><span class="nf">Poll</span><span class="p">()</span>
+	<span class="k">if</span> <span class="nx">k</span><span class="p">.</span><span class="nx">status</span> <span class="o">!=</span> <span class="nx">Started</span> <span class="p">{</span>
+		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Kafka input plugin is not running, input nothing.&#34;</span><span class="p">)</span>
+		<span class="k">return</span> <span class="kc">nil</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="nx">msg</span><span class="p">.</span><span class="nf">Builder</span><span class="p">().</span>
+		<span class="nf">WithHeaderItem</span><span class="p">(</span><span class="s">&#34;content&#34;</span><span class="p">,</span> <span class="s">&#34;text&#34;</span><span class="p">).</span>
+		<span class="nf">WithBodyItems</span><span class="p">(</span><span class="nx">records</span><span class="p">.</span><span class="nx">Items</span><span class="p">).</span>
+		<span class="nf">Build</span><span class="p">()</span>
+<span class="p">}</span>
+
+<span class="c1">// 在输入插件映射关系中加入kafka，用于通过反射创建input对象
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">init</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">inputNames</span><span class="p">[</span><span class="s">&#34;hello&#34;</span><span class="p">]</span> <span class="p">=</span> <span class="nx">reflect</span><span class="p">.</span><span class="nf">TypeOf</span><span class="p">(</span><span class="nx">HelloInput</span><span class="p">{})</span>
+	<span class="nx">inputNames</span><span class="p">[</span><span class="s">&#34;kafka&#34;</span><span class="p">]</span> <span class="p">=</span> <span class="nx">reflect</span><span class="p">.</span><span class="nf">TypeOf</span><span class="p">(</span><span class="nx">KafkaInput</span><span class="p">{})</span>
+<span class="p">}</span>
+<span class="o">...</span>
+</code></pre></div><p>因为Go语言并没有构造函数，如果按照上一篇文章中的<strong>抽象工厂模式</strong>来创建<code>KafkaInput</code>，那么得到的实例中的<code>consumer</code>成员因为没有被初始化而会是<code>nil</code>。因此，需要给<code>Plugin</code>接口新增一个<code>Init</code>方法，用于定义插件的一些初始化操作，并在工厂返回实例前调用。</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">plugin</span>
+<span class="o">...</span>
+<span class="kd">type</span> <span class="nx">Plugin</span> <span class="kd">interface</span> <span class="p">{</span>
+	<span class="nf">Start</span><span class="p">()</span>
+	<span class="nf">Stop</span><span class="p">()</span>
+	<span class="nf">Status</span><span class="p">()</span> <span class="nx">Status</span>
+	<span class="c1">// 新增初始化方法，在插件工厂返回实例前调用
+</span><span class="c1"></span>	<span class="nf">Init</span><span class="p">()</span>
+<span class="p">}</span>
+
+<span class="c1">// 修改后的插件工厂实现如下
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">i</span> <span class="o">*</span><span class="nx">InputFactory</span><span class="p">)</span> <span class="nf">Create</span><span class="p">(</span><span class="nx">conf</span> <span class="nx">Config</span><span class="p">)</span> <span class="nx">Plugin</span> <span class="p">{</span>
+	<span class="nx">t</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">inputNames</span><span class="p">[</span><span class="nx">conf</span><span class="p">.</span><span class="nx">Name</span><span class="p">]</span>
+	<span class="nx">p</span> <span class="o">:=</span> <span class="nx">reflect</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="nx">t</span><span class="p">).</span><span class="nf">Interface</span><span class="p">().(</span><span class="nx">Plugin</span><span class="p">)</span>
+  <span class="c1">// 返回插件实例前调用Init函数，完成相关初始化方法
+</span><span class="c1"></span>	<span class="nx">p</span><span class="p">.</span><span class="nf">Init</span><span class="p">()</span>
+	<span class="k">return</span> <span class="nx">p</span>
+<span class="p">}</span>
+
+<span class="c1">// KakkaInput的Init函数实现
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">k</span> <span class="o">*</span><span class="nx">KafkaInput</span><span class="p">)</span> <span class="nf">Init</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">k</span><span class="p">.</span><span class="nx">consumer</span> <span class="p">=</span> <span class="o">&amp;</span><span class="nx">kafka</span><span class="p">.</span><span class="nx">MockConsumer</span><span class="p">{}</span>
+<span class="p">}</span>
+</code></pre></div><p>上述代码中的<code>kafka.MockConsumer</code>为我们模式Kafka消费者的一个实现，代码如下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">kafka</span>
+<span class="o">...</span>
+<span class="kd">type</span> <span class="nx">MockConsumer</span> <span class="kd">struct</span> <span class="p">{}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">m</span> <span class="o">*</span><span class="nx">MockConsumer</span><span class="p">)</span> <span class="nf">Poll</span><span class="p">()</span> <span class="o">*</span><span class="nx">Records</span> <span class="p">{</span>
+	<span class="nx">records</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">Records</span><span class="p">{}</span>
+	<span class="nx">records</span><span class="p">.</span><span class="nx">Items</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">records</span><span class="p">.</span><span class="nx">Items</span><span class="p">,</span> <span class="s">&#34;i am mock consumer.&#34;</span><span class="p">)</span>
+	<span class="k">return</span> <span class="nx">records</span>
+<span class="p">}</span>
+</code></pre></div><p>测试代码如下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">test</span>
+<span class="o">...</span>
+<span class="kd">func</span> <span class="nf">TestKafkaInputPipeline</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">config</span> <span class="o">:=</span> <span class="nx">pipeline</span><span class="p">.</span><span class="nx">Config</span><span class="p">{</span>
+		<span class="nx">Name</span><span class="p">:</span> <span class="s">&#34;pipeline2&#34;</span><span class="p">,</span>
+		<span class="nx">Input</span><span class="p">:</span> <span class="nx">plugin</span><span class="p">.</span><span class="nx">Config</span><span class="p">{</span>
+			<span class="nx">PluginType</span><span class="p">:</span> <span class="nx">plugin</span><span class="p">.</span><span class="nx">InputType</span><span class="p">,</span>
+			<span class="nx">Name</span><span class="p">:</span>       <span class="s">&#34;kafka&#34;</span><span class="p">,</span>
+		<span class="p">},</span>
+		<span class="nx">Filter</span><span class="p">:</span> <span class="nx">plugin</span><span class="p">.</span><span class="nx">Config</span><span class="p">{</span>
+			<span class="nx">PluginType</span><span class="p">:</span> <span class="nx">plugin</span><span class="p">.</span><span class="nx">FilterType</span><span class="p">,</span>
+			<span class="nx">Name</span><span class="p">:</span>       <span class="s">&#34;upper&#34;</span><span class="p">,</span>
+		<span class="p">},</span>
+		<span class="nx">Output</span><span class="p">:</span> <span class="nx">plugin</span><span class="p">.</span><span class="nx">Config</span><span class="p">{</span>
+			<span class="nx">PluginType</span><span class="p">:</span> <span class="nx">plugin</span><span class="p">.</span><span class="nx">OutputType</span><span class="p">,</span>
+			<span class="nx">Name</span><span class="p">:</span>       <span class="s">&#34;console&#34;</span><span class="p">,</span>
+		<span class="p">},</span>
+	<span class="p">}</span>
+	<span class="nx">p</span> <span class="o">:=</span> <span class="nx">pipeline</span><span class="p">.</span><span class="nf">Of</span><span class="p">(</span><span class="nx">config</span><span class="p">)</span>
+	<span class="nx">p</span><span class="p">.</span><span class="nf">Start</span><span class="p">()</span>
+	<span class="nx">p</span><span class="p">.</span><span class="nf">Exec</span><span class="p">()</span>
+	<span class="nx">p</span><span class="p">.</span><span class="nf">Stop</span><span class="p">()</span>
+<span class="p">}</span>
+<span class="c1">// 运行结果
+</span><span class="c1"></span><span class="o">==</span><span class="p">=</span> <span class="nx">RUN</span>   <span class="nx">TestKafkaInputPipeline</span>
+<span class="nx">Console</span> <span class="nx">output</span> <span class="nx">plugin</span> <span class="nx">started</span><span class="p">.</span>
+<span class="nx">Upper</span> <span class="nx">filter</span> <span class="nx">plugin</span> <span class="nx">started</span><span class="p">.</span>
+<span class="nx">Kafka</span> <span class="nx">input</span> <span class="nx">plugin</span> <span class="nx">started</span><span class="p">.</span>
+<span class="nx">Pipeline</span> <span class="nx">started</span><span class="p">.</span>
+<span class="nx">Output</span><span class="p">:</span>
+	<span class="nx">Header</span><span class="p">:</span><span class="kd">map</span><span class="p">[</span><span class="nx">content</span><span class="p">:</span><span class="nx">kafka</span><span class="p">],</span> <span class="nx">Body</span><span class="p">:[</span><span class="nx">I</span> <span class="nx">AM</span> <span class="nx">MOCK</span> <span class="nx">CONSUMER</span><span class="p">.]</span>
+<span class="nx">Kafka</span> <span class="nx">input</span> <span class="nx">plugin</span> <span class="nx">stopped</span><span class="p">.</span>
+<span class="nx">Upper</span> <span class="nx">filter</span> <span class="nx">plugin</span> <span class="nx">stopped</span><span class="p">.</span>
+<span class="nx">Console</span> <span class="nx">output</span> <span class="nx">plugin</span> <span class="nx">stopped</span><span class="p">.</span>
+<span class="nx">Pipeline</span> <span class="nx">stopped</span><span class="p">.</span>
+<span class="o">---</span> <span class="nx">PASS</span><span class="p">:</span> <span class="nf">TestKafkaInputPipeline</span> <span class="p">(</span><span class="mf">0.00</span><span class="nx">s</span><span class="p">)</span>
+<span class="nx">PASS</span>
+</code></pre></div><h2 id="桥接模式bridge-pattern">桥接模式（Bridge Pattern）</h2>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi00awfcxcj31f20l01ky.jpg" alt="桥接模式结构"  /></p>
+<h3 id="简述-2">简述</h3>
+<p>桥接模式主要用于<strong>将抽象部分和实现部分进行解耦，使得它们能够各自往独立的方向变化</strong>。它解决了在模块有多种变化方向的情况下，用继承所导致的类爆炸问题。举一个例子，一个产品有形状和颜色两个特征（变化方向），其中形状分为方形和圆形，颜色分为红色和蓝色。如果采用继承的设计方案，那么就需要新增4个产品子类：方形红色、圆形红色、方形蓝色、圆形红色。如果形状总共有m种变化，颜色有n种变化，那么就需要新增m*n个产品子类！现在我们使用桥接模式进行优化，将形状和颜色分别设计为一个抽象接口独立出来，这样需要新增2个形状子类：方形和圆形，以及2个颜色子类：红色和蓝色。同样，如果形状总共有m种变化，颜色有n种变化，总共只需要新增m+n个子类！</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi01kwmua8j31hs0s47wj.jpg" alt="桥接模式示例"  /></p>
+<p>上述例子中，我们通过将形状和颜色抽象为一个接口，使产品不再依赖于具体的形状和颜色细节，从而达到了解耦的目的。<strong>桥接模式本质上就是面向接口编程，可以给系统带来很好的灵活性和可扩展性</strong>。如果一个对象存在多个变化的方向，而且每个变化方向都需要扩展，那么使用桥接模式进行设计那是再合适不过了。</p>
+<h3 id="go实现-2">Go实现</h3>
+<p>回到消息处理系统的例子，一个<code>Pipeline</code>对象主要由<code>Input</code>、<code>Filter</code>、<code>Output</code>三类插件组成（<strong>3个特征</strong>），因为是插件化的系统，不可避免的就要求支持多种<code>Input</code>、<code>Filter</code>、<code>Output</code>的实现，并能够灵活组合（<strong>有多个变化的方向</strong>）。显然，<code>Pipeline</code>就非常适合使用桥接模式进行设计，实际上我们也这么做了。我们将<code>Input</code>、<code>Filter</code>、<code>Output</code>分别设计成一个抽象的接口，它们按照各自的方向去扩展。<code>Pipeline</code>只依赖的这3个抽象接口，并不感知具体实现的细节。</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gi0i6xpj9sj318a0nk4qq.jpg" alt="使用桥接模式设计的Pipeline"  /></p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">plugin</span>
+<span class="o">...</span>
+<span class="kd">type</span> <span class="nx">Input</span> <span class="kd">interface</span> <span class="p">{</span>
+	<span class="nx">Plugin</span>
+	<span class="nf">Receive</span><span class="p">()</span> <span class="o">*</span><span class="nx">msg</span><span class="p">.</span><span class="nx">Message</span>
+<span class="p">}</span>
+
+<span class="kd">type</span> <span class="nx">Filter</span> <span class="kd">interface</span> <span class="p">{</span>
+	<span class="nx">Plugin</span>
+	<span class="nf">Process</span><span class="p">(</span><span class="nx">msg</span> <span class="o">*</span><span class="nx">msg</span><span class="p">.</span><span class="nx">Message</span><span class="p">)</span> <span class="o">*</span><span class="nx">msg</span><span class="p">.</span><span class="nx">Message</span>
+<span class="p">}</span>
+
+<span class="kd">type</span> <span class="nx">Output</span> <span class="kd">interface</span> <span class="p">{</span>
+	<span class="nx">Plugin</span>
+	<span class="nf">Send</span><span class="p">(</span><span class="nx">msg</span> <span class="o">*</span><span class="nx">msg</span><span class="p">.</span><span class="nx">Message</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div><div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">pipeline</span>
+<span class="o">...</span>
+<span class="c1">// 一个Pipeline由input、filter、output三个Plugin组成
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Pipeline</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">status</span> <span class="nx">plugin</span><span class="p">.</span><span class="nx">Status</span>
+	<span class="nx">input</span>  <span class="nx">plugin</span><span class="p">.</span><span class="nx">Input</span>
+	<span class="nx">filter</span> <span class="nx">plugin</span><span class="p">.</span><span class="nx">Filter</span>
+	<span class="nx">output</span> <span class="nx">plugin</span><span class="p">.</span><span class="nx">Output</span>
+<span class="p">}</span>
+<span class="c1">// 通过抽象接口来使用，看不到底层的实现细节
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">Pipeline</span><span class="p">)</span> <span class="nf">Exec</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">msg</span> <span class="o">:=</span> <span class="nx">p</span><span class="p">.</span><span class="nx">input</span><span class="p">.</span><span class="nf">Receive</span><span class="p">()</span>
+	<span class="nx">msg</span> <span class="p">=</span> <span class="nx">p</span><span class="p">.</span><span class="nx">filter</span><span class="p">.</span><span class="nf">Process</span><span class="p">(</span><span class="nx">msg</span><span class="p">)</span>
+	<span class="nx">p</span><span class="p">.</span><span class="nx">output</span><span class="p">.</span><span class="nf">Send</span><span class="p">(</span><span class="nx">msg</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div><p>测试代码如下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">test</span>
+<span class="o">...</span>
+<span class="kd">func</span> <span class="nf">TestPipeline</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">p</span> <span class="o">:=</span> <span class="nx">pipeline</span><span class="p">.</span><span class="nf">Of</span><span class="p">(</span><span class="nx">pipeline</span><span class="p">.</span><span class="nf">DefaultConfig</span><span class="p">())</span>
+	<span class="nx">p</span><span class="p">.</span><span class="nf">Start</span><span class="p">()</span>
+	<span class="nx">p</span><span class="p">.</span><span class="nf">Exec</span><span class="p">()</span>
+	<span class="nx">p</span><span class="p">.</span><span class="nf">Stop</span><span class="p">()</span>
+<span class="p">}</span>
+<span class="c1">// 运行结果
+</span><span class="c1"></span><span class="o">==</span><span class="p">=</span> <span class="nx">RUN</span>   <span class="nx">TestPipeline</span>
+<span class="nx">Console</span> <span class="nx">output</span> <span class="nx">plugin</span> <span class="nx">started</span><span class="p">.</span>
+<span class="nx">Upper</span> <span class="nx">filter</span> <span class="nx">plugin</span> <span class="nx">started</span><span class="p">.</span>
+<span class="nx">Hello</span> <span class="nx">input</span> <span class="nx">plugin</span> <span class="nx">started</span><span class="p">.</span>
+<span class="nx">Pipeline</span> <span class="nx">started</span><span class="p">.</span>
+<span class="nx">Output</span><span class="p">:</span>
+	<span class="nx">Header</span><span class="p">:</span><span class="kd">map</span><span class="p">[</span><span class="nx">content</span><span class="p">:</span><span class="nx">text</span><span class="p">],</span> <span class="nx">Body</span><span class="p">:[</span><span class="nx">HELLO</span> <span class="nx">WORLD</span><span class="p">]</span>
+<span class="nx">Hello</span> <span class="nx">input</span> <span class="nx">plugin</span> <span class="nx">stopped</span><span class="p">.</span>
+<span class="nx">Upper</span> <span class="nx">filter</span> <span class="nx">plugin</span> <span class="nx">stopped</span><span class="p">.</span>
+<span class="nx">Console</span> <span class="nx">output</span> <span class="nx">plugin</span> <span class="nx">stopped</span><span class="p">.</span>
+<span class="nx">Pipeline</span> <span class="nx">stopped</span><span class="p">.</span>
+<span class="o">---</span> <span class="nx">PASS</span><span class="p">:</span> <span class="nf">TestPipeline</span> <span class="p">(</span><span class="mf">0.00</span><span class="nx">s</span><span class="p">)</span>
+<span class="nx">PASS</span>
+</code></pre></div><h2 id="总结">总结</h2>
+<p>本文主要介绍了结构型模式中的组合模式、适配器模式和桥接模式。<strong>组合模式</strong>主要解决代码复用的问题，相比于继承关系，组合模式可以避免继承层次过深导致的代码复杂问题，因此面向对象设计领域流传着<strong>组合优于继承</strong>的原则，而Go语言的设计也很好实践了该原则；<strong>适配器模式</strong>可以看作是两个不兼容接口之间的桥梁，可以将一个接口转换成Client所希望的另外一个接口，解决了模块之间因为接口不兼容而无法一起工作的问题；<strong>桥接模式</strong>将模块的抽象部分和实现部分进行分离，让它们能够往各自的方向扩展，从而达到解耦的目的。</p>
+<p>下一篇文章，我们将继续聚焦于结构型模式，介绍完剩余的4种结模式：装饰模式、外观模式、享元模式和代理模式。</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/golang/">golang</a>
+        
+            <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">设计模式</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>CC BY 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/%E4%BD%BF%E7%94%A8go%E5%AE%9E%E7%8E%B0gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B8%89/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">使用Go实现GoF的23种设计模式（三）</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E4%BD%BF%E7%94%A8go%E5%AE%9E%E7%8E%B0gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B8%80/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">使用Go实现GoF的23种设计模式（一）</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E5%A6%82%E4%BD%95%E9%AB%98%E6%95%88%E7%BC%96%E5%86%99go%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E4%BA%8C/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">如何高效编写Go单元测试（二）</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E5%A6%82%E4%BD%95%E9%AB%98%E6%95%88%E7%BC%96%E5%86%99go%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E4%B8%80/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">如何高效编写Go单元测试（一）</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+
+    
+        
+    <script src="https://utteranc.es/client.js" 
+        repo="ruanrunxue/yrunz-comments"
+        issue-term="pathname"
+        
+        label="yrunz"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
+
+<style>
+    .utterances {
+        max-width: unset;
+    }
+</style>
+
+<script>
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
+        }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+        setUtterancesTheme(document.body.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        setUtterancesTheme(e.detail)
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_SVG"></script>
+    <section class="copyright">
+        &copy;
+        
+            2019 -
+        
+        2023 元闰子的邀请
+    </section>
+
+    <section class="powerby">
+        
+
+        <a href="https://beian.miit.gov.cn/">粤ICP备19152659号 | </a>Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.3.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        <br />
+    </section>
+</footer>
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

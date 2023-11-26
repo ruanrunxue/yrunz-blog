@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>LSM on 元闰子的邀请</title>
+    <link>https://www.yrunz.com/tags/lsm/</link>
+    <description>Recent content in LSM on 元闰子的邀请</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 28 Jul 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://www.yrunz.com/tags/lsm/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>从Hash索引到LSM树（二）</title>
+      <link>https://www.yrunz.com/p/%E4%BB%8Ehash%E7%B4%A2%E5%BC%95%E5%88%B0lsm%E6%A0%91%E4%BA%8C/</link>
+      <pubDate>Tue, 28 Jul 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E4%BB%8Ehash%E7%B4%A2%E5%BC%95%E5%88%B0lsm%E6%A0%91%E4%BA%8C/</guid>
+      <description>前言 在上一篇文章《从Hash索引到LSM树（一）》中，我们通过append-only log的数据结构，实现了一个具备高写入性能的key-value数据库。append-only log之所以有很高的写入性能，主要得益于磁盘的顺序写入。这可能违反了我们对磁盘的认知，因为在我们的印象中，写磁盘总是很慢。其实不然，准确地说应该是随机写磁盘很慢，因为在写之前可能会进行多次寻址。如果只是顺序写磁盘，性能是非常的高，如下的一个ACM报告中显示，顺序写磁盘甚至比随机写内存的性能还要高！
+ 举个例子，Kafka是一个高性能的消息队列，它的厉害之处就在于极致地利用磁盘的顺序写入性能，如果生产者和消费者的速率相当，消息甚至可以在操作系统的Page Cache层面就完成了传递。所以，以后别再认为写磁盘很慢了！
+ append-only log大幅提升了数据写入性能，但是随之而来的是，非常低的数据读取性能。针对这一点，我们采用Hash索引进行了优化，优化的效果也非常的显著。然而，Hash索引有两个明显的限制：（1）当key的数量很多时，维护Hash索引会给内存带来很大的压力；（2）区间查询很低效。如何对这两个限制进行优化呢？这就轮到本文介绍的主角，LSM树，出场了。
+LSM树（Log-Structured Merge Tree）并不是一种数据结构，准确来说是一种存储模型，由MemTable、Immutable MemTable、SSTable等部分组成。它也是利用了append-only log的优势，大幅提升了写入性能。同时，因为key的存储有序性，所以具备了不错的读取性能，也克服了上文所述Hash索引的两个限制。下面，本文将一步步分析LSM树是如何做到这一点的。
+SSTable 在最简单的数据库例子中，因为数据是无序存储的，所以在读取某个key的值时，就需要遍历整个数据文件，算法复杂度是O(n)。为了提升读性能，我们不得不在内存中维护所有key的Hash索引。
+假如存储数据时，对记录按照key进行排序的会怎样？
+对于key有序存储这种情况，即使不用Hash索引，也能得到很好的查询效率，因为我们可以使用二分查找法（Binary Search）来快速找到key所在的位置，算法复杂度是O(logn)。LSM树正是采用key有序这种方式来组织数据存储的，并称之为SSTable。
+SSTable（Sorted String Table）是LSM树最基础的一个存储结构，存储在磁盘中，并且数据按照key进行排序的。数据保持key有序的好处是可以在O(logn)的时间下，快速找到一个key值，相比于纯粹的append-only log有了很大的提升。但是，如果所有的数据都存储在一个SSTable上，数据量一大，查询效率也会下降。因此，LSM树通常会将数据分散存储在多个SSTable中，并且记录每个SSTable的最大key和最小key，这样就能快速定位到一个key存储在哪个SSTable上了。
+// SSTable，数据保存到SSTable后只读不写 public class SSTable { ... // 数据存储路径  private final LogFile logFile; // 该SStable中存储的最小Key  private String minKey; // 该SStable中存储的最大Key  private String maxKey; // 使用二分查找法获取key值  public String get(String key) { // step1：先判断是否在SSTable的范围内  if (key.compareTo(minKey) &amp;lt; 0 || key.compareTo(maxKey) &amp;gt; 0) { return &amp;#34;&amp;#34;; } // step2：二分查找  long start = 0; long end = logFile.</description>
+    </item>
+    
+    <item>
+      <title>从Hash索引到LSM树（一）</title>
+      <link>https://www.yrunz.com/p/%E4%BB%8Ehash%E7%B4%A2%E5%BC%95%E5%88%B0lsm%E6%A0%91%E4%B8%80/</link>
+      <pubDate>Fri, 26 Jun 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E4%BB%8Ehash%E7%B4%A2%E5%BC%95%E5%88%B0lsm%E6%A0%91%E4%B8%80/</guid>
+      <description>前言 数据库算是软件应用系统中最常用的一类组件了，不管是一个庞大而复杂的电商系统，还是一个简单的个人博客，多多少少都会用到数据库，或是存储海量的数据，或是存储简单的状态信息。一般地，我们都喜欢将数据库划分为关系型数据库和非关系型数据库（又称NoSQL数据库），前者的典型代表是MySQL数据库，后者的典型代表是HBase数据库。不管是关系型，还是非关系型，数据库都离不开两个最基本的功能：（1）数据存储；（2）数据查询。简单来说就是，当你把数据丢给数据库时，它能够保持下来，并在稍后你想获取的时候，把数据返回给你。
+围绕着这两个基本功能，各类数据库都运用了很多技术手段对其进行了优化，其中最广为人知的当属数据库索引技术。索引是一种数据结构，它在牺牲少量数据存储（写）性能的情况下，可以大幅提升数据查询（读）性能。索引也有很多种类型，Hash索引算是最简单高效的一种了，但是由于它自身的限制，在数据库系统中并不被广泛使用。当今最常用的索引技术是B/B+树索引，被广泛地应用在关系型数据库中，主要应用于读多写少的场景。随着NoSQL数据库的兴起，LSM（Log-Structured Merged-Tree）树也逐渐流行，并被Google的BigTable论文所发扬光大。严格来说，LSM树并不算一种传统意义上的索引，它更像是一种设计思想，主要应用于写多读少的场景。
+本系列文章，将从实现最简单的Key-Value数据库讲起，然后针对实现过程中遇到的一些瓶颈，采用上述的索引技术，对数据库进行优化，以此达到对数据库的索引技术有一个较为深刻的理解。
+最简单的数据库 Martin Kleppmann在《Designing Data-Intensive Applications》一书中给出了一个最简单数据库的实现：
+#!/bin/bash db_set() { echo &amp;#34;$1,$2&amp;#34; &amp;gt;&amp;gt; database } db_get() { grep &amp;#34;^$1,&amp;#34; database | sed -e &amp;#34;s/^$1,//&amp;#34; | tail -n 1 } 这不到10行的shell代码实现了一个简单的Key-Value数据库。它一共有两个函数，db_set和db_get，前者对应数据存储功能，后者对应数据查询功能。该数据库采用简单的文本格式（database文件）进行数据存储，每条记录包含了一个键值对，key和value之间通过逗号（,）进行分隔。
+数据库的使用方法也很简单，通过调用db_set key value可以将key及其对应的value存储到数据库中；通过db_get key可以得到该key对应的value：
+$ db_set 123456 &amp;#39;{&amp;#34;name&amp;#34;:&amp;#34;London&amp;#34;,&amp;#34;attractions&amp;#34;:[&amp;#34;Big Ben&amp;#34;,&amp;#34;London Eye&amp;#34;]}&amp;#39; $ db_set 42 &amp;#39;{&amp;#34;name&amp;#34;:&amp;#34;San Francisco&amp;#34;,&amp;#34;attractions&amp;#34;:[&amp;#34;Golden Gate Bridge&amp;#34;]}&amp;#39; $ db_get 42 {&amp;#34;name&amp;#34;:&amp;#34;San Francisco&amp;#34;,&amp;#34;attractions&amp;#34;:[&amp;#34;Golden Gate Bridge&amp;#34;]} 透过db_set的实现我们发现，该数据库每次写都是直接往database文件中追加记录，鉴于文件系统顺序写的高效，因此该数据库的数据写入具有较高的性能。但是追加写也意味着，对同一个key进行更新时，其对应的旧的value并不会被覆盖，这也使得每次调用db_get获取某个key的value时，总是需要遍历所有记录，找到所有符合条件的value，并取其中最新的一个。因此，该数据库的读性能是非常低的。
+下面我们采用Java对这个最简单的数据库进行重写：
+/** * SimpleKvDb.java * 追加写 * 全文件扫描读 */ public class SimpleKvDb implements KvDb { .</description>
+    </item>
+    
+  </channel>
+</rss>

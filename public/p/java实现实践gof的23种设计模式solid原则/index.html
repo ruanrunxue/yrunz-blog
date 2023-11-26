@@ -1,0 +1,1386 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='如果把设计模式类比为武侠世界里的武功招式，那么SOLID原则就是内功内力。通常来说，先把内功练好，再来学习招式，会达到事半功倍的效果'><title>【Java实现】实践GoF的23种设计模式：SOLID原则</title>
+
+<link rel='canonical' href='https://www.yrunz.com/p/java%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8Fsolid%E5%8E%9F%E5%88%99/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='【Java实现】实践GoF的23种设计模式：SOLID原则'>
+<meta property='og:description' content='如果把设计模式类比为武侠世界里的武功招式，那么SOLID原则就是内功内力。通常来说，先把内功练好，再来学习招式，会达到事半功倍的效果'>
+<meta property='og:url' content='https://www.yrunz.com/p/java%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8Fsolid%E5%8E%9F%E5%88%99/'>
+<meta property='og:site_name' content='元闰子的邀请'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='设计模式' /><meta property='article:tag' content='实践GoF的23种设计模式' /><meta property='article:tag' content='Java' /><meta property='article:published_time' content='2022-02-26T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2022-02-26T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="【Java实现】实践GoF的23种设计模式：SOLID原则">
+<meta name="twitter:description" content="如果把设计模式类比为武侠世界里的武功招式，那么SOLID原则就是内功内力。通常来说，先把内功练好，再来学习招式，会达到事半功倍的效果">
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "light");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/yrz_hudc7c8721ecce4b724df5002339c76402_174377_300x0_resize_box_2.png" width="300"
+                            height="306" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://www.yrunz.com">元闰子的邀请</a></h1>
+        <h2 class="site-description">阅读、写作、生活（个人技术分享）</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>首页</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>博客</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%85%B3%E4%BA%8E%E5%85%83%E9%97%B0%E5%AD%90/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24"
+     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+     stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z"/>
+    <circle cx="12" cy="7" r="4"/>
+    <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/>
+</svg>
+
+                
+                <span>关于元闰子</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%8F%8B%E6%83%85%E9%93%BE%E6%8E%A5/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-friends" width="44" height="44"
+     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+    <circle cx="7" cy="5" r="2"/>
+    <path d="M5 22v-5l-1 -1v-4a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4l-1 1v5"/>
+    <circle cx="17" cy="5" r="2"/>
+    <path d="M15 22v-4h-2l2 -6a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1l2 6h-2v4"/>
+</svg>
+
+                
+                <span>友情链接</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>暗色模式</span>
+            </li>
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://www.yrunz.com" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E5%86%99%E5%A5%BD%E4%BB%A3%E7%A0%81/" >
+                写好代码
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/java%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8Fsolid%E5%8E%9F%E5%88%99/">【Java实现】实践GoF的23种设计模式：SOLID原则</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        如果把设计模式类比为武侠世界里的武功招式，那么SOLID原则就是内功内力。通常来说，先把内功练好，再来学习招式，会达到事半功倍的效果
+    </h3>
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Feb 26, 2022</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <blockquote>
+<p>之前也有写过关于设计模式的文章《<a class="link" href="https://mp.weixin.qq.com/mp/appmsgalbum?__biz=Mzg3MjAyNjUyMQ==&amp;action=getalbum&amp;album_id=2280784755992526856#wechat_redirect"  target="_blank" rel="noopener"
+    >使用Go实现GoF的23种设计模式</a>》，但是那个系列写了3篇文章就没在继续了，主要的原因是找不到合适的示例代码。考虑到，如果以类似于“鸭子是否会飞”、“烘培的制作流程”等贴近生活的事情举例，很难在我们日常的开发中产生联系。（目前应该很少有这些逻辑的软件系统吧）</p>
+<p>《<strong>实践GoF的23种设计模式</strong>》可以看成是《使用Go实现GoF的23种设计模式》系列的重启，吸取了上次烂尾的教训，本次在写文章之前就已经完成了23种设计模式的示例代码实现。和上次不同，本次示例代码使用Java实现，<strong>以我们日常开发中经常碰到的一些技术/问题/场景作为切入点</strong>，示范如何运用设计模式来完成相关的实现。</p>
+</blockquote>
+<h2 id="前言">前言</h2>
+<p>从1995年GoF提出23种<strong>设计模式</strong>到现在，25年过去了，设计模式依旧是软件领域的热门话题。设计模式通常被定义为：</p>
+<blockquote>
+<p>设计模式（Design Pattern）是一套被反复使用、多数人知晓的、经过分类编目的、代码设计经验的总结，使用设计模式是为了可重用代码、让代码更容易被他人理解并且保证代码可靠性。</p>
+</blockquote>
+<p>从定义上看，<strong>设计模式其实是一种经验的总结，是针对特定问题的简洁而优雅的解决方案</strong>。既然是经验总结，那么学习设计模式最直接的好处就在于可以站在巨人的肩膀上解决软件开发过程中的一些特定问题。</p>
+<p>学习设计模式的最高境界是吃透它们本质思想，可以做到<strong>即使已经忘掉某个设计模式的名称和结构，也能在解决特定问题时信手拈来</strong>。设计模式背后的本质思想，就是我们熟知的<strong>SOLID原则</strong>。如果把设计模式类比为武侠世界里的武功招式，那么SOLID原则就是内功内力。通常来说，先把内功练好，再来学习招式，会达到事半功倍的效果。因此，在介绍设计模式之前，很有必要先介绍一下SOLID原则。</p>
+<p>本文首先会介绍本系列文章中用到的示例代码demo的整体结构，然后开始逐一介绍SOLID原则，也即单一职责原则、开闭原则、里氏替换原则、接口隔离原则和依赖倒置原则。</p>
+<h2 id="一个简单的分布式应用系统">一个简单的分布式应用系统</h2>
+<blockquote>
+<p>本系列示例代码demo获取地址：https://github.com/ruanrunxue/Practice-Design-Pattern&ndash;Java-Implementation</p>
+</blockquote>
+<p>示例代码demo工程实现了一个简单的分布式应用系统（单机版），该系统主要由以下几个模块组成：</p>
+<ul>
+<li><strong>网络 Network</strong>，网络功能模块，模拟实现了报文转发、socket通信、http通信等功能。</li>
+<li><strong>数据库 Db</strong>，数据库功能模块，模拟实现了表、事务、dsl等功能。</li>
+<li><strong>消息队列 Mq</strong>，消息队列模块，模拟实现了基于topic的生产者/消费者的消息队列。</li>
+<li><strong>监控系统 Monitor</strong>，监控系统模块，模拟实现了服务日志的收集、分析、存储等功能。</li>
+<li><strong>边车 Sidecar</strong>，边车模块，模拟对网络报文进行拦截，实现access log上报、消息流控等功能。</li>
+<li><strong>服务 Service</strong>，运行服务，当前模拟实现了服务注册中心、在线商城服务集群、服务消息中介等服务。</li>
+</ul>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1gzn32jkkduj213g0o00xq.jpg" alt=""  /></p>
+<p>示例代码demo工程的主要目录结构如下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">├── db                <span class="c1"># 数据库模块，定义Db、Table、TableVisitor等抽象接口 【@单例模式】</span>
+│   ├── cache         <span class="c1"># 数据库缓存代理，为Db新增缓存功能 【@代理模式】</span>
+│   ├── console       <span class="c1"># 数据库控制台实现，支持dsl语句查询和结果显示 【@适配器模式】</span>
+│   ├── dsl           <span class="c1"># 实现数据库dsl语句查询能力，当前只支持select语句查询 【@解释器模式】</span>
+│   ├── exception     <span class="c1"># 数据库模块相关异常定义</span>
+│   ├── iterator      <span class="c1"># 遍历表迭代器，包含按序遍历和随机遍历 【@迭代器模式】</span>
+│   └── transaction   <span class="c1"># 实现数据库的事务功能，包括执行、提交、回滚等 【@命令模式】【@备忘录模式】</span>
+├── monitor        <span class="c1"># 监控系统模块，采用插件式的架构风格，当前实现access log日志etl功能</span>
+│   ├── config     <span class="c1"># 监控系统插件配置模块  【@抽象工厂模式】【@组合模式】</span>
+│   │   ├── json   <span class="c1"># 实现基于json格式文件的配置加载功能</span>
+│   │   └── yaml   <span class="c1"># 实现基于yaml格式文件的配置加载功能</span>
+│   ├── entity     <span class="c1"># 监控系统实体对象定义</span>
+│   ├── exception  <span class="c1"># 监控系统相关异常</span>
+│   ├── filter     <span class="c1"># Filter插件的实现定义  【@责任链模式】</span>
+│   ├── input      <span class="c1"># Input插件的实现定义   【@策略模式】</span>
+│   ├── output     <span class="c1"># Output插件的实现定义</span>
+│   ├── pipeline   <span class="c1"># Pipeline插件的实现定义，一个pipeline表示一个ETL处理流程 【@桥接模式】</span>
+│   ├── plugin     <span class="c1"># 插件抽象接口定义</span>
+│   └── schema     <span class="c1"># 监控系统相关的数据表定义 </span>
+├── mq          <span class="c1"># 消息队列模块</span>
+├── network        <span class="c1"># 网络模块，模拟网络通信，定义了socket、packet等通用类型/接口  【@观察者模式】</span>
+│   └── http       <span class="c1"># 模拟实现了http通信等服务端、客户端能力</span>
+├── service           <span class="c1"># 服务模块，定义了服务的基本接口</span>
+│   ├── mediator      <span class="c1"># 服务消息中介，作为服务通信的中转方，实现了服务发现，消息转发的能力 【@中介者模式】</span>
+│   ├── registry      <span class="c1"># 服务注册中心，提供服务注册、去注册、更新、 发现、订阅、去订阅、通知等功能</span>
+│   │   ├── entity    <span class="c1"># 服务注册/发现相关的实体定义 【@原型模式】【@建造者模式】</span>
+│   │   └── schema    <span class="c1"># 服务注册中心相关的数据表定义 【@访问者模式】【@享元模式】</span>
+│   └── shopping      <span class="c1"># 模拟在线商城服务群的定义，包含订单服务、库存服务、支付服务、发货服务 【@外观模式】</span>
+└── sidecar        <span class="c1"># 边车模块，对socket进行拦截，提供http access log、流控功能 【@装饰者模式】【@工厂模式】</span>
+    └── flowctrl   <span class="c1"># 流控模块，基于消息速率进行随机流控 【@模板方法模式】【@状态模式】</span>
+</code></pre></div><h2 id="srp单一职责原则">SRP：单一职责原则</h2>
+<p><strong>单一职责原则</strong>（The <strong>S</strong>ingle <strong>R</strong>esponsibility <strong>P</strong>rinciple，<strong>SRP</strong>）应该是SOLID原则中，最容易被理解的一个，但同时也是最容易被误解的一个。很多人会把“将大函数重构成一个个职责单一的小函数”这一重构手法等价为SRP，这是不对的，小函数固然体现了职责单一，但这并不是SRP。</p>
+<p>SRP传播最广的定义应该是<em>Uncle Bob</em>给出的：</p>
+<blockquote>
+<p>A module should have one, and only one, reason to change.</p>
+</blockquote>
+<p>也即，<strong>一个模块应该有且只有一个导致其变化的原因</strong>。</p>
+<p>这个解释里有2个需要理解的地方：</p>
+<p><em><strong>（1）如何定义一个模块</strong></em></p>
+<p>我们通常会把一个源文件定义为最小粒度的模块。</p>
+<p><em><strong>（2）如何找到这个原因</strong></em></p>
+<p>一个软件的变化往往是为了满足某个用户的需求，那么这个<strong>用户</strong>就是导致变化的原因。但是，一个模块的用户/客户端程序往往不只一个，比如Java中的ArrayList类，它可能会被成千上万的程序使用，但我们不能说ArrayList职责不单一。因此，我们应该把“一个用户”改为“一类角色”，比如ArrayList的客户端程序都可以归类为“需要链表/数组功能”的角色。</p>
+<p>于是，<em>Uncle Bob</em>给出了SRP的另一个解释：</p>
+<blockquote>
+<p>A module should be responsible to one, and only one, actor.</p>
+</blockquote>
+<p>有了这个解释，我们就可以理解<strong>函数职责单一并不等同于SRP</strong>，比如在一个模块有A和B两个函数，它们都是职责单一的，但是函数A的使用者是A类用户，函数B的使用者是B类用户，而且A类用户和B类用户变化的原因都是不一样的，那么这个模块就不满足SRP了。</p>
+<p>下面，以我们的分布式应用系统demo为例进一步探讨。对于<code>Registry</code>类（服务注册中心）来说，它对外提供的基本能力有服务注册、更新、去注册和发现功能，那么，我们可以这么实现：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">// demo/src/main/java/com/yrunz/designpattern/service/Registry.java
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Registry</span> <span class="kd">implements</span> <span class="n">Service</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="n">HttpServer</span> <span class="n">httpServer</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="n">Db</span> <span class="n">db</span><span class="o">;</span>
+    <span class="o">...</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span> <span class="o">{</span>
+        <span class="n">httpServer</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;/api/v1/service-profile&#34;</span><span class="o">,</span> <span class="k">this</span><span class="o">::</span><span class="n">register</span><span class="o">)</span>
+                <span class="o">.</span><span class="na">post</span><span class="o">(</span><span class="s">&#34;/api/v1/service-profile&#34;</span><span class="o">,</span> <span class="k">this</span><span class="o">::</span><span class="n">update</span><span class="o">)</span>
+                <span class="o">.</span><span class="na">delete</span><span class="o">(</span><span class="s">&#34;/api/v1/service-profile&#34;</span><span class="o">,</span> <span class="k">this</span><span class="o">::</span><span class="n">deregister</span><span class="o">)</span>
+                <span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&#34;/api/v1/service-profile&#34;</span><span class="o">,</span> <span class="k">this</span><span class="o">::</span><span class="n">discovery</span><span class="o">)</span>
+                <span class="o">.</span><span class="na">start</span><span class="o">();</span>
+    <span class="o">}</span>
+    <span class="c1">// 服务注册
+</span><span class="c1"></span>    <span class="kd">private</span> <span class="n">HttpResp</span> <span class="nf">register</span><span class="o">(</span><span class="n">HttpReq</span> <span class="n">req</span><span class="o">)</span> <span class="o">{</span>
+      <span class="o">...</span>
+    <span class="o">}</span>
+    <span class="c1">// 服务更新
+</span><span class="c1"></span>    <span class="kd">private</span> <span class="n">HttpResp</span> <span class="nf">update</span><span class="o">(</span><span class="n">HttpReq</span> <span class="n">req</span><span class="o">)</span> <span class="o">{</span>
+      <span class="o">...</span>
+    <span class="o">}</span>
+    <span class="c1">// 服务去注册
+</span><span class="c1"></span>    <span class="kd">private</span> <span class="n">HttpResp</span> <span class="nf">deregister</span><span class="o">(</span><span class="n">HttpReq</span> <span class="n">req</span><span class="o">)</span> <span class="o">{</span>
+      <span class="o">...</span>
+    <span class="o">}</span>
+    <span class="c1">// 服务发现
+</span><span class="c1"></span>    <span class="kd">private</span> <span class="n">HttpResp</span> <span class="nf">discovery</span><span class="o">(</span><span class="n">HttpReq</span> <span class="n">req</span><span class="o">)</span> <span class="o">{</span>
+      <span class="o">...</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div><p>上述实现中，<code>Registry</code>包含了<code>register</code>、<code>update</code>、<code>deregister</code>、<code>discovery</code>等4个主要方法，正好对应了<code>Registry</code>对外提供的能力，看起来已经是职责单一了。</p>
+<p>但是在仔细思考一下就会发现，服务注册、更新和去注册是给专门给<strong>服务提供者</strong>使用的功能，而服务发现则是专门给<strong>服务消费者</strong>使用的功能。<strong>服务提供者和服务消费者是两类不同的角色，它们产生变化的时间和方向都可能不同</strong>。比如：</p>
+<blockquote>
+<p>当前服务发现功能是这么实现的：<code>Registry</code>从满足查询条件的所有<code>ServiceProfile</code>中挑选一个返回给服务消费者（也即<code>Registry</code>自己做了负载均衡）。</p>
+<p>假设现在服务消费者提出<strong>新的需求</strong>：<code>Registry</code>把所有满足查询条件的<code>ServiceProfile</code>都返回，由服务消费者自己来做负载均衡。</p>
+<p>为了实现这样的功能，我们就要修改<code>Registry</code>的代码。按理，服务注册、更新、去注册等功能并不应该受到影响，但因为它们和服务发现功能都在同一个模块（<code>Registry</code>）里，于是被迫也受到影响了，比如可能会代码冲突。</p>
+</blockquote>
+<p>因此，更好的设计是将<code>register</code>、<code>update</code>、<code>deregister</code>内聚到一个<strong>服务管理</strong>模块<code>SvcManagement</code>，<code>discovery</code>则放到另一个<strong>服务发现模块</strong><code>SvcDiscovery</code>，服务注册中心<code>Registry</code>再组合<code>SvcManagement</code>和<code>SvcDiscovery</code>。</p>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1gzqnbif3dcj21he0rcqa0.jpg" alt=""  /></p>
+<p>具体实现如下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">// demo/src/main/java/com/yrunz/designpattern/service/SvcManagement.java
+</span><span class="c1"></span><span class="kd">class</span> <span class="nc">SvcManagement</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="n">Db</span> <span class="n">db</span><span class="o">;</span>
+    <span class="o">...</span>
+    <span class="c1">// 服务注册
+</span><span class="c1"></span>    <span class="n">HttpResp</span> <span class="nf">register</span><span class="o">(</span><span class="n">HttpReq</span> <span class="n">req</span><span class="o">)</span> <span class="o">{</span>
+      <span class="o">...</span>
+    <span class="o">}</span>
+    <span class="c1">// 服务更新
+</span><span class="c1"></span>    <span class="n">HttpResp</span> <span class="nf">update</span><span class="o">(</span><span class="n">HttpReq</span> <span class="n">req</span><span class="o">)</span> <span class="o">{</span>
+      <span class="o">...</span>
+    <span class="o">}</span>
+    <span class="c1">// 服务去注册
+</span><span class="c1"></span>    <span class="n">HttpResp</span> <span class="nf">deregister</span><span class="o">(</span><span class="n">HttpReq</span> <span class="n">req</span><span class="o">)</span> <span class="o">{</span>
+      <span class="o">...</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="c1">// demo/src/main/java/com/yrunz/designpattern/service/SvcDiscovery.java
+</span><span class="c1"></span><span class="kd">class</span> <span class="nc">SvcDiscovery</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="n">Db</span> <span class="n">db</span><span class="o">;</span>
+    <span class="o">...</span>
+    <span class="c1">// 服务发现
+</span><span class="c1"></span>    <span class="n">HttpResp</span> <span class="nf">discovery</span><span class="o">(</span><span class="n">HttpReq</span> <span class="n">req</span><span class="o">)</span> <span class="o">{</span>
+      <span class="o">...</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="c1">// demo/src/main/java/com/yrunz/designpattern/service/Registry.java
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Registry</span> <span class="kd">implements</span> <span class="n">Service</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="n">HttpServer</span> <span class="n">httpServer</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="n">SvcManagement</span> <span class="n">svcManagement</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="n">SvcDiscovery</span> <span class="n">svcDiscovery</span><span class="o">;</span>
+    <span class="o">...</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span> <span class="o">{</span>
+        <span class="c1">// 使用子模块的方法完成具体业务
+</span><span class="c1"></span>        <span class="n">httpServer</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;/api/v1/service-profile&#34;</span><span class="o">,</span> <span class="n">svcManagement</span><span class="o">::</span><span class="n">register</span><span class="o">)</span>
+                <span class="o">.</span><span class="na">post</span><span class="o">(</span><span class="s">&#34;/api/v1/service-profile&#34;</span><span class="o">,</span> <span class="n">svcManagement</span><span class="o">::</span><span class="n">update</span><span class="o">)</span>
+                <span class="o">.</span><span class="na">delete</span><span class="o">(</span><span class="s">&#34;/api/v1/service-profile&#34;</span><span class="o">,</span> <span class="n">svcManagement</span><span class="o">::</span><span class="n">deregister</span><span class="o">)</span>
+                <span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&#34;/api/v1/service-profile&#34;</span><span class="o">,</span> <span class="n">svcDiscovery</span><span class="o">::</span><span class="n">discovery</span><span class="o">)</span>
+                <span class="o">.</span><span class="na">start</span><span class="o">();</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div><p>除了重复的代码编译，违反SRP还会带来以下2个常见的问题：</p>
+<p>1、<strong>代码冲突</strong>。程序员A修改了模块的A功能，而程序员B在不知情的情况下也在修改该模块的B功能（因为A功能和B功能面向不同的用户，完全可能由2位不同的程序员来维护），当他们同时提交修改时，代码冲突就会发生（修改了同一个源文件）。</p>
+<p>2、<strong>A功能的修改影响了B功能</strong>。如果A功能和B功能都使用了模块里的一个公共函数C，现在A功能有新的需求需要修改函数C，那么如果修改人没有考虑到B功能，那么B功能的原有逻辑就会受到影响。</p>
+<p>由此可见，违反SRP会导致软件的可维护性变得极差。但是，我们也<strong>不能盲目地进行模块拆分，这样会导致代码过于碎片化</strong>，同样也会提升软件的复杂性。比如，在前面的例子中，我们就没有必要再对服务管理模块进行拆分为服务注册模块、服务更新模块和服务去注册模块，一是因为它们面向都用户是一致的；二是在可预见的未来它们要么同时变化，要么都不变。</p>
+<p>因此，我们可以得出这样的结论：</p>
+<ol>
+<li><strong>如果一个模块面向的都是同一类用户（变化原因一致），那么就没必要进行拆分</strong>。</li>
+<li><strong>如果缺乏用户归类的判断，那么最好的拆分时机是变化发生时</strong>。</li>
+</ol>
+<p>SRP是聚合和拆分的一个平衡，<strong>太过聚合会导致牵一发动全身，拆分过细又会提升复杂性</strong>。要从用户的视角来把握拆分的度，把面向不同用户的功能拆分开。如果实在无法判断/预测，那就等变化发生时再拆分，避免过度的设计。</p>
+<h2 id="ocp开闭原则">OCP：开闭原则</h2>
+<p>开闭原则（The <strong>O</strong>pen-<strong>C</strong>lose <strong>P</strong>rinciple，<strong>OCP</strong>）中，“开”指的是对<strong>扩展</strong>开放，“闭”指的是对<strong>修改</strong>封闭，它的完整解释为：</p>
+<blockquote>
+<p>A software artifact should be open for extension but closed for modification.</p>
+</blockquote>
+<p>通俗地讲就是，<strong>一个软件系统应该具备良好的可扩展性，新增功能应当通过扩展的方式实现，而不是在已有的代码基础上修改</strong>。</p>
+<p>然而，从字面意思上看，OCP貌似又是自相矛盾的：想要给一个模块新增功能，但是有不能修改它。</p>
+<p>*如何才能打破这个困境呢？*关键是<strong>抽象</strong>！优秀的软件系统总是建立在良好的抽象的基础上，抽象化可以降低软件系统的复杂性。</p>
+<p>*那么什么是抽象呢？*抽象不仅存在与软件领域，在我们的生活中也随处可见。下面以《<a class="link" href="https://book.douban.com/subject/26431646/0"  target="_blank" rel="noopener"
+    >语言学的邀请</a>》中的一个例子来解释抽象的含义：</p>
+<blockquote>
+<p>假设某农庄有一头叫“阿花”的母牛，那么：</p>
+<p>1、当把它称为“<strong>阿花</strong>”时，我们看到的是它独一无二的一些特征：身上有很多斑点花纹、额头上还有一个闪电形状的伤疤。</p>
+<p>2、当把它称为<strong>母牛</strong>时，我们忽略了它的独有特征，看到的是它与母牛“阿黑”，母牛“阿黄”的共同点：是一头牛、雌性的。</p>
+<p>3、当把它称为<strong>家畜</strong>时，我们又忽略了它作为母牛的特征，而是看到了它和猪、鸡、羊一样的特点：是一个动物，在农庄里圈养。</p>
+<p>4、当把它称为<strong>农庄财产</strong>时，我们只关注了它和农庄上其他可售对象的共同点：可以卖钱、转让。</p>
+<p>从“阿花”，到母牛，到家畜，再到农庄财产，这就是一个不断抽象化的过程。</p>
+</blockquote>
+<p>从上述例子中，我们可以得出这样的结论：</p>
+<ol>
+<li><strong>抽象就是不断忽略细节，找到事物间共同点的过程</strong>。</li>
+<li><strong>抽象是分层的，抽象层次越高，细节也就越少</strong>。</li>
+</ol>
+<p>在回到软件领域，我们也可以把上述的例子类比到<strong>数据库</strong>上，数据库的抽象层次从低至高可以是这样的：<code>MySQL 8.0版本 -&gt; MySQL -&gt; 关系型数据库 -&gt; 数据库</code>。现在假设有一个需求，需要业务模块将业务数据保存到数据库上，那么就有以下几种设计方案：</p>
+<ul>
+<li>方案一：把业务模块设计为直接依赖<strong>MySQL 8.0版本</strong>。因为版本总是经常变化的，如果哪天MySQL升级了版本，那么我们就得修改业务模块进行适配，所以方案一违反了OCP。</li>
+<li>方案二：把业务模块设计为依赖<strong>MySQL</strong>。相比于方案一，方案二消除了MySQL版本升级带来的影响。现在考虑另一种场景，如果因为某些原因公司禁止使用MySQL，必须切换到PostgreSQL，这时我们还是得修改业务模块进行数据库的切换适配。因此，在这种场景下，方案二也违反了OCP。</li>
+<li>方案三：把业务模块设计为依赖<strong>关系型数据库</strong>。到了这个方案，我们基本消除了关系型数据库切换的影响，可以随时在MySQL、PostgreSQL、Oracle等关系型数据库上进行切换，而无须修改业务模块。但是，熟悉业务的你预测未来随着用户量的迅速上涨，关系型数据库很有可能无法满足高并发写的业务场景，于是就有了下面的最终方案。</li>
+<li>方案四：把业务模块设计为依赖<strong>数据库</strong>。这样，不管以后使用MySQL还是PostgreSQL，关系型数据库还是非关系型数据库，业务模块都不需要再改动。到这里，我们基本可以认为业务模块是稳定的，不会受到底层数据库变化带来的影响，满足了OCP。</li>
+</ul>
+<p>我们可以发现，上述方案的演进过程，就是我们不断对业务依赖的数据库模块进行抽象的过程，最终设计出稳定的、服务OCP的软件。</p>
+<p>那么，在编程语言中，我们用什么来表示“数据库”这一抽象呢？是<strong>接口</strong>！</p>
+<p>数据库最常见的几个操作就是CRUD，因此我们可以设计这么一个Db接口来表示“数据库”：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">Db</span> <span class="o">{</span>
+    <span class="n">Record</span> <span class="nf">query</span><span class="o">(</span><span class="n">String</span> <span class="n">tableName</span><span class="o">,</span> <span class="n">Condition</span> <span class="n">cond</span><span class="o">);</span>
+    <span class="kt">void</span> <span class="nf">insert</span><span class="o">(</span><span class="n">String</span> <span class="n">tableName</span><span class="o">,</span> <span class="n">Record</span> <span class="n">record</span><span class="o">);</span>
+    <span class="kt">void</span> <span class="nf">update</span><span class="o">(</span><span class="n">String</span> <span class="n">tableName</span><span class="o">,</span> <span class="n">Record</span> <span class="n">record</span><span class="o">);</span>
+    <span class="kt">void</span> <span class="nf">delete</span><span class="o">(</span><span class="n">String</span> <span class="n">tableName</span><span class="o">,</span> <span class="n">Record</span> <span class="n">record</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre></div><p>这样，业务模块和数据库模块之间的依赖关系就变成如下图所示：</p>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1gzoyhk01blj216c0o479a.jpg" alt=""  /></p>
+<p>满足OCP的另一个关键点就是<strong>分离变化</strong>，只有先把变化点识别分离出来，我们才能对它进行抽象化。下面以我们的分布式应用系统demo为例，解释如何实现变化点的分离和抽象。</p>
+<p>在demo中，监控系统主要负责对服务的access log进行ETL操作，也即涉及如下3个操作：1）从消息队列中获取日志数据；2）对数据进行加工；3）将加工后的数据存储在数据库上。</p>
+<p>我们把整一个日志数据的处理流程称为pipeline，那么我们可以这么实现：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Pipeline</span> <span class="kd">implements</span> <span class="n">Plugin</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="n">Mq</span> <span class="n">mq</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="n">Db</span> <span class="n">db</span><span class="o">;</span>
+    <span class="o">...</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">while</span> <span class="o">(!</span><span class="n">isClose</span><span class="o">.</span><span class="na">get</span><span class="o">())</span> <span class="o">{</span>
+            <span class="c1">// 1、从消息队列中获取数据
+</span><span class="c1"></span>            <span class="n">Message</span> <span class="n">msg</span> <span class="o">=</span> <span class="n">mq</span><span class="o">.</span><span class="na">consume</span><span class="o">(</span><span class="s">&#34;monitor.topic&#34;</span><span class="o">);</span>
+            <span class="n">String</span> <span class="n">accessLog</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="na">payload</span><span class="o">();</span>
+
+            <span class="c1">// 2、对数据进行清理操作，转换为json字符串对格式
+</span><span class="c1"></span>            <span class="n">ObjectNode</span> <span class="n">logJson</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ObjectNode</span><span class="o">(</span><span class="n">JsonNodeFactory</span><span class="o">.</span><span class="na">instance</span><span class="o">);</span>
+            <span class="n">logJson</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;content&#34;</span><span class="o">,</span> <span class="n">accessLog</span><span class="o">);</span>
+            <span class="n">String</span> <span class="n">data</span> <span class="o">=</span> <span class="n">logJson</span><span class="o">.</span><span class="na">asText</span><span class="o">();</span>
+
+            <span class="c1">// 3、存储到数据库上
+</span><span class="c1"></span>            <span class="n">db</span><span class="o">.</span><span class="na">insert</span><span class="o">(</span><span class="s">&#34;logs_table&#34;</span><span class="o">,</span> <span class="n">logId</span><span class="o">,</span> <span class="n">data</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+    <span class="o">...</span>
+<span class="o">}</span>
+</code></pre></div><p>现在考虑新上线一个服务，但是这个服务不支持对接消息队列了，只支持socket传输数据，于是我们得在<code>Pipeline</code>上新增一个<code>InputType</code>来判断是否适用socket输入源：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Pipeline</span> <span class="kd">implements</span> <span class="n">Plugin</span> <span class="o">{</span>
+    <span class="o">...</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">while</span> <span class="o">(!</span><span class="n">isClose</span><span class="o">.</span><span class="na">get</span><span class="o">())</span> <span class="o">{</span>
+            <span class="n">String</span> <span class="n">accessLog</span><span class="o">;</span>
+            <span class="c1">// 使用消息队列为消息来源
+</span><span class="c1"></span>            <span class="k">if</span> <span class="o">(</span><span class="n">inputType</span> <span class="o">==</span> <span class="n">InputType</span><span class="o">.</span><span class="na">MQ</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">Message</span> <span class="n">msg</span> <span class="o">=</span> <span class="n">mq</span><span class="o">.</span><span class="na">consume</span><span class="o">(</span><span class="s">&#34;monitor.topic&#34;</span><span class="o">);</span>
+                <span class="n">accessLog</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="na">payload</span><span class="o">();</span>
+            <span class="o">}</span>  <span class="k">else</span> <span class="o">{</span>
+                <span class="c1">// 使用socket为消息来源
+</span><span class="c1"></span>                <span class="n">Packet</span> <span class="n">packet</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="na">receive</span><span class="o">();</span>
+                <span class="n">accessLog</span> <span class="o">=</span> <span class="n">packet</span><span class="o">.</span><span class="na">payload</span><span class="o">().</span><span class="na">toString</span><span class="o">();</span>
+            <span class="o">}</span>
+           <span class="o">...</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div><p>过一段时间，有需求需要给access log打上一个时间戳，方便后续的日志分析，于是我们需要修改<code>Pipeline</code>的数据加工逻辑：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Pipeline</span> <span class="kd">implements</span> <span class="n">Plugin</span> <span class="o">{</span>
+    <span class="o">...</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">while</span> <span class="o">(!</span><span class="n">isClose</span><span class="o">.</span><span class="na">get</span><span class="o">())</span> <span class="o">{</span>
+            <span class="o">...</span>
+            <span class="c1">// 对数据进行清理操作，转换为json字符串对格式
+</span><span class="c1"></span>            <span class="n">ObjectNode</span> <span class="n">logJson</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ObjectNode</span><span class="o">(</span><span class="n">JsonNodeFactory</span><span class="o">.</span><span class="na">instance</span><span class="o">);</span>
+            <span class="n">logJson</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;content&#34;</span><span class="o">,</span> <span class="n">accessLog</span><span class="o">);</span>
+            <span class="c1">// 新增一个时间戳字段
+</span><span class="c1"></span>            <span class="n">logJson</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;timestamp&#34;</span><span class="o">,</span> <span class="n">Instant</span><span class="o">.</span><span class="na">now</span><span class="o">().</span><span class="na">getEpochSecond</span><span class="o">());</span>
+            <span class="n">String</span> <span class="n">data</span> <span class="o">=</span> <span class="n">logJson</span><span class="o">.</span><span class="na">asText</span><span class="o">();</span>
+           <span class="o">...</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div><p>很快，又有一个需求，需要将加工后的数据存储到ES上，方便后续的日志检索，于是我们再次修改了<code>Pipeline</code>的数据存储逻辑：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Pipeline</span> <span class="kd">implements</span> <span class="n">Plugin</span> <span class="o">{</span>
+    <span class="o">...</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">while</span> <span class="o">(!</span><span class="n">isClose</span><span class="o">.</span><span class="na">get</span><span class="o">())</span> <span class="o">{</span>
+            <span class="o">...</span>
+            <span class="c1">// 存储到ES上
+</span><span class="c1"></span>            <span class="k">if</span> <span class="o">(</span><span class="n">outputType</span> <span class="o">==</span> <span class="n">OutputType</span><span class="o">.</span><span class="na">DB</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">db</span><span class="o">.</span><span class="na">insert</span><span class="o">(</span><span class="s">&#34;logs_table&#34;</span><span class="o">,</span> <span class="n">logId</span><span class="o">,</span> <span class="n">data</span><span class="o">);</span>
+            <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+            <span class="c1">// 存储到ES上
+</span><span class="c1"></span>                <span class="n">es</span><span class="o">.</span><span class="na">store</span><span class="o">(</span><span class="n">logId</span><span class="o">,</span> <span class="n">data</span><span class="o">)</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div><p>在上述的pipeline例子中，每次新增需求都需要修改<code>Pipeline</code>模块，明显违反了OCP。下面，我们来对它进行优化，使它满足OCP。</p>
+<p>第一步是<strong>分离变化点</strong>，根据pipeline的业务处理逻辑，我们可以发现3个独立的变化点，数据的获取、加工和存储。第二步，我们对这3个变化点进行抽象，设计出以下3个抽象接口：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">// demo/src/main/java/com/yrunz/designpattern/monitor/input/InputPlugin.java
+</span><span class="c1">// 数据获取抽象接口
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">InputPlugin</span> <span class="kd">extends</span> <span class="n">Plugin</span> <span class="o">{</span>
+    <span class="n">Event</span> <span class="nf">input</span><span class="o">();</span>
+    <span class="kt">void</span> <span class="nf">setContext</span><span class="o">(</span><span class="n">Config</span><span class="o">.</span><span class="na">Context</span> <span class="n">context</span><span class="o">);</span>
+<span class="o">}</span>
+
+<span class="c1">// demo/src/main/java/com/yrunz/designpattern/monitor/filter/FilterPlugin.java
+</span><span class="c1">// 数据加工抽象接口
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">FilterPlugin</span> <span class="kd">extends</span> <span class="n">Plugin</span> <span class="o">{</span>
+    <span class="n">Event</span> <span class="nf">filter</span><span class="o">(</span><span class="n">Event</span> <span class="n">event</span><span class="o">);</span>
+<span class="o">}</span>
+
+<span class="c1">// demo/src/main/java/com/yrunz/designpattern/monitor/output/OutputPlugin.java
+</span><span class="c1">// 数据存储抽象接口
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">OutputPlugin</span> <span class="kd">extends</span> <span class="n">Plugin</span> <span class="o">{</span>
+    <span class="kt">void</span> <span class="nf">output</span><span class="o">(</span><span class="n">Event</span> <span class="n">event</span><span class="o">);</span>
+    <span class="kt">void</span> <span class="nf">setContext</span><span class="o">(</span><span class="n">Config</span><span class="o">.</span><span class="na">Context</span> <span class="n">context</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre></div><p>最后，<code>Pipeline</code>的实现如下，只依赖于<code>InputPlugin</code>、<code>FilterPlugin</code>和<code>OutputPlugin</code>三个抽象接口。后续再有需求变更，只需扩展对应的接口即可，<code>Pipeline</code>无须再变更：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">// demo/src/main/java/com/yrunz/designpattern/monitor/pipeline/Pipeline.java
+</span><span class="c1">// ETL流程定义
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Pipeline</span> <span class="kd">implements</span> <span class="n">Plugin</span> <span class="o">{</span>
+    <span class="kd">final</span> <span class="n">InputPlugin</span> <span class="n">input</span><span class="o">;</span>
+    <span class="kd">final</span> <span class="n">FilterPlugin</span> <span class="n">filter</span><span class="o">;</span>
+    <span class="kd">final</span> <span class="n">OutputPlugin</span> <span class="n">output</span><span class="o">;</span>
+    <span class="kd">final</span> <span class="n">AtomicBoolean</span> <span class="n">isClose</span><span class="o">;</span>
+
+    <span class="kd">public</span> <span class="nf">Pipeline</span><span class="o">(</span><span class="n">InputPlugin</span> <span class="n">input</span><span class="o">,</span> <span class="n">FilterPlugin</span> <span class="n">filter</span><span class="o">,</span> <span class="n">OutputPlugin</span> <span class="n">output</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">input</span> <span class="o">=</span> <span class="n">input</span><span class="o">;</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">filter</span> <span class="o">=</span> <span class="n">filter</span><span class="o">;</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">output</span> <span class="o">=</span> <span class="n">output</span><span class="o">;</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">isClose</span> <span class="o">=</span> <span class="k">new</span> <span class="n">AtomicBoolean</span><span class="o">(</span><span class="kc">false</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="c1">// 运行pipeline
+</span><span class="c1"></span>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">while</span> <span class="o">(!</span><span class="n">isClose</span><span class="o">.</span><span class="na">get</span><span class="o">())</span> <span class="o">{</span>
+            <span class="n">Event</span> <span class="n">event</span> <span class="o">=</span> <span class="n">input</span><span class="o">.</span><span class="na">input</span><span class="o">();</span>
+            <span class="n">event</span> <span class="o">=</span> <span class="n">filter</span><span class="o">.</span><span class="na">filter</span><span class="o">(</span><span class="n">event</span><span class="o">);</span>
+            <span class="n">output</span><span class="o">.</span><span class="na">output</span><span class="o">(</span><span class="n">event</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+    <span class="o">...</span>
+<span class="o">}</span>
+</code></pre></div><p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1gzpffjrzg7j21h00s4ahv.jpg" alt=""  /></p>
+<p><strong>OCP是软件设计的终极目标</strong>，我们都希望能设计出可以新增功能却不用动老代码的软件。但是100%的对修改封闭肯定是做不到的，另外，遵循OCP的代价也是巨大的。它需要软件设计人员能够根据具体的业务场景识别出那些最有可能变化的点，然后分离出去，抽象成稳定的接口。这要求设计人员必须具备丰富的实战经验，以及非常熟悉该领域的业务场景。否则，<strong>盲目地分离变化点、过度地抽象，都会导致软件系统变得更加复杂</strong>。</p>
+<h2 id="lsp里氏替换原则">LSP：里氏替换原则</h2>
+<p>上一节介绍中，OCP的一个关键点就是<strong>抽象</strong>，而如何判断一个抽象是否合理，这是<strong>里氏替换原则</strong>（The <strong>L</strong>iskov <strong>S</strong>ubstitution <strong>P</strong>rinciple，<strong>LSP</strong>）需要回答的问题。</p>
+<p>LSP的最初定义如下：</p>
+<blockquote>
+<p>If for each object o1 of type S there is an object o2 of type T such that for all programs P defined in terms of T, the behavior of P is unchanged when o1 is substituted for o2 then S is a subtype of T.</p>
+</blockquote>
+<p>简单地讲就是，<strong>子类型必须能够替换掉它们的基类型</strong>，也即基类中的所有性质，在子类中仍能成立。一个简单的例子：假设有一个函数f，它的入参类型是基类B。同时，基类B有一个派生类D，如果把D的实例传递给函数f，那么函数f的行为功能应该是不变的。</p>
+<p>由此可以看出，违反LSP的后果很严重，会导致程序出现不在预期之内的行为错误。下面，我们看一个经典反面例子，矩形与正方形。</p>
+<p>假设现在有矩形<code>Rectangle</code>，可以通过<code>setWidth</code>方法设置宽度，<code>setLength</code>方法设置长度，<code>area</code>方法得到矩形面积：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">// 矩形定义
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Rectangle</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">width</span><span class="o">;</span> <span class="c1">// 宽度
+</span><span class="c1"></span>    <span class="kd">private</span> <span class="kt">int</span> <span class="n">length</span><span class="o">;</span> <span class="c1">// 长度
+</span><span class="c1"></span>    <span class="c1">// 设置宽度
+</span><span class="c1"></span>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setWidth</span><span class="o">(</span><span class="kt">int</span> <span class="n">width</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">width</span> <span class="o">=</span> <span class="n">width</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="c1">// 设置长度
+</span><span class="c1"></span>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setLength</span><span class="o">(</span><span class="kt">int</span> <span class="n">length</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">length</span> <span class="o">=</span> <span class="n">length</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="c1">// 返回矩形面积
+</span><span class="c1"></span>    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">area</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">width</span> <span class="o">*</span> <span class="n">length</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div><p>另外，有一个客户端程序<code>Cient</code>，它的方法<code>f</code>以<code>Rectangle</code>作为入参，逻辑为校验矩形的逻辑：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">// 客户端程序
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Client</span> <span class="o">{</span>
+    <span class="c1">// 校验矩形面积为长*宽
+</span><span class="c1"></span>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">f</span><span class="o">(</span><span class="n">Rectangle</span> <span class="n">rectangle</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">rectangle</span><span class="o">.</span><span class="na">setWidth</span><span class="o">(</span><span class="n">5</span><span class="o">);</span>
+        <span class="n">rectangle</span><span class="o">.</span><span class="na">setLength</span><span class="o">(</span><span class="n">4</span><span class="o">);</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">rectangle</span><span class="o">.</span><span class="na">area</span><span class="o">()</span> <span class="o">!=</span> <span class="n">20</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="n">RuntimeException</span><span class="o">(</span><span class="s">&#34;rectangle&#39;s area is invalid&#34;</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;rectangle&#39;s area is valid&#34;</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+<span class="c1">// 运行程序
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+      <span class="n">Rectangle</span> <span class="n">rectangle</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Rectangle</span><span class="o">();</span>
+      <span class="n">Client</span> <span class="n">client</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Client</span><span class="o">();</span>
+      <span class="n">client</span><span class="o">.</span><span class="na">f</span><span class="o">(</span><span class="n">rectangle</span><span class="o">);</span>
+ <span class="o">}</span>
+<span class="c1">// 运行结果：
+</span><span class="c1">// rectangle&#39;s area is valid
+</span></code></pre></div><p>现在，我们打算新增一种新的类型，正方形<code>Square</code>。因为从数学上看，正方形也是矩形的一种，因此我们让<code>Square</code>继承了<code>Rectangle</code>。另外，正方形<strong>要求长宽一致</strong>，因此<code>Square</code>重写了<code>setWidth</code>和<code>setLength</code>方法：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">// 正方形，长宽相等
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Square</span> <span class="kd">extends</span> <span class="n">Rectangle</span> <span class="o">{</span>
+    <span class="c1">// 设置宽度
+</span><span class="c1"></span>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setWidth</span><span class="o">(</span><span class="kt">int</span> <span class="n">width</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">width</span> <span class="o">=</span> <span class="n">width</span><span class="o">;</span>
+        <span class="c1">// 长宽相等，因此同时设置长度
+</span><span class="c1"></span>        <span class="k">this</span><span class="o">.</span><span class="na">length</span> <span class="o">=</span> <span class="n">width</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="c1">// 设置长度
+</span><span class="c1"></span>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setLength</span><span class="o">(</span><span class="kt">int</span> <span class="n">length</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">length</span> <span class="o">=</span> <span class="n">length</span><span class="o">;</span>
+        <span class="c1">// 长宽相等，因此同时设置长度
+</span><span class="c1"></span>        <span class="k">this</span><span class="o">.</span><span class="na">width</span> <span class="o">=</span> <span class="n">length</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div><p>下面，我们把<code>Square</code>实例化后作为入参传入<code>Cient.f</code>上：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">Square</span> <span class="n">square</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Square</span><span class="o">();</span>
+    <span class="n">Client</span> <span class="n">client</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Client</span><span class="o">();</span>
+    <span class="n">client</span><span class="o">.</span><span class="na">f</span><span class="o">(</span><span class="n">square</span><span class="o">);</span>
+<span class="o">}</span>
+<span class="c1">// 运行结果:
+</span><span class="c1">// Exception in thread &#34;main&#34; java.lang.RuntimeException: rectangle&#39;s area is invalid
+</span><span class="c1">// 	at com.yrunz.designpattern.service.mediator.Client.f(Client.java:8)
+</span><span class="c1">// 	at com.yrunz.designpattern.service.mediator.Client.main(Client.java:16)
+</span></code></pre></div><p>我们发现<code>Cient.f</code>的行为发生了变化，子类型<code>Square</code>并不能替代基类型<code>Rectangle</code>，违反了LSP。</p>
+<p>出现上面的这种违反LSP的设计，主要原因还是我们<strong>孤立地进行模型设计</strong>，没有从客户端程序的角度来审视该设计是否正确。我们孤立地认为在数学上成立的关系（正方形 IS-A 矩形），在程序中也一定成立，而忽略了客户端程序的使用方法（先设置宽度为5，长度为4，然后校验面积为20）。</p>
+<p>这个例子告诉我们：<strong>一个模型的正确性或有效性，只能通过客户端程序来体现</strong>。</p>
+<p>下面，我们总结一下在继承体系（IS-A）下，要想设计出符合LSP的模型所需要遵循的一些约束：</p>
+<ol>
+<li><strong>基类应该设计为一个抽象类</strong>（不能直接实例化，只能被继承）。</li>
+<li><strong>子类应该实现基类的抽象接口，而不是重写基类已经实现的具体方法</strong>。</li>
+<li><strong>子类可以新增功能，但不能改变基类的功能</strong>。</li>
+<li><strong>子类不能新增约束</strong>，包括抛出基类没有声明的异常。</li>
+</ol>
+<p>前面的矩形和正方形的例子中，几乎把这些约束都打破了，从而导致了程序的异常行为：1）<code>Square</code>的基类<code>Rectangle</code>不是一个抽象类，打破<code>约束1</code>；2）<code>Square</code>重写了基类的<code>setWidth</code>和<code>setLength</code>方法，打破<code>约束2</code>；3）<code>Square</code>新增了<code>Rectangle</code>没有的约束，长宽相等，打破<code>约束4</code>。</p>
+<p>除了继承之外，另一个实现抽象的机制是<strong>接口</strong>。如果我们是面向接口的设计，那么上述的<code>约束1～3</code>其实已经满足了：1）接口本身不具备实例化能力，满足<code>约束1</code>；2）接口没有具体的实现方法（<em>Java中接口的default方法比较例外，本文先不考虑</em>），也就不会被重写，满足<code>约束2</code>；3）接口本身只定义了行为契约，并没有实际的功能，因此也不会被改变，满足<code>约束3</code>。</p>
+<p>因此，使用接口替代继承来实现多态和抽象，能够减少很多不经意的错误。但是面向接口设计仍然需要遵循<code>约束4</code>，下面我们以分布式应用系统demo为例，介绍一个比较隐晦地打破<code>约束4</code>，从而违反了LSP的实现。</p>
+<p>还是以监控系统为例，为例实现ETL流程的灵活配置，我们需要通过配置文件定义pipeline的流程功能（数据从哪获取、需要经过哪些加工、加工后存储到哪里）。当前需要支持json和yaml两种配置文件格式，以yaml配置为例，配置内容是这样的：</p>
+<div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="c"># src/main/resources/pipelines/pipeline_0.yaml</span><span class="w">
+</span><span class="w"></span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">pipeline_0</span><span class="w"> </span><span class="c"># pipeline名称</span><span class="w">
+</span><span class="w"></span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">single_thread</span><span class="w"> </span><span class="c"># pipeline类型</span><span class="w">
+</span><span class="w"></span><span class="nt">input</span><span class="p">:</span><span class="w"> </span><span class="c"># input插件定义（数据从哪里来）</span><span class="w">
+</span><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">input_0</span><span class="w"> </span><span class="c"># input插件名称</span><span class="w">
+</span><span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">memory_mq</span><span class="w"> </span><span class="c"># input插件类型</span><span class="w">
+</span><span class="w">  </span><span class="nt">context</span><span class="p">:</span><span class="w"> </span><span class="c"># input插件的初始化上下文</span><span class="w">
+</span><span class="w">    </span><span class="nt">topic</span><span class="p">:</span><span class="w"> </span><span class="l">access_log.topic</span><span class="w">
+</span><span class="w"></span><span class="nt">filter</span><span class="p">:</span><span class="w"> </span><span class="c"># filter插件定义（需要经过哪些加工）</span><span class="w">
+</span><span class="w">  </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">filter_0</span><span class="w"> </span><span class="c"># 加工流程filter_0定义，类型为log_to_json</span><span class="w">
+</span><span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">log_to_json</span><span class="w">
+</span><span class="w">  </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">filter_1</span><span class="w"> </span><span class="c"># 加工流程filter_1定义，类型为add_timestamp</span><span class="w">
+</span><span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">add_timestamp</span><span class="w">
+</span><span class="w">  </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">filter_2</span><span class="w"> </span><span class="c"># 加工流程filter_2定义，类型为json_to_monitor_event</span><span class="w">
+</span><span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">json_to_monitor_event</span><span class="w">
+</span><span class="w"></span><span class="nt">output</span><span class="p">:</span><span class="w"> </span><span class="c"># output插件定义（加工后存储到哪里）</span><span class="w">
+</span><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">output_0</span><span class="w"> </span><span class="c"># output插件名称</span><span class="w">
+</span><span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">memory_db</span><span class="w"> </span><span class="c"># output插件类型</span><span class="w">
+</span><span class="w">  </span><span class="nt">context</span><span class="p">:</span><span class="w"> </span><span class="c"># output插件的初始化上下文</span><span class="w">
+</span><span class="w">    </span><span class="nt">tableName</span><span class="p">:</span><span class="w"> </span><span class="l">monitor_event_0</span><span class="w">
+</span></code></pre></div><p>首先我们定义一个<code>Config</code>接口来表示“配置”这一抽象:</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">// demo/src/main/java/com/yrunz/designpattern/monitor/config/Config.java
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">Config</span> <span class="o">{</span>
+    <span class="c1">// 从json字符串中加载配置
+</span><span class="c1"></span>    <span class="kt">void</span> <span class="nf">load</span><span class="o">(</span><span class="n">String</span> <span class="n">conf</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre></div><p>另外，上述配置中的<code>input</code>、<code>filter</code>、<code>output</code>子项，可以认为是<code>InputPlugin</code>、<code>FilterPlugin</code>、<code>OutputPlugin</code>插件的配置项，由<code>Pipeline</code>插件的配置项组合在一起，因此我们定义了如下几个<code>Config</code>的抽象类：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">// demo/src/main/java/com/yrunz/designpattern/monitor/config/InputConfig.java
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">abstract</span> <span class="kd">class</span> <span class="nc">InputConfig</span> <span class="kd">implements</span> <span class="n">Config</span> <span class="o">{</span>
+    <span class="kd">protected</span> <span class="n">String</span> <span class="n">name</span><span class="o">;</span>
+    <span class="kd">protected</span> <span class="n">InputType</span> <span class="n">type</span><span class="o">;</span>
+    <span class="kd">protected</span> <span class="n">Context</span> <span class="n">ctx</span><span class="o">;</span>
+    <span class="c1">// 子类实现具体加载逻辑，支持yaml和json的加载方式
+</span><span class="c1"></span>    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kd">abstract</span> <span class="kt">void</span> <span class="nf">load</span><span class="o">(</span><span class="n">String</span> <span class="n">conf</span><span class="o">);</span>
+    <span class="o">...</span>
+<span class="o">}</span>
+<span class="c1">// demo/src/main/java/com/yrunz/designpattern/monitor/config/FilterConfig.java
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">abstract</span> <span class="kd">class</span> <span class="nc">FilterConfig</span> <span class="kd">implements</span> <span class="n">Config</span> <span class="o">{</span>
+    <span class="kd">protected</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Item</span><span class="o">&gt;</span> <span class="n">items</span><span class="o">;</span>
+    <span class="c1">// 子类实现具体加载逻辑，支持yaml和json的加载方式
+</span><span class="c1"></span>    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kd">abstract</span> <span class="kt">void</span> <span class="nf">load</span><span class="o">(</span><span class="n">String</span> <span class="n">conf</span><span class="o">);</span>
+    <span class="o">...</span>
+<span class="o">}</span>
+<span class="c1">// demo/src/main/java/com/yrunz/designpattern/monitor/config/OutputConfig.java
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">abstract</span> <span class="kd">class</span> <span class="nc">OutputConfig</span> <span class="kd">implements</span> <span class="n">Config</span> <span class="o">{</span>
+    <span class="kd">protected</span> <span class="n">String</span> <span class="n">name</span><span class="o">;</span>
+    <span class="kd">protected</span> <span class="n">OutputType</span> <span class="n">type</span><span class="o">;</span>
+    <span class="kd">protected</span> <span class="n">Context</span> <span class="n">ctx</span><span class="o">;</span>
+    <span class="c1">// 子类实现具体加载逻辑，支持yaml和json的加载方式
+</span><span class="c1"></span>    <span class="nd">@Override</span>
+    <span class="kd">abstract</span> <span class="kd">public</span> <span class="kt">void</span> <span class="nf">load</span><span class="o">(</span><span class="n">String</span> <span class="n">conf</span><span class="o">);</span>
+    <span class="o">...</span>
+<span class="o">}</span>
+<span class="c1">// demo/src/main/java/com/yrunz/designpattern/monitor/config/PipelineConfig.java
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">abstract</span> <span class="kd">class</span> <span class="nc">PipelineConfig</span> <span class="kd">implements</span> <span class="n">Config</span> <span class="o">{</span>
+    <span class="kd">protected</span> <span class="n">String</span> <span class="n">name</span><span class="o">;</span>
+    <span class="kd">protected</span> <span class="n">PipelineType</span> <span class="n">type</span><span class="o">;</span>
+    <span class="kd">protected</span> <span class="kd">final</span> <span class="n">InputConfig</span> <span class="n">inputConfig</span><span class="o">;</span>
+    <span class="kd">protected</span> <span class="kd">final</span> <span class="n">FilterConfig</span> <span class="n">filterConfig</span><span class="o">;</span>
+    <span class="kd">protected</span> <span class="kd">final</span> <span class="n">OutputConfig</span> <span class="n">outputConfig</span><span class="o">;</span>
+    <span class="c1">// 子类实现具体加载逻辑，支持yaml和json的加载方式
+</span><span class="c1"></span>    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kd">abstract</span> <span class="kt">void</span> <span class="nf">load</span><span class="o">(</span><span class="n">String</span> <span class="n">conf</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre></div><p>最后再实现具体的基于json和yaml的子类：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">// json方式加载Config子类目录：src/main/java/com/yrunz/designpattern/monitor/config/json
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">JsonInputConfig</span> <span class="kd">extends</span> <span class="n">InputConfig</span>  <span class="o">{...}</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">JsonFilterConfig</span> <span class="kd">extends</span> <span class="n">FilterConfig</span>  <span class="o">{...}</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">JsonOutputConfig</span> <span class="kd">extends</span> <span class="n">OutputConfig</span>  <span class="o">{...}</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">JsonPipelineConfig</span> <span class="kd">extends</span> <span class="n">PipelineConfig</span>  <span class="o">{...}</span>
+<span class="c1">// yaml方式加载Config子类目录：src/main/java/com/yrunz/designpattern/monitor/config/yaml
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">YamlInputConfig</span> <span class="kd">extends</span> <span class="n">InputConfig</span>  <span class="o">{...}</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">YamlFilterConfig</span> <span class="kd">extends</span> <span class="n">FilterConfig</span>  <span class="o">{...}</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">YamlOutputConfig</span> <span class="kd">extends</span> <span class="n">OutputConfig</span>  <span class="o">{...}</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">YamlPipelineConfig</span> <span class="kd">extends</span> <span class="n">PipelineConfig</span>  <span class="o">{...}</span>
+</code></pre></div><p>因为涉及到从配置到对象的实例化过程，自然会想到使用<em><strong>工厂模式</strong></em>来创建对象。另外因为<code>Pipeline</code>、<code>InputPlugin</code>、<code>FilterPlugin</code>和<code>OutputPlugin</code>都实现了Plugin接口，我们也很容易想到定义一个<code>PluginFactory</code>接口来表示“插件工厂”这一抽象，具体的插件工厂再实现该接口：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">// 插件工厂接口，根据配置实例化插件
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">PluginFactory</span> <span class="o">{</span>
+    <span class="n">Plugin</span> <span class="nf">create</span><span class="o">(</span><span class="n">Config</span> <span class="n">config</span><span class="o">);</span>
+<span class="o">}</span>
+<span class="c1">// input插件工厂
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">InputPluginFactory</span> <span class="kd">implements</span> <span class="n">PluginFactory</span> <span class="o">{</span>
+    <span class="o">...</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">InputPlugin</span> <span class="nf">create</span><span class="o">(</span><span class="n">Config</span> <span class="n">config</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">InputConfig</span> <span class="n">conf</span> <span class="o">=</span> <span class="o">(</span><span class="n">InputConfig</span><span class="o">)</span> <span class="n">config</span><span class="o">;</span>
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="n">Class</span><span class="o">&lt;?&gt;</span> <span class="n">inputClass</span> <span class="o">=</span> <span class="n">Class</span><span class="o">.</span><span class="na">forName</span><span class="o">(</span><span class="n">conf</span><span class="o">.</span><span class="na">type</span><span class="o">().</span><span class="na">classPath</span><span class="o">());</span>
+            <span class="n">InputPlugin</span> <span class="n">input</span> <span class="o">=</span> <span class="o">(</span><span class="n">InputPlugin</span><span class="o">)</span> <span class="n">inputClass</span><span class="o">.</span><span class="na">getConstructor</span><span class="o">().</span><span class="na">newInstance</span><span class="o">();</span>
+            <span class="n">input</span><span class="o">.</span><span class="na">setContext</span><span class="o">(</span><span class="n">conf</span><span class="o">.</span><span class="na">context</span><span class="o">());</span>
+            <span class="k">return</span> <span class="n">input</span><span class="o">;</span>
+        <span class="o">}</span> <span class="o">...</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+<span class="c1">// filter插件工厂
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">FilterPluginFactory</span> <span class="kd">implements</span> <span class="n">PluginFactory</span> <span class="o">{</span>
+    <span class="o">...</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">FilterPlugin</span> <span class="nf">create</span><span class="o">(</span><span class="n">Config</span> <span class="n">config</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">FilterConfig</span> <span class="n">conf</span> <span class="o">=</span> <span class="o">(</span><span class="n">FilterConfig</span><span class="o">)</span> <span class="n">config</span><span class="o">;</span>
+        <span class="n">FilterChain</span> <span class="n">filterChain</span> <span class="o">=</span> <span class="n">FilterChain</span><span class="o">.</span><span class="na">empty</span><span class="o">();</span>
+        <span class="n">String</span> <span class="n">name</span> <span class="o">=</span> <span class="s">&#34;&#34;</span><span class="o">;</span>
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="k">for</span> <span class="o">(</span><span class="n">FilterConfig</span><span class="o">.</span><span class="na">Item</span> <span class="n">item</span> <span class="o">:</span> <span class="n">conf</span><span class="o">.</span><span class="na">items</span><span class="o">())</span> <span class="o">{</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="na">name</span><span class="o">();</span>
+                <span class="n">Class</span><span class="o">&lt;?&gt;</span> <span class="n">filterClass</span> <span class="o">=</span> <span class="n">Class</span><span class="o">.</span><span class="na">forName</span><span class="o">(</span><span class="n">item</span><span class="o">.</span><span class="na">type</span><span class="o">().</span><span class="na">classPath</span><span class="o">());</span>
+                <span class="n">FilterPlugin</span> <span class="n">filter</span> <span class="o">=</span> <span class="o">(</span><span class="n">FilterPlugin</span><span class="o">)</span> <span class="n">filterClass</span><span class="o">.</span><span class="na">getConstructor</span><span class="o">().</span><span class="na">newInstance</span><span class="o">();</span>
+                <span class="n">filterChain</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">filter</span><span class="o">);</span>
+            <span class="o">}</span>
+        <span class="o">}</span> <span class="o">...</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+<span class="c1">// output插件工厂
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">OutputPluginFactory</span> <span class="kd">implements</span> <span class="n">PluginFactory</span> <span class="o">{</span>
+    <span class="o">...</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">OutputPlugin</span> <span class="nf">create</span><span class="o">(</span><span class="n">Config</span> <span class="n">config</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">OutputConfig</span> <span class="n">conf</span> <span class="o">=</span> <span class="o">(</span><span class="n">OutputConfig</span><span class="o">)</span> <span class="n">config</span><span class="o">;</span>
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="n">Class</span><span class="o">&lt;?&gt;</span> <span class="n">outputClass</span> <span class="o">=</span> <span class="n">Class</span><span class="o">.</span><span class="na">forName</span><span class="o">(</span><span class="n">conf</span><span class="o">.</span><span class="na">type</span><span class="o">().</span><span class="na">classPath</span><span class="o">());</span>
+            <span class="n">OutputPlugin</span> <span class="n">output</span> <span class="o">=</span> <span class="o">(</span><span class="n">OutputPlugin</span><span class="o">)</span> <span class="n">outputClass</span><span class="o">.</span><span class="na">getConstructor</span><span class="o">().</span><span class="na">newInstance</span><span class="o">();</span>
+            <span class="n">output</span><span class="o">.</span><span class="na">setContext</span><span class="o">(</span><span class="n">conf</span><span class="o">.</span><span class="na">context</span><span class="o">());</span>
+            <span class="k">return</span> <span class="n">output</span><span class="o">;</span>
+        <span class="o">}</span> <span class="o">...</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+<span class="c1">// pipeline插件工厂
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">PipelineFactory</span> <span class="kd">implements</span> <span class="n">PluginFactory</span> <span class="o">{</span>
+    <span class="o">...</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">Pipeline</span> <span class="nf">create</span><span class="o">(</span><span class="n">Config</span> <span class="n">config</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">PipelineConfig</span> <span class="n">conf</span> <span class="o">=</span> <span class="o">(</span><span class="n">PipelineConfig</span><span class="o">)</span> <span class="n">config</span><span class="o">;</span>
+        <span class="n">InputPlugin</span> <span class="n">input</span> <span class="o">=</span> <span class="n">InputPluginFactory</span><span class="o">.</span><span class="na">newInstance</span><span class="o">().</span><span class="na">create</span><span class="o">(</span><span class="n">conf</span><span class="o">.</span><span class="na">input</span><span class="o">());</span>
+        <span class="n">FilterPlugin</span> <span class="n">filter</span> <span class="o">=</span> <span class="n">FilterPluginFactory</span><span class="o">.</span><span class="na">newInstance</span><span class="o">().</span><span class="na">create</span><span class="o">(</span><span class="n">conf</span><span class="o">.</span><span class="na">filter</span><span class="o">());</span>
+        <span class="n">OutputPlugin</span> <span class="n">output</span> <span class="o">=</span> <span class="n">OutputPluginFactory</span><span class="o">.</span><span class="na">newInstance</span><span class="o">().</span><span class="na">create</span><span class="o">(</span><span class="n">conf</span><span class="o">.</span><span class="na">output</span><span class="o">());</span>
+        <span class="o">...</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div><p>最后，通过<code>PipelineFactory</code>来实创建<code>Pipline</code>对象：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="n">Config</span> <span class="n">config</span> <span class="o">=</span> <span class="n">YamlPipelineConfig</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="n">YamlInputConfig</span><span class="o">.</span><span class="na">empty</span><span class="o">(),</span> <span class="n">YamlFilterConfig</span><span class="o">.</span><span class="na">empty</span><span class="o">(),</span> <span class="n">YamlOutputConfig</span><span class="o">.</span><span class="na">empty</span><span class="o">());</span>
+<span class="n">config</span><span class="o">.</span><span class="na">load</span><span class="o">(</span><span class="n">Files</span><span class="o">.</span><span class="na">readAllBytes</span><span class="o">(</span><span class="s">&#34;pipeline_0.yaml&#34;</span><span class="o">));</span>
+<span class="n">Pipeline</span> <span class="n">pipeline</span> <span class="o">=</span> <span class="n">PipelineFactory</span><span class="o">.</span><span class="na">newInstance</span><span class="o">().</span><span class="na">create</span><span class="o">(</span><span class="n">config</span><span class="o">);</span>
+<span class="n">assertNotNull</span><span class="o">(</span><span class="n">pipeline</span><span class="o">);</span>
+<span class="c1">// 运行结果：
+</span><span class="c1"></span><span class="n">Pass</span>
+</code></pre></div><p>到目前为止，上述的设计看起来是合理的，运行也没有问题。</p>
+<p>但是，细心的读者可能会发现，每个插件工厂子类的<code>create</code>方法的第一行代码都是一个转型语句，比如<code>PipelineFactory</code>的是<code>PipelineConfig conf = (PipelineConfig) config;</code>。所以，上一段代码能够正常运行的前提是：传入<code>PipelineFactory.create</code>方法的入参必须是<code>PipelineConfig</code> 。如果客户端程序传入<code>InputConfig</code>的实例，<code>PipelineFactory.create</code>方法将会抛出转型失败的异常。</p>
+<p>上述这个例子就是一个违反LSP的典型场景，虽然在约定好的前提下，程序可以运行正确，但是如果有客户端不小心破坏了这个约定，就会带来程序行为异常（我们永远无法预知客户端的所有行为）。</p>
+<p>要纠正这个问题也很简单，就是去掉<code>PluginFactory</code>这一层抽象，让<code>PipelineFactory.create</code>等工厂方法的入参声明为具体的配置类，比如<code>PipelineFactory</code>可以这么实现：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">// demo/src/main/java/com/yrunz/designpattern/monitor/pipeline/PipelineFactory.java
+</span><span class="c1">// pipeline插件工厂，不在实现PluginFactory接口
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">PipelineFactory</span> <span class="o">{</span>
+    <span class="o">...</span>
+    <span class="c1">// 工厂方法入参为PipelineConfig实现类，消除转型
+</span><span class="c1"></span>    <span class="kd">public</span> <span class="n">Pipeline</span> <span class="nf">create</span><span class="o">(</span><span class="n">PipelineConfig</span> <span class="n">config</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">InputPlugin</span> <span class="n">input</span> <span class="o">=</span> <span class="n">InputPluginFactory</span><span class="o">.</span><span class="na">newInstance</span><span class="o">().</span><span class="na">create</span><span class="o">(</span><span class="n">config</span><span class="o">.</span><span class="na">input</span><span class="o">());</span>
+        <span class="n">FilterPlugin</span> <span class="n">filter</span> <span class="o">=</span> <span class="n">FilterPluginFactory</span><span class="o">.</span><span class="na">newInstance</span><span class="o">().</span><span class="na">create</span><span class="o">(</span><span class="n">config</span><span class="o">.</span><span class="na">filter</span><span class="o">());</span>
+        <span class="n">OutputPlugin</span> <span class="n">output</span> <span class="o">=</span> <span class="n">OutputPluginFactory</span><span class="o">.</span><span class="na">newInstance</span><span class="o">().</span><span class="na">create</span><span class="o">(</span><span class="n">config</span><span class="o">.</span><span class="na">output</span><span class="o">());</span>
+        <span class="o">...</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div><p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1gzpopcctvzj214u0mc436.jpg" alt=""  /></p>
+<p>从上述几个例子中，我们可以看出遵循LSP的重要性，而设计出符合LSP的软件的要点就是，<strong>根据该软件的使用者行为作出的合理假设，以此来审视它是否具备有效性和正确性</strong>。</p>
+<h2 id="isp接口隔离原则">ISP：接口隔离原则</h2>
+<p><strong>接口隔离原则</strong>（The <strong>I</strong>nterface <strong>S</strong>egregation <strong>P</strong>rinciple，<strong>ISP</strong>）是关于接口设计的一项原则，这里的“接口”并不单指Java或Go上使用interface声明的狭义接口，而是包含了狭义接口、抽象类、具象类等在内的广义接口。它的定义如下：</p>
+<blockquote>
+<p>Client should not be forced to depend on methods it does not use.</p>
+</blockquote>
+<p>也即，<strong>一个模块不应该强迫客户程序依赖它们不想使用的接口</strong>，模块间的关系应该建立在最小的接口集上。</p>
+<p>下面，我们通过一个例子来详细介绍ISP。</p>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1gzq2gxj891j213a0mowhz.jpg" alt=""  /></p>
+<p>上图中，<code>Client1</code>、<code>Client2</code>、<code>Client3</code>都依赖了<code>Class1</code>，但实际上，<code>Client1</code>只需使用<code>Class1.func1</code>方法，<code>Client2</code>只需使用<code>Class1.func2</code>，<code>Client3</code>只需使用<code>Class1.func3</code>，那么这时候我们就可以说该设计违反了ISP。</p>
+<p>违反ISP主要会带来如下2个问题：</p>
+<ol>
+<li><strong>增加模块与客户端程序的依赖</strong>，比如在上述例子中，虽然<code>Client2</code>和<code>Client3</code>都没有调用<code>func1</code>，但是当<code>Class1</code>修改<code>func1</code>还是必须通知<code>Client1～3</code>，因为<code>Class1</code>并不知道它们是否使用了<code>func1</code>。</li>
+<li><strong>产生接口污染</strong>，假设开发<code>Client1</code>的程序员，在写代码时不小心把<code>func1</code>打成了<code>func2</code>，那么就会带来<code>Client1</code>的行为异常。也即<code>Client1</code>被<code>func2</code>给污染了。</li>
+</ol>
+<p>为了解决上述2个问题，我们可以把<code>func1</code>、<code>func2</code>、<code>func3</code>通过接口隔离开：</p>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1gzq2zy32hkj212e0okwim.jpg" alt=""  /></p>
+<p>接口隔离之后，<code>Client1</code>只依赖了<code>Interface1</code>，而<code>Interface1</code>上只有<code>func1</code>一个方法，也即<code>Client1</code>不会受到<code>func2</code>和<code>func3</code>的污染；另外，当<code>Class1</code>修改<code>func1</code>之后，它只需通知依赖了<code>Interface1</code>的客户端即可，大大降低了模块间耦合。</p>
+<p>实现ISP的关键是<strong>将大接口拆分成小接口</strong>，而拆分的关键就是<strong>接口粒度的把握</strong>。想要拆分得好，就要求接口设计人员对业务场景非常熟悉，对接口使用的场景了如指掌。否则孤立地设计接口，很难满足ISP。</p>
+<p>下面，我们以分布式应用系统demo为例，来进一步介绍ISP的实现。</p>
+<p>一个消息队列模块通常包含生产（produce）和消费（consumer）两种行为，因此我们设计了<code>Mq</code>消息队列抽象接口，包含<code>produce</code>和<code>consume</code>两个方法：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">// 消息队列接口
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">Mq</span> <span class="o">{</span>
+    <span class="n">Message</span> <span class="nf">consume</span><span class="o">(</span><span class="n">String</span> <span class="n">topic</span><span class="o">);</span>
+    <span class="kt">void</span> <span class="nf">produce</span><span class="o">(</span><span class="n">Message</span> <span class="n">message</span><span class="o">);</span>
+<span class="o">}</span>
+
+<span class="c1">// demo/src/main/java/com/yrunz/designpattern/mq/MemoryMq.java
+</span><span class="c1">// 当前提供MemoryMq内存消息队列的实现
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MemoryMq</span> <span class="kd">implements</span> <span class="n">Mq</span> <span class="o">{...}</span>
+</code></pre></div><p>当前demo中使用接口的模块有2个，分别是作为消费者的<code>MemoryMqInput</code>和作为生产者的<code>AccessLogSidecar</code>：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MemoryMqInput</span> <span class="kd">implements</span> <span class="n">InputPlugin</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">topic</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="n">Mq</span> <span class="n">mq</span><span class="o">;</span>
+    <span class="o">...</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">Event</span> <span class="nf">input</span><span class="o">()</span> <span class="o">{</span>
+        <span class="n">Message</span> <span class="n">message</span> <span class="o">=</span> <span class="n">mq</span><span class="o">.</span><span class="na">consume</span><span class="o">(</span><span class="n">topic</span><span class="o">);</span>
+        <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">header</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashMap</span><span class="o">&lt;&gt;();</span>
+        <span class="n">header</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;topic&#34;</span><span class="o">,</span> <span class="n">topic</span><span class="o">);</span>
+        <span class="k">return</span> <span class="n">Event</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="n">header</span><span class="o">,</span> <span class="n">message</span><span class="o">.</span><span class="na">payload</span><span class="o">());</span>
+    <span class="o">}</span>
+    <span class="o">...</span>
+<span class="o">}</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">AccessLogSidecar</span> <span class="kd">implements</span> <span class="n">Socket</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="n">Mq</span> <span class="n">mq</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">topic</span>
+    <span class="o">...</span>
+        <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">send</span><span class="o">(</span><span class="n">Packet</span> <span class="n">packet</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">((</span><span class="n">packet</span><span class="o">.</span><span class="na">payload</span><span class="o">()</span> <span class="k">instanceof</span> <span class="n">HttpReq</span><span class="o">))</span> <span class="o">{</span>
+            <span class="n">String</span> <span class="n">log</span> <span class="o">=</span> <span class="n">String</span><span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="s">&#34;[%s][SEND_REQ]send http request to %s&#34;</span><span class="o">,</span>
+                    <span class="n">packet</span><span class="o">.</span><span class="na">src</span><span class="o">(),</span> <span class="n">packet</span><span class="o">.</span><span class="na">dest</span><span class="o">());</span>
+            <span class="n">Message</span> <span class="n">message</span> <span class="o">=</span> <span class="n">Message</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="n">topic</span><span class="o">,</span> <span class="n">log</span><span class="o">);</span>
+            <span class="n">mq</span><span class="o">.</span><span class="na">produce</span><span class="o">(</span><span class="n">message</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="o">...</span>
+    <span class="o">}</span>
+    <span class="o">...</span>
+<span class="o">}</span>
+</code></pre></div><p><strong>从领域模型上看</strong>，<code>Mq</code>接口的设计确实没有问题，它就应该包含<code>consume</code>和<code>produce</code>两个方法。但是<strong>从客户端程序的角度上看</strong>，它却违反了ISP，对<code>MemoryMqInput</code>来说，它只需要<code>consume</code>方法；对<code>AccessLogSidecar</code>来说，它只需要<code>produce</code>方法。</p>
+<p>一种设计方案是把<code>Mq</code>接口拆分成2个子接口<code>Consumable</code>和<code>Producible</code>，让<code>MemoryMq</code>直接实现<code>Consumable</code>和<code>Producible</code>：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">// demo/src/main/java/com/yrunz/designpattern/mq/Consumable.java
+</span><span class="c1">// 消费者接口，从消息队列中消费数据
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">Consumable</span> <span class="o">{</span>
+    <span class="n">Message</span> <span class="nf">consume</span><span class="o">(</span><span class="n">String</span> <span class="n">topic</span><span class="o">);</span>
+<span class="o">}</span>
+
+<span class="c1">// demo/src/main/java/com/yrunz/designpattern/mq/Producible.java
+</span><span class="c1">// 生产者接口，向消息队列生产消费数据
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">Producible</span> <span class="o">{</span>
+    <span class="kt">void</span> <span class="nf">produce</span><span class="o">(</span><span class="n">Message</span> <span class="n">message</span><span class="o">);</span>
+<span class="o">}</span>
+
+<span class="c1">// 当前提供MemoryMq内存消息队列的实现
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MemoryMq</span> <span class="kd">implements</span> <span class="n">Consumable</span><span class="o">,</span> <span class="n">Producible</span> <span class="o">{...}</span>
+</code></pre></div><p>仔细思考一下，就会发现上面的设计不太符合消息队列的领域模型，因为<code>Mq</code>的这个抽象确实应该存在的。</p>
+<p>更好的设计应该是保留<code>Mq</code>抽象接口，让<code>Mq</code>继承自<code>Consumable</code>和<code>Producible</code>，这样的<strong>分层设计</strong>之后，既能满足ISP，又能让实现符合消息队列的领域模型：</p>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1gzq5s8k4rwj21da0pogrf.jpg" alt=""  /></p>
+<p>具体实现如下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">// demo/src/main/java/com/yrunz/designpattern/mq/Mq.java
+</span><span class="c1">// 消息队列接口，继承了Consumable和Producible，同时又consume和produce两种行为
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">Mq</span> <span class="kd">extends</span> <span class="n">Consumable</span><span class="o">,</span> <span class="n">Producible</span> <span class="o">{}</span>
+
+<span class="c1">// 当前提供MemoryMq内存消息队列的实现
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MemoryMq</span> <span class="kd">implements</span> <span class="n">Mq</span> <span class="o">{...}</span>
+
+<span class="c1">// demo/src/main/java/com/yrunz/designpattern/monitor/input/MemoryMqInput.java
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MemoryMqInput</span> <span class="kd">implements</span> <span class="n">InputPlugin</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">topic</span><span class="o">;</span>
+    <span class="c1">// 消费者只依赖Consumable接口
+</span><span class="c1"></span>    <span class="kd">private</span> <span class="n">Consumable</span> <span class="n">consumer</span><span class="o">;</span>
+    <span class="o">...</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">Event</span> <span class="nf">input</span><span class="o">()</span> <span class="o">{</span>
+        <span class="n">Message</span> <span class="n">message</span> <span class="o">=</span> <span class="n">consumer</span><span class="o">.</span><span class="na">consume</span><span class="o">(</span><span class="n">topic</span><span class="o">);</span>
+        <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">header</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashMap</span><span class="o">&lt;&gt;();</span>
+        <span class="n">header</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;topic&#34;</span><span class="o">,</span> <span class="n">topic</span><span class="o">);</span>
+        <span class="k">return</span> <span class="n">Event</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="n">header</span><span class="o">,</span> <span class="n">message</span><span class="o">.</span><span class="na">payload</span><span class="o">());</span>
+    <span class="o">}</span>
+    <span class="o">...</span>
+<span class="o">}</span>
+
+<span class="c1">// demo/src/main/java/com/yrunz/designpattern/sidecar/AccessLogSidecar.java
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">AccessLogSidecar</span> <span class="kd">implements</span> <span class="n">Socket</span> <span class="o">{</span>
+    <span class="c1">// 生产者只依赖Producible接口
+</span><span class="c1"></span>    <span class="kd">private</span> <span class="kd">final</span> <span class="n">Producible</span> <span class="n">producer</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">topic</span>
+    <span class="o">...</span>
+        <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">send</span><span class="o">(</span><span class="n">Packet</span> <span class="n">packet</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">((</span><span class="n">packet</span><span class="o">.</span><span class="na">payload</span><span class="o">()</span> <span class="k">instanceof</span> <span class="n">HttpReq</span><span class="o">))</span> <span class="o">{</span>
+            <span class="n">String</span> <span class="n">log</span> <span class="o">=</span> <span class="n">String</span><span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="s">&#34;[%s][SEND_REQ]send http request to %s&#34;</span><span class="o">,</span>
+                    <span class="n">packet</span><span class="o">.</span><span class="na">src</span><span class="o">(),</span> <span class="n">packet</span><span class="o">.</span><span class="na">dest</span><span class="o">());</span>
+            <span class="n">Message</span> <span class="n">message</span> <span class="o">=</span> <span class="n">Message</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="n">topic</span><span class="o">,</span> <span class="n">log</span><span class="o">);</span>
+            <span class="n">producer</span><span class="o">.</span><span class="na">produce</span><span class="o">(</span><span class="n">message</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="o">...</span>
+    <span class="o">}</span>
+    <span class="o">...</span>
+<span class="o">}</span>
+</code></pre></div><p>接口隔离可以减少模块间耦合，提升系统稳定性，但是<strong>过度地细化和拆分接口，也会导致系统的接口数量的上涨，从而产生更大的维护成本</strong>。接口的粒度需要根据具体的业务场景来定，可以参考单一职责原则，<strong>将那些为同一类客户端程序提供服务的接口合并在一起</strong>。</p>
+<h2 id="dip依赖倒置原则">DIP：依赖倒置原则</h2>
+<p>《Clean Architecture》中介绍OCP时有提过：<strong>如果要模块A免于模块B变化的影响，那么就要模块B依赖于模块A</strong>。这句话貌似是矛盾的，模块A需要使用模块B的功能，怎么会让模块B反过来依赖模块A呢？这就是<strong>依赖倒置原则</strong>（The <strong>D</strong>ependency <strong>I</strong>nversion <strong>P</strong>rinciple，<strong>DIP</strong>）所要解答的问题。</p>
+<p>DIP的定义如下：</p>
+<blockquote>
+<ol>
+<li>High-level modules should not import anything from low-level modules. Both should depend on abstractions.</li>
+<li>Abstractions should not depend on details. Details (concrete implementations) should depend on abstractions.</li>
+</ol>
+</blockquote>
+<p>翻译过来，就是：</p>
+<blockquote>
+<p>1、高层模块不应该依赖低层模块，两者都应该依赖抽象</p>
+<p>2、抽象不应该依赖细节，细节应该依赖抽象</p>
+</blockquote>
+<p>在DIP的定义里，出现了<strong>高层模块</strong>、<strong>低层模块</strong>、<strong>抽象</strong>、<strong>细节</strong>等4个关键字，要弄清楚DIP的含义，理解者4个关键字至关重要。</p>
+<p><em><strong>（1）高层模块和低层模块</strong></em></p>
+<p>一般地，我们认为<strong>高层模块是包含了应用程序核心业务逻辑、策略的模块</strong>，是整个应用程序的灵魂所在；<strong>低层模块通常是一些基础设施</strong>，比如数据库、Web框架等，它们主要为了辅助高层模块完成业务而存在。</p>
+<p><em><strong>（2）抽象和细节</strong></em></p>
+<p>在前文“OCP：开闭原则”一节中，我们可以知道，<strong>抽象就是众多细节中的共同点</strong>，抽象就是不断忽略细节的出来的。</p>
+<p>现在再来看DIP的定义，对于第2点我们不难理解，从抽象的定义来看，抽象是不会依赖细节的，否则那就不是抽象了；而细节依赖抽象往往都是成立的。</p>
+<p><strong>理解DIP的关键在于第1点</strong>，按照我们正向的思维，高层模块要借助低层模块来完成业务，这必然会导致高层模块依赖低层模块。但是在软件领域里，我们可以把这个依赖关系<strong>倒置</strong>过来，这其中的关键就是<strong>抽象</strong>。我们可以忽略掉低层模块的细节，抽象出一个稳定的接口，然后让高层模块依赖该接口，同时让低层模块实现该接口，从而实现了依赖关系的倒置：</p>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1gzq8h7t8i4j21d20qa7a2.jpg" alt=""  /></p>
+<p>之所以要把高层模块和底层模块的依赖关系倒置过来，主要是因为作为核心的高层模块不应该受到低层模块变化的影响。<strong>高层模块的变化原因应当只能有一个，那就是来自软件用户的业务变更需求</strong>。</p>
+<p>下面，我们通过分布式应用系统demo来介绍DIP的实现。</p>
+<p>对于服务注册中心<code>Registry</code>来说，当有新的服务注册上来时，它需要把服务信息（如服务ID、服务类型等）保存下来，以便在后续的服务发现中能够返回给客户端。因此，<code>Registry</code>需要一个数据库来辅助它完成业务。刚好，我们的数据库模块实现了一个内存数据库<code>MemoryDb</code>，于是我们可以这么实现<code>Registry</code>：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">// 服务注册中心
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Registry</span> <span class="kd">implements</span> <span class="n">Service</span> <span class="o">{</span>
+    <span class="o">...</span>
+    <span class="c1">// 直接依赖MemoryDb
+</span><span class="c1"></span>    <span class="kd">private</span> <span class="kd">final</span> <span class="n">MemoryDb</span> <span class="n">db</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="n">SvcManagement</span> <span class="n">svcManagement</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="n">SvcDiscovery</span> <span class="n">svcDiscovery</span><span class="o">;</span>
+
+    <span class="kd">private</span> <span class="nf">Registry</span><span class="o">(...)</span> <span class="o">{</span>
+        <span class="o">...</span>
+        <span class="c1">// 初始化MemoryDb
+</span><span class="c1"></span>        <span class="k">this</span><span class="o">.</span><span class="na">db</span> <span class="o">=</span> <span class="n">MemoryDb</span><span class="o">.</span><span class="na">instance</span><span class="o">();</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">svcManagement</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SvcManagement</span><span class="o">(</span><span class="n">localIp</span><span class="o">,</span> <span class="k">this</span><span class="o">.</span><span class="na">db</span><span class="o">,</span> <span class="n">sidecarFactory</span><span class="o">);</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">svcDiscovery</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SvcDiscovery</span><span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">db</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="o">...</span>
+<span class="o">}</span>
+
+<span class="c1">// 内存数据库
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MemoryDb</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Table</span><span class="o">&lt;?,</span> <span class="o">?&gt;&gt;</span> <span class="n">tables</span><span class="o">;</span>
+    <span class="o">...</span>
+    <span class="c1">// 查询表记录
+</span><span class="c1"></span>    <span class="kd">public</span> <span class="o">&lt;</span><span class="n">PrimaryKey</span><span class="o">,</span> <span class="n">Record</span><span class="o">&gt;</span> <span class="n">Optional</span><span class="o">&lt;</span><span class="n">Record</span><span class="o">&gt;</span> <span class="nf">query</span><span class="o">(</span><span class="n">String</span> <span class="n">tableName</span><span class="o">,</span> <span class="n">PrimaryKey</span> <span class="n">primaryKey</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">Table</span><span class="o">&lt;</span><span class="n">PrimaryKey</span><span class="o">,</span> <span class="n">Record</span><span class="o">&gt;</span> <span class="n">table</span> <span class="o">=</span> <span class="o">(</span><span class="n">Table</span><span class="o">&lt;</span><span class="n">PrimaryKey</span><span class="o">,</span> <span class="n">Record</span><span class="o">&gt;)</span> <span class="n">tableOf</span><span class="o">(</span><span class="n">tableName</span><span class="o">);</span>
+        <span class="k">return</span> <span class="n">table</span><span class="o">.</span><span class="na">query</span><span class="o">(</span><span class="n">primaryKey</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="c1">// 插入表记录
+</span><span class="c1"></span>    <span class="kd">public</span> <span class="o">&lt;</span><span class="n">PrimaryKey</span><span class="o">,</span> <span class="n">Record</span><span class="o">&gt;</span> <span class="kt">void</span> <span class="nf">insert</span><span class="o">(</span><span class="n">String</span> <span class="n">tableName</span><span class="o">,</span> <span class="n">PrimaryKey</span> <span class="n">primaryKey</span><span class="o">,</span> <span class="n">Record</span> <span class="n">record</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">Table</span><span class="o">&lt;</span><span class="n">PrimaryKey</span><span class="o">,</span> <span class="n">Record</span><span class="o">&gt;</span> <span class="n">table</span> <span class="o">=</span> <span class="o">(</span><span class="n">Table</span><span class="o">&lt;</span><span class="n">PrimaryKey</span><span class="o">,</span> <span class="n">Record</span><span class="o">&gt;)</span> <span class="n">tableOf</span><span class="o">(</span><span class="n">tableName</span><span class="o">);</span>
+        <span class="n">table</span><span class="o">.</span><span class="na">insert</span><span class="o">(</span><span class="n">primaryKey</span><span class="o">,</span> <span class="n">record</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="c1">// 更新表记录
+</span><span class="c1"></span>    <span class="kd">public</span> <span class="o">&lt;</span><span class="n">PrimaryKey</span><span class="o">,</span> <span class="n">Record</span><span class="o">&gt;</span> <span class="kt">void</span> <span class="nf">update</span><span class="o">(</span><span class="n">String</span> <span class="n">tableName</span><span class="o">,</span> <span class="n">PrimaryKey</span> <span class="n">primaryKey</span><span class="o">,</span> <span class="n">Record</span> <span class="n">record</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">Table</span><span class="o">&lt;</span><span class="n">PrimaryKey</span><span class="o">,</span> <span class="n">Record</span><span class="o">&gt;</span> <span class="n">table</span> <span class="o">=</span> <span class="o">(</span><span class="n">Table</span><span class="o">&lt;</span><span class="n">PrimaryKey</span><span class="o">,</span> <span class="n">Record</span><span class="o">&gt;)</span> <span class="n">tableOf</span><span class="o">(</span><span class="n">tableName</span><span class="o">);</span>
+        <span class="n">table</span><span class="o">.</span><span class="na">update</span><span class="o">(</span><span class="n">primaryKey</span><span class="o">,</span> <span class="n">record</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="c1">// 删除表记录
+</span><span class="c1"></span>    <span class="kd">public</span> <span class="o">&lt;</span><span class="n">PrimaryKey</span><span class="o">&gt;</span> <span class="kt">void</span> <span class="nf">delete</span><span class="o">(</span><span class="n">String</span> <span class="n">tableName</span><span class="o">,</span> <span class="n">PrimaryKey</span> <span class="n">primaryKey</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">Table</span><span class="o">&lt;</span><span class="n">PrimaryKey</span><span class="o">,</span> <span class="o">?&gt;</span> <span class="n">table</span> <span class="o">=</span> <span class="o">(</span><span class="n">Table</span><span class="o">&lt;</span><span class="n">PrimaryKey</span><span class="o">,</span> <span class="o">?&gt;)</span> <span class="n">tableOf</span><span class="o">(</span><span class="n">tableName</span><span class="o">);</span>
+        <span class="n">table</span><span class="o">.</span><span class="na">delete</span><span class="o">(</span><span class="n">primaryKey</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="o">...</span>
+<span class="o">}</span>
+</code></pre></div><p>按照上面的设计，模块间的依赖关系是<code>Registry</code>依赖于<code>MemoryDb</code>，也即高层模块依赖于低层模块。这种依赖关系是脆弱的，如果哪天需要把存储服务信息的数据库从<code>MemoryDb</code>改成<code>DiskDb</code>，那么我们也得改<code>Registry</code>的代码：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">// 服务注册中心
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Registry</span> <span class="kd">implements</span> <span class="n">Service</span> <span class="o">{</span>
+    <span class="o">...</span>
+    <span class="c1">// 改成依赖DiskDb
+</span><span class="c1"></span>    <span class="kd">private</span> <span class="kd">final</span> <span class="n">DiskDb</span> <span class="n">db</span><span class="o">;</span>
+    <span class="o">...</span>
+    <span class="kd">private</span> <span class="nf">Registry</span><span class="o">(...)</span> <span class="o">{</span>
+        <span class="o">...</span>
+        <span class="c1">// 初始化DiskDb
+</span><span class="c1"></span>        <span class="k">this</span><span class="o">.</span><span class="na">db</span> <span class="o">=</span> <span class="n">DiskDb</span><span class="o">.</span><span class="na">instance</span><span class="o">();</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">svcManagement</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SvcManagement</span><span class="o">(</span><span class="n">localIp</span><span class="o">,</span> <span class="k">this</span><span class="o">.</span><span class="na">db</span><span class="o">,</span> <span class="n">sidecarFactory</span><span class="o">);</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">svcDiscovery</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SvcDiscovery</span><span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">db</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="o">...</span>
+<span class="o">}</span>
+</code></pre></div><p>更好的设计应该是把<code>Registry</code>和<code>MemoryDb</code>的依赖关系倒置过来，首先我们需要从细节<code>MemoryDb</code>抽象出一个稳定的接口<code>Db</code>：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">// demo/src/main/java/com/yrunz/designpattern/db/Db.java
+</span><span class="c1">// DB抽象接口
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">Db</span> <span class="o">{</span>
+    <span class="o">&lt;</span><span class="n">PrimaryKey</span><span class="o">,</span> <span class="n">Record</span><span class="o">&gt;</span> <span class="n">Optional</span><span class="o">&lt;</span><span class="n">Record</span><span class="o">&gt;</span> <span class="nf">query</span><span class="o">(</span><span class="n">String</span> <span class="n">tableName</span><span class="o">,</span> <span class="n">PrimaryKey</span> <span class="n">primaryKey</span><span class="o">);</span>
+    <span class="o">&lt;</span><span class="n">PrimaryKey</span><span class="o">,</span> <span class="n">Record</span><span class="o">&gt;</span> <span class="kt">void</span> <span class="nf">insert</span><span class="o">(</span><span class="n">String</span> <span class="n">tableName</span><span class="o">,</span> <span class="n">PrimaryKey</span> <span class="n">primaryKey</span><span class="o">,</span> <span class="n">Record</span> <span class="n">record</span><span class="o">);</span>
+    <span class="o">&lt;</span><span class="n">PrimaryKey</span><span class="o">,</span> <span class="n">Record</span><span class="o">&gt;</span> <span class="kt">void</span> <span class="nf">update</span><span class="o">(</span><span class="n">String</span> <span class="n">tableName</span><span class="o">,</span> <span class="n">PrimaryKey</span> <span class="n">primaryKey</span><span class="o">,</span> <span class="n">Record</span> <span class="n">record</span><span class="o">);</span>
+    <span class="o">&lt;</span><span class="n">PrimaryKey</span><span class="o">&gt;</span> <span class="kt">void</span> <span class="nf">delete</span><span class="o">(</span><span class="n">String</span> <span class="n">tableName</span><span class="o">,</span> <span class="n">PrimaryKey</span> <span class="n">primaryKey</span><span class="o">);</span>
+    <span class="o">...</span>
+<span class="o">}</span>
+</code></pre></div><p>接着，我们让<code>Registry</code>依赖<code>Db</code>接口，而<code>MemoryDb</code>实现<code>Db</code>接口，以此来完成依赖倒置：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">// demo/src/main/java/com/yrunz/designpattern/service/registry/Registry.java
+</span><span class="c1">// 服务注册中心
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Registry</span> <span class="kd">implements</span> <span class="n">Service</span> <span class="o">{</span>
+    <span class="o">...</span>
+    <span class="c1">// 只依赖于Db抽象接口
+</span><span class="c1"></span>    <span class="kd">private</span> <span class="kd">final</span> <span class="n">Db</span> <span class="n">db</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="n">SvcManagement</span> <span class="n">svcManagement</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="n">SvcDiscovery</span> <span class="n">svcDiscovery</span><span class="o">;</span>
+
+    <span class="kd">private</span> <span class="nf">Registry</span><span class="o">(...,</span> <span class="n">Db</span> <span class="n">db</span><span class="o">)</span> <span class="o">{</span>
+        <span class="o">...</span>
+        <span class="c1">// 依赖注入Db
+</span><span class="c1"></span>        <span class="k">this</span><span class="o">.</span><span class="na">db</span> <span class="o">=</span> <span class="n">db</span><span class="o">;</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">svcManagement</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SvcManagement</span><span class="o">(</span><span class="n">localIp</span><span class="o">,</span> <span class="k">this</span><span class="o">.</span><span class="na">db</span><span class="o">,</span> <span class="n">sidecarFactory</span><span class="o">);</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">svcDiscovery</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SvcDiscovery</span><span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">db</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="o">...</span>
+<span class="o">}</span>
+
+<span class="c1">// demo/src/main/java/com/yrunz/designpattern/db/MemoryDb.java
+</span><span class="c1">// 内存数据库，实现Db抽象接口
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MemoryDb</span> <span class="kd">implements</span> <span class="n">Db</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Table</span><span class="o">&lt;?,</span> <span class="o">?&gt;&gt;</span> <span class="n">tables</span><span class="o">;</span>
+    <span class="o">...</span>
+    <span class="c1">// 查询表记录
+</span><span class="c1"></span>    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="o">&lt;</span><span class="n">PrimaryKey</span><span class="o">,</span> <span class="n">Record</span><span class="o">&gt;</span> <span class="n">Optional</span><span class="o">&lt;</span><span class="n">Record</span><span class="o">&gt;</span> <span class="nf">query</span><span class="o">(</span><span class="n">String</span> <span class="n">tableName</span><span class="o">,</span> <span class="n">PrimaryKey</span> <span class="n">primaryKey</span><span class="o">)</span> <span class="o">{...}</span>
+    <span class="c1">// 插入表记录
+</span><span class="c1"></span>    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="o">&lt;</span><span class="n">PrimaryKey</span><span class="o">,</span> <span class="n">Record</span><span class="o">&gt;</span> <span class="kt">void</span> <span class="nf">insert</span><span class="o">(</span><span class="n">String</span> <span class="n">tableName</span><span class="o">,</span> <span class="n">PrimaryKey</span> <span class="n">primaryKey</span><span class="o">,</span> <span class="n">Record</span> <span class="n">record</span><span class="o">)</span> <span class="o">{...}</span>
+    <span class="c1">// 更新表记录
+</span><span class="c1"></span>    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="o">&lt;</span><span class="n">PrimaryKey</span><span class="o">,</span> <span class="n">Record</span><span class="o">&gt;</span> <span class="kt">void</span> <span class="nf">update</span><span class="o">(</span><span class="n">String</span> <span class="n">tableName</span><span class="o">,</span> <span class="n">PrimaryKey</span> <span class="n">primaryKey</span><span class="o">,</span> <span class="n">Record</span> <span class="n">record</span><span class="o">)</span> <span class="o">{...}</span>
+    <span class="c1">// 删除表记录
+</span><span class="c1"></span>    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="o">&lt;</span><span class="n">PrimaryKey</span><span class="o">&gt;</span> <span class="kt">void</span> <span class="nf">delete</span><span class="o">(</span><span class="n">String</span> <span class="n">tableName</span><span class="o">,</span> <span class="n">PrimaryKey</span> <span class="n">primaryKey</span><span class="o">)</span> <span class="o">{...}</span>
+    <span class="o">...</span>
+<span class="o">}</span>
+
+<span class="c1">// demo/src/main/java/com/yrunz/designpattern/Example.java
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Example</span> <span class="o">{</span>
+    <span class="c1">// 在main函数中完成依赖注入
+</span><span class="c1"></span>    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="o">...</span>
+        <span class="c1">// 将MemoryDb.instance()注入到Registry上
+</span><span class="c1"></span>        <span class="n">Registry</span> <span class="n">registry</span> <span class="o">=</span> <span class="n">Registry</span><span class="o">.</span><span class="na">of</span><span class="o">(...,</span> <span class="n">MemoryDb</span><span class="o">.</span><span class="na">instance</span><span class="o">());</span>
+        <span class="n">registry</span><span class="o">.</span><span class="na">run</span><span class="o">();</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div><p>当高层模块依赖抽象接口时，总得在某个时候，某个地方把实现细节（低层模块）<strong>注入</strong>到高层模块上。在上述例子中，我们选择在main函数上，在创建<code>Registry</code>对象时，把<code>MemoryDb</code>注入进去。</p>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1gzqmzskc5nj21fs0qgjxw.jpg" alt=""  /></p>
+<p>一般地，我们都会在main/启动函数上完成依赖注入，常见的注入的方式有以下几种：</p>
+<ul>
+<li>构造函数注入（<code>Registry</code>所使用的方法）</li>
+<li>setter方法注入</li>
+<li>提供依赖注入的接口，客户端直调用该接口即可</li>
+<li>通过框架进行注入，比如Spring框架中的注解注入能力</li>
+</ul>
+<p>另外，DIP不仅仅适用于模块/类/接口设计，在架构层面也同样适用，比如DDD的分层架构和Uncle Bob的整洁架构，都是运用了DIP：</p>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1gzqap4ml4fj21by0rqqac.jpg" alt=""  /></p>
+<p>当然，DIP并不是说高层模块是只能依赖抽象接口，它的本意应该是依赖<strong>稳定</strong>的接口/抽象类/具象类。如果一个具象类是稳定的，比如Java中的<code>String</code>，那么高层模块依赖它也没有问题；相反，如果一个抽象接口是不稳定的，经常变化，那么高层模块依赖该接口也是违反DIP的，这时候应该思考下接口是否抽象合理。</p>
+<h2 id="最后">最后</h2>
+<p>本文花了很长的篇幅讨论了23种设计模式背后的核心思想 —— <strong>SOLID原则</strong>，它能指导我们设计出高内聚、低耦合的软件系统。但是它毕竟只是<strong>原则</strong>，如何落地到实际的工程项目上，还是需要参考成功的实践经验。而这些实践经验正是接下来我们要探讨的<strong>设计模式</strong>。</p>
+<p>学习设计模式最好的方法就是<strong>实践</strong>，在《实践GoF的23种设计模式》后续的文章里，我们将以本文介绍的<a class="link" href="https://github.com/ruanrunxue/Practice-Design-Pattern--Java-Implementation"  target="_blank" rel="noopener"
+    >分布式应用系统demo</a>作为实践示范，介绍23种设计模式的程序结构、适用场景、实现方法、优缺点等，让大家对设计模式有个更深入的理解，能够<strong>用对</strong>、<strong>不滥用</strong>设计模式。</p>
+<blockquote>
+<p><strong>参考</strong></p>
+<ol>
+<li><a class="link" href="https://book.douban.com/subject/26915970/"  target="_blank" rel="noopener"
+    >Clean Architecture</a>, Robert C. Martin (“Uncle Bob”)</li>
+<li><a class="link" href="https://book.douban.com/subject/1140457/"  target="_blank" rel="noopener"
+    >敏捷软件开发：原则、模式与实践</a>, Robert C. Martin (“Uncle Bob”)</li>
+<li><a class="link" href="https://mp.weixin.qq.com/mp/appmsgalbum?__biz=Mzg3MjAyNjUyMQ==&amp;action=getalbum&amp;album_id=2280784755992526856#wechat_redirect"  target="_blank" rel="noopener"
+    >使用Go实现GoF的23种设计模式</a>, 元闰子</li>
+<li><a class="link" href="https://bbs.huaweicloud.com/blogs/detail/178619"  target="_blank" rel="noopener"
+    >SOLID原则精解之里氏替换原则LSP</a>, 人民副首席码仔</li>
+</ol>
+<p>更多文章请关注微信公众号：<strong>元闰子的邀请</strong></p>
+</blockquote>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">设计模式</a>
+        
+            <a href="/tags/%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">实践GoF的23种设计模式</a>
+        
+            <a href="/tags/java/">Java</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>CC BY 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%A4%87%E5%BF%98%E5%BD%95%E6%A8%A1%E5%BC%8F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">【Go实现】实践GoF的23种设计模式：备忘录模式</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%91%BD%E4%BB%A4%E6%A8%A1%E5%BC%8F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">【Go实现】实践GoF的23种设计模式：命令模式</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">【Go实现】实践GoF的23种设计模式：代理模式</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E8%AE%BF%E9%97%AE%E8%80%85%E6%A8%A1%E5%BC%8F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">【Go实现】实践GoF的23种设计模式：访问者模式</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E8%BF%AD%E4%BB%A3%E5%99%A8%E6%A8%A1%E5%BC%8F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">【Go实现】实践GoF的23种设计模式：迭代器模式</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+
+    
+        
+    <script src="https://utteranc.es/client.js" 
+        repo="ruanrunxue/yrunz-comments"
+        issue-term="pathname"
+        
+        label="yrunz"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
+
+<style>
+    .utterances {
+        max-width: unset;
+    }
+</style>
+
+<script>
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
+        }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+        setUtterancesTheme(document.body.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        setUtterancesTheme(e.detail)
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_SVG"></script>
+    <section class="copyright">
+        &copy;
+        
+            2019 -
+        
+        2023 元闰子的邀请
+    </section>
+
+    <section class="powerby">
+        
+
+        <a href="https://beian.miit.gov.cn/">粤ICP备19152659号 | </a>Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.3.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        <br />
+    </section>
+</footer>
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='代理模式为一个对象提供一种代理以控制对该对象的访问。'><title>【Go实现】实践GoF的23种设计模式：代理模式</title>
+
+<link rel='canonical' href='https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='【Go实现】实践GoF的23种设计模式：代理模式'>
+<meta property='og:description' content='代理模式为一个对象提供一种代理以控制对该对象的访问。'>
+<meta property='og:url' content='https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/'>
+<meta property='og:site_name' content='元闰子的邀请'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='设计模式' /><meta property='article:tag' content='实践GoF的23种设计模式' /><meta property='article:tag' content='Go' /><meta property='article:published_time' content='2022-10-16T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2022-10-16T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="【Go实现】实践GoF的23种设计模式：代理模式">
+<meta name="twitter:description" content="代理模式为一个对象提供一种代理以控制对该对象的访问。">
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "light");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/yrz_hudc7c8721ecce4b724df5002339c76402_174377_300x0_resize_box_2.png" width="300"
+                            height="306" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://www.yrunz.com">元闰子的邀请</a></h1>
+        <h2 class="site-description">阅读、写作、生活（个人技术分享）</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>首页</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>博客</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%85%B3%E4%BA%8E%E5%85%83%E9%97%B0%E5%AD%90/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24"
+     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+     stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z"/>
+    <circle cx="12" cy="7" r="4"/>
+    <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/>
+</svg>
+
+                
+                <span>关于元闰子</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%8F%8B%E6%83%85%E9%93%BE%E6%8E%A5/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-friends" width="44" height="44"
+     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+    <circle cx="7" cy="5" r="2"/>
+    <path d="M5 22v-5l-1 -1v-4a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4l-1 1v5"/>
+    <circle cx="17" cy="5" r="2"/>
+    <path d="M15 22v-4h-2l2 -6a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1l2 6h-2v4"/>
+</svg>
+
+                
+                <span>友情链接</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>暗色模式</span>
+            </li>
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://www.yrunz.com" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E5%86%99%E5%A5%BD%E4%BB%A3%E7%A0%81/" >
+                写好代码
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/">【Go实现】实践GoF的23种设计模式：代理模式</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        代理模式为一个对象提供一种代理以控制对该对象的访问。
+    </h3>
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Oct 16, 2022</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <blockquote>
+<p>上一篇：<a class="link" href="https://mp.weixin.qq.com/s/0qAIhbh4g_9Cde5tR2x24A"  target="_blank" rel="noopener"
+    >【Go实现】实践GoF的23种设计模式：访问者模式</a></p>
+<p><strong>简单的分布式应用系统</strong>（示例代码工程）：<a class="link" href="https://github.com/ruanrunxue/Practice-Design-Pattern--Go-Implementation"  target="_blank" rel="noopener"
+    >https://github.com/ruanrunxue/Practice-Design-Pattern&ndash;Go-Implementation</a></p>
+</blockquote>
+<h2 id="简介">简介</h2>
+<p>GoF 对代理模式（Proxy Pattern）的定义如下：</p>
+<blockquote>
+<p>Provide a surrogate or placeholder for another object to control access to it.</p>
+</blockquote>
+<p>也即，<strong>代理模式为一个对象提供一种代理以控制对该对象的访问</strong>。</p>
+<p>它是一个使用率非常高的设计模式，在现实生活中，也是很常见。比如，演唱会门票黄牛。假设你需要看一场演唱会，但官网上门票已经售罄，于是就当天到现场通过黄牛高价买了一张。在这个例子中，黄牛就相当于演唱会门票的代理，在正式渠道无法购买门票的情况下，你通过代理完成了该目标。</p>
+<p>从演唱会门票的例子我们也能看出，使用代理模式的关键在于，<strong>当 Client 不方便直接访问一个对象时，提供一个代理对象控制该对象的访问</strong>。Client 实际上访问的是代理对象，代理对象会将 Client 的请求转给本体对象去处理。</p>
+<h2 id="uml-结构">UML 结构</h2>
+<p><img src="https://tva1.sinaimg.cn/large/008vxvgGgy1h76dqvxvedj313i0l2gov.jpg" alt=""  /></p>
+<h2 id="场景上下文">场景上下文</h2>
+<p>在 <a class="link" href="https://github.com/ruanrunxue/Practice-Design-Pattern--Go-Implementation/blob/main/docs/go_ractice_design_pattern__solid_principle.md"  target="_blank" rel="noopener"
+    >简单的分布式应用系统</a>（示例代码工程）中，db 模块用来存储服务注册和监控信息，它是一个 key-value 数据库。为了提升访问数据库的性能，我们决定为它新增一层缓存：</p>
+<p><img src="https://tva1.sinaimg.cn/large/008vxvgGgy1h76tsz2onhj317k0osgpx.jpg" alt=""  /></p>
+<p>另外，我们希望客户端在使用数据库时，并不感知缓存的存在，这些，代理模式可以做到。</p>
+<h2 id="代码实现">代码实现</h2>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// demo/db/cache.go
+</span><span class="c1"></span><span class="kn">package</span> <span class="nx">db</span>
+
+<span class="c1">// 关键点1: 定义代理对象，实现被代理对象的接口
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">CacheProxy</span> <span class="kd">struct</span> <span class="p">{</span>
+  <span class="c1">// 关键点2: 组合被代理对象，这里应该是抽象接口，提升可扩展性
+</span><span class="c1"></span>    <span class="nx">db</span>    <span class="nx">Db</span>
+    <span class="nx">cache</span> <span class="nx">sync</span><span class="p">.</span><span class="nx">Map</span> <span class="c1">// key为tableName，value为sync.Map[key: primaryId, value: interface{}]
+</span><span class="c1"></span>    <span class="nx">hit</span>   <span class="kt">int</span>
+    <span class="nx">miss</span>  <span class="kt">int</span>
+<span class="p">}</span>
+
+<span class="c1">// 关键点3: 在具体接口实现上，嵌入代理本身的逻辑
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">c</span> <span class="o">*</span><span class="nx">CacheProxy</span><span class="p">)</span> <span class="nf">Query</span><span class="p">(</span><span class="nx">tableName</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">primaryKey</span> <span class="kd">interface</span><span class="p">{},</span> <span class="nx">result</span> <span class="kd">interface</span><span class="p">{})</span> <span class="kt">error</span> <span class="p">{</span>
+    <span class="nx">cache</span><span class="p">,</span> <span class="nx">ok</span> <span class="o">:=</span> <span class="nx">c</span><span class="p">.</span><span class="nx">cache</span><span class="p">.</span><span class="nf">Load</span><span class="p">(</span><span class="nx">tableName</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nx">ok</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="nx">record</span><span class="p">,</span> <span class="nx">ok</span> <span class="o">:=</span> <span class="nx">cache</span><span class="p">.(</span><span class="o">*</span><span class="nx">sync</span><span class="p">.</span><span class="nx">Map</span><span class="p">).</span><span class="nf">Load</span><span class="p">(</span><span class="nx">primaryKey</span><span class="p">);</span> <span class="nx">ok</span> <span class="p">{</span>
+            <span class="nx">c</span><span class="p">.</span><span class="nx">hit</span><span class="o">++</span>
+            <span class="nx">result</span> <span class="p">=</span> <span class="nx">record</span>
+            <span class="k">return</span> <span class="kc">nil</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="nx">c</span><span class="p">.</span><span class="nx">miss</span><span class="o">++</span>
+    <span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">c</span><span class="p">.</span><span class="nx">db</span><span class="p">.</span><span class="nf">Query</span><span class="p">(</span><span class="nx">tableName</span><span class="p">,</span> <span class="nx">primaryKey</span><span class="p">,</span> <span class="nx">result</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nx">err</span>
+    <span class="p">}</span>
+    <span class="nx">cache</span><span class="p">.(</span><span class="o">*</span><span class="nx">sync</span><span class="p">.</span><span class="nx">Map</span><span class="p">).</span><span class="nf">Store</span><span class="p">(</span><span class="nx">primaryKey</span><span class="p">,</span> <span class="nx">result</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">nil</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">c</span> <span class="o">*</span><span class="nx">CacheProxy</span><span class="p">)</span> <span class="nf">Insert</span><span class="p">(</span><span class="nx">tableName</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">primaryKey</span> <span class="kd">interface</span><span class="p">{},</span> <span class="nx">record</span> <span class="kd">interface</span><span class="p">{})</span> <span class="kt">error</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">c</span><span class="p">.</span><span class="nx">db</span><span class="p">.</span><span class="nf">Insert</span><span class="p">(</span><span class="nx">tableName</span><span class="p">,</span> <span class="nx">primaryKey</span><span class="p">,</span> <span class="nx">record</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nx">err</span>
+    <span class="p">}</span>
+    <span class="nx">cache</span><span class="p">,</span> <span class="nx">ok</span> <span class="o">:=</span> <span class="nx">c</span><span class="p">.</span><span class="nx">cache</span><span class="p">.</span><span class="nf">Load</span><span class="p">(</span><span class="nx">tableName</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">!</span><span class="nx">ok</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="kc">nil</span>
+    <span class="p">}</span>
+    <span class="nx">cache</span><span class="p">.(</span><span class="o">*</span><span class="nx">sync</span><span class="p">.</span><span class="nx">Map</span><span class="p">).</span><span class="nf">Store</span><span class="p">(</span><span class="nx">primaryKey</span><span class="p">,</span> <span class="nx">record</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">nil</span>
+<span class="p">}</span>
+
+<span class="o">...</span>
+
+<span class="c1">// 关键点4: 代理也可以有自己特有方法，提供一些辅助的功能
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">c</span> <span class="o">*</span><span class="nx">CacheProxy</span><span class="p">)</span> <span class="nf">Hit</span><span class="p">()</span> <span class="kt">int</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">c</span><span class="p">.</span><span class="nx">hit</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">c</span> <span class="o">*</span><span class="nx">CacheProxy</span><span class="p">)</span> <span class="nf">Miss</span><span class="p">()</span> <span class="kt">int</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">c</span><span class="p">.</span><span class="nx">miss</span>
+<span class="p">}</span>
+
+<span class="o">...</span>
+</code></pre></div><p>客户端这样使用：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// 客户端只看到抽象的Db接口
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">client</span><span class="p">(</span><span class="nx">db</span> <span class="nx">Db</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">table</span> <span class="o">:=</span> <span class="nf">NewTable</span><span class="p">(</span><span class="s">&#34;region&#34;</span><span class="p">).</span>
+      <span class="nf">WithType</span><span class="p">(</span><span class="nx">reflect</span><span class="p">.</span><span class="nf">TypeOf</span><span class="p">(</span><span class="nb">new</span><span class="p">(</span><span class="nx">testRegion</span><span class="p">))).</span>
+      <span class="nf">WithTableIteratorFactory</span><span class="p">(</span><span class="nf">NewRandomTableIteratorFactory</span><span class="p">())</span>
+    <span class="nx">db</span><span class="p">.</span><span class="nf">CreateTable</span><span class="p">(</span><span class="nx">table</span><span class="p">)</span>
+    <span class="nx">table</span><span class="p">.</span><span class="nf">Insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">testRegion</span><span class="p">{</span><span class="nx">Id</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="nx">Name</span><span class="p">:</span> <span class="s">&#34;region&#34;</span><span class="p">})</span>
+
+    <span class="nx">result</span> <span class="o">:=</span> <span class="nb">new</span><span class="p">(</span><span class="nx">testRegion</span><span class="p">)</span>
+    <span class="nx">db</span><span class="p">.</span><span class="nf">Query</span><span class="p">(</span><span class="s">&#34;region&#34;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nx">result</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// 关键点5: 在初始化阶段，完成缓存的实例化，并依赖注入到客户端
+</span><span class="c1"></span>    <span class="nx">cache</span> <span class="o">:=</span> <span class="nf">NewCacheProxy</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">memoryDb</span><span class="p">{</span><span class="nx">tables</span><span class="p">:</span> <span class="nx">sync</span><span class="p">.</span><span class="nx">Map</span><span class="p">{}})</span>
+    <span class="nf">client</span><span class="p">(</span><span class="nx">cache</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div><p>本例子中，Subject 是 <code>Db</code> 接口，Proxy 是 <code>CacheProxy</code> 对象，SubjectImpl 是 <code>memoryDb</code> 对象：</p>
+<p><img src="https://tva1.sinaimg.cn/large/008vxvgGgy1h76wlwt7v9j319g0pcjwd.jpg" alt=""  /></p>
+<p>总结实现代理模式的几个关键点：</p>
+<ol>
+<li>定义代理对象，实现被代理对象的接口。本例子中，前者是 <code>CacheProxy</code> 对象，后者是 <code>Db</code> 接口。</li>
+<li>代理对象组合被代理对象，这里组合的应该是抽象接口，让代理的可扩展性更高些。本例子中，<code>CacheProxy</code> 对象组合了 <code>Db</code> 接口。</li>
+<li>代理对象在具体接口实现上，嵌入代理本身的逻辑。本例子中，<code>CacheProxy</code> 在 <code>Query</code>、<code>Insert</code> 等方法中，加入了缓存 <code>sync.Map</code> 的读写逻辑。</li>
+<li>代理对象也可以有自己特有方法，提供一些辅助的功能。本例子中，<code>CacheProxy</code> 新增了<code>Hit</code>、<code>Miss</code> 等方法用于统计缓存的命中率。</li>
+<li>最后，在初始化阶段，完成代理的实例化，并<strong>依赖注入</strong>到客户端。这要求，<strong>客户端依赖抽象接口</strong>，而不是具体实现，否则代理就不透明了。</li>
+</ol>
+<h2 id="扩展">扩展</h2>
+<h3 id="go-标准库中的反向代理">Go 标准库中的反向代理</h3>
+<p>代理模式最典型的应用场景是<strong>远程代理</strong>，其中，<strong>反向代理</strong>又是最常用的一种。</p>
+<p>以 Web 应用为例，反向代理位于 Web 服务器前面，将客户端（例如 Web 浏览器）请求转发后端的 Web 服务器。<strong>反向代理通常用于帮助提高安全性、性能和可靠性</strong>，比如负载均衡、SSL 安全链接。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008vxvgGgy1h7767wcipfj31bi0p6q8i.jpg" alt=""  /></p>
+<p>Go 标准库的 net 包也提供了反向代理，<code>ReverseProxy</code>，位于 <code>net/http/httputil/reverseproxy.go</code> 下，实现 <code>http.Handler</code> 接口。<code>http.Handler</code> 提供了处理 Http 请求的能力，也即相当于 Http 服务器。那么，对应到 UML 结构图中，<code>http.Handler</code> 就是 Subject，<code>ReverseProxy</code> 就是 Proxy：</p>
+<p><img src="https://tva1.sinaimg.cn/large/008vxvgGgy1h776rhtwsij31ai0o8gqo.jpg" alt=""  /></p>
+<p>下面列出 <code>ReverseProxy</code> 的一些核心代码：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// net/http/httputil/reverseproxy.go
+</span><span class="c1"></span><span class="kn">package</span> <span class="nx">httputil</span>
+
+<span class="kd">type</span> <span class="nx">ReverseProxy</span> <span class="kd">struct</span> <span class="p">{</span>
+    <span class="c1">// 修改前端请求，然后通过Transport将修改后的请求转发给后端
+</span><span class="c1"></span>    <span class="nx">Director</span> <span class="kd">func</span><span class="p">(</span><span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span>
+    <span class="c1">// 可理解为Subject，通过Transport来调用被代理对象的ServeHTTP方法处理请求
+</span><span class="c1"></span>    <span class="nx">Transport</span> <span class="nx">http</span><span class="p">.</span><span class="nx">RoundTripper</span>
+    <span class="c1">// 修改后端响应，并将修改后的响应返回给前端
+</span><span class="c1"></span>    <span class="nx">ModifyResponse</span> <span class="kd">func</span><span class="p">(</span><span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Response</span><span class="p">)</span> <span class="kt">error</span>
+    <span class="c1">// 错误处理
+</span><span class="c1"></span>    <span class="nx">ErrorHandler</span> <span class="kd">func</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span>
+    <span class="o">...</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">ReverseProxy</span><span class="p">)</span> <span class="nf">ServeHTTP</span><span class="p">(</span><span class="nx">rw</span> <span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">req</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// 初始化transport
+</span><span class="c1"></span>    <span class="nx">transport</span> <span class="o">:=</span> <span class="nx">p</span><span class="p">.</span><span class="nx">Transport</span>
+    <span class="k">if</span> <span class="nx">transport</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
+        <span class="nx">transport</span> <span class="p">=</span> <span class="nx">http</span><span class="p">.</span><span class="nx">DefaultTransport</span>
+    <span class="p">}</span>
+    <span class="o">...</span>
+    <span class="c1">// 修改前端请求
+</span><span class="c1"></span>    <span class="nx">p</span><span class="p">.</span><span class="nf">Director</span><span class="p">(</span><span class="nx">outreq</span><span class="p">)</span>
+    <span class="o">...</span>
+    <span class="c1">// 将请求转发给后端
+</span><span class="c1"></span>    <span class="nx">res</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">transport</span><span class="p">.</span><span class="nf">RoundTrip</span><span class="p">(</span><span class="nx">outreq</span><span class="p">)</span>
+    <span class="o">...</span>
+    <span class="c1">// 修改后端响应
+</span><span class="c1"></span>    <span class="k">if</span> <span class="p">!</span><span class="nx">p</span><span class="p">.</span><span class="nf">modifyResponse</span><span class="p">(</span><span class="nx">rw</span><span class="p">,</span> <span class="nx">res</span><span class="p">,</span> <span class="nx">outreq</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span>
+    <span class="p">}</span>
+    <span class="o">...</span>
+    <span class="c1">// 给前端返回响应
+</span><span class="c1"></span>    <span class="nx">err</span> <span class="p">=</span> <span class="nx">p</span><span class="p">.</span><span class="nf">copyResponse</span><span class="p">(</span><span class="nx">rw</span><span class="p">,</span> <span class="nx">res</span><span class="p">.</span><span class="nx">Body</span><span class="p">,</span> <span class="nx">p</span><span class="p">.</span><span class="nf">flushInterval</span><span class="p">(</span><span class="nx">res</span><span class="p">))</span>
+    <span class="o">...</span>
+<span class="p">}</span>
+</code></pre></div><p><code>ReverseProxy</code> 就是典型的代理模式实现，其中，远程代理无法直接引用后端的对象引用，因此这里通过引入 <code>Transport</code> 来远程访问后端服务，可以将 <code>Transport</code>  理解为 Subject。</p>
+<p>可以这么使用 <code>ReverseProxy</code>：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">proxy</span><span class="p">(</span><span class="nx">c</span> <span class="o">*</span><span class="nx">gin</span><span class="p">.</span><span class="nx">Context</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">remote</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">url</span><span class="p">.</span><span class="nf">Parse</span><span class="p">(</span><span class="s">&#34;https://yrunz.com&#34;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+        <span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="nx">proxy</span> <span class="o">:=</span> <span class="nx">httputil</span><span class="p">.</span><span class="nf">NewSingleHostReverseProxy</span><span class="p">(</span><span class="nx">remote</span><span class="p">)</span>
+    <span class="nx">proxy</span><span class="p">.</span><span class="nx">Director</span> <span class="p">=</span> <span class="kd">func</span><span class="p">(</span><span class="nx">req</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">req</span><span class="p">.</span><span class="nx">Header</span> <span class="p">=</span> <span class="nx">c</span><span class="p">.</span><span class="nx">Request</span><span class="p">.</span><span class="nx">Header</span>
+        <span class="nx">req</span><span class="p">.</span><span class="nx">Host</span> <span class="p">=</span> <span class="nx">remote</span><span class="p">.</span><span class="nx">Host</span>
+        <span class="nx">req</span><span class="p">.</span><span class="nx">URL</span><span class="p">.</span><span class="nx">Scheme</span> <span class="p">=</span> <span class="nx">remote</span><span class="p">.</span><span class="nx">Scheme</span>
+        <span class="nx">req</span><span class="p">.</span><span class="nx">URL</span><span class="p">.</span><span class="nx">Host</span> <span class="p">=</span> <span class="nx">remote</span><span class="p">.</span><span class="nx">Host</span>
+        <span class="nx">req</span><span class="p">.</span><span class="nx">URL</span><span class="p">.</span><span class="nx">Path</span> <span class="p">=</span> <span class="nx">c</span><span class="p">.</span><span class="nf">Param</span><span class="p">(</span><span class="s">&#34;proxyPath&#34;</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="nx">proxy</span><span class="p">.</span><span class="nf">ServeHTTP</span><span class="p">(</span><span class="nx">c</span><span class="p">.</span><span class="nx">Writer</span><span class="p">,</span> <span class="nx">c</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">r</span> <span class="o">:=</span> <span class="nx">gin</span><span class="p">.</span><span class="nf">Default</span><span class="p">()</span>
+    <span class="nx">r</span><span class="p">.</span><span class="nf">Any</span><span class="p">(</span><span class="s">&#34;/*proxyPath&#34;</span><span class="p">,</span> <span class="nx">proxy</span><span class="p">)</span>
+    <span class="nx">r</span><span class="p">.</span><span class="nf">Run</span><span class="p">(</span><span class="s">&#34;:8080&#34;</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div><h2 id="典型应用场景">典型应用场景</h2>
+<ul>
+<li><strong>远程代理</strong>（remote proxy），远程代理适用于提供服务的对象处在远程的机器上，通过普通的函数调用无法使用服务，需要经过远程代理来完成。<strong>因为并不能直接访问本体对象，所有远程代理对象通常不会直接持有本体对象的引用，而是持有远端机器的地址，通过网络协议去访问本体对象</strong>。</li>
+<li><strong>虚拟代理</strong>（virtual proxy），在程序设计中常常会有一些重量级的服务对象，如果一直持有该对象实例会非常消耗系统资源，这时可以通过虚拟代理来对该对象进行延迟初始化。</li>
+<li><strong>保护代理</strong>（protection proxy），保护代理用于控制对本体对象的访问，常用于需要给 Client 的访问加上权限验证的场景。</li>
+<li><strong>缓存代理</strong>（cache proxy），缓存代理主要在 Client 与本体对象之间加上一层缓存，用于加速本体对象的访问，常见于连接数据库的场景。</li>
+<li><strong>智能引用</strong>（smart reference），智能引用为本体对象的访问提供了额外的动作，常见的实现为 C++ 中的智能指针，为对象的访问提供了计数功能，当访问对象的计数为 0 时销毁该对象。</li>
+</ul>
+<h2 id="优缺点">优缺点</h2>
+<h3 id="优点">优点</h3>
+<ul>
+<li>可以在客户端不感知的情况下，控制访问对象，比如远程访问、增加缓存、安全等。</li>
+<li>符合 <a class="link" href="https://mp.weixin.qq.com/s/s3aD4mK2Aw4v99tbCIe9HA"  target="_blank" rel="noopener"
+    >开闭原则</a>，可以在不修改客户端和被代理对象的前提下，增加新的代理；也可以在不修改客户端和代理的前提下，更换被代理对象。</li>
+</ul>
+<h3 id="缺点">缺点</h3>
+<ul>
+<li>作为远程代理时，因为多了一次转发，会影响请求的时延。</li>
+</ul>
+<h2 id="与其他模式的关联">与其他模式的关联</h2>
+<p>从结构上看，<a class="link" href="https://mp.weixin.qq.com/s/NT6_KOY_hGkA-y2b4fw45A"  target="_blank" rel="noopener"
+    >装饰模式</a> 和 代理模式 具有很高的相似性，但是两种所强调的点不一样。<strong>前者强调的是为本体对象添加新的功能，后者强调的是对本体对象的访问控制</strong>。</p>
+<h3 id="文章配图">文章配图</h3>
+<p>可以在 <a class="link" href="https://mp.weixin.qq.com/s/-sYW-oa6KzTR9LNdMWCSnQ"  target="_blank" rel="noopener"
+    >用Keynote画出手绘风格的配图</a> 中找到文章的绘图方法。</p>
+<blockquote>
+<h4 id="参考">参考</h4>
+<p>[1] <a class="link" href="https://mp.weixin.qq.com/s/s3aD4mK2Aw4v99tbCIe9HA"  target="_blank" rel="noopener"
+    >【Go实现】实践GoF的23种设计模式：SOLID原则</a>, 元闰子</p>
+<p>[2] <a class="link" href="https://mp.weixin.qq.com/s/NT6_KOY_hGkA-y2b4fw45A"  target="_blank" rel="noopener"
+    >【Go实现】实践GoF的23种设计模式：装饰模式</a>, 元闰子</p>
+<p>[3] <a class="link" href="https://learning.oreilly.com/library/view/design-patterns-elements/0201633612/ch04.html"  target="_blank" rel="noopener"
+    >Design Patterns, Chapter 4. Structural Patterns</a>, GoF</p>
+<p>[4] <a class="link" href="https://refactoringguru.cn/design-patterns/proxy"  target="_blank" rel="noopener"
+    >代理模式</a>, refactoringguru.cn</p>
+<p>[5] <a class="link" href="https://www.cloudflare.com/zh-cn/learning/cdn/glossary/reverse-proxy/"  target="_blank" rel="noopener"
+    >什么是反向代理？</a>, cloudflare</p>
+<p>更多文章请关注微信公众号：<strong>元闰子的邀请</strong></p>
+</blockquote>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">设计模式</a>
+        
+            <a href="/tags/%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">实践GoF的23种设计模式</a>
+        
+            <a href="/tags/go/">Go</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>CC BY 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%A4%87%E5%BF%98%E5%BD%95%E6%A8%A1%E5%BC%8F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">【Go实现】实践GoF的23种设计模式：备忘录模式</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%91%BD%E4%BB%A4%E6%A8%A1%E5%BC%8F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">【Go实现】实践GoF的23种设计模式：命令模式</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E8%AE%BF%E9%97%AE%E8%80%85%E6%A8%A1%E5%BC%8F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">【Go实现】实践GoF的23种设计模式：访问者模式</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E8%BF%AD%E4%BB%A3%E5%99%A8%E6%A8%A1%E5%BC%8F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">【Go实现】实践GoF的23种设计模式：迭代器模式</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">【Go实现】实践GoF的23种设计模式：观察者模式</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+
+    
+        
+    <script src="https://utteranc.es/client.js" 
+        repo="ruanrunxue/yrunz-comments"
+        issue-term="pathname"
+        
+        label="yrunz"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
+
+<style>
+    .utterances {
+        max-width: unset;
+    }
+</style>
+
+<script>
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
+        }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+        setUtterancesTheme(document.body.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        setUtterancesTheme(e.detail)
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_SVG"></script>
+    <section class="copyright">
+        &copy;
+        
+            2019 -
+        
+        2023 元闰子的邀请
+    </section>
+
+    <section class="powerby">
+        
+
+        <a href="https://beian.miit.gov.cn/">粤ICP备19152659号 | </a>Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.3.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        <br />
+    </section>
+</footer>
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

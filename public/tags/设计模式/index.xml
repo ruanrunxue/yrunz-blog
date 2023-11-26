@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>设计模式 on 元闰子的邀请</title>
+    <link>https://www.yrunz.com/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/</link>
+    <description>Recent content in 设计模式 on 元闰子的邀请</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 25 Nov 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://www.yrunz.com/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>【Go实现】实践GoF的23种设计模式：备忘录模式</title>
+      <link>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%A4%87%E5%BF%98%E5%BD%95%E6%A8%A1%E5%BC%8F/</link>
+      <pubDate>Sat, 25 Nov 2023 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%A4%87%E5%BF%98%E5%BD%95%E6%A8%A1%E5%BC%8F/</guid>
+      <description>上一篇：【Go实现】实践GoF的23种设计模式：命令模式
+简单的分布式应用系统（示例代码工程）：https://github.com/ruanrunxue/Practice-Design-Pattern&amp;ndash;Go-Implementation
+ 简介 相对于代理模式、工厂模式等设计模式，备忘录模式（Memento）在我们日常开发中出镜率并不高，除了应用场景的限制之外，另一个原因，可能是备忘录模式 UML 结构的几个概念比较晦涩难懂，难以映射到代码实现中。比如 Originator（原发器）和 Caretaker（负责人），从字面上很难看出它们在模式中的职责。
+但从定义来看，备忘录模式又是简单易懂的，GoF 对备忘录模式的定义如下：
+ Without violating encapsulation, capture and externalize an object’s internal state so that the object can be restored to this state later.
+ 也即，在不破坏封装的前提下，捕获一个对象的内部状态，并在该对象之外进行保存，以便在未来将对象恢复到原先保存的状态。
+从定义上看，备忘录模式有几个关键点：封装、保存、恢复。
+对状态的封装，主要是为了未来状态修改或扩展时，不会引发霰弹式修改；保存和恢复则是备忘录模式的主要特点，能够对当前对象的状态进行保存，并能够在未来某一时刻恢复出来。
+现在，在回过头来看备忘录模式的 3 个角色就比较好理解了：
+ Memento（备忘录）：是对状态的封装，可以是 struct ，也可以是 interface。 Originator（原发器）：备忘录的创建者，备忘录里存储的就是 Originator 的状态。 Caretaker（负责人）：负责对备忘录的保存和恢复，无须知道备忘录中的实现细节。  UML 结构 场景上下文 在前文 【Go实现】实践GoF的23种设计模式：命令模式 我们提到，在 简单的分布式应用系统（示例代码工程）中，db 模块用来存储服务注册信息和系统监控数据。其中，服务注册信息拆成了 profiles 和 regions 两个表，在服务发现的业务逻辑中，通常需要同时操作两个表，为了避免两个表数据不一致的问题，db 模块需要提供事务功能:
+事务的核心功能之一是，当其中某个语句执行失败时，之前已执行成功的语句能够回滚，前文我们已经介绍如何基于 命令模式 搭建事务框架，下面我们将重点介绍，如何基于备忘录模式实现失败回滚的功能。
+代码实现 // demo/db/transaction.go package db // Command 执行数据库操作的命令接口，同时也是备忘录接口 // 关键点1：定义Memento接口，其中Exec方法相当于UML图中的SetState方法，调用后会将状态保存至Db中 type Command interface { Exec() error // Exec 执行insert、update、delete命令  Undo() // Undo 回滚命令  setDb(db Db) // SetDb 设置关联的数据库 } // 关键点2：定义Originator，在本例子中，状态都是存储在Db对象中 type Db interface {.</description>
+    </item>
+    
+    <item>
+      <title>【Go实现】实践GoF的23种设计模式：命令模式</title>
+      <link>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%91%BD%E4%BB%A4%E6%A8%A1%E5%BC%8F/</link>
+      <pubDate>Thu, 22 Dec 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%91%BD%E4%BB%A4%E6%A8%A1%E5%BC%8F/</guid>
+      <description>上一篇：【Go实现】实践GoF的23种设计模式：代理模式
+简单的分布式应用系统（示例代码工程）：https://github.com/ruanrunxue/Practice-Design-Pattern&amp;ndash;Go-Implementation
+ 简介 现在的软件系统往往是分层设计。在业务层执行一次请求时，我们很清楚请求的上下文，包括，请求是做什么的、参数有哪些、请求的接收者是谁、返回值是怎样的。相反，基础设施层并不需要完全清楚业务上下文，它只需知道请求的接收者是谁即可，否则就耦合过深了。
+因此，我们需要对请求进行抽象，将上下文信息封装到请求对象里，这其实就是命令模式，而该请求对象就是 Command。
+GoF 对命令模式（Command Pattern）的定义如下：
+ Encapsulate a request as an object, thereby letting you parameterize clients with different requests, queue or log requests, and support undoable operations.
+ 也即，命令模式可将请求转换为一个包含与请求相关的所有信息的对象， 它能将请求参数化、延迟执行、实现 Undo / Redo 操作等。
+上述的请求是广义上的概念，可以是网络请求，也可以是函数调用，更通用地，指一个动作。
+命令模式主要包含 3 种角色：
+ Command，命令，是对请求的抽象。具体的命令实现时，通常会引用 Receiver。 Invoker，请求的发起发起方，它并不清楚 Command 和 Receiver 的实现细节，只管调用命令的接口。 Receiver，请求的接收方。  命令模式，一方面，能够使得 Invoker 与 Receiver 消除彼此之间的耦合，让对象之间的调用关系更加灵活；另一方面，能够很方便地实现延迟执行、Undo、Redo 等操作，因此被广泛应用在软件设计中。
+UML 结构 场景上下文 在 简单的分布式应用系统（示例代码工程）中，db 模块用来存储服务注册信息和系统监控数据。其中，服务注册信息拆成了 profiles 和 regions 两个表，在服务发现的业务逻辑中，通常需要同时操作两个表，为了避免两个表数据不一致的问题，db 模块需要提供事务功能:</description>
+    </item>
+    
+    <item>
+      <title>【Go实现】实践GoF的23种设计模式：代理模式</title>
+      <link>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/</link>
+      <pubDate>Sun, 16 Oct 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/</guid>
+      <description>上一篇：【Go实现】实践GoF的23种设计模式：访问者模式
+简单的分布式应用系统（示例代码工程）：https://github.com/ruanrunxue/Practice-Design-Pattern&amp;ndash;Go-Implementation
+ 简介 GoF 对代理模式（Proxy Pattern）的定义如下：
+ Provide a surrogate or placeholder for another object to control access to it.
+ 也即，代理模式为一个对象提供一种代理以控制对该对象的访问。
+它是一个使用率非常高的设计模式，在现实生活中，也是很常见。比如，演唱会门票黄牛。假设你需要看一场演唱会，但官网上门票已经售罄，于是就当天到现场通过黄牛高价买了一张。在这个例子中，黄牛就相当于演唱会门票的代理，在正式渠道无法购买门票的情况下，你通过代理完成了该目标。
+从演唱会门票的例子我们也能看出，使用代理模式的关键在于，当 Client 不方便直接访问一个对象时，提供一个代理对象控制该对象的访问。Client 实际上访问的是代理对象，代理对象会将 Client 的请求转给本体对象去处理。
+UML 结构 场景上下文 在 简单的分布式应用系统（示例代码工程）中，db 模块用来存储服务注册和监控信息，它是一个 key-value 数据库。为了提升访问数据库的性能，我们决定为它新增一层缓存：
+另外，我们希望客户端在使用数据库时，并不感知缓存的存在，这些，代理模式可以做到。
+代码实现 // demo/db/cache.go package db // 关键点1: 定义代理对象，实现被代理对象的接口 type CacheProxy struct { // 关键点2: 组合被代理对象，这里应该是抽象接口，提升可扩展性  db Db cache sync.Map // key为tableName，value为sync.Map[key: primaryId, value: interface{}]  hit int miss int } // 关键点3: 在具体接口实现上，嵌入代理本身的逻辑 func (c *CacheProxy) Query(tableName string, primaryKey interface{}, result interface{}) error { cache, ok := c.</description>
+    </item>
+    
+    <item>
+      <title>【Go实现】实践GoF的23种设计模式：访问者模式</title>
+      <link>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E8%AE%BF%E9%97%AE%E8%80%85%E6%A8%A1%E5%BC%8F/</link>
+      <pubDate>Thu, 06 Oct 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E8%AE%BF%E9%97%AE%E8%80%85%E6%A8%A1%E5%BC%8F/</guid>
+      <description>上一篇：【Go实现】实践GoF的23种设计模式：迭代器模式
+简单的分布式应用系统（示例代码工程）：https://github.com/ruanrunxue/Practice-Design-Pattern&amp;ndash;Go-Implementation
+ 简介 GoF 对访问者模式（Visitor Pattern）的定义如下：
+ Represent an operation to be performed on the elements of an object structure. Visitor lets you define a new operation without changing the classes of the elements on which it operates.
+ 访问者模式的目的是，解耦数据结构和算法，使得系统能够在不改变现有代码结构的基础上，为对象新增一种新的操作。
+上一篇介绍的 迭代器模式 也做到了数据结构和算法的解耦，不过它专注于遍历算法。访问者模式，则在遍历的同时，将操作作用到数据结构上，一个常见的应用场景是语法树的解析。
+UML 结构 场景上下文 在 简单的分布式应用系统（示例代码工程）中，db 模块用来存储服务注册和监控信息，它是一个 key-value 数据库。另外，我们给 db 模块抽象出 Table 对象：
+// demo/db/table.go package db // Table 数据表定义 type Table struct { name string metadata map[string]int // key为属性名，value属性值的索引, 对应到record上存储  records map[interface{}]record iteratorFactory TableIteratorFactory // 默认使用随机迭代器 } 目的是提供类似于关系型数据库的按列查询能力，比如：</description>
+    </item>
+    
+    <item>
+      <title>【Go实现】实践GoF的23种设计模式：迭代器模式</title>
+      <link>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E8%BF%AD%E4%BB%A3%E5%99%A8%E6%A8%A1%E5%BC%8F/</link>
+      <pubDate>Sat, 30 Jul 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E8%BF%AD%E4%BB%A3%E5%99%A8%E6%A8%A1%E5%BC%8F/</guid>
+      <description>上一篇：【Go实现】实践GoF的23种设计模式：观察者模式
+简单的分布式应用系统（示例代码工程）：https://github.com/ruanrunxue/Practice-Design-Pattern&amp;ndash;Go-Implementation
+ 简介 有时会遇到这样的需求，开发一个模块，用于保存对象；不能用简单的数组、列表，得是红黑树、跳表等较为复杂的数据结构；有时为了提升存储效率或持久化，还得将对象序列化；但必须给客户端提供一个易用的 API，允许方便地、多种方式地遍历对象，丝毫不察觉背后的数据结构有多复杂。
+对这样的 API，很适合使用 迭代器模式（Iterator Pattern）实现。
+GoF 对 迭代器模式 的定义如下：
+ Provide a way to access the elements of an aggregate object sequentially without exposing its underlying representation.
+ 从描述可知，迭代器模式主要用在访问对象集合的场景，能够向客户端隐藏集合的实现细节。
+Java 的 Collection 家族、C++ 的 STL 标准库，都是使用迭代器模式的典范，它们为客户端提供了简单易用的 API，并且能够根据业务需要实现自己的迭代器，具备很好的可扩展性。
+UML 结构 场景上下文 在 简单的分布式应用系统（示例代码工程）中，db 模块用来存储服务注册和监控信息，它的主要接口如下：
+// demo/db/db.go package db // Db 数据库抽象接口 type Db interface { CreateTable(t *Table) error CreateTableIfNotExist(t *Table) error DeleteTable(tableName string) error Query(tableName string, primaryKey interface{}, result interface{}) error Insert(tableName string, primaryKey interface{}, record interface{}) error Update(tableName string, primaryKey interface{}, record interface{}) error Delete(tableName string, primaryKey interface{}) error .</description>
+    </item>
+    
+    <item>
+      <title>【Go实现】实践GoF的23种设计模式：观察者模式</title>
+      <link>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F/</link>
+      <pubDate>Sat, 23 Jul 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F/</guid>
+      <description>上一篇：【Go实现】实践GoF的23种设计模式：装饰者模式
+简单的分布式应用系统（示例代码工程）：https://github.com/ruanrunxue/Practice-Design-Pattern&amp;ndash;Go-Implementation
+ 简介 现在有 2 个服务，Service A 和 Service B，通过 REST 接口通信；Service A 在某个业务场景下调用 Service B 的接口完成一个计算密集型任务，假设接口为 http://service_b/api/v1/domain；该任务运行时间很长，但 Service A 不想一直阻塞在接口调用上。为了满足 Service A 的要求，通常有 2 种方案：
+  Service A 隔一段时间调用一次 Service B 的接口，如果任务还没完成，就返回 HTTP Status 102 Processing；如果已完成，则返回 HTTP Status 200 Ok。
+  Service A 在请求 Service B 接口时带上 callback uri，比如 http://service_b/api/v1/domain?callbackuri=http://service_a/api/v1/domain，Service B 收到请求后立即返回 HTTP Status 200 Ok，等任务完成后再调用 Service A callback uri 进行通知。
+  方案 1 须要轮询接口，轮询太频繁会导致资源浪费，间隔太长又会导致任务完成后 Service A 无法及时感知。显然，方案 2 更加高效，因此也被广泛应用。</description>
+    </item>
+    
+    <item>
+      <title>【Go实现】实践GoF的23种设计模式：装饰者模式</title>
+      <link>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E8%A3%85%E9%A5%B0%E8%80%85%E6%A8%A1%E5%BC%8F/</link>
+      <pubDate>Tue, 28 Jun 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E8%A3%85%E9%A5%B0%E8%80%85%E6%A8%A1%E5%BC%8F/</guid>
+      <description>上一篇：【Go实现】实践GoF的23种设计模式：原型模式
+简单的分布式应用系统（示例代码工程）：https://github.com/ruanrunxue/Practice-Design-Pattern&amp;ndash;Go-Implementation
+ 简介 我们经常会遇到“给现有对象/模块新增功能”的场景，比如 http router 的开发场景下，除了最基础的路由功能之外，我们常常还会加上如日志、鉴权、流控等 middleware。如果你查看框架的源码，就会发现 middleware 功能的实现用的就是装饰者模式（Decorator Pattern）。
+GoF 给装饰者模式的定义如下：
+ Decorators provide a flexible alternative to subclassing for extending functionality. Attach additional responsibilities to an object dynamically.
+ 简单来说，装饰者模式通过组合的方式，提供了能够动态地给对象/模块扩展新功能的能力。理论上，只要没有限制，它可以一直把功能叠加下去，具有很高的灵活性。
+ 如果写过 Java，那么一定对 I/O Stream 体系不陌生，它是装饰者模式的经典用法，客户端程序可以动态地为原始的输入输出流添加功能，比如按字符串输入输出，加入缓冲等，使得整个 I/O Stream 体系具有很高的可扩展性和灵活性。
+ UML 结构 场景上下文 在简单的分布式应用系统（示例代码工程）中，我们设计了 Sidecar 边车模块，它的用处主要是为了 1）方便扩展 network.Socket 的功能，如增加日志、流控等非业务功能；2）让这些附加功能对业务程序隐藏起来，也即业务程序只须关心看到 network.Socket 接口即可。
+代码实现 Sidecar 的这个功能场景，很适合使用装饰者模式来实现，代码如下：
+// demo/network/socket.go package network // 关键点1: 定义被装饰的抽象接口 // Socket 网络通信Socket接口 type Socket interface { // Listen 在endpoint指向地址上起监听  Listen(endpoint Endpoint) error // Close 关闭监听  Close(endpoint Endpoint) // Send 发送网络报文  Send(packet *Packet) error // Receive 接收网络报文  Receive(packet *Packet) // AddListener 增加网络报文监听者  AddListener(listener SocketListener) } // 关键点2: 提供一个默认的基础实现 type socketImpl struct { listener SocketListener } func DefaultSocket() *socketImpl { return &amp;amp;socketImpl{} } func (s *socketImpl) Listen(endpoint Endpoint) error { return Instance().</description>
+    </item>
+    
+    <item>
+      <title>【Go实现】实践GoF的23种设计模式：原型模式</title>
+      <link>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%8E%9F%E5%9E%8B%E6%A8%A1%E5%BC%8F/</link>
+      <pubDate>Thu, 02 Jun 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%8E%9F%E5%9E%8B%E6%A8%A1%E5%BC%8F/</guid>
+      <description>上一篇：【Go实现】实践GoF的23种设计模式：抽象工厂模式
+简单的分布式应用系统（示例代码工程）：https://github.com/ruanrunxue/Practice-Design-Pattern&amp;ndash;Go-Implementation
+ 简介 原型模式（Prototype Pattern）主要解决对象复制的问题，它的核心就是 Clone() 方法，返回原型对象的复制品。
+最简单直接的对象复制方式是这样的：重新实例化一个该对象的实例，然后遍历原始对象的所有成员变量， 并将成员变量值复制到新实例中。但这种方式的缺点也很明显：
+ 客户端程序必须清楚对象的实现细节。暴露细节往往不是件好事，它会导致代码耦合过深。 对象可能存在一些私有属性，客户端程序无法访问它们，也就无法复制。 很难保证所有的客户端程序都能完整不漏地把所有成员属性复制完。  更好的方法是使用原型模式，将复制逻辑委托给对象本身，这样，上述两个问题也都解决了。
+UML 结构 场景上下文 在简单的分布式应用系统（示例代码工程）中，我们设计了一个服务消息中介（Service Mediator）服务，可以把它看成是一个消息路由器，负责服务发现和消息转发：
+消息转发也就意味着它必须将上游服务的请求原封不动地转发给下游服务，这是一个典型的对象复制场景。不过，在我们的实现里，服务消息中介会先修改上行请求的 URI，之后再转发给下游服务。因为上行请求 URI 中携带了下游服务的类型信息，用来做服务发现，在转发给下游服务时必须剔除。
+比如，订单服务（order service）要发请求给库存服务（stock service），那么：
+ 订单服务先往服务消息中介发出 HTTP 请求，其中 URI 为 /stock-service/api/v1/stock。 服务消息中介收到上行请求后，会从 URI 中提取出下游服务类型 stock-service ，通过服务注册中心发现库存服务的 Endpoint。 随后，服务消息中介将修改后的请求转发给库存服务，其中 URI 为 /api/v1/stock。  代码实现 如果按照简单直接的对象复制方式，实现是这样的：
+// 服务消息中介 type ServiceMediator struct { registryEndpoint network.Endpoint localIp string server *http.Server sidecarFactory sidecar.Factory } // Forward 转发请求，请求URL为 /{serviceType}+ServiceUri 的形式，如/serviceA/api/v1/task func (s *ServiceMediator) Forward(req *http.</description>
+    </item>
+    
+    <item>
+      <title>【Go实现】实践GoF的23种设计模式：抽象工厂模式</title>
+      <link>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/</link>
+      <pubDate>Sun, 29 May 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/</guid>
+      <description>上一篇：【Go实现】实践GoF的23种设计模式：工厂方法模式
+简单的分布式应用系统（示例代码工程）：https://github.com/ruanrunxue/Practice-Design-Pattern&amp;ndash;Go-Implementation
+ 简述 上一篇我们介绍了工厂方法模式，本文，我们继续介绍它的兄弟，抽象工厂模式（Abstract Factory Pattern）。
+在工厂方法模式中，我们通过一个工厂方法接口来创建产品，而创建哪类产品，由具体的工厂对象来决定。抽象工厂模式和工厂方法模式的功能很类似，只是把“产品”，变成了“产品族”。产品族就意味着这是一系列有关联的、一起使用的对象。我们当然也可以为产品族中的每个产品定义一个工厂方法接口，但这显得有些冗余，因为一起使用通常也意味着同时创建，所以把它们放到同一个抽象工厂来创建会更合适。
+UML 结构 场景上下文 在简单的分布式应用系统（示例代码工程）中，我们有一个 Monitor 监控系统模块，该模块可以看成是一个简单的 ETL 系统，负责对监控数据的采集、处理、输出。整个模块被设计为插件化风格的架构，Pipeline是数据处理的流水线，其中包含了 Input、Filter 和 Output 三类插件，Input 负责从各类数据源中获取监控数据，Filter 负责数据处理，Output 负责将处理后的数据输出。更详细的设计思想我们在桥接模式一篇再做介绍，本文主要聚焦如何使用抽象工厂模式来解决各类插件的配置加载问题。
+作为 ETL 系统，Monitor 模块应该具备灵活的扩展能力来应对不同的监控数据类型，因此，我们希望能够通过配置文件来定义 Pipeline 的行为。比如，下面就是一个 yaml 格式的配置内容：
+name:pipeline_0# pipeline名称type:simple# pipeline类型input:# input插件定义name:input_0# input插件名称type:memory_mq# input插件类型，这里使用的是MemoryMQ作为输入context:# input插件的配置上下文topic:access_log.topic# 这里配置的是订阅的MemoryMQ主题filters:# filter插件链定义，多个filter插件组成一个filters插件链- name:filter_0# filter插件名称type:extract_log# filter插件类型- name:filter_1type:add_timestampoutput:# output插件定义name:output_0# output插件名称type:memory_db# output插件类型，这里使用的是MemoryDB作为输出context:# output插件上下文tableName:monitor_record_0# 这里配置的是MemoryDB表名另外，我们也希望 Monitor 模块支持多种类型的配置文件格式，比如，json 配置内容应该也支持：
+{ &amp;#34;name&amp;#34;: &amp;#34;pipeline_0&amp;#34;, &amp;#34;type&amp;#34;: &amp;#34;simple&amp;#34;, &amp;#34;input&amp;#34;: { &amp;#34;name&amp;#34;: &amp;#34;input_0&amp;#34;, &amp;#34;type&amp;#34;: &amp;#34;memory_mq&amp;#34;, &amp;#34;context&amp;#34;: { &amp;#34;topic&amp;#34;: &amp;#34;access_log.topic&amp;#34; } }, &amp;#34;filters&amp;#34;: [ { &amp;#34;name&amp;#34;: &amp;#34;filter_0&amp;#34;, &amp;#34;type&amp;#34;: &amp;#34;extract_log&amp;#34; }, { &amp;#34;name&amp;#34;: &amp;#34;filter_1&amp;#34;, &amp;#34;type&amp;#34;: &amp;#34;add_timestamp&amp;#34; } ], &amp;#34;output&amp;#34;: { &amp;#34;name&amp;#34;: &amp;#34;output_0&amp;#34;, &amp;#34;type&amp;#34;: &amp;#34;memory_db&amp;#34;, &amp;#34;context&amp;#34;: { &amp;#34;tableName&amp;#34;: &amp;#34;monitor_record_0&amp;#34; } } } 所以，整体的效果是这样的：</description>
+    </item>
+    
+    <item>
+      <title>【Go实现】实践GoF的23种设计模式：工厂方法模式</title>
+      <link>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95%E6%A8%A1%E5%BC%8F/</link>
+      <pubDate>Sat, 21 May 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95%E6%A8%A1%E5%BC%8F/</guid>
+      <description>上一篇：【Go实现】实践GoF的23种设计模式：建造者模式
+简单的分布式应用系统（示例代码工程）：https://github.com/ruanrunxue/Practice-Design-Pattern&amp;ndash;Go-Implementation
+ 简述 工厂方法模式（Factory Method Pattern）跟上一篇讨论的建造者模式类似，都是将对象创建的逻辑封装起来，为使用者提供一个简单易用的对象创建接口。两者在应用场景上稍有区别，建造者模式常用于需要传递多个参数来进行实例化的场景；工厂方法模式常用于不指定对象具体类型的情况下创建对象的场景。
+UML 结构 代码实现 示例 在简单的分布式应用系统（示例代码工程）中，我们设计了 Sidecar 边车模块， Sidecar 的作用是为了给原生的 Socket 增加额外的功能，比如流控、日志等。
+Sidecar 模块的设计运用了装饰者模式，修饰的是 Socket 。所以客户端其实是把 Sidecar 当成是 Socket 来使用了，比如：
+// demo/network/http/http_client.go package http // 创建一个新的HTTP客户端，以Socket接口作为入参 func NewClient(socket network.Socket, ip string) (*Client, error) { ... // 一些初始化逻辑 	return client, nil } // 使用NewClient时，我们可以传入Sidecar来给Http客户端附加额外的流控功能 client, err := http.NewClient(sidecar.NewFlowCtrlSidecar(network.DefaultSocket()), &amp;#34;192.168.0.1&amp;#34;) 在服务消息中介中，每次收到上游服务的 HTTP 请求，都会调用 http.NewClient 来创建一个 HTTP 客户端，并通过它将请求转发给下游服务：
+type ServiceMediator struct { ... server *http.Server } // Forward 转发请求，请求URL为 /{serviceType}+ServiceUri 的形式，如/serviceA/api/v1/task func (s *ServiceMediator) Forward(req *http.</description>
+    </item>
+    
+    <item>
+      <title>【Go实现】实践GoF的23种设计模式：建造者模式</title>
+      <link>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%BB%BA%E9%80%A0%E8%80%85%E6%A8%A1%E5%BC%8F/</link>
+      <pubDate>Thu, 05 May 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%BB%BA%E9%80%A0%E8%80%85%E6%A8%A1%E5%BC%8F/</guid>
+      <description>上一篇：【Go实现】实践GoF的23种设计模式：单例模式
+简单的分布式应用系统（示例代码工程）：https://github.com/ruanrunxue/Practice-Design-Pattern&amp;ndash;Go-Implementation
+ 简述 在程序设计中，我们会经常遇到一些复杂的对象，其中有很多成员属性，甚至嵌套着多个复杂的对象。这种情况下，创建这个复杂对象就会变得很繁琐。对于 C++/Java 而言，最常见的表现就是构造函数有着长长的参数列表：
+MyObject obj = new MyObject(param1, param2, param3, param4, param5, param6, ...) 对于 Go 语言来说，最常见的表现就是多层的嵌套实例化：
+obj := &amp;amp;MyObject{ Field1: &amp;amp;Field1 { Param1: &amp;amp;Param1 { Val: 0, }, Param2: &amp;amp;Param2 { Val: 1, }, ... }, Field2: &amp;amp;Field2 { Param3: &amp;amp;Param3 { Val: 2, }, ... }, ... } 上述的对象创建方法有两个明显的缺点：（1）对使用者不友好，使用者在创建对象时需要知道的细节太多；（2）代码可读性很差。
+针对这种对象成员较多，创建对象逻辑较为繁琐的场景，非常适合使用建造者模式来进行优化。
+建造者模式的作用有如下几个：
+1、封装复杂对象的创建过程，使对象使用者不感知复杂的创建逻辑。2、可以一步步按照顺序对成员进行赋值，或者创建嵌套对象，并最终完成目标对象的创建。3、对多个对象复用同样的对象创建逻辑。其中，第1和第2点比较常用，下面对建造者模式的实现也主要是针对这两点进行示例。
+UML 结构 代码实现 示例 在简单的分布式应用系统（示例代码工程）中，我们定义了服务注册中心，提供服务注册、去注册、更新、 发现等功能。要实现这些功能，服务注册中心就必须保存服务的信息，我们把这些信息放在了 ServiceProfile 这个数据结构上，定义如下：
+// demo/service/registry/model/service_profile.go // ServiceProfile 服务档案，其中服务ID唯一标识一个服务实例，一种服务类型可以有多个服务实例 type ServiceProfile struct { Id string // 服务ID  Type ServiceType // 服务类型  Status ServiceStatus // 服务状态  Endpoint network.</description>
+    </item>
+    
+    <item>
+      <title>【Go实现】实践GoF的23种设计模式：单例模式</title>
+      <link>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/</link>
+      <pubDate>Tue, 05 Apr 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/</guid>
+      <description>上一篇：【Go实现】实践GoF的23种设计模式：SOLID原则
+简单的分布式应用系统（示例代码工程）：https://github.com/ruanrunxue/Practice-Design-Pattern&amp;ndash;Go-Implementation
+ 简述 GoF 对单例模式（Singleton）的定义如下：
+ Ensure a class only has one instance, and provide a global point of access to it.
+ 也即，保证一个类只有一个实例，并且为它提供一个全局访问点。
+在程序设计中，有些对象通常只需要一个共享的实例，比如线程池、全局缓存、对象池等。实现共享实例最简单直接的方式就是全局变量。但是，使用全局变量会带来一些问题，比如：
+ 客户端程序可以创建同类实例，从而无法保证在整系统上只有一个共享实例。 难以控制对象的访问，比如想增加一个“访问次数统计”的功能就很难，可扩展性较低。 把实现细节暴露给客户端程序，加深了耦合，容易产生霰弹式修改。  对这种全局唯一的场景，更好的是使用单例模式去实现。单例模式能够限制客户端程序创建同类实例，并且可以在全局访问点上扩展或修改功能，而不影响客户端程序。
+但是，并非所有的全局唯一都适用单例模式。比如下面这种场景：
+ 考虑需要统计一个API调用的情况，有两个指标，成功调用次数和失败调用次数。这两个指标都是全局唯一的，所以有人可能会将其建模成两个单例SuccessApiMetric和FailApiMetric。按照这个思路，随着指标数量的增多，你会发现代码里类的定义会越来越多，也越来越臃肿。这也是单例模式最常见的误用场景，更好的方法是将两个指标设计成一个对象ApiMetric下的两个实例ApiMetic success和ApiMetic fail。
+ 那么，如何判断一个对象是否应该被建模成单例？通常，被建模成单例的对象都有“中心点”的含义，比如线程池就是管理所有线程的中心。所以，在判断一个对象是否适合单例模式时，先思考下，是一个中心点吗？
+UML结构 代码实现 根据单例模式的定义，实现的关键点有两个：
+ 限制调用者直接实例化该对象； 为该对象的单例提供一个全局唯一的访问方法。  对于 C++ / Java 而言，只需把对象的构造函数设计成私有的，并提供一个 static 方法去访问该对象的唯一实例即可。但 Go 语言并没有构造函数的概念，也没有 static 方法，所以需要另寻出路。
+我们可以利用 Go 语言 package 的访问规则来实现，将单例对象设计成首字母小写，这样就能限定它的访问范围只在当前package下，模拟了 C++ / Java 的私有构造函数；然后，在当前 package 下实现一个首字母大写的访问函数，也就相当于 static 方法的作用了。</description>
+    </item>
+    
+    <item>
+      <title>【Go实现】实践GoF的23种设计模式：SOLID原则</title>
+      <link>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8Fsolid%E5%8E%9F%E5%88%99/</link>
+      <pubDate>Sun, 13 Mar 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8Fsolid%E5%8E%9F%E5%88%99/</guid>
+      <description>之前也有写过关于设计模式的文章《使用Go实现GoF的23种设计模式》，但是那个系列写了3篇文章就没再继续了，主要的原因是找不到合适的示例代码。考虑到，如果以类似于“鸭子是否会飞”、“烘焙的制作流程”等贴近生活的事情举例，很难在我们日常的开发中产生联系。（目前应该很少有这些逻辑的软件系统吧）
+《实践GoF的23种设计模式》可以看成是《使用Go实现GoF的23种设计模式》系列的重启，吸取了上次烂尾的教训，本次在写文章之前就已经完成了23种设计模式的示例代码实现。示例代码以我们日常开发中经常碰到的一些技术/问题/场景作为切入点，示范如何运用设计模式来完成相关的实现。
+ 前言 从1995年GoF提出23种设计模式到现在，25年过去了，设计模式依旧是软件领域的热门话题。设计模式通常被定义为：
+ 设计模式（Design Pattern）是一套被反复使用、多数人知晓的、经过分类编目的、代码设计经验的总结，使用设计模式是为了可重用代码、让代码更容易被他人理解并且保证代码可靠性。
+ 从定义上看，设计模式其实是一种经验的总结，是针对特定问题的简洁而优雅的解决方案。既然是经验总结，那么学习设计模式最直接的好处就在于可以站在巨人的肩膀上解决软件开发过程中的一些特定问题。
+学习设计模式的最高境界是吃透它们本质思想，可以做到即使已经忘掉某个设计模式的名称和结构，也能在解决特定问题时信手拈来。设计模式背后的本质思想，就是我们熟知的SOLID原则。如果把设计模式类比为武侠世界里的武功招式，那么SOLID原则就是内功内力。通常来说，先把内功练好，再来学习招式，会达到事半功倍的效果。因此，在介绍设计模式之前，很有必要先介绍一下SOLID原则。
+本文首先会介绍本系列文章中用到的示例代码demo的整体结构，然后开始逐一介绍SOLID原则，也即单一职责原则、开闭原则、里氏替换原则、接口隔离原则和依赖倒置原则。
+一个简单的分布式应用系统  本系列示例代码demo获取地址：https://github.com/ruanrunxue/Practice-Design-Pattern&amp;ndash;Go-Implementation
+ 示例代码demo工程实现了一个简单的分布式应用系统（单机版），该系统主要由以下几个模块组成：
+ 网络 Network，网络功能模块，模拟实现了报文转发、socket通信、http通信等功能。 数据库 Db，数据库功能模块，模拟实现了表、事务、dsl等功能。 消息队列 Mq，消息队列模块，模拟实现了基于topic的生产者/消费者的消息队列。 监控系统 Monitor，监控系统模块，模拟实现了服务日志的收集、分析、存储等功能。 边车 Sidecar，边车模块，模拟对网络报文进行拦截，实现access log上报、消息流控等功能。 服务 Service，运行服务，当前模拟实现了服务注册中心、在线商城服务集群、服务消息中介等服务。  示例代码demo工程的主要目录结构如下：
+├── db # 数据库模块，定义Db、Table、TableVisitor等抽象接口和实现 ├── monitor # 监控系统模块，采用插件式的架构风格，当前实现access log日志etl功能 │ ├── config # 监控系统插件配置模块 │ ├── filter # 过滤插件的实现定义 │ ├── input # 输入插件的实现定义 │ ├── output # 输出插件的实现定义 │ ├── pipeline # Pipeline插件的实现定义，一个pipeline表示一个ETL处理流程 │ ├── plugin # 插件抽象接口的定义，比如Plugin、Config等 │ └── model # 监控系统模型对象定义 ├── mq # 消息队列模块 ├── network # 网络模块，模拟网络通信，定义了socket、packet等通用类型/接口  │ └── http # 模拟实现了http通信等服务端、客户端能力 ├── service # 服务模块，定义了服务的基本接口 │ ├── mediator # 服务消息中介，作为服务通信的中转方，实现了服务发现，消息转发的能力 │ ├── registry # 服务注册中心，提供服务注册、去注册、更新、 发现、订阅、去订阅、通知等功能 │ │ └── model # 服务注册/发现相关的模型定义 │ └── shopping # 模拟在线商城服务群的定义，包含订单服务、库存服务、支付服务、发货服务 └── sidecar # 边车模块，对socket进行拦截，提供http access log、流控功能 └── flowctrl # 流控模块，基于消息速率进行随机流控 SRP：单一职责原则 单一职责原则（The Single Responsibility Principle，SRP）应该是SOLID原则中，最容易被理解的一个，但同时也是最容易被误解的一个。很多人会把“将大函数重构成一个个职责单一的小函数”这一重构手法等价为SRP，这是不对的，小函数固然体现了职责单一，但这并不是SRP。</description>
+    </item>
+    
+    <item>
+      <title>【Java实现】实践GoF的23种设计模式：SOLID原则</title>
+      <link>https://www.yrunz.com/p/java%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8Fsolid%E5%8E%9F%E5%88%99/</link>
+      <pubDate>Sat, 26 Feb 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/java%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8Fsolid%E5%8E%9F%E5%88%99/</guid>
+      <description>之前也有写过关于设计模式的文章《使用Go实现GoF的23种设计模式》，但是那个系列写了3篇文章就没在继续了，主要的原因是找不到合适的示例代码。考虑到，如果以类似于“鸭子是否会飞”、“烘培的制作流程”等贴近生活的事情举例，很难在我们日常的开发中产生联系。（目前应该很少有这些逻辑的软件系统吧）
+《实践GoF的23种设计模式》可以看成是《使用Go实现GoF的23种设计模式》系列的重启，吸取了上次烂尾的教训，本次在写文章之前就已经完成了23种设计模式的示例代码实现。和上次不同，本次示例代码使用Java实现，以我们日常开发中经常碰到的一些技术/问题/场景作为切入点，示范如何运用设计模式来完成相关的实现。
+ 前言 从1995年GoF提出23种设计模式到现在，25年过去了，设计模式依旧是软件领域的热门话题。设计模式通常被定义为：
+ 设计模式（Design Pattern）是一套被反复使用、多数人知晓的、经过分类编目的、代码设计经验的总结，使用设计模式是为了可重用代码、让代码更容易被他人理解并且保证代码可靠性。
+ 从定义上看，设计模式其实是一种经验的总结，是针对特定问题的简洁而优雅的解决方案。既然是经验总结，那么学习设计模式最直接的好处就在于可以站在巨人的肩膀上解决软件开发过程中的一些特定问题。
+学习设计模式的最高境界是吃透它们本质思想，可以做到即使已经忘掉某个设计模式的名称和结构，也能在解决特定问题时信手拈来。设计模式背后的本质思想，就是我们熟知的SOLID原则。如果把设计模式类比为武侠世界里的武功招式，那么SOLID原则就是内功内力。通常来说，先把内功练好，再来学习招式，会达到事半功倍的效果。因此，在介绍设计模式之前，很有必要先介绍一下SOLID原则。
+本文首先会介绍本系列文章中用到的示例代码demo的整体结构，然后开始逐一介绍SOLID原则，也即单一职责原则、开闭原则、里氏替换原则、接口隔离原则和依赖倒置原则。
+一个简单的分布式应用系统  本系列示例代码demo获取地址：https://github.com/ruanrunxue/Practice-Design-Pattern&amp;ndash;Java-Implementation
+ 示例代码demo工程实现了一个简单的分布式应用系统（单机版），该系统主要由以下几个模块组成：
+ 网络 Network，网络功能模块，模拟实现了报文转发、socket通信、http通信等功能。 数据库 Db，数据库功能模块，模拟实现了表、事务、dsl等功能。 消息队列 Mq，消息队列模块，模拟实现了基于topic的生产者/消费者的消息队列。 监控系统 Monitor，监控系统模块，模拟实现了服务日志的收集、分析、存储等功能。 边车 Sidecar，边车模块，模拟对网络报文进行拦截，实现access log上报、消息流控等功能。 服务 Service，运行服务，当前模拟实现了服务注册中心、在线商城服务集群、服务消息中介等服务。  示例代码demo工程的主要目录结构如下：
+├── db # 数据库模块，定义Db、Table、TableVisitor等抽象接口 【@单例模式】 │ ├── cache # 数据库缓存代理，为Db新增缓存功能 【@代理模式】 │ ├── console # 数据库控制台实现，支持dsl语句查询和结果显示 【@适配器模式】 │ ├── dsl # 实现数据库dsl语句查询能力，当前只支持select语句查询 【@解释器模式】 │ ├── exception # 数据库模块相关异常定义 │ ├── iterator # 遍历表迭代器，包含按序遍历和随机遍历 【@迭代器模式】 │ └── transaction # 实现数据库的事务功能，包括执行、提交、回滚等 【@命令模式】【@备忘录模式】 ├── monitor # 监控系统模块，采用插件式的架构风格，当前实现access log日志etl功能 │ ├── config # 监控系统插件配置模块 【@抽象工厂模式】【@组合模式】 │ │ ├── json # 实现基于json格式文件的配置加载功能 │ │ └── yaml # 实现基于yaml格式文件的配置加载功能 │ ├── entity # 监控系统实体对象定义 │ ├── exception # 监控系统相关异常 │ ├── filter # Filter插件的实现定义 【@责任链模式】 │ ├── input # Input插件的实现定义 【@策略模式】 │ ├── output # Output插件的实现定义 │ ├── pipeline # Pipeline插件的实现定义，一个pipeline表示一个ETL处理流程 【@桥接模式】 │ ├── plugin # 插件抽象接口定义 │ └── schema # 监控系统相关的数据表定义  ├── mq # 消息队列模块 ├── network # 网络模块，模拟网络通信，定义了socket、packet等通用类型/接口 【@观察者模式】 │ └── http # 模拟实现了http通信等服务端、客户端能力 ├── service # 服务模块，定义了服务的基本接口 │ ├── mediator # 服务消息中介，作为服务通信的中转方，实现了服务发现，消息转发的能力 【@中介者模式】 │ ├── registry # 服务注册中心，提供服务注册、去注册、更新、 发现、订阅、去订阅、通知等功能 │ │ ├── entity # 服务注册/发现相关的实体定义 【@原型模式】【@建造者模式】 │ │ └── schema # 服务注册中心相关的数据表定义 【@访问者模式】【@享元模式】 │ └── shopping # 模拟在线商城服务群的定义，包含订单服务、库存服务、支付服务、发货服务 【@外观模式】 └── sidecar # 边车模块，对socket进行拦截，提供http access log、流控功能 【@装饰者模式】【@工厂模式】 └── flowctrl # 流控模块，基于消息速率进行随机流控 【@模板方法模式】【@状态模式】 SRP：单一职责原则 单一职责原则（The Single Responsibility Principle，SRP）应该是SOLID原则中，最容易被理解的一个，但同时也是最容易被误解的一个。很多人会把“将大函数重构成一个个职责单一的小函数”这一重构手法等价为SRP，这是不对的，小函数固然体现了职责单一，但这并不是SRP。</description>
+    </item>
+    
+    <item>
+      <title>使用Go实现GoF的23种设计模式（三）</title>
+      <link>https://www.yrunz.com/p/%E4%BD%BF%E7%94%A8go%E5%AE%9E%E7%8E%B0gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B8%89/</link>
+      <pubDate>Sun, 06 Sep 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E4%BD%BF%E7%94%A8go%E5%AE%9E%E7%8E%B0gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B8%89/</guid>
+      <description>前言 上一篇文章《使用Go实现GoF的23种设计模式（二）》中，我们介绍了结构型模式（Structural Pattern）中的组合模式、适配器模式和桥接模式。本文将会介绍完剩下的几种结构型模式，代理模式、装饰模式、外观模式和享元模式。本文将会继续采用消息处理系统作为例子，如果对该例子不清楚，请移步《使用Go实现GoF的23种设计模式（一）》和《使用Go实现GoF的23种设计模式（二）》对其相关的设计和实现进行了解。
+代理模式（Proxy Pattern） 简介 代理模式为一个对象提供一种代理以控制对该对象的访问，它是一个使用率非常高的设计模式，即使在现实生活中，也是很常见，比如演唱会门票黄牛。假设你需要看一场演唱会，但是官网上门票已经售罄，于是就当天到现场通过黄牛高价买了一张。在这个例子中，黄牛就相当于演唱会门票的代理，在正式渠道无法购买门票的情况下，你通过代理完成了该目标。
+从演唱会门票的例子我们也可以看出，使用代理模式的关键在于当Client不方便直接访问一个对象时，提供一个代理对象控制该对象的访问。Client实际上访问的是代理对象，代理对象会将Client的请求转给本体对象去处理。
+在程序设计中，代理模式也分为好几种：
+1、远程代理（remote proxy），远程代理适用于提供服务的对象处在远程的机器上，通过普通的函数调用无法使用服务，需要经过远程代理来完成。因为并不能直接访问本体对象，所有远程代理对象通常不会直接持有本体对象的引用，而是持有远端机器的地址，通过网络协议去访问本体对象。
+2、虚拟代理（virtual proxy），在程序设计中常常会有一些重量级的服务对象，如果一直持有该对象实例会非常消耗系统资源，这时可以通过虚拟代理来对该对象进行延迟初始化。
+3、保护代理（protection proxy），保护代理用于控制对本体对象的访问，常用于需要给Client的访问加上权限验证的场景。
+4、缓存代理（cache proxy），缓存代理主要在Client与本体对象之间加上一层缓存，用于加速本体对象的访问，常见于连接数据库的场景。
+5、智能引用（smart reference），智能引用为本体对象的访问提供了额外的动作，常见的实现为C++中的智能指针，为对象的访问提供了计数功能，当访问对象的计数为0时销毁该对象。
+这几种代理都是一样的实现原理，下面我们将介绍远程代理的Go语言实现。
+Go实现 考虑要将消息处理系统输出到数据存储到一个数据库中，数据库的接口如下：
+package db ... // Key-Value数据库接口 type KvDb interface { // 存储数据 	// 其中reply为操作结果，存储成功为true，否则为false 	// 当连接数据库失败时返回error，成功则返回nil 	Save(record Record, reply *bool) error // 根据key获取value，其中value通过函数参数中指针类型返回 	// 当连接数据库失败时返回error，成功则返回nil 	Get(key string, value *string) error } type Record struct { Key string Value string } 数据库是一个Key-Value数据库，使用map存储数据，下面为数据库的服务端实现，db.Server实现了db.KvDb接口：
+package db ... // 数据库服务端实现 type Server struct { // 采用map存储key-value数据 	data map[string]string } func (s *Server) Save(record Record, reply *bool) error { if s.</description>
+    </item>
+    
+    <item>
+      <title>使用Go实现GoF的23种设计模式（二）</title>
+      <link>https://www.yrunz.com/p/%E4%BD%BF%E7%94%A8go%E5%AE%9E%E7%8E%B0gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%BA%8C/</link>
+      <pubDate>Sun, 23 Aug 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E4%BD%BF%E7%94%A8go%E5%AE%9E%E7%8E%B0gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%BA%8C/</guid>
+      <description>前言 上一篇文章《使用Go实现GoF的23种设计模式（一）》介绍了23种设计模式中的创建型模式（Creational Pattern），创建型模式是处理对象创建的一类设计模式，主要思想是向对象的使用者隐藏对象创建的具体细节，从而达到解耦的目的。本文主要聚焦在结构型模式（Structural Pattern）上，其主要思想是将多个对象组装成较大的结构，并同时保持结构的灵活和高效，从程序的结构上解决模块之间的耦合问题。
+组合模式（Composite Pattern） 简述 在面向对象编程中，有两个常见的对象设计方法，组合和继承，两者都可以解决代码复用的问题，但是使用后者时容易出现继承层次过深，对象关系过于复杂的副作用，从而导致代码的可维护性变差。因此，一个经典的面向对象设计原则是：组合优于继承。
+我们都知道，组合所表示的语义为“has-a”，也就是部分和整体的关系，最经典的组合模式描述如下：
+ 将对象组合成树形结构以表示“部分-整体”的层次结构，使得用户对单个对象和组合对象的使用具有一致性。
+ Go语言天然就支持了组合模式，而且从它不支持继承关系的特点来看，Go也奉行了组合优于继承的原则，鼓励大家在进行程序设计时多采用组合的方法。Go实现组合模式的方式有两种，分别是直接组合（Direct Composition）和嵌入组合（Embedding Composition），下面我们一起探讨这两种不同的实现方法。
+Go实现 直接组合（Direct Composition）的实现方式类似于Java/C++，就是将一个对象作为另一个对象的成员属性。
+一个典型的实现如《使用Go实现GoF的23种设计模式（一）》中所举的例子，一个Message结构体，由Header和Body所组成。那么Message就是一个整体，而Header和Body则为消息的组成部分。
+type Message struct { Header *Header Body *Body } 现在，我们来看一个稍微复杂一点的例子，同样考虑上一篇文章中所描述的插件架构风格的消息处理系统。前面我们用抽象工厂模式解决了插件加载的问题，通常，每个插件都会有一个生命周期，常见的就是启动状态和停止状态，现在我们使用组合模式来解决插件的启动和停止问题。
+首先给Plugin接口添加几个生命周期相关的方法：
+package plugin ... // 插件运行状态 type Status uint8 const ( Stopped Status = iota Started ) type Plugin interface { // 启动插件 	Start() // 停止插件 	Stop() // 返回插件当前的运行状态 	Status() Status } // Input、Filter、Output三类插件接口的定义跟上一篇文章类似 // 这里使用Message结构体替代了原来的string，使得语义更清晰 type Input interface { Plugin Receive() *msg.</description>
+    </item>
+    
+    <item>
+      <title>使用Go实现GoF的23种设计模式（一）</title>
+      <link>https://www.yrunz.com/p/%E4%BD%BF%E7%94%A8go%E5%AE%9E%E7%8E%B0gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B8%80/</link>
+      <pubDate>Mon, 10 Aug 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E4%BD%BF%E7%94%A8go%E5%AE%9E%E7%8E%B0gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B8%80/</guid>
+      <description>前言 从1995年GoF提出23种设计模式到现在，25年过去了，设计模式依旧是软件领域的热门话题。在当下，如果你不会一点设计模式，都不好意思说自己是一个合格的程序员。设计模式通常被定义为：
+ 设计模式（Design Pattern）是一套被反复使用、多数人知晓的、经过分类编目的、代码设计经验的总结，使用设计模式是为了可重用代码、让代码更容易被他人理解并且保证代码可靠性。
+ 从定义上看，设计模式其实是一种经验的总结，是针对特定问题的简洁而优雅的解决方案。既然是经验总结，那么学习设计模式最直接的好处就在于可以站在巨人的肩膀上解决软件开发过程中的一些特定问题。然而，学习设计模式的最高境界是习得其中解决问题所用到的思想，当你把它们的本质思想吃透了，也就能做到即使已经忘掉某个设计模式的名称和结构，也能在解决特定问题时信手拈来。
+好的东西有人吹捧，当然也会招黑。设计模式被抨击主要因为以下两点：
+1、设计模式会增加代码量，把程序逻辑变得复杂。这一点是不可避免的，但是我们并不能仅仅只考虑开发阶段的成本。最简单的程序当然是一个函数从头写到尾，但是这样后期的维护成本会变得非常大；而设计模式虽然增加了一点开发成本，但是能让人们写出可复用、可维护性高的程序。引用《软件设计的哲学》里的概念，前者就是战术编程，后者就是战略编程，我们应该对战术编程Say No！（请移步《一步步降低软件复杂性》）
+2、滥用设计模式。这是初学者最容易犯的错误，当学到一个模式时，恨不得在所有的代码都用上，从而在不该使用模式的地方刻意地使用了模式，导致了程序变得异常复杂。其实每个设计模式都有几个关键要素：适用场景、解决方法、优缺点。模式并不是万能药，它只有在特定的问题上才能显现出效果。所以，在使用一个模式前，先问问自己，当前的这个场景适用这个模式吗？
+《设计模式》一书的副标题是“可复用面向对象软件的基础”，但并不意味着只有面向对象语言才能使用设计模式。模式只是一种解决特定问题的思想，跟语言无关。就像Go语言一样，它并非是像C++和Java一样的面向对象语言，但是设计模式同样适用。本系列文章将使用Go语言来实现GoF提出的23种设计模式，按照创建型模式（Creational Pattern）、结构型模式（Structural Pattern）和行为型模式（Behavioral Pattern）三种类别进行组织，文本主要介绍其中的创建型模式。
+单例模式（Singleton Pattern） 简述 单例模式算是23中设计模式里最简单的一个了，它主要用于保证一个类仅有一个实例，并提供一个访问它的全局访问点。
+在程序设计中，有一些对象通常我们只需要一个共享的实例，比如线程池、全局缓存、对象池等，这种场景下就适合使用单例模式。
+但是，并非所有全局唯一的场景都适合使用单例模式。比如，考虑需要统计一个API调用的情况，有两个指标，成功调用次数和失败调用次数。这两个指标都是全局唯一的，所以有人可能会将其建模成两个单例SuccessApiMetric和FailApiMetric。按照这个思路，随着指标数量的增多，你会发现代码里类的定义会越来越多，也越来越臃肿。这也是单例模式最常见的误用场景，更好的方法是将两个指标设计成一个对象ApiMetric下的两个实例ApiMetic success和ApiMetic fail。
+如何判断一个对象是否应该被建模成单例？
+通常，被建模成单例的对象都有“中心点”的含义，比如线程池就是管理所有线程的中心。所以，在判断一个对象是否适合单例模式时，先思考下，这个对象是一个中心点吗？
+Go实现 在对某个对象实现单例模式时，有两个点必须要注意：（1）限制调用者直接实例化该对象；（2）为该对象的单例提供一个全局唯一的访问方法。
+对于C++/Java而言，只需把类的构造函数设计成私有的，并提供一个static方法去访问该类点唯一实例即可。但对于Go语言来说，即没有构造函数的概念，也没有static方法，所以需要另寻出路。
+我们可以利用Go语言package的访问规则来实现，将单例结构体设计成首字母小写，就能限定其访问范围只在当前package下，模拟了C++/Java中的私有构造函数；再在当前package下实现一个首字母大写的访问函数，就相当于static方法的作用了。
+在实际开发中，我们经常会遇到需要频繁创建和销毁的对象。频繁的创建和销毁一则消耗CPU，二则内存的利用率也不高，通常我们都会使用对象池技术来进行优化。考虑我们需要实现一个消息对象池，因为是全局的中心点，管理所有的Message实例，所以将其实现成单例，实现代码如下：
+package msgpool ... // 消息池 type messagePool struct { pool *sync.Pool } // 消息池单例 var msgPool = &amp;amp;messagePool{ // 如果消息池里没有消息，则新建一个Count值为0的Message实例 	pool: &amp;amp;sync.Pool{New: func() interface{} { return &amp;amp;Message{Count: 0} }}, } // 访问消息池单例的唯一方法 func Instance() *messagePool { return msgPool } // 往消息池里添加消息 func (m *messagePool) AddMsg(msg *Message) { m.</description>
+    </item>
+    
+  </channel>
+</rss>

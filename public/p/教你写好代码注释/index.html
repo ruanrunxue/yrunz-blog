@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='前言 相信大家都会遇到这种情况：一周前自己写的代码，现在再拿出来看，发现读不懂了，“ 这代码是我写的？？？”。这时候，代码注释就可以发挥它的作用了——提高晦涩难懂的代码的可读性；注释可以起到隐藏代码复杂细节的作用，比如接口注释可以帮助开发者在没有阅读代码的情况下快速了解该接口的功能和用法；如果写的好，注释还可以改善系统的设计。
+既然注释这么多好处，为什么我们程序员还是不愿意写注释？
+“代码都写不完了，哪有时间写注释，以后再补吧“
+时间不够论。这是最常见的原因，在交付速度飞快的今天，“代码写不完”是一个再常见不过的情况了，但写注释真的会导致需求延迟吗？绝不！相对于写一个接口的实现，写接口注释的时间可能只需要花费前者的5%。但不写注释，后面使用接口的人必须要多花费**50%**的时间去读懂代码！而且对于大部分程序员而言，“以后再补“大概要到2910年才能落实。
+“好的代码就是最好的注释，我的代码可读性很好，没必要写注释”
+好代码胜过注释论。不少程序员认为，好的代码就是最好的注释，只要代码可读性好，注释就可以省去。然而一个软件系统很多信息是无法通过代码呈现出来的，比如系统的设计思路、函数执行的预置条件等等。此外，代码可读性也不是绝对的，对于一个没有使用过Java 8 的 Lambda表达式的开发者而言，通篇的箭头“-&amp;gt;“简直就是一场噩梦。
+”过期的注释容易误导人“
+过期注释论。不可否认，过期的注释很容易误导读者，但是这并不能成为否认注释的借口。除非是重大的重构或重写，对注释进行大改动的情况很少出现。通常，在更改代码之后，只需花费极少的时间去更新注释，就可以避免过期注释这种情况了。
+注释的分类 注释大致可以分成四类：接口注释、数据成员注释、实现注释和模块依赖注释。
+接口注释 平时我们所说的接口，通常指的是一个类（包括interface、class、enum）和方法。对类而言，接口注释主要描述该类提供的功能；对方法而言，除了描述方法功能之外，方法的入参和返回值都要进行说明。当然，使用类/方法的一些预置条件和副作用等信息都需要在接口注释中提到。
+/** * Returns the length of this string. * The length is equal to the number of &amp;lt;a href=&amp;#34;Character.html#unicode&amp;#34;&amp;gt;Unicode * code units&amp;lt;/a&amp;gt; in the string. * * @return the length of the sequence of characters represented by this * object. */ public int length() { return value.length; }  典型的接口注释（选自JDK 1.8中的String类）
+ 数据成员注释 数据成员注释和接口注释在大多数情况下都是必须的，这对于让读者快速读懂代码有很大的帮助。数据成员包括类的普通成员变量和静态成员变量，数据成员注释除了描述数据成员的本身用途之外，成员的默认值、副作用等信息都需要提及。'><title>教你写好代码注释</title>
+
+<link rel='canonical' href='https://www.yrunz.com/p/%E6%95%99%E4%BD%A0%E5%86%99%E5%A5%BD%E4%BB%A3%E7%A0%81%E6%B3%A8%E9%87%8A/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='教你写好代码注释'>
+<meta property='og:description' content='前言 相信大家都会遇到这种情况：一周前自己写的代码，现在再拿出来看，发现读不懂了，“ 这代码是我写的？？？”。这时候，代码注释就可以发挥它的作用了——提高晦涩难懂的代码的可读性；注释可以起到隐藏代码复杂细节的作用，比如接口注释可以帮助开发者在没有阅读代码的情况下快速了解该接口的功能和用法；如果写的好，注释还可以改善系统的设计。
+既然注释这么多好处，为什么我们程序员还是不愿意写注释？
+“代码都写不完了，哪有时间写注释，以后再补吧“
+时间不够论。这是最常见的原因，在交付速度飞快的今天，“代码写不完”是一个再常见不过的情况了，但写注释真的会导致需求延迟吗？绝不！相对于写一个接口的实现，写接口注释的时间可能只需要花费前者的5%。但不写注释，后面使用接口的人必须要多花费**50%**的时间去读懂代码！而且对于大部分程序员而言，“以后再补“大概要到2910年才能落实。
+“好的代码就是最好的注释，我的代码可读性很好，没必要写注释”
+好代码胜过注释论。不少程序员认为，好的代码就是最好的注释，只要代码可读性好，注释就可以省去。然而一个软件系统很多信息是无法通过代码呈现出来的，比如系统的设计思路、函数执行的预置条件等等。此外，代码可读性也不是绝对的，对于一个没有使用过Java 8 的 Lambda表达式的开发者而言，通篇的箭头“-&amp;gt;“简直就是一场噩梦。
+”过期的注释容易误导人“
+过期注释论。不可否认，过期的注释很容易误导读者，但是这并不能成为否认注释的借口。除非是重大的重构或重写，对注释进行大改动的情况很少出现。通常，在更改代码之后，只需花费极少的时间去更新注释，就可以避免过期注释这种情况了。
+注释的分类 注释大致可以分成四类：接口注释、数据成员注释、实现注释和模块依赖注释。
+接口注释 平时我们所说的接口，通常指的是一个类（包括interface、class、enum）和方法。对类而言，接口注释主要描述该类提供的功能；对方法而言，除了描述方法功能之外，方法的入参和返回值都要进行说明。当然，使用类/方法的一些预置条件和副作用等信息都需要在接口注释中提到。
+/** * Returns the length of this string. * The length is equal to the number of &amp;lt;a href=&amp;#34;Character.html#unicode&amp;#34;&amp;gt;Unicode * code units&amp;lt;/a&amp;gt; in the string. * * @return the length of the sequence of characters represented by this * object. */ public int length() { return value.length; }  典型的接口注释（选自JDK 1.8中的String类）
+ 数据成员注释 数据成员注释和接口注释在大多数情况下都是必须的，这对于让读者快速读懂代码有很大的帮助。数据成员包括类的普通成员变量和静态成员变量，数据成员注释除了描述数据成员的本身用途之外，成员的默认值、副作用等信息都需要提及。'>
+<meta property='og:url' content='https://www.yrunz.com/p/%E6%95%99%E4%BD%A0%E5%86%99%E5%A5%BD%E4%BB%A3%E7%A0%81%E6%B3%A8%E9%87%8A/'>
+<meta property='og:site_name' content='元闰子的邀请'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='注释' /><meta property='article:tag' content='写好代码' /><meta property='article:published_time' content='2019-12-04T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2019-12-04T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="教你写好代码注释">
+<meta name="twitter:description" content="前言 相信大家都会遇到这种情况：一周前自己写的代码，现在再拿出来看，发现读不懂了，“ 这代码是我写的？？？”。这时候，代码注释就可以发挥它的作用了——提高晦涩难懂的代码的可读性；注释可以起到隐藏代码复杂细节的作用，比如接口注释可以帮助开发者在没有阅读代码的情况下快速了解该接口的功能和用法；如果写的好，注释还可以改善系统的设计。
+既然注释这么多好处，为什么我们程序员还是不愿意写注释？
+“代码都写不完了，哪有时间写注释，以后再补吧“
+时间不够论。这是最常见的原因，在交付速度飞快的今天，“代码写不完”是一个再常见不过的情况了，但写注释真的会导致需求延迟吗？绝不！相对于写一个接口的实现，写接口注释的时间可能只需要花费前者的5%。但不写注释，后面使用接口的人必须要多花费**50%**的时间去读懂代码！而且对于大部分程序员而言，“以后再补“大概要到2910年才能落实。
+“好的代码就是最好的注释，我的代码可读性很好，没必要写注释”
+好代码胜过注释论。不少程序员认为，好的代码就是最好的注释，只要代码可读性好，注释就可以省去。然而一个软件系统很多信息是无法通过代码呈现出来的，比如系统的设计思路、函数执行的预置条件等等。此外，代码可读性也不是绝对的，对于一个没有使用过Java 8 的 Lambda表达式的开发者而言，通篇的箭头“-&amp;gt;“简直就是一场噩梦。
+”过期的注释容易误导人“
+过期注释论。不可否认，过期的注释很容易误导读者，但是这并不能成为否认注释的借口。除非是重大的重构或重写，对注释进行大改动的情况很少出现。通常，在更改代码之后，只需花费极少的时间去更新注释，就可以避免过期注释这种情况了。
+注释的分类 注释大致可以分成四类：接口注释、数据成员注释、实现注释和模块依赖注释。
+接口注释 平时我们所说的接口，通常指的是一个类（包括interface、class、enum）和方法。对类而言，接口注释主要描述该类提供的功能；对方法而言，除了描述方法功能之外，方法的入参和返回值都要进行说明。当然，使用类/方法的一些预置条件和副作用等信息都需要在接口注释中提到。
+/** * Returns the length of this string. * The length is equal to the number of &amp;lt;a href=&amp;#34;Character.html#unicode&amp;#34;&amp;gt;Unicode * code units&amp;lt;/a&amp;gt; in the string. * * @return the length of the sequence of characters represented by this * object. */ public int length() { return value.length; }  典型的接口注释（选自JDK 1.8中的String类）
+ 数据成员注释 数据成员注释和接口注释在大多数情况下都是必须的，这对于让读者快速读懂代码有很大的帮助。数据成员包括类的普通成员变量和静态成员变量，数据成员注释除了描述数据成员的本身用途之外，成员的默认值、副作用等信息都需要提及。">
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "light");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/yrz_hudc7c8721ecce4b724df5002339c76402_174377_300x0_resize_box_2.png" width="300"
+                            height="306" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://www.yrunz.com">元闰子的邀请</a></h1>
+        <h2 class="site-description">阅读、写作、生活（个人技术分享）</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>首页</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>博客</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%85%B3%E4%BA%8E%E5%85%83%E9%97%B0%E5%AD%90/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24"
+     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+     stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z"/>
+    <circle cx="12" cy="7" r="4"/>
+    <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/>
+</svg>
+
+                
+                <span>关于元闰子</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%8F%8B%E6%83%85%E9%93%BE%E6%8E%A5/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-friends" width="44" height="44"
+     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+    <circle cx="7" cy="5" r="2"/>
+    <path d="M5 22v-5l-1 -1v-4a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4l-1 1v5"/>
+    <circle cx="17" cy="5" r="2"/>
+    <path d="M15 22v-4h-2l2 -6a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1l2 6h-2v4"/>
+</svg>
+
+                
+                <span>友情链接</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>暗色模式</span>
+            </li>
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://www.yrunz.com" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E5%86%99%E5%A5%BD%E4%BB%A3%E7%A0%81/" >
+                写好代码
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/%E6%95%99%E4%BD%A0%E5%86%99%E5%A5%BD%E4%BB%A3%E7%A0%81%E6%B3%A8%E9%87%8A/">教你写好代码注释</a>
+    </h2>
+
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Dec 04, 2019</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <h2 id="前言">前言</h2>
+<p>相信大家都会遇到这种情况：一周前自己写的代码，现在再拿出来看，发现读不懂了，“ <em>这代码是我写的？？？</em>”。这时候，代码注释就可以发挥它的作用了——<strong>提高晦涩难懂的代码的可读性</strong>；注释可以起到<strong>隐藏代码复杂细节</strong>的作用，比如接口注释可以帮助开发者在没有阅读代码的情况下快速了解该接口的功能和用法；如果写的好，注释还可以<strong>改善系统的设计</strong>。</p>
+<p>既然注释这么多好处，为什么我们程序员还是不愿意写注释？</p>
+<p><em>“代码都写不完了，哪有时间写注释，以后再补吧“</em></p>
+<p><strong>时间不够论</strong>。这是最常见的原因，在交付速度飞快的今天，“<em><strong>代码写不完</strong></em>”是一个再常见不过的情况了，但写注释真的会导致需求延迟吗？<strong>绝不！<strong>相对于写一个接口的实现，写接口注释的时间可能只需要花费前者的</strong>5%</strong>。但不写注释，后面使用接口的人必须要多花费**50%**的时间去读懂代码！而且对于大部分程序员而言，“<em><strong>以后再补</strong></em>“大概要到2910年才能落实。</p>
+<p><em>“好的代码就是最好的注释，我的代码可读性很好，没必要写注释”</em></p>
+<p><strong>好代码胜过注释论</strong>。不少程序员认为，好的代码就是最好的注释，只要代码可读性好，注释就可以省去。然而一个软件系统很多信息是无法通过代码呈现出来的，比如系统的设计思路、函数执行的预置条件等等。此外，代码可读性也不是绝对的，对于一个没有使用过Java 8 的 Lambda表达式的开发者而言，通篇的箭头“<strong>-&gt;</strong>“简直就是一场噩梦。</p>
+<p><em>”过期的注释容易误导人“</em></p>
+<p><strong>过期注释论</strong>。不可否认，过期的注释很容易误导读者，但是这并不能成为否认注释的借口。除非是重大的重构或重写，对注释进行大改动的情况很少出现。通常，在更改代码之后，只需花费极少的时间去更新注释，就可以避免<strong>过期注释</strong>这种情况了。</p>
+<h2 id="注释的分类">注释的分类</h2>
+<p>注释大致可以分成四类：接口注释、数据成员注释、实现注释和模块依赖注释。</p>
+<h3 id="接口注释">接口注释</h3>
+<p>平时我们所说的接口，通常指的是一个类（包括interface、class、enum）和方法。对类而言，接口注释主要描述该类提供的功能；对方法而言，除了描述方法功能之外，方法的入参和返回值都要进行说明。当然，使用类/方法的一些预置条件和副作用等信息都需要在接口注释中提到。</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java">    <span class="cm">/**
+</span><span class="cm">     * Returns the length of this string.
+</span><span class="cm">     * The length is equal to the number of &lt;a href=&#34;Character.html#unicode&#34;&gt;Unicode
+</span><span class="cm">     * code units&lt;/a&gt; in the string.
+</span><span class="cm">     *
+</span><span class="cm">     * @return  the length of the sequence of characters represented by this
+</span><span class="cm">     *          object.
+</span><span class="cm">     */</span>
+    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">length</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="na">length</span><span class="o">;</span>
+    <span class="o">}</span>
+</code></pre></div><blockquote>
+<p>典型的接口注释（选自JDK 1.8中的String类）</p>
+</blockquote>
+<h3 id="数据成员注释">数据成员注释</h3>
+<p>数据成员注释和接口注释在大多数情况下都是必须的，这对于让读者快速读懂代码有很大的帮助。数据成员包括类的普通成员变量和静态成员变量，数据成员注释除了描述数据成员的本身用途之外，成员的默认值、副作用等信息都需要提及。</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">String</span>
+    <span class="kd">implements</span> <span class="n">java</span><span class="o">.</span><span class="na">io</span><span class="o">.</span><span class="na">Serializable</span><span class="o">,</span> <span class="n">Comparable</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;,</span> <span class="n">CharSequence</span> <span class="o">{</span>
+    <span class="cm">/** The value is used for character storage. */</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="kt">char</span> <span class="n">value</span><span class="o">[];</span>
+
+    <span class="cm">/** Cache the hash code for the string */</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">hash</span><span class="o">;</span> <span class="c1">// Default to 0
+</span><span class="c1"></span>
+    <span class="cm">/** use serialVersionUID from JDK 1.0.2 for interoperability */</span>
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">long</span> <span class="n">serialVersionUID</span> <span class="o">=</span> <span class="o">-</span><span class="n">6849794470754667710L</span><span class="o">;</span>
+
+    <span class="cm">/**
+</span><span class="cm">     * Class String is special cased within the Serialization Stream Protocol.
+</span><span class="cm">     *
+</span><span class="cm">     * A String instance is written into an ObjectOutputStream according to
+</span><span class="cm">     * &lt;a href=&#34;{@docRoot}/../platform/serialization/spec/output.html&#34;&gt;
+</span><span class="cm">     * Object Serialization Specification, Section 6.2, &#34;Stream Elements&#34;&lt;/a&gt;
+</span><span class="cm">     */</span>
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">ObjectStreamField</span><span class="o">[]</span> <span class="n">serialPersistentFields</span> <span class="o">=</span>
+        <span class="k">new</span> <span class="n">ObjectStreamField</span><span class="o">[</span><span class="n">0</span><span class="o">];</span>
+    <span class="o">....</span>
+<span class="o">}</span>
+</code></pre></div><blockquote>
+<p>典型的数据成员注释（选自JDK 1.8中的String类）</p>
+</blockquote>
+<h3 id="实现注释">实现注释</h3>
+<p>对于一段代码，如果无法一眼就看出其含义而需要深入分析其实现才能读懂，就需要添加实现注释对这段代码的含义进行说明。代码的实现注释通常不是必须的，如果一段代码每一行都需要注释，那就要重新审视一下这段代码的设计是否有合理了。此外，实现注释描述还需要描述一些代码无法体现，但是对于读者了解这段代码很有帮助的信息，比如代码的设计思路等。</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">String</span> <span class="o">{</span>
+    <span class="o">...</span>
+    <span class="kd">public</span> <span class="kt">char</span><span class="o">[]</span> <span class="nf">toCharArray</span><span class="o">()</span> <span class="o">{</span>
+        <span class="c1">// Cannot use Arrays.copyOf because of class initialization order issues
+</span><span class="c1"></span>        <span class="kt">char</span> <span class="n">result</span><span class="o">[]</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">char</span><span class="o">[</span><span class="n">value</span><span class="o">.</span><span class="na">length</span><span class="o">];</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">arraycopy</span><span class="o">(</span><span class="n">value</span><span class="o">,</span> <span class="n">0</span><span class="o">,</span> <span class="n">result</span><span class="o">,</span> <span class="n">0</span><span class="o">,</span> <span class="n">value</span><span class="o">.</span><span class="na">length</span><span class="o">);</span>
+        <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="o">...</span>
+<span class="o">}</span>
+</code></pre></div><blockquote>
+<p>典型的实现注释（选自JDK 1.8中的String类）</p>
+</blockquote>
+<h3 id="模块依赖注释">模块依赖注释</h3>
+<p>模块依赖注释相对少见一些，主要描述两个相互依赖的模块的一些依赖信息，因为它并不属于单独某个模块，所以在哪里写这个注释需要认真衡量一下。实在找不到好的位置时，可以写一个类似README的文件，专门用于描述模块之间的依赖关系。</p>
+<div class="highlight"><pre class="chroma"><code class="language-c++" data-lang="c++"><span class="k">typedef</span> <span class="k">enum</span> <span class="nc">Status</span> <span class="p">{</span>
+    <span class="n">STATUS_OK</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">STATUS_UNKNOWN_TABLET</span>                <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">STATUS_WRONG_VERSION</span>                 <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="p">...</span>
+    <span class="n">STATUS_INDEX_DOESNT_EXIST</span>            <span class="o">=</span> <span class="mi">29</span><span class="p">,</span>
+    <span class="n">STATUS_INVALID_PARAMETER</span>             <span class="o">=</span> <span class="mi">30</span><span class="p">,</span>
+    <span class="n">STATUS_MAX_VALUE</span>                     <span class="o">=</span> <span class="mi">30</span><span class="p">,</span>
+    <span class="c1">// Note: if you add a new status value you must make the following
+</span><span class="c1"></span>    <span class="c1">// additional updates:
+</span><span class="c1"></span>    <span class="c1">// (1)  Modify STATUS_MAX_VALUE to have a value equal to the
+</span><span class="c1"></span>    <span class="c1">//      largest defined status value, and make sure its definition
+</span><span class="c1"></span>    <span class="c1">//      is the last one in the list. STATUS_MAX_VALUE is used
+</span><span class="c1"></span>    <span class="c1">//      primarily for testing.
+</span><span class="c1"></span>    <span class="c1">// (2)  Add new entries in the tables &#34;messages&#34; and &#34;symbols&#34; in
+</span><span class="c1"></span>    <span class="c1">//      Status.cc.
+</span><span class="c1"></span>    <span class="c1">// (3)  Add a new exception class to ClientException.h
+</span><span class="c1"></span>    <span class="c1">// (4)  Add a new &#34;case&#34; to ClientException::throwException to map
+</span><span class="c1"></span>    <span class="c1">//      from the status value to a status-specific ClientException
+</span><span class="c1"></span>    <span class="c1">//      subclass.
+</span><span class="c1"></span>    <span class="c1">// (5)  In the Java bindings, add a static class for the exception
+</span><span class="c1"></span>    <span class="c1">//      to ClientException.java
+</span><span class="c1"></span>    <span class="c1">// (6)  Add a case for the status of the exception to throw the
+</span><span class="c1"></span>    <span class="c1">//      exception in ClientException.java
+</span><span class="c1"></span>    <span class="c1">// (7)  Add the exception to the Status enum in Status.java, making
+</span><span class="c1"></span>    <span class="c1">//      sure the status is in the correct position corresponding to
+</span><span class="c1"></span>    <span class="c1">//      its status code.
+</span><span class="c1"></span><span class="p">}</span>
+</code></pre></div><blockquote>
+<p>典型的模块依赖注释（选自《A Philosophy of Software Design》中的例子）</p>
+</blockquote>
+<h2 id="如何写好代码注释">如何写好代码注释</h2>
+<h3 id="利用好注释模板">利用好注释模板</h3>
+<p>注释模板为注释写作提供了极大的便利，我们常用的开发工具如IDEA、VS Code都对注释模板有很好的支持。在配置好注释模板之后（一般情况下默认模板即可），只需简单的操作，就能生成模板，我们只需往模板里填上内容即可。对于方法的接口注释，注释模板尤为方便，方法的入参和返回值标识注释模板都已经提供好。</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="cm">/**
+</span><span class="cm">* 
+</span><span class="cm">* @param user
+</span><span class="cm">* @param password
+</span><span class="cm">* @return
+</span><span class="cm">*/</span>
+<span class="kd">private</span> <span class="kt">boolean</span> <span class="nf">login</span><span class="o">(</span><span class="n">String</span> <span class="n">user</span><span class="o">,</span> <span class="n">String</span> <span class="n">password</span><span class="o">)</span> <span class="o">{</span>
+    <span class="o">...</span>
+<span class="o">}</span>
+</code></pre></div><blockquote>
+<p>IntelliJ IDEA默认的注释模板</p>
+</blockquote>
+<h3 id="不要重复代码">不要重复代码</h3>
+<p>注释与代码重复是开发者最容易犯的一个错误，这也是很多开发者认为注释是冗余的原因。确实，对于那些通过读代码可以很容易就推断出来的信息，注释就是多余的，更甚者，出现过期注释还容易误导读者。</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">// Add a horizontal scroll bar
+</span><span class="c1"></span><span class="n">hScrollBar</span> <span class="o">=</span> <span class="k">new</span> <span class="n">JScrollBar</span><span class="o">(</span><span class="n">JScrollBar</span><span class="o">.</span><span class="na">HORIZONTAL</span><span class="o">);</span>
+<span class="n">add</span><span class="o">(</span><span class="n">hScrollBar</span><span class="o">,</span> <span class="n">BorderLayout</span><span class="o">.</span><span class="na">SOUTH</span><span class="o">);</span>
+<span class="c1">// Add a vertical scroll bar
+</span><span class="c1"></span><span class="n">vScrollBar</span> <span class="o">=</span> <span class="k">new</span> <span class="n">JScrollBar</span><span class="o">(</span><span class="n">JScrollBar</span><span class="o">.</span><span class="na">VERTICAL</span><span class="o">);</span>
+<span class="n">add</span><span class="o">(</span><span class="n">vScrollBar</span><span class="o">,</span> <span class="n">BorderLayout</span><span class="o">.</span><span class="na">EAST</span><span class="o">);</span>
+<span class="c1">// Initialize the caret-position related values
+</span><span class="c1"></span><span class="n">caretX</span>     <span class="o">=</span> <span class="n">0</span><span class="o">;</span>
+<span class="n">caretY</span>     <span class="o">=</span> <span class="n">0</span><span class="o">;</span>
+<span class="n">caretMemX</span>  <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+</code></pre></div><blockquote>
+<p>典型的重复代码的注释（选自《A Philosophy of Software Design》中的例子）</p>
+</blockquote>
+<p>某些程序员喜欢在注释中使用代码中的变量名或其中的单词，这种情况也是<strong>注释重复代码</strong>的一种体现。像下面的这个例子，注释完全就是冗余的，可以猜测开发者纯粹是为了注释而注释。</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="cm">/**
+</span><span class="cm"> * 用户登录
+</span><span class="cm"> * @param user User对象
+</span><span class="cm"> * @param password Password对象
+</span><span class="cm"> * @return
+</span><span class="cm"> */</span>
+<span class="kd">private</span> <span class="kt">boolean</span> <span class="nf">login</span><span class="o">(</span><span class="n">User</span> <span class="n">user</span><span class="o">,</span> <span class="n">Password</span> <span class="n">password</span><span class="o">)</span> <span class="o">{</span>
+    <span class="o">...</span>
+<span class="o">}</span>
+</code></pre></div><blockquote>
+<p>使用代码变量名的注释</p>
+</blockquote>
+<h3 id="注释也要分层">注释也要分层</h3>
+<p>在进行系统设计时，我们常常会采用分层架构，每一层负责不同功能。系统的顶层往往会更抽象一点，为功能调用者隐藏了很多细节（high-level）；底层往往会更细节一点，实现系统的具体功能（low-level）。在进行注释写作时，我们也要学会对注释进行分层。high-level的注释要提供比代码更抽象的信息，比如代码的设计思路；low-level的注释要提供比代码更细节的信息，比如表示一个范围的两个参数是左闭右开还是左闭右闭；我们需要避免写出与代码同一level的注释，因为这往往就是上一节所提到的<strong>注释重复代码</strong>。</p>
+<h4 id="low-level注释写作指南">low-level注释写作指南</h4>
+<p>对于需要通过阅读这一段代码才能获取的信息，就适合以low-level注释写在这段代码前面，一些常见的例子有：</p>
+<ul>
+<li>变量的单位是什么？</li>
+<li>表示范围的一组参数是左闭右开还是左闭右闭？</li>
+<li>某个变量为null时代表什么含义？</li>
+<li>某个资源应该由谁来负责释放，接口调用者还是接口提供者？</li>
+</ul>
+<p>low-level注释不能太过抽象，否则就失去了其应有的作用：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">// Current offset in resp Buffer
+</span><span class="c1"></span><span class="n">uint32_t</span> <span class="n">offset</span><span class="o">;</span>
+<span class="c1">// Contains all line-widths inside the document and
+</span><span class="c1">// number of appearances.
+</span><span class="c1"></span><span class="kd">private</span> <span class="n">TreeMap</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">,</span> <span class="n">Integer</span><span class="o">&gt;</span> <span class="n">lineWidths</span><span class="o">;</span>
+</code></pre></div><blockquote>
+<p>太过抽象的low-level注释（选自《A Philosophy of Software Design》中的例子）</p>
+</blockquote>
+<p>好的low-level注释应当详细介绍代码的意图及其需要注意的点：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">//  Position in this buffer of the first object that hasn&#39;t
+</span><span class="c1">//  been returned to the client.
+</span><span class="c1"></span><span class="n">uint32_t</span> <span class="n">offset</span><span class="o">;</span>
+<span class="c1">//  Holds statistics about line lengths of the form &lt;length, count&gt;
+</span><span class="c1">//  where length is the number of characters in a line (including
+</span><span class="c1">//  the newline), and count is the number of lines with
+</span><span class="c1">//  exactly that many characters. If there are no lines with
+</span><span class="c1">//  a particular length, then there is no entry for that length.
+</span><span class="c1"></span><span class="kd">private</span> <span class="n">TreeMap</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">,</span> <span class="n">Integer</span><span class="o">&gt;</span> <span class="n">numLinesWithLength</span><span class="o">;</span>
+</code></pre></div><blockquote>
+<p>典型的low-level注释（选自《A Philosophy of Software Design》中的例子）</p>
+</blockquote>
+<h4 id="high-level注释写作指南">high-level注释写作指南</h4>
+<p>high-level注释的作用是隐藏具体实现细节，快速让读者对整一段代码有一个全局的了解。high-level注释除了描述对代码进行抽象的概括（What）之外，还经常描述代码的设计思路（Why），这有助于帮助读者更容易、深入地了解整个系统。high-level注释不应该描述具体代码实现的信息，更不能犯<strong>注释重复代码</strong>的错误。在写high-level注释之前，先问一下自己：</p>
+<ul>
+<li>这段代码要做什么事情？</li>
+<li>这段代码最核心的功能是什么？</li>
+<li>怎样才能以最简单的描述表达这段代码的核心功能？</li>
+</ul>
+<p>太过细节的high-level注释其实就是在重复代码，另一方面该注释既不能解释此代码的总体目的，也不能解释其如何适合包含此代码的方法，导致其失去了其应有作用：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">// If there is a LOADING readRpc using the same session
+</span><span class="c1">// as PKHash pointed to by assignPos, and the last PKHash
+</span><span class="c1">// in that readRPC is smaller than current assigning
+</span><span class="c1">// PKHash, then we put assigning PKHash into that readRPC.
+</span><span class="c1"></span><span class="kt">int</span> <span class="n">readActiveRpcId</span> <span class="o">=</span> <span class="n">RPC_ID_NOT_ASSIGNED</span><span class="o">;</span>
+<span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">NUM_READ_RPC</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">session</span> <span class="o">==</span> <span class="n">readRpc</span><span class="o">[</span><span class="n">i</span><span class="o">].</span><span class="na">session</span>
+            <span class="o">&amp;&amp;</span> <span class="n">readRpc</span><span class="o">[</span><span class="n">i</span><span class="o">].</span><span class="na">status</span> <span class="o">==</span> <span class="n">LOADING</span>
+            <span class="o">&amp;&amp;</span> <span class="n">readRpc</span><span class="o">[</span><span class="n">i</span><span class="o">].</span><span class="na">maxPos</span> <span class="o">&lt;</span> <span class="n">assignPos</span>
+            <span class="o">&amp;&amp;</span> <span class="n">readRpc</span><span class="o">[</span><span class="n">i</span><span class="o">].</span><span class="na">numHashes</span> <span class="o">&lt;</span> <span class="n">MAX_PKHASHES_PERRPC</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">readActiveRpcId</span> <span class="o">=</span> <span class="n">i</span><span class="o">;</span>
+        <span class="k">break</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div><blockquote>
+<p>太过细节的high-level注释（选自《A Philosophy of Software Design》中的例子）</p>
+</blockquote>
+<p>更好的high-level注释应该在更高级别上描述代码的整体功能：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">// Try to append the current key hash onto an existing
+</span><span class="c1">// RPC to the desired server that hasn&#39;t been sent yet.
+</span><span class="c1"></span><span class="kt">int</span> <span class="n">readActiveRpcId</span> <span class="o">=</span> <span class="n">RPC_ID_NOT_ASSIGNED</span><span class="o">;</span>
+<span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">NUM_READ_RPC</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">session</span> <span class="o">==</span> <span class="n">readRpc</span><span class="o">[</span><span class="n">i</span><span class="o">].</span><span class="na">session</span>
+            <span class="o">&amp;&amp;</span> <span class="n">readRpc</span><span class="o">[</span><span class="n">i</span><span class="o">].</span><span class="na">status</span> <span class="o">==</span> <span class="n">LOADING</span>
+            <span class="o">&amp;&amp;</span> <span class="n">readRpc</span><span class="o">[</span><span class="n">i</span><span class="o">].</span><span class="na">maxPos</span> <span class="o">&lt;</span> <span class="n">assignPos</span>
+            <span class="o">&amp;&amp;</span> <span class="n">readRpc</span><span class="o">[</span><span class="n">i</span><span class="o">].</span><span class="na">numHashes</span> <span class="o">&lt;</span> <span class="n">MAX_PKHASHES_PERRPC</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">readActiveRpcId</span> <span class="o">=</span> <span class="n">i</span><span class="o">;</span>
+        <span class="k">break</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div><blockquote>
+<p>典型的high-level注释（选自《A Philosophy of Software Design》中的例子）</p>
+</blockquote>
+<h3 id="规范接口注释">规范接口注释</h3>
+<p>接口注释是用的最多的一种注释，它可以让读者快速了解整个模块的功能并知道如何使用该接口，而不必花费大量时间去阅读源码。</p>
+<p>对于一个<strong>类</strong>的接口注释，其通常是high-level的注释，主要描述这个类提供的一些功能；</p>
+<p>对于一个<strong>方法</strong>的接口注释，则同时需要包括high-level和low-level的注释，常见的有以下几点：</p>
+<ul>
+<li>整个方法提供的主要功能</li>
+<li>方法的所有参数和返回值含义</li>
+<li>调用该方法的副作用（比如改变了系统的某个状态）</li>
+<li>该方法可能抛出的所有异常</li>
+<li>调用该方法的预置条件（比如调用该方法前，系统必须处于某个状态）</li>
+</ul>
+<h3 id="实现注释描述whatwhy而不是how">实现注释描述what、why，而不是how</h3>
+<p>写实现注释时需要记住的最重要的一点就是，描述代码是做什么的（what）和为什么这么做（why），而不是描述怎么做（how）。因为实现代码本身就是how，如果还添加描述how的注释，那就犯了“<strong>注释重复代码</strong>”的错误了。</p>
+<p>前文中的这个注释就是典型的描述how的注释，该注释除了用文字重复一遍代码的逻辑，并没有其他更好的用处：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">// If there is a LOADING readRpc using the same session
+</span><span class="c1">// as PKHash pointed to by assignPos, and the last PKHash
+</span><span class="c1">// in that readRPC is smaller than current assigning
+</span><span class="c1">// PKHash, then we put assigning PKHash into that readRPC.
+</span><span class="c1"></span>
+</code></pre></div><blockquote>
+<p>典型的描写how的实现注释（选自《A Philosophy of Software Design》中的例子）</p>
+</blockquote>
+<p>更好的方法是描述what的注释，<strong>通过文字表达该段代码的用途，置于该用途是如何实现的，那就交给代码去解释吧</strong>！</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">// Try to append the current key hash onto an existing
+</span><span class="c1">// RPC to the desired server that hasn&#39;t been sent yet.
+</span></code></pre></div><blockquote>
+<p>典型的描写what的实现注释（选自《A Philosophy of Software Design》中的例子）</p>
+</blockquote>
+<p>需要注意的是，实现注释通常不是必须的，对于一些简短的、功能单一的函数，一个好的函数命名即可替代实现注释。</p>
+<h2 id="总结">总结</h2>
+<p><strong>注释</strong>是软件开发过程中的性价比极高的一个工具，它只需要花费20%的时间，即可获取80%的价值。代码注释最重要的作用就是让读者可以在不读源码的情况下，快速了解一段代码的主要功能。注释的作用还远远不止这些，John Ousterhout在《A Philosophy of Software Design》一书中提到，<strong>写注释最好的时机是在写代码之前</strong>。这样，注释就相当于一种<strong>设计工具</strong>：在编码前通过注释描述这段代码的功能，然后在通过编码实现这个功能，如果这个过程有偏差，则再调整注释。写注释时要切记两点，<em>不要重复代码</em>！<em>更新代码后也要更新注释</em>！前者可以减少冗余的注释，后者则可以避免因为过期的注释而误导读者。</p>
+<p>当然，注释也不是越多越好，如果一个系统写的注释太多，很有可能就是该系统设计得过于复杂，只能通过注释来帮助读者理解整个系统。</p>
+<p>总而言之，<strong>学会怎么写好代码注释，是一个程序员的必备技能，这即是为了开发团队的其他成员，也是为了未来的自己。</strong></p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/%E6%B3%A8%E9%87%8A/">注释</a>
+        
+            <a href="/tags/%E5%86%99%E5%A5%BD%E4%BB%A3%E7%A0%81/">写好代码</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>CC BY 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/%E4%B8%80%E6%AD%A5%E6%AD%A5%E9%99%8D%E4%BD%8E%E8%BD%AF%E4%BB%B6%E5%A4%8D%E6%9D%82%E5%BA%A6/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">一步步降低软件复杂度</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%A4%87%E5%BF%98%E5%BD%95%E6%A8%A1%E5%BC%8F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">【Go实现】实践GoF的23种设计模式：备忘录模式</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%91%BD%E4%BB%A4%E6%A8%A1%E5%BC%8F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">【Go实现】实践GoF的23种设计模式：命令模式</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">【Go实现】实践GoF的23种设计模式：代理模式</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E8%AE%BF%E9%97%AE%E8%80%85%E6%A8%A1%E5%BC%8F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">【Go实现】实践GoF的23种设计模式：访问者模式</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+
+    
+        
+    <script src="https://utteranc.es/client.js" 
+        repo="ruanrunxue/yrunz-comments"
+        issue-term="pathname"
+        
+        label="yrunz"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
+
+<style>
+    .utterances {
+        max-width: unset;
+    }
+</style>
+
+<script>
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
+        }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+        setUtterancesTheme(document.body.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        setUtterancesTheme(e.detail)
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_SVG"></script>
+    <section class="copyright">
+        &copy;
+        
+            2019 -
+        
+        2023 元闰子的邀请
+    </section>
+
+    <section class="powerby">
+        
+
+        <a href="https://beian.miit.gov.cn/">粤ICP备19152659号 | </a>Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.3.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        <br />
+    </section>
+</footer>
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

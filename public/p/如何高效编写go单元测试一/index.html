@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='前言 单元测试是用来对一个模块、一个函数或者一个类来进行正确性检验的测试工作。我们根据它来检验代码的行为是否和预期的一样，如果单元测试不通过，要么代码有bug，要么测试条件输入不正确，总之，需要修复使单元测试能够通过。单元测试一个最大的好处，就是确保一个程序模块的行为符合我们设计的预期，在将来对代码进行修改/重构时，还能最大限度地保证代码的行为仍然正确。
+Go对单元测试的支持已经相当友好了，原生的go test标准库就是专门用来进行单元测试的编写的。使用go test编写单元测试时需要遵循一些约定，比如所有测试代码都需要添加到_test.go结尾的测试文件中，这样在使用go build进行构建时，测试代码才会被排除在外。另外，每个测试函数都必须导入testing包，测试函数的名字必须以Test开头，且跟在Test后面的后缀名必须以大写开头，因此测试函数的声明应该是这样的：
+func TestSin(t *testing.T) { /* ... */ } func TestCos(t *testing.T) { /* ... */ } func TestLog(t *testing.T) { /* ... */ } _test.go测试文件通常和需要被测试的文件放在同一个包内，比如有如下的一段待测试的代码（在word包目录下的word.go文件）：
+package word // 判断一个字符串s是否时回文字符串 func IsPalindrome(s string) bool { for i := range s { if s[i] != s[len(s)-1-i] { return false } } return true } 那么在编写测试时，我们同样在word包目录下，创建一个word_test.go文件，单元测试的代码如下：
+package word import &amp;#34;testing&amp;#34; func TestPalindrome(t *testing.T) { // &amp;#34;detartrated&amp;#34;是一个回文字符串，因此IsPalindrome(&amp;#34;detartrated&amp;#34;)的返回值应该为true  // 如果返回false，则表示其实现有问题，需要使用t.'><title>如何高效编写Go单元测试（一）</title>
+
+<link rel='canonical' href='https://www.yrunz.com/p/%E5%A6%82%E4%BD%95%E9%AB%98%E6%95%88%E7%BC%96%E5%86%99go%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E4%B8%80/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='如何高效编写Go单元测试（一）'>
+<meta property='og:description' content='前言 单元测试是用来对一个模块、一个函数或者一个类来进行正确性检验的测试工作。我们根据它来检验代码的行为是否和预期的一样，如果单元测试不通过，要么代码有bug，要么测试条件输入不正确，总之，需要修复使单元测试能够通过。单元测试一个最大的好处，就是确保一个程序模块的行为符合我们设计的预期，在将来对代码进行修改/重构时，还能最大限度地保证代码的行为仍然正确。
+Go对单元测试的支持已经相当友好了，原生的go test标准库就是专门用来进行单元测试的编写的。使用go test编写单元测试时需要遵循一些约定，比如所有测试代码都需要添加到_test.go结尾的测试文件中，这样在使用go build进行构建时，测试代码才会被排除在外。另外，每个测试函数都必须导入testing包，测试函数的名字必须以Test开头，且跟在Test后面的后缀名必须以大写开头，因此测试函数的声明应该是这样的：
+func TestSin(t *testing.T) { /* ... */ } func TestCos(t *testing.T) { /* ... */ } func TestLog(t *testing.T) { /* ... */ } _test.go测试文件通常和需要被测试的文件放在同一个包内，比如有如下的一段待测试的代码（在word包目录下的word.go文件）：
+package word // 判断一个字符串s是否时回文字符串 func IsPalindrome(s string) bool { for i := range s { if s[i] != s[len(s)-1-i] { return false } } return true } 那么在编写测试时，我们同样在word包目录下，创建一个word_test.go文件，单元测试的代码如下：
+package word import &amp;#34;testing&amp;#34; func TestPalindrome(t *testing.T) { // &amp;#34;detartrated&amp;#34;是一个回文字符串，因此IsPalindrome(&amp;#34;detartrated&amp;#34;)的返回值应该为true  // 如果返回false，则表示其实现有问题，需要使用t.'>
+<meta property='og:url' content='https://www.yrunz.com/p/%E5%A6%82%E4%BD%95%E9%AB%98%E6%95%88%E7%BC%96%E5%86%99go%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E4%B8%80/'>
+<meta property='og:site_name' content='元闰子的邀请'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='golang' /><meta property='article:tag' content='单元测试' /><meta property='article:published_time' content='2020-12-22T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2020-12-22T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="如何高效编写Go单元测试（一）">
+<meta name="twitter:description" content="前言 单元测试是用来对一个模块、一个函数或者一个类来进行正确性检验的测试工作。我们根据它来检验代码的行为是否和预期的一样，如果单元测试不通过，要么代码有bug，要么测试条件输入不正确，总之，需要修复使单元测试能够通过。单元测试一个最大的好处，就是确保一个程序模块的行为符合我们设计的预期，在将来对代码进行修改/重构时，还能最大限度地保证代码的行为仍然正确。
+Go对单元测试的支持已经相当友好了，原生的go test标准库就是专门用来进行单元测试的编写的。使用go test编写单元测试时需要遵循一些约定，比如所有测试代码都需要添加到_test.go结尾的测试文件中，这样在使用go build进行构建时，测试代码才会被排除在外。另外，每个测试函数都必须导入testing包，测试函数的名字必须以Test开头，且跟在Test后面的后缀名必须以大写开头，因此测试函数的声明应该是这样的：
+func TestSin(t *testing.T) { /* ... */ } func TestCos(t *testing.T) { /* ... */ } func TestLog(t *testing.T) { /* ... */ } _test.go测试文件通常和需要被测试的文件放在同一个包内，比如有如下的一段待测试的代码（在word包目录下的word.go文件）：
+package word // 判断一个字符串s是否时回文字符串 func IsPalindrome(s string) bool { for i := range s { if s[i] != s[len(s)-1-i] { return false } } return true } 那么在编写测试时，我们同样在word包目录下，创建一个word_test.go文件，单元测试的代码如下：
+package word import &amp;#34;testing&amp;#34; func TestPalindrome(t *testing.T) { // &amp;#34;detartrated&amp;#34;是一个回文字符串，因此IsPalindrome(&amp;#34;detartrated&amp;#34;)的返回值应该为true  // 如果返回false，则表示其实现有问题，需要使用t.">
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "light");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/yrz_hudc7c8721ecce4b724df5002339c76402_174377_300x0_resize_box_2.png" width="300"
+                            height="306" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://www.yrunz.com">元闰子的邀请</a></h1>
+        <h2 class="site-description">阅读、写作、生活（个人技术分享）</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>首页</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>博客</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%85%B3%E4%BA%8E%E5%85%83%E9%97%B0%E5%AD%90/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24"
+     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+     stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z"/>
+    <circle cx="12" cy="7" r="4"/>
+    <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/>
+</svg>
+
+                
+                <span>关于元闰子</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%8F%8B%E6%83%85%E9%93%BE%E6%8E%A5/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-friends" width="44" height="44"
+     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+    <circle cx="7" cy="5" r="2"/>
+    <path d="M5 22v-5l-1 -1v-4a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4l-1 1v5"/>
+    <circle cx="17" cy="5" r="2"/>
+    <path d="M15 22v-4h-2l2 -6a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1l2 6h-2v4"/>
+</svg>
+
+                
+                <span>友情链接</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>暗色模式</span>
+            </li>
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://www.yrunz.com" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/golang/" >
+                Golang
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/%E5%A6%82%E4%BD%95%E9%AB%98%E6%95%88%E7%BC%96%E5%86%99go%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E4%B8%80/">如何高效编写Go单元测试（一）</a>
+    </h2>
+
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Dec 22, 2020</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <h2 id="前言">前言</h2>
+<p><strong>单元测试</strong>是用来对一个模块、一个函数或者一个类来进行正确性检验的测试工作。我们根据它来检验代码的行为是否和预期的一样，如果单元测试不通过，要么代码有bug，要么测试条件输入不正确，总之，需要修复使单元测试能够通过。单元测试一个最大的好处，就是确保一个程序模块的行为符合我们设计的预期，在将来对代码进行修改/重构时，还能最大限度地保证代码的行为仍然正确。</p>
+<p>Go对单元测试的支持已经相当友好了，原生的<code>go test</code>标准库就是专门用来进行单元测试的编写的。使用<code>go test</code>编写单元测试时需要遵循一些约定，比如所有测试代码都需要添加到<code>_test.go</code>结尾的测试文件中，这样在使用<code>go build</code>进行构建时，测试代码才会被排除在外。另外，每个测试函数都必须导入<code>testing</code>包，测试函数的名字必须以<code>Test</code>开头，且<strong>跟在<code>Test</code>后面的后缀名必须以大写开头</strong>，因此测试函数的声明应该是这样的：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go">  <span class="kd">func</span> <span class="nf">TestSin</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span> <span class="cm">/* ... */</span> <span class="p">}</span>
+  <span class="kd">func</span> <span class="nf">TestCos</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span> <span class="cm">/* ... */</span> <span class="p">}</span>
+  <span class="kd">func</span> <span class="nf">TestLog</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span> <span class="cm">/* ... */</span> <span class="p">}</span>
+</code></pre></div><p><code>_test.go</code>测试文件通常和需要被测试的文件放在同一个包内，比如有如下的一段待测试的代码（在<code>word</code>包目录下的<code>word.go</code>文件）：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">word</span>
+<span class="c1">// 判断一个字符串s是否时回文字符串
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">IsPalindrome</span><span class="p">(</span><span class="nx">s</span> <span class="kt">string</span><span class="p">)</span> <span class="kt">bool</span> <span class="p">{</span>
+    <span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">s</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="nx">s</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">!=</span> <span class="nx">s</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="nx">s</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="o">-</span><span class="nx">i</span><span class="p">]</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="kc">false</span>
+        <span class="p">}</span> 
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="kc">true</span>
+<span class="p">}</span>
+</code></pre></div><p>那么在编写测试时，我们同样在<code>word</code>包目录下，创建一个<code>word_test.go</code>文件，单元测试的代码如下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">word</span>
+
+<span class="kn">import</span> <span class="s">&#34;testing&#34;</span>
+
+<span class="kd">func</span> <span class="nf">TestPalindrome</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// &#34;detartrated&#34;是一个回文字符串，因此IsPalindrome(&#34;detartrated&#34;)的返回值应该为true
+</span><span class="c1"></span>  <span class="c1">// 如果返回false，则表示其实现有问题，需要使用t.Error进行错误报告
+</span><span class="c1"></span>	<span class="k">if</span> <span class="p">!</span><span class="nf">IsPalindrome</span><span class="p">(</span><span class="s">&#34;detartrated&#34;</span><span class="p">)</span> <span class="p">{</span>
+		<span class="nx">t</span><span class="p">.</span><span class="nf">Error</span><span class="p">(</span><span class="s">`IsPalindrome(&#34;detartrated&#34;) = false`</span><span class="p">)</span>
+	<span class="p">}</span>
+	<span class="k">if</span> <span class="p">!</span><span class="nf">IsPalindrome</span><span class="p">(</span><span class="s">&#34;kayak&#34;</span><span class="p">)</span> <span class="p">{</span>
+		<span class="nx">t</span><span class="p">.</span><span class="nf">Error</span><span class="p">(</span><span class="s">`IsPalindrome(&#34;kayak&#34;) = false`</span><span class="p">)</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">TestNonPalindrome</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
+	<span class="k">if</span> <span class="nf">IsPalindrome</span><span class="p">(</span><span class="s">&#34;palindrome&#34;</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">t</span><span class="p">.</span><span class="nf">Error</span><span class="p">(</span><span class="s">`IsPalindrome(&#34;palindrome&#34;) = true`</span><span class="p">)</span> 
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div><p>测试用例成功则打印：</p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="o">===</span> RUN   TestPalindrome
+--- PASS: TestPalindrome <span class="o">(</span>0.00s<span class="o">)</span>
+PASS
+</code></pre></div><p>用例执行失败则是：</p>
+<pre><code>=== RUN   TestNonPalindrome
+--- FAIL: TestNonPalindrome (0.00s)
+    nba_test.go:53: IsPalindrome(&quot;kayak&quot;) = true
+FAIL
+</code></pre><h2 id="没有断言的go-test框架">没有断言的go test框架</h2>
+<p>从单元测试的代码中可以看出，在判断<code>IsPalindrome</code>方法是否运行正确时，我们并未使用断言，而是通过<code>if</code>语句进行判断：如果结果错误则通过<code>t.Error</code>方法报告错误。这是因为Go原生就不支持断言，官网也给出了他们这样设计的原因，简单来说就是<strong>不想让开发者在错误处理上进行偷懒</strong>。</p>
+<blockquote>
+<p>Go doesn&rsquo;t provide assertions. They are undeniably convenient, but our experience has been that programmers use them as a crutch to avoid thinking about proper error handling and reporting&hellip;(详见https://golang.org/doc/faq#assertions)</p>
+</blockquote>
+<p>但对单元测试来说，没有断言真的是很不方便。特别地，对以前做Java开发时习惯了使用<code>Junit</code>进行单元测试的同学而言更是难受。另外，使用<code>if</code>语句来对方法的输出结果进行判断，并进行对应的错误处理，会<strong>导致单元测试代码充斥着大量的<code>if</code>分支，影响了代码的可读性</strong>。</p>
+<p><em>那么，有没有更好的解决方法呢？</em></p>
+<p>针对这个问题，我们可以引入第三方的断言库来解决。</p>
+<h2 id="使用testify进行断言">使用testify进行断言</h2>
+<p>在第三方断言库的选择上，就活跃度和易用性而言，<a class="link" href="https://github.com/stretchr/testify"  target="_blank" rel="noopener"
+    >testify</a>都是最佳的选择。</p>
+<blockquote>
+<p>testify：https://github.com/stretchr/testify</p>
+</blockquote>
+<p>现在，我们使用testify为上述<code>IsPalindrome</code>的单元测试用例进行重构：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">word</span>
+
+<span class="kn">import</span> <span class="s">&#34;testing&#34;</span>
+<span class="kn">import</span> <span class="s">&#34;github.com/stretchr/testify/assert&#34;</span>
+
+<span class="kd">func</span> <span class="nf">TestPalindrome</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// 断言IsPalindrome方法的返回值为True
+</span><span class="c1"></span>	<span class="nx">assert</span><span class="p">.</span><span class="nf">True</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nf">IsPalindrome</span><span class="p">(</span><span class="s">&#34;detartrated&#34;</span><span class="p">))</span>
+	<span class="nx">assert</span><span class="p">.</span><span class="nf">True</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nf">IsPalindrome</span><span class="p">(</span><span class="s">&#34;kayak&#34;</span><span class="p">))</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">TestNonPalindrome</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// 断言IsPalindrome方法的返回值为False
+</span><span class="c1"></span>	<span class="nx">assert</span><span class="p">.</span><span class="nf">False</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nf">IsPalindrome</span><span class="p">(</span><span class="s">&#34;palindrome&#34;</span><span class="p">))</span>
+<span class="p">}</span>
+</code></pre></div><p>测试用例成功则打印：</p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="o">===</span> RUN   TestPalindrome
+--- PASS: TestPalindrome <span class="o">(</span>0.00s<span class="o">)</span>
+PASS
+</code></pre></div><p>用例执行失败则是：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="o">==</span><span class="p">=</span> <span class="nx">RUN</span>   <span class="nx">TestNonPalindrome</span>
+    <span class="nx">palindrome_test</span><span class="p">.</span><span class="k">go</span><span class="p">:</span><span class="mi">23</span><span class="p">:</span> 
+        	<span class="nx">Error</span> <span class="nx">Trace</span><span class="p">:</span>	<span class="nx">palindrome_test</span><span class="p">.</span><span class="k">go</span><span class="p">:</span><span class="mi">23</span>
+        	<span class="nx">Error</span><span class="p">:</span>      	<span class="nx">Should</span> <span class="nx">be</span> <span class="kc">false</span>
+        	<span class="nx">Test</span><span class="p">:</span>       	<span class="nx">TestNonPalindrome</span>
+<span class="o">---</span> <span class="nx">FAIL</span><span class="p">:</span> <span class="nf">TestNonPalindrome</span> <span class="p">(</span><span class="mf">0.00</span><span class="nx">s</span><span class="p">)</span>
+</code></pre></div><p>由此可见，重构后的测试用例更加简洁，可读性也更加好了。而且，在断言出错的情况下，打印出来的错误信息也相对丰富。</p>
+<p>testify底层实现也是基于go test框架，在上述用法中，每个<code>assert</code>方法都将<code>testing.T</code>作为第一个入参，以此来使用go test框架的错误报告的基础能力。另外，如果你在一个测试方法中需要断言很多次，每次都传参<code>testing.T</code>就显得比较繁琐，那么可以这样实现来简化：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">TestSomething</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// 创建一个assert实例，只需传参testing.T一次
+</span><span class="c1"></span>	<span class="nx">assert</span> <span class="o">:=</span> <span class="nx">assert</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="nx">t</span><span class="p">)</span>
+
+	<span class="c1">// 断言两者相等
+</span><span class="c1"></span>	<span class="nx">assert</span><span class="p">.</span><span class="nf">Equal</span><span class="p">(</span><span class="mi">123</span><span class="p">,</span> <span class="mi">123</span><span class="p">)</span>
+
+	<span class="c1">// 断言两者不相等
+</span><span class="c1"></span>	<span class="nx">assert</span><span class="p">.</span><span class="nf">NotEqual</span><span class="p">(</span><span class="mi">123</span><span class="p">,</span> <span class="mi">456</span><span class="p">)</span>
+
+	<span class="c1">// 断言某个实例为nil
+</span><span class="c1"></span>	<span class="nx">assert</span><span class="p">.</span><span class="nf">Nil</span><span class="p">(</span><span class="nx">object</span><span class="p">)</span>
+
+	<span class="c1">// 断言object实例不为nil
+</span><span class="c1"></span>	<span class="k">if</span> <span class="nx">assert</span><span class="p">.</span><span class="nf">NotNil</span><span class="p">(</span><span class="nx">object</span><span class="p">)</span> <span class="p">{</span>
+
+		<span class="c1">// 当知道object不为nil之后，就可以安全地对其进行访问了
+</span><span class="c1"></span>		<span class="c1">// 进一步断言object的Value属性的值为&#34;Something&#34;
+</span><span class="c1"></span>		<span class="nx">assert</span><span class="p">.</span><span class="nf">Equal</span><span class="p">(</span><span class="s">&#34;Something&#34;</span><span class="p">,</span> <span class="nx">object</span><span class="p">.</span><span class="nx">Value</span><span class="p">)</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div><p>testify有着极其丰富的断言方法，除了上述几个<code>assert.True</code>、<code>assert.Nil</code>、<code>assert.Equal</code>常用的断言方法以外，还有用来断言目录是否存在的<code>assert.DirExists</code>；断言某个方法是否抛出<code>panic</code>的<code>assert.Panics</code>；断言字符串是否符合指定正则表达式的<code>assert.Regexp</code>，等等。总之，testify绝对能够满足你在Go单元测试断言方面的所有需要。</p>
+<blockquote>
+<p>更多用法请参考testify assert API文档：https://godoc.org/github.com/stretchr/testify/assert</p>
+</blockquote>
+<h2 id="总结">总结</h2>
+<p>本文主要介绍了如何使用testify库来为Go单元测试引入断言的能力，以此来使得测试用例代码更加简洁。<code>assert</code>只是testify库提供能力之一，比如它还有<code>mock</code>包，提供了“<strong>打桩</strong>”的能力。说起“<strong>打桩</strong>”，写过Java单元测试的同学一定很熟悉，Java中的<strong>Mockito</strong>和<strong>PowerMock</strong>框架就提供了类似的功能。本文之所以没有介绍testify库的mock功能，是因为还有更加好用的mock库。下一篇文章，我们将介绍如何高效、优雅地在Go单元测试中进行打桩。</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/golang/">golang</a>
+        
+            <a href="/tags/%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95/">单元测试</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>CC BY 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/%E5%A6%82%E4%BD%95%E9%AB%98%E6%95%88%E7%BC%96%E5%86%99go%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E4%BA%8C/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">如何高效编写Go单元测试（二）</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E4%BD%BF%E7%94%A8go%E5%AE%9E%E7%8E%B0gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B8%89/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">使用Go实现GoF的23种设计模式（三）</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E4%BD%BF%E7%94%A8go%E5%AE%9E%E7%8E%B0gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%BA%8C/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">使用Go实现GoF的23种设计模式（二）</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E4%BD%BF%E7%94%A8go%E5%AE%9E%E7%8E%B0gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B8%80/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">使用Go实现GoF的23种设计模式（一）</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+
+    
+        
+    <script src="https://utteranc.es/client.js" 
+        repo="ruanrunxue/yrunz-comments"
+        issue-term="pathname"
+        
+        label="yrunz"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
+
+<style>
+    .utterances {
+        max-width: unset;
+    }
+</style>
+
+<script>
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
+        }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+        setUtterancesTheme(document.body.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        setUtterancesTheme(e.detail)
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_SVG"></script>
+    <section class="copyright">
+        &copy;
+        
+            2019 -
+        
+        2023 元闰子的邀请
+    </section>
+
+    <section class="powerby">
+        
+
+        <a href="https://beian.miit.gov.cn/">粤ICP备19152659号 | </a>Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.3.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        <br />
+    </section>
+</footer>
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='前言 谈起Java对象，笔者的第一反应是在：Java中的每一个对象（不包括基础类型）都继承于Object对象。相信这也是大多数程序员对Java对象的初次印象，Object可以表示所有的Java对象。但是，这种理解仅仅是停留在语言层面，至于更深的JVM层面，对象还是用Object来表示吗？显然不是。JVM通常使用非Java语言实现，是用来解析并运行Java程序的，它有自己的模型来表示Java语言的各种特性，包括Object。下面我们以HotSpot为例，一起来探讨Java对象在JVM层面的Java对象模型。
+ HotSpot采用C&#43;&#43;语言实现，下文中的JVM如无特殊说明，指的都是HotSpot。
+ Java程序通过new操作符来创建一个对象，在深入探讨HotSpot的Java对象模型前，我们先看下new操作符的具体实现。
+// hotspot/src/share/vm/interpreter/interpreterRuntime.cpp ... // HotSpot中new操作符的实现函数 IRT_ENTRY(void, InterpreterRuntime::_new(JavaThread* thread, ConstantPool* pool, int index)) Klass* k_oop = pool-&amp;gt;klass_at(index, CHECK); instanceKlassHandle klass (THREAD, k_oop); // Make sure we are not instantiating an abstract klass  klass-&amp;gt;check_valid_for_instantiation(true, CHECK); // Make sure klass is initialized  klass-&amp;gt;initialize(CHECK); // At this point the class may not be fully initialized  // ...  oop obj = klass-&amp;gt;allocate_instance(CHECK); thread-&amp;gt;set_vm_result(obj); IRT_END ... 上述代码片段来自HotSpot源码中new操作符的实现函数，先不深入分析每一行的具体含义，这段代码给我们最直观的功能就是：先对klass对象进行初始化工作，然后再用它来创建出oop对象。到这里我们大致就能猜出，oop表示的就是一个Java对象。而这里的klass和Java中的Class之间似乎有着紧密的联系，一是两者的名字非常类似，另外也可通过第16行代码得到进一步的肯定。对Java的反射机制稍微有所了解的人，看着第16行代码一定很熟悉，因为它与使用Class.'><title>Java的对象模型——Oop-Klass模型（一）</title>
+
+<link rel='canonical' href='https://www.yrunz.com/p/java%E7%9A%84%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8Boop-klass%E6%A8%A1%E5%9E%8B%E4%B8%80/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='Java的对象模型——Oop-Klass模型（一）'>
+<meta property='og:description' content='前言 谈起Java对象，笔者的第一反应是在：Java中的每一个对象（不包括基础类型）都继承于Object对象。相信这也是大多数程序员对Java对象的初次印象，Object可以表示所有的Java对象。但是，这种理解仅仅是停留在语言层面，至于更深的JVM层面，对象还是用Object来表示吗？显然不是。JVM通常使用非Java语言实现，是用来解析并运行Java程序的，它有自己的模型来表示Java语言的各种特性，包括Object。下面我们以HotSpot为例，一起来探讨Java对象在JVM层面的Java对象模型。
+ HotSpot采用C&#43;&#43;语言实现，下文中的JVM如无特殊说明，指的都是HotSpot。
+ Java程序通过new操作符来创建一个对象，在深入探讨HotSpot的Java对象模型前，我们先看下new操作符的具体实现。
+// hotspot/src/share/vm/interpreter/interpreterRuntime.cpp ... // HotSpot中new操作符的实现函数 IRT_ENTRY(void, InterpreterRuntime::_new(JavaThread* thread, ConstantPool* pool, int index)) Klass* k_oop = pool-&amp;gt;klass_at(index, CHECK); instanceKlassHandle klass (THREAD, k_oop); // Make sure we are not instantiating an abstract klass  klass-&amp;gt;check_valid_for_instantiation(true, CHECK); // Make sure klass is initialized  klass-&amp;gt;initialize(CHECK); // At this point the class may not be fully initialized  // ...  oop obj = klass-&amp;gt;allocate_instance(CHECK); thread-&amp;gt;set_vm_result(obj); IRT_END ... 上述代码片段来自HotSpot源码中new操作符的实现函数，先不深入分析每一行的具体含义，这段代码给我们最直观的功能就是：先对klass对象进行初始化工作，然后再用它来创建出oop对象。到这里我们大致就能猜出，oop表示的就是一个Java对象。而这里的klass和Java中的Class之间似乎有着紧密的联系，一是两者的名字非常类似，另外也可通过第16行代码得到进一步的肯定。对Java的反射机制稍微有所了解的人，看着第16行代码一定很熟悉，因为它与使用Class.'>
+<meta property='og:url' content='https://www.yrunz.com/p/java%E7%9A%84%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8Boop-klass%E6%A8%A1%E5%9E%8B%E4%B8%80/'>
+<meta property='og:site_name' content='元闰子的邀请'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='java' /><meta property='article:tag' content='jvm' /><meta property='article:published_time' content='2020-01-31T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2020-01-31T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="Java的对象模型——Oop-Klass模型（一）">
+<meta name="twitter:description" content="前言 谈起Java对象，笔者的第一反应是在：Java中的每一个对象（不包括基础类型）都继承于Object对象。相信这也是大多数程序员对Java对象的初次印象，Object可以表示所有的Java对象。但是，这种理解仅仅是停留在语言层面，至于更深的JVM层面，对象还是用Object来表示吗？显然不是。JVM通常使用非Java语言实现，是用来解析并运行Java程序的，它有自己的模型来表示Java语言的各种特性，包括Object。下面我们以HotSpot为例，一起来探讨Java对象在JVM层面的Java对象模型。
+ HotSpot采用C&#43;&#43;语言实现，下文中的JVM如无特殊说明，指的都是HotSpot。
+ Java程序通过new操作符来创建一个对象，在深入探讨HotSpot的Java对象模型前，我们先看下new操作符的具体实现。
+// hotspot/src/share/vm/interpreter/interpreterRuntime.cpp ... // HotSpot中new操作符的实现函数 IRT_ENTRY(void, InterpreterRuntime::_new(JavaThread* thread, ConstantPool* pool, int index)) Klass* k_oop = pool-&amp;gt;klass_at(index, CHECK); instanceKlassHandle klass (THREAD, k_oop); // Make sure we are not instantiating an abstract klass  klass-&amp;gt;check_valid_for_instantiation(true, CHECK); // Make sure klass is initialized  klass-&amp;gt;initialize(CHECK); // At this point the class may not be fully initialized  // ...  oop obj = klass-&amp;gt;allocate_instance(CHECK); thread-&amp;gt;set_vm_result(obj); IRT_END ... 上述代码片段来自HotSpot源码中new操作符的实现函数，先不深入分析每一行的具体含义，这段代码给我们最直观的功能就是：先对klass对象进行初始化工作，然后再用它来创建出oop对象。到这里我们大致就能猜出，oop表示的就是一个Java对象。而这里的klass和Java中的Class之间似乎有着紧密的联系，一是两者的名字非常类似，另外也可通过第16行代码得到进一步的肯定。对Java的反射机制稍微有所了解的人，看着第16行代码一定很熟悉，因为它与使用Class.">
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "light");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/yrz_hudc7c8721ecce4b724df5002339c76402_174377_300x0_resize_box_2.png" width="300"
+                            height="306" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://www.yrunz.com">元闰子的邀请</a></h1>
+        <h2 class="site-description">阅读、写作、生活（个人技术分享）</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>首页</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>博客</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%85%B3%E4%BA%8E%E5%85%83%E9%97%B0%E5%AD%90/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24"
+     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+     stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z"/>
+    <circle cx="12" cy="7" r="4"/>
+    <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/>
+</svg>
+
+                
+                <span>关于元闰子</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%8F%8B%E6%83%85%E9%93%BE%E6%8E%A5/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-friends" width="44" height="44"
+     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+    <circle cx="7" cy="5" r="2"/>
+    <path d="M5 22v-5l-1 -1v-4a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4l-1 1v5"/>
+    <circle cx="17" cy="5" r="2"/>
+    <path d="M15 22v-4h-2l2 -6a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1l2 6h-2v4"/>
+</svg>
+
+                
+                <span>友情链接</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>暗色模式</span>
+            </li>
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://www.yrunz.com" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/java/" >
+                Java
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/java%E7%9A%84%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8Boop-klass%E6%A8%A1%E5%9E%8B%E4%B8%80/">Java的对象模型——Oop-Klass模型（一）</a>
+    </h2>
+
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Jan 31, 2020</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <h2 id="前言">前言</h2>
+<p>谈起Java对象，笔者的第一反应是在：<strong>Java中的每一个对象（不包括基础类型）都继承于<code>Object</code>对象</strong>。相信这也是大多数程序员对Java对象的初次印象，<code>Object</code>可以表示所有的Java对象。但是，这种理解仅仅是停留在语言层面，至于更深的JVM层面，对象还是用<code>Object</code>来表示吗？<em>显然不是</em>。JVM通常使用非Java语言实现，是用来解析并运行Java程序的，它有自己的模型来表示Java语言的各种特性，包括<code>Object</code>。下面我们以HotSpot为例，一起来探讨Java对象在JVM层面的Java对象模型。</p>
+<blockquote>
+<p>HotSpot采用C++语言实现，下文中的JVM如无特殊说明，指的都是HotSpot。</p>
+</blockquote>
+<p>Java程序通过<code>new</code>操作符来创建一个对象，在深入探讨HotSpot的Java对象模型前，我们先看下<code>new</code>操作符的具体实现。</p>
+<div class="highlight"><pre class="chroma"><code class="language-C++" data-lang="C++"><span class="c1">// hotspot/src/share/vm/interpreter/interpreterRuntime.cpp
+</span><span class="c1"></span><span class="p">...</span>
+<span class="c1">// HotSpot中new操作符的实现函数
+</span><span class="c1"></span><span class="n">IRT_ENTRY</span><span class="p">(</span><span class="kt">void</span><span class="p">,</span> <span class="n">InterpreterRuntime</span><span class="o">::</span><span class="n">_new</span><span class="p">(</span><span class="n">JavaThread</span><span class="o">*</span> <span class="kr">thread</span><span class="p">,</span> <span class="n">ConstantPool</span><span class="o">*</span> <span class="n">pool</span><span class="p">,</span> <span class="kt">int</span> <span class="n">index</span><span class="p">))</span>
+  <span class="n">Klass</span><span class="o">*</span> <span class="n">k_oop</span> <span class="o">=</span> <span class="n">pool</span><span class="o">-&gt;</span><span class="n">klass_at</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">CHECK</span><span class="p">);</span>
+  <span class="n">instanceKlassHandle</span> <span class="nf">klass</span> <span class="p">(</span><span class="n">THREAD</span><span class="p">,</span> <span class="n">k_oop</span><span class="p">);</span>
+  <span class="c1">// Make sure we are not instantiating an abstract klass
+</span><span class="c1"></span>  <span class="n">klass</span><span class="o">-&gt;</span><span class="n">check_valid_for_instantiation</span><span class="p">(</span><span class="nb">true</span><span class="p">,</span> <span class="n">CHECK</span><span class="p">);</span>
+  <span class="c1">// Make sure klass is initialized
+</span><span class="c1"></span>  <span class="n">klass</span><span class="o">-&gt;</span><span class="n">initialize</span><span class="p">(</span><span class="n">CHECK</span><span class="p">);</span>
+  <span class="c1">// At this point the class may not be fully initialized
+</span><span class="c1"></span>  <span class="c1">// ...
+</span><span class="c1"></span>  <span class="n">oop</span> <span class="n">obj</span> <span class="o">=</span> <span class="n">klass</span><span class="o">-&gt;</span><span class="n">allocate_instance</span><span class="p">(</span><span class="n">CHECK</span><span class="p">);</span>
+  <span class="kr">thread</span><span class="o">-&gt;</span><span class="n">set_vm_result</span><span class="p">(</span><span class="n">obj</span><span class="p">);</span>
+<span class="n">IRT_END</span>
+<span class="p">...</span>
+</code></pre></div><p>上述代码片段来自HotSpot源码中<code>new</code>操作符的实现函数，先不深入分析每一行的具体含义，这段代码给我们最直观的功能就是：<strong>先对<code>klass</code>对象进行初始化工作，然后再用它来创建出<code>oop</code>对象</strong>。到这里我们大致就能猜出，<code>oop</code>表示的就是一个Java对象。而这里的<code>klass</code>和Java中的<code>Class</code>之间似乎有着紧密的联系，一是两者的名字非常类似，另外也可通过第16行代码得到进一步的肯定。对Java的反射机制稍微有所了解的人，看着第16行代码一定很熟悉，因为它与使用<code>Class.newInstance()</code>方法来创建<code>Object</code>对象很类似。</p>
+<p><em>实际正如上述所猜测，HotSpot使用Oop-Klass模型来表示Java的对象。</em></p>
+<h2 id="oop的继承体系">Oop的继承体系</h2>
+<p>这里的<strong>Oop</strong>并非是Object-oriented programming，而是<strong>Ordinary object pointer</strong>（普通对象指针），是HotSpot用来表示Java对象的实例信息的一个体系。其中<code>oop</code>是Oop体系中的最高父类，整个继承体系如下所示：</p>
+<div class="highlight"><pre class="chroma"><code class="language-c++" data-lang="c++"><span class="c1">// hotspot/src/share/vm/oops/oopsHierarchy.hpp
+</span><span class="c1"></span><span class="p">...</span>
+<span class="c1">// Oop的继承体系
+</span><span class="c1"></span><span class="k">typedef</span> <span class="k">class</span> <span class="nc">oopDesc</span><span class="o">*</span>                            <span class="n">oop</span><span class="p">;</span>
+<span class="k">typedef</span> <span class="k">class</span>   <span class="nc">instanceOopDesc</span><span class="o">*</span>            <span class="n">instanceOop</span><span class="p">;</span>
+<span class="k">typedef</span> <span class="k">class</span>   <span class="nc">arrayOopDesc</span><span class="o">*</span>                    <span class="n">arraysOop</span><span class="p">;</span>
+<span class="k">typedef</span> <span class="k">class</span>     <span class="nc">objArrayOopDesc</span><span class="o">*</span>            <span class="n">objArrayOop</span><span class="p">;</span>
+<span class="k">typedef</span> <span class="k">class</span>     <span class="nc">typeArrayOopDesc</span><span class="o">*</span>            <span class="n">typeArrayOop</span><span class="p">;</span>
+<span class="p">...</span>
+</code></pre></div><p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-12-154538.jpg" alt="Oop继承体系"  /></p>
+<p>每个Java对象都有它独有的生命周期，我们使用<code>new</code>操作符将它创建出来，然后对它执行各式各样的操作（如获取成员属性、调用成员函数、加锁等），最后被GC回收掉。那么Java对象的这一系列经历，JVM又是怎么实现的呢？JVM使用Oop来表示一个Java对象，自然地，这些经历都会跟<code>oop</code>有关。</p>
+<p><code>oop</code>的子类有两个，分别是<code>instanceOop</code>和<code>arrayOop</code>。前者表示Java中普通的对象，后者则表示数组对象。<code>arrayOop</code>也有两个子类，<code>objArrayOop</code>表示普通对象类型的数组，而<code>typeArrayOopDesc</code>则表示基础类型的数组。如下图所示，<code>oop</code>的存储结构主要由对象头和对象体组成。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-12-154559.jpg" alt="Java对象的存储结构"  /></p>
+<h2 id="oop对象头">oop对象头</h2>
+<p><code>oop</code>主要有两个成员属性：</p>
+<div class="highlight"><pre class="chroma"><code class="language-C++" data-lang="C++"><span class="c1">// hotspot/src/share/vm/oops/oop.hpp
+</span><span class="c1"></span><span class="k">class</span> <span class="nc">oopDesc</span> <span class="p">{</span>
+ <span class="p">...</span>
+ <span class="k">private</span><span class="o">:</span>
+  <span class="c1">// 用于存储对象的运行时记录信息，如哈希值、GC分代年龄、锁状态等
+</span><span class="c1"></span>  <span class="k">volatile</span> <span class="n">markOop</span>  <span class="n">_mark</span><span class="p">;</span>
+  <span class="c1">// Klass指针的联合体，指向当前对象所属的Klass对象
+</span><span class="c1"></span>  <span class="k">union</span> <span class="nc">_metadata</span> <span class="p">{</span>
+    <span class="c1">// 未采用指针压缩技术时使用
+</span><span class="c1"></span>    <span class="n">Klass</span><span class="o">*</span>      <span class="n">_klass</span><span class="p">;</span>
+    <span class="c1">// 采用指针压缩技术时使用
+</span><span class="c1"></span>    <span class="n">narrowKlass</span> <span class="n">_compressed_klass</span><span class="p">;</span>
+  <span class="p">}</span> <span class="n">_metadata</span><span class="p">;</span>
+ <span class="p">...</span>
+<span class="p">}</span>
+</code></pre></div><p><code>_mark</code>和<code>_metadata</code>被称为<strong>对象头</strong>，其中前者存储对象的运行时记录信息；后者是一个指针，指向当前对象所属的<code>Klass</code>对象。</p>
+<blockquote>
+<p>因为某些历史原因，HotSpot把<code>markOop</code>放到Oop体系里，但是它并继承<code>oop</code>，因此前文所描述的Oop体系并没有包含它。</p>
+</blockquote>
+<p><code>markOop</code>的存储结构在32位和64位系统中有所差异，但是具体存储的信息是一样的，本节只介绍它在32位系统中的存储结构。在32位系统中，<code>markOop</code>一共占32位，存储结构如图下所示：</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-12-154614.jpg" alt="markOop存储结构"  /></p>
+<p>从图中可知，诸如对象hash值、线程ID、分代年龄等信息都是存储在<code>markOop</code>中，而且在不同的状态下，其结构也是略有不同。<strong>无锁</strong>指一个对象没有被加锁时的状态；<strong>偏向锁</strong>，顾名思义会偏向于第一个访问锁的线程，当同步锁只有一个线程访问时，JVM会将其优化为偏向锁，此时就相当于没有同步语义；当发生多线程竞争时，偏向锁就会膨胀为<strong>轻量级锁</strong>，后者采用CAS（Compare And Swap）实现，避免了用户态和内核态之间的切换；如果某个线程获取轻量级锁失败，该锁就会继续膨胀为<strong>重量级锁</strong>，此时JVM会向操作系统申请互斥量，因此性能消耗也是最高的。</p>
+<p><code>oop</code>提供4个方法来判断当前对象处于何种状态下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-C++" data-lang="C++"><span class="c1">// hotspot/src/share/vm/oops/oop.hpp
+</span><span class="c1"></span><span class="k">class</span> <span class="nc">oopDesc</span> <span class="p">{</span>
+ <span class="p">...</span>   
+  <span class="kt">bool</span> <span class="n">is_locked</span><span class="p">()</span>   <span class="k">const</span><span class="p">;</span>
+  <span class="kt">bool</span> <span class="nf">is_unlocked</span><span class="p">()</span> <span class="k">const</span><span class="p">;</span>
+  <span class="kt">bool</span> <span class="nf">has_bias_pattern</span><span class="p">()</span> <span class="k">const</span><span class="p">;</span>
+ <span class="p">...</span>
+  <span class="kt">bool</span> <span class="n">is_gc_marked</span><span class="p">()</span> <span class="k">const</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="c1">// hotspot/src/share/vm/oops/oop.inline.hpp
+</span><span class="c1"></span><span class="p">...</span>
+<span class="kr">inline</span> <span class="kt">bool</span> <span class="n">oopDesc</span><span class="o">::</span><span class="n">is_gc_marked</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nf">mark</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">is_marked</span><span class="p">();</span>
+<span class="p">}</span>
+<span class="kr">inline</span> <span class="kt">bool</span> <span class="n">oopDesc</span><span class="o">::</span><span class="n">is_locked</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nf">mark</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">is_locked</span><span class="p">();</span>
+<span class="p">}</span>
+<span class="kr">inline</span> <span class="kt">bool</span> <span class="n">oopDesc</span><span class="o">::</span><span class="n">is_unlocked</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nf">mark</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">is_unlocked</span><span class="p">();</span>
+<span class="p">}</span>
+<span class="kr">inline</span> <span class="kt">bool</span> <span class="n">oopDesc</span><span class="o">::</span><span class="n">has_bias_pattern</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nf">mark</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">has_bias_pattern</span><span class="p">();</span>
+<span class="p">}</span>
+<span class="p">...</span>
+</code></pre></div><p>从上述代码可知，<code>oop</code>调用<code>markOop</code>的方法来判断当前对象是否已经加锁、是否是偏向锁，<code>markOop</code>则通过判断其存储结构中的标志位来实现，如下列代码所示：</p>
+<div class="highlight"><pre class="chroma"><code class="language-C++" data-lang="C++"><span class="c1">// hotspot/src/share/vm/oops/markOop.hpp
+</span><span class="c1"></span><span class="p">...</span>
+<span class="k">class</span> <span class="nc">markOopDesc</span><span class="o">:</span> <span class="k">public</span> <span class="n">oopDesc</span> <span class="p">{</span>
+  <span class="p">...</span>
+  <span class="c1">// unlocked_value = 1
+</span><span class="c1"></span>  <span class="c1">// lock_mask_in_place = right_n_bits(2)，is_locked()利用存储结构的最右边两位
+</span><span class="c1"></span>  <span class="c1">// 来判断当前对象是否是加锁状态。值得注意的是，偏向锁并不属于加锁状态。
+</span><span class="c1"></span>  <span class="kt">bool</span> <span class="n">is_locked</span><span class="p">()</span>   <span class="k">const</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">mask_bits</span><span class="p">(</span><span class="n">value</span><span class="p">(),</span> <span class="n">lock_mask_in_place</span><span class="p">)</span> <span class="o">!=</span> <span class="n">unlocked_value</span><span class="p">);</span>
+  <span class="p">}</span>
+  <span class="c1">// lock_mask_in_place = right_n_bits(3)，is_unlocked()并不是简单地对is_locked()
+</span><span class="c1"></span>  <span class="c1">// 的结果取反，而是使用存储结构的最右边三位来判断。值得注意的是，偏向锁也并不属于无锁状态。
+</span><span class="c1"></span>  <span class="kt">bool</span> <span class="nf">is_unlocked</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">mask_bits</span><span class="p">(</span><span class="n">value</span><span class="p">(),</span> <span class="n">biased_lock_mask_in_place</span><span class="p">)</span> <span class="o">==</span> <span class="n">unlocked_value</span><span class="p">);</span>
+  <span class="p">}</span>
+  <span class="c1">// marked_value = 3
+</span><span class="c1"></span>  <span class="c1">// lock_mask_in_place = right_n_bits(2)，当锁标志位的值为3（二进制为11）时返回true。
+</span><span class="c1"></span>  <span class="kt">bool</span> <span class="nf">is_marked</span><span class="p">()</span>   <span class="k">const</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">mask_bits</span><span class="p">(</span><span class="n">value</span><span class="p">(),</span> <span class="n">lock_mask_in_place</span><span class="p">)</span> <span class="o">==</span> <span class="n">marked_value</span><span class="p">);</span>
+  <span class="p">}</span>
+  <span class="c1">// biased_lock_pattern = 5
+</span><span class="c1"></span>  <span class="c1">// biased_lock_mask_in_place = right_n_bits(3)，当存储结构的最后三位的值为5（二进制
+</span><span class="c1"></span>  <span class="c1">// 为101）时返回true
+</span><span class="c1"></span>  <span class="kt">bool</span> <span class="nf">has_bias_pattern</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">mask_bits</span><span class="p">(</span><span class="n">value</span><span class="p">(),</span> <span class="n">biased_lock_mask_in_place</span><span class="p">)</span> <span class="o">==</span> <span class="n">biased_lock_pattern</span><span class="p">);</span>
+  <span class="p">}</span>
+  <span class="p">...</span>
+<span class="p">}</span>
+</code></pre></div><h2 id="oop对象体">oop对象体</h2>
+<p>JVM将Java对象的field存储在<code>oop</code>的<strong>对象体</strong>中，<code>oop</code>提供了一系列的方法来获取和设置field，并且针对每种基础类型都提供了特有的实现。</p>
+<div class="highlight"><pre class="chroma"><code class="language-C++" data-lang="C++"><span class="c1">// hotspot/src/share/vm/oops/oop.hpp
+</span><span class="c1"></span><span class="k">class</span> <span class="nc">oopDesc</span> <span class="p">{</span>
+ <span class="p">...</span> 
+  <span class="c1">// 返回成员属性的地址
+</span><span class="c1"></span>  <span class="kt">void</span><span class="o">*</span>     <span class="n">field_base</span><span class="p">(</span><span class="kt">int</span> <span class="n">offset</span><span class="p">)</span>        <span class="k">const</span><span class="p">;</span>
+  <span class="c1">// 如果成员是基础类型，则用特有的方法
+</span><span class="c1"></span>  <span class="n">jbyte</span><span class="o">*</span>    <span class="nf">byte_field_addr</span><span class="p">(</span><span class="kt">int</span> <span class="n">offset</span><span class="p">)</span>   <span class="k">const</span><span class="p">;</span>
+  <span class="n">jchar</span><span class="o">*</span>    <span class="nf">char_field_addr</span><span class="p">(</span><span class="kt">int</span> <span class="n">offset</span><span class="p">)</span>   <span class="k">const</span><span class="p">;</span>
+  <span class="n">jboolean</span><span class="o">*</span> <span class="nf">bool_field_addr</span><span class="p">(</span><span class="kt">int</span> <span class="n">offset</span><span class="p">)</span>   <span class="k">const</span><span class="p">;</span>
+  <span class="n">jint</span><span class="o">*</span>     <span class="nf">int_field_addr</span><span class="p">(</span><span class="kt">int</span> <span class="n">offset</span><span class="p">)</span>    <span class="k">const</span><span class="p">;</span>
+  <span class="n">jshort</span><span class="o">*</span>   <span class="nf">short_field_addr</span><span class="p">(</span><span class="kt">int</span> <span class="n">offset</span><span class="p">)</span>  <span class="k">const</span><span class="p">;</span>
+  <span class="n">jlong</span><span class="o">*</span>    <span class="nf">long_field_addr</span><span class="p">(</span><span class="kt">int</span> <span class="n">offset</span><span class="p">)</span>   <span class="k">const</span><span class="p">;</span>
+  <span class="n">jfloat</span><span class="o">*</span>   <span class="nf">float_field_addr</span><span class="p">(</span><span class="kt">int</span> <span class="n">offset</span><span class="p">)</span>  <span class="k">const</span><span class="p">;</span>
+  <span class="n">jdouble</span><span class="o">*</span>  <span class="nf">double_field_addr</span><span class="p">(</span><span class="kt">int</span> <span class="n">offset</span><span class="p">)</span> <span class="k">const</span><span class="p">;</span>
+  <span class="n">Metadata</span><span class="o">**</span> <span class="nf">metadata_field_addr</span><span class="p">(</span><span class="kt">int</span> <span class="n">offset</span><span class="p">)</span> <span class="k">const</span><span class="p">;</span>
+  <span class="c1">// 同样是成员的地址获取方法，在GC时使用
+</span><span class="c1"></span>  <span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">T</span><span class="o">&gt;</span> <span class="n">T</span><span class="o">*</span> <span class="n">obj_field_addr</span><span class="p">(</span><span class="kt">int</span> <span class="n">offset</span><span class="p">)</span> <span class="k">const</span><span class="p">;</span>   
+ <span class="p">...</span>
+  <span class="c1">// instanceOop获取和设置其成员属性的方法
+</span><span class="c1"></span>  <span class="n">oop</span> <span class="n">obj_field</span><span class="p">(</span><span class="kt">int</span> <span class="n">offset</span><span class="p">)</span> <span class="k">const</span><span class="p">;</span>
+  <span class="k">volatile</span> <span class="n">oop</span> <span class="nf">obj_field_volatile</span><span class="p">(</span><span class="kt">int</span> <span class="n">offset</span><span class="p">)</span> <span class="k">const</span><span class="p">;</span>
+  <span class="kt">void</span> <span class="nf">obj_field_put</span><span class="p">(</span><span class="kt">int</span> <span class="n">offset</span><span class="p">,</span> <span class="n">oop</span> <span class="n">value</span><span class="p">);</span>
+  <span class="kt">void</span> <span class="nf">obj_field_put_raw</span><span class="p">(</span><span class="kt">int</span> <span class="n">offset</span><span class="p">,</span> <span class="n">oop</span> <span class="n">value</span><span class="p">);</span>
+  <span class="kt">void</span> <span class="nf">obj_field_put_volatile</span><span class="p">(</span><span class="kt">int</span> <span class="n">offset</span><span class="p">,</span> <span class="n">oop</span> <span class="n">value</span><span class="p">);</span>
+  <span class="c1">// 如果成员时基础类型，则使用其特有的方法，这里只列出针对byte类型的方法
+</span><span class="c1"></span>  <span class="n">jbyte</span> <span class="nf">byte_field</span><span class="p">(</span><span class="kt">int</span> <span class="n">offset</span><span class="p">)</span> <span class="k">const</span><span class="p">;</span>
+  <span class="kt">void</span> <span class="nf">byte_field_put</span><span class="p">(</span><span class="kt">int</span> <span class="n">offset</span><span class="p">,</span> <span class="n">jbyte</span> <span class="n">contents</span><span class="p">);</span>
+ <span class="p">...</span>
+<span class="p">}</span>
+</code></pre></div><p>具体实现如下列代码所示：</p>
+<div class="highlight"><pre class="chroma"><code class="language-C++" data-lang="C++"><span class="c1">// hotspot/src/share/vm/oops/oop.inline.hpp
+</span><span class="c1"></span><span class="p">...</span>
+<span class="c1">// 获取对象中field的地址
+</span><span class="c1"></span><span class="kr">inline</span> <span class="kt">void</span><span class="o">*</span> <span class="n">oopDesc</span><span class="o">::</span><span class="n">field_base</span><span class="p">(</span><span class="kt">int</span> <span class="n">offset</span><span class="p">)</span> <span class="k">const</span> <span class="p">{</span> 
+  <span class="k">return</span> <span class="p">(</span><span class="kt">void</span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="p">((</span><span class="kt">char</span><span class="o">*</span><span class="p">)</span><span class="k">this</span><span class="p">)[</span><span class="n">offset</span><span class="p">];</span>
+<span class="p">}</span>
+<span class="c1">// 获取普通对象field的地址，对调用field_base的结果进行转型得到
+</span><span class="c1"></span><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">T</span><span class="o">&gt;</span> <span class="kr">inline</span> <span class="n">T</span><span class="o">*</span> <span class="n">oopDesc</span><span class="o">::</span><span class="n">obj_field_addr</span><span class="p">(</span><span class="kt">int</span> <span class="n">offset</span><span class="p">)</span> <span class="k">const</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="p">(</span><span class="n">T</span><span class="o">*</span><span class="p">)</span><span class="n">field_base</span><span class="p">(</span><span class="n">offset</span><span class="p">);</span> 
+<span class="p">}</span>
+<span class="c1">// 基础类型特有的实现与obj_field_addr类似，只是转型成特有的基础类型指针
+</span><span class="c1"></span><span class="kr">inline</span> <span class="n">jbyte</span><span class="o">*</span> <span class="n">oopDesc</span><span class="o">::</span><span class="n">byte_field_addr</span><span class="p">(</span><span class="kt">int</span> <span class="n">offset</span><span class="p">)</span> <span class="k">const</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="p">(</span><span class="n">jbyte</span><span class="o">*</span><span class="p">)</span>   <span class="n">field_base</span><span class="p">(</span><span class="n">offset</span><span class="p">);</span> 
+<span class="p">}</span>
+<span class="p">...</span>
+<span class="c1">// 获取field前需要先判断是否采用了指针压缩技术，先根据offset调用obj_field_addr
+</span><span class="c1">// 得到field的地址，然后调用load_decode_heap_oop得到实例
+</span><span class="c1"></span><span class="kr">inline</span> <span class="n">oop</span> <span class="n">oopDesc</span><span class="o">::</span><span class="n">obj_field</span><span class="p">(</span><span class="kt">int</span> <span class="n">offset</span><span class="p">)</span> <span class="k">const</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="n">UseCompressedOops</span> <span class="o">?</span>
+    <span class="n">load_decode_heap_oop</span><span class="p">(</span><span class="n">obj_field_addr</span><span class="o">&lt;</span><span class="n">narrowOop</span><span class="o">&gt;</span><span class="p">(</span><span class="n">offset</span><span class="p">))</span> <span class="o">:</span>
+    <span class="n">load_decode_heap_oop</span><span class="p">(</span><span class="n">obj_field_addr</span><span class="o">&lt;</span><span class="n">oop</span><span class="o">&gt;</span><span class="p">(</span><span class="n">offset</span><span class="p">));</span>
+<span class="p">}</span>
+<span class="c1">// 直接对指针解引用得到field
+</span><span class="c1"></span><span class="kr">inline</span> <span class="n">oop</span> <span class="n">oopDesc</span><span class="o">::</span><span class="n">load_decode_heap_oop</span><span class="p">(</span><span class="n">oop</span><span class="o">*</span> <span class="n">p</span><span class="p">)</span> <span class="p">{</span> 
+  <span class="k">return</span> <span class="o">*</span><span class="n">p</span><span class="p">;</span> 
+<span class="p">}</span>
+<span class="p">...</span>
+<span class="c1">// 设置field前需要先判断是否采用了指针压缩技术，同样也是先根据offset得到地址，
+</span><span class="c1">// 然后在设置field的值
+</span><span class="c1"></span><span class="kr">inline</span> <span class="kt">void</span> <span class="n">oopDesc</span><span class="o">::</span><span class="n">obj_field_put</span><span class="p">(</span><span class="kt">int</span> <span class="n">offset</span><span class="p">,</span> <span class="n">oop</span> <span class="n">value</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">UseCompressedOops</span> <span class="o">?</span> 
+    <span class="n">oop_store</span><span class="p">(</span><span class="n">obj_field_addr</span><span class="o">&lt;</span><span class="n">narrowOop</span><span class="o">&gt;</span><span class="p">(</span><span class="n">offset</span><span class="p">),</span> <span class="n">value</span><span class="p">)</span> <span class="o">:</span>
+    <span class="n">oop_store</span><span class="p">(</span><span class="n">obj_field_addr</span><span class="o">&lt;</span><span class="n">oop</span><span class="o">&gt;</span><span class="p">(</span><span class="n">offset</span><span class="p">),</span>       <span class="n">value</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="c1">// 设置field前先更新barrier
+</span><span class="c1"></span><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">T</span><span class="o">&gt;</span> <span class="kr">inline</span> <span class="kt">void</span> <span class="n">oop_store</span><span class="p">(</span><span class="n">T</span><span class="o">*</span> <span class="n">p</span><span class="p">,</span> <span class="n">oop</span> <span class="n">v</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">always_do_update_barrier</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">oop_store</span><span class="p">((</span><span class="k">volatile</span> <span class="n">T</span><span class="o">*</span><span class="p">)</span><span class="n">p</span><span class="p">,</span> <span class="n">v</span><span class="p">);</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="n">update_barrier_set_pre</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">v</span><span class="p">);</span>
+    <span class="n">oopDesc</span><span class="o">::</span><span class="n">encode_store_heap_oop</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">v</span><span class="p">);</span>
+    <span class="n">update_barrier_set</span><span class="p">((</span><span class="kt">void</span><span class="o">*</span><span class="p">)</span><span class="n">p</span><span class="p">,</span> <span class="n">v</span><span class="p">);</span>  
+  <span class="p">}</span>
+<span class="p">}</span>
+<span class="c1">// 设置field时直接更新指针指向的值
+</span><span class="c1"></span><span class="kr">inline</span> <span class="kt">void</span> <span class="n">oopDesc</span><span class="o">::</span><span class="n">encode_store_heap_oop</span><span class="p">(</span><span class="n">oop</span><span class="o">*</span> <span class="n">p</span><span class="p">,</span> <span class="n">oop</span> <span class="n">v</span><span class="p">)</span> <span class="p">{</span>
+  <span class="o">*</span><span class="n">p</span> <span class="o">=</span> <span class="n">v</span><span class="p">;</span> 
+<span class="p">}</span>
+</code></pre></div><p>由上述代码片段可知，每个field在<code>oop</code>中都有一个对应的偏移量（offset），<code>oop</code>通过该偏移量得到该field的地址，再根据地址得到具体数据。因此，<em>Java对象中的field存储的并不是对象本身，而是对象的地址</em>。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-12-154632.jpg" alt="图1-11 Java对象field的存储结构"  /></p>
+<h2 id="总结">总结</h2>
+<p>HotSpot采用Oop-Klass模型来表示Java对象，其中Klass对应着Java对象的类型（Class），而Oop则对应着Java对象的实例（Instance）。Oop是一个继承体系，其中<code>oop</code>是体系中的最高父类，它的存储结构可以分成对象头和对象体。对象头存储的是对象的一些元数据，对象体存储的是具体的成员属性。值得注意的是，<strong>如果成员属性属于普通对象类型，则<code>oop</code>只存储它的地址</strong>。</p>
+<p>我们都知道Java中的普通方法（没有static和final修饰）是动态绑定的，在C++中，动态绑定通过<strong>虚函数</strong>来实现，代价是每个C++对象都必须维护一张<strong>虚函数表</strong>。Java的特点就是一切皆是对象，如果每个对象都维护一张虚函数表，内存开销将会非常大。<em>JVM对此做了优化，虚函数表不再由每个对象维护，改成由Class类型维护，所有属于该类型的对象共用一张虚函数表</em>。因此我们并没有在<code>oop</code>上找到方法调用的相关逻辑，这部分的代码被放在了<code>klass</code>里面。</p>
+<p>Klass相关的内容将会在下一篇文章《Java的对象模型——Oop-Klass（二）》中介绍。</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/java/">Java</a>
+        
+            <a href="/tags/jvm/">jvm</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>CC BY 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/java%E7%9A%84%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8Boop-klass%E6%A8%A1%E5%9E%8B%E4%BA%8C/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Java的对象模型——Oop-Klass模型（二）</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E4%BB%8Ehash%E7%B4%A2%E5%BC%95%E5%88%B0lsm%E6%A0%91%E4%BA%8C/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">从Hash索引到LSM树（二）</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E4%BB%8Ehash%E7%B4%A2%E5%BC%95%E5%88%B0lsm%E6%A0%91%E4%B8%80/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">从Hash索引到LSM树（一）</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E5%BD%BB%E5%BA%95%E5%BC%84%E6%87%82java%E7%9A%84%E7%A7%BB%E4%BD%8D%E6%93%8D%E4%BD%9C%E7%AC%A6/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">彻底弄懂Java的移位操作符</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+
+    
+        
+    <script src="https://utteranc.es/client.js" 
+        repo="ruanrunxue/yrunz-comments"
+        issue-term="pathname"
+        
+        label="yrunz"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
+
+<style>
+    .utterances {
+        max-width: unset;
+    }
+</style>
+
+<script>
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
+        }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+        setUtterancesTheme(document.body.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        setUtterancesTheme(e.detail)
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_SVG"></script>
+    <section class="copyright">
+        &copy;
+        
+            2019 -
+        
+        2023 元闰子的邀请
+    </section>
+
+    <section class="powerby">
+        
+
+        <a href="https://beian.miit.gov.cn/">粤ICP备19152659号 | </a>Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.3.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        <br />
+    </section>
+</footer>
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

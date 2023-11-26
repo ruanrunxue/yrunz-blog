@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='前言 上一篇文章《使用Go实现GoF的23种设计模式（二）》中，我们介绍了结构型模式（Structural Pattern）中的组合模式、适配器模式和桥接模式。本文将会介绍完剩下的几种结构型模式，代理模式、装饰模式、外观模式和享元模式。本文将会继续采用消息处理系统作为例子，如果对该例子不清楚，请移步《使用Go实现GoF的23种设计模式（一）》和《使用Go实现GoF的23种设计模式（二）》对其相关的设计和实现进行了解。
+代理模式（Proxy Pattern） 简介 代理模式为一个对象提供一种代理以控制对该对象的访问，它是一个使用率非常高的设计模式，即使在现实生活中，也是很常见，比如演唱会门票黄牛。假设你需要看一场演唱会，但是官网上门票已经售罄，于是就当天到现场通过黄牛高价买了一张。在这个例子中，黄牛就相当于演唱会门票的代理，在正式渠道无法购买门票的情况下，你通过代理完成了该目标。
+从演唱会门票的例子我们也可以看出，使用代理模式的关键在于当Client不方便直接访问一个对象时，提供一个代理对象控制该对象的访问。Client实际上访问的是代理对象，代理对象会将Client的请求转给本体对象去处理。
+在程序设计中，代理模式也分为好几种：
+1、远程代理（remote proxy），远程代理适用于提供服务的对象处在远程的机器上，通过普通的函数调用无法使用服务，需要经过远程代理来完成。因为并不能直接访问本体对象，所有远程代理对象通常不会直接持有本体对象的引用，而是持有远端机器的地址，通过网络协议去访问本体对象。
+2、虚拟代理（virtual proxy），在程序设计中常常会有一些重量级的服务对象，如果一直持有该对象实例会非常消耗系统资源，这时可以通过虚拟代理来对该对象进行延迟初始化。
+3、保护代理（protection proxy），保护代理用于控制对本体对象的访问，常用于需要给Client的访问加上权限验证的场景。
+4、缓存代理（cache proxy），缓存代理主要在Client与本体对象之间加上一层缓存，用于加速本体对象的访问，常见于连接数据库的场景。
+5、智能引用（smart reference），智能引用为本体对象的访问提供了额外的动作，常见的实现为C&#43;&#43;中的智能指针，为对象的访问提供了计数功能，当访问对象的计数为0时销毁该对象。
+这几种代理都是一样的实现原理，下面我们将介绍远程代理的Go语言实现。
+Go实现 考虑要将消息处理系统输出到数据存储到一个数据库中，数据库的接口如下：
+package db ... // Key-Value数据库接口 type KvDb interface { // 存储数据 	// 其中reply为操作结果，存储成功为true，否则为false 	// 当连接数据库失败时返回error，成功则返回nil 	Save(record Record, reply *bool) error // 根据key获取value，其中value通过函数参数中指针类型返回 	// 当连接数据库失败时返回error，成功则返回nil 	Get(key string, value *string) error } type Record struct { Key string Value string } 数据库是一个Key-Value数据库，使用map存储数据，下面为数据库的服务端实现，db.Server实现了db.KvDb接口：
+package db ... // 数据库服务端实现 type Server struct { // 采用map存储key-value数据 	data map[string]string } func (s *Server) Save(record Record, reply *bool) error { if s.'><title>使用Go实现GoF的23种设计模式（三）</title>
+
+<link rel='canonical' href='https://www.yrunz.com/p/%E4%BD%BF%E7%94%A8go%E5%AE%9E%E7%8E%B0gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B8%89/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='使用Go实现GoF的23种设计模式（三）'>
+<meta property='og:description' content='前言 上一篇文章《使用Go实现GoF的23种设计模式（二）》中，我们介绍了结构型模式（Structural Pattern）中的组合模式、适配器模式和桥接模式。本文将会介绍完剩下的几种结构型模式，代理模式、装饰模式、外观模式和享元模式。本文将会继续采用消息处理系统作为例子，如果对该例子不清楚，请移步《使用Go实现GoF的23种设计模式（一）》和《使用Go实现GoF的23种设计模式（二）》对其相关的设计和实现进行了解。
+代理模式（Proxy Pattern） 简介 代理模式为一个对象提供一种代理以控制对该对象的访问，它是一个使用率非常高的设计模式，即使在现实生活中，也是很常见，比如演唱会门票黄牛。假设你需要看一场演唱会，但是官网上门票已经售罄，于是就当天到现场通过黄牛高价买了一张。在这个例子中，黄牛就相当于演唱会门票的代理，在正式渠道无法购买门票的情况下，你通过代理完成了该目标。
+从演唱会门票的例子我们也可以看出，使用代理模式的关键在于当Client不方便直接访问一个对象时，提供一个代理对象控制该对象的访问。Client实际上访问的是代理对象，代理对象会将Client的请求转给本体对象去处理。
+在程序设计中，代理模式也分为好几种：
+1、远程代理（remote proxy），远程代理适用于提供服务的对象处在远程的机器上，通过普通的函数调用无法使用服务，需要经过远程代理来完成。因为并不能直接访问本体对象，所有远程代理对象通常不会直接持有本体对象的引用，而是持有远端机器的地址，通过网络协议去访问本体对象。
+2、虚拟代理（virtual proxy），在程序设计中常常会有一些重量级的服务对象，如果一直持有该对象实例会非常消耗系统资源，这时可以通过虚拟代理来对该对象进行延迟初始化。
+3、保护代理（protection proxy），保护代理用于控制对本体对象的访问，常用于需要给Client的访问加上权限验证的场景。
+4、缓存代理（cache proxy），缓存代理主要在Client与本体对象之间加上一层缓存，用于加速本体对象的访问，常见于连接数据库的场景。
+5、智能引用（smart reference），智能引用为本体对象的访问提供了额外的动作，常见的实现为C&#43;&#43;中的智能指针，为对象的访问提供了计数功能，当访问对象的计数为0时销毁该对象。
+这几种代理都是一样的实现原理，下面我们将介绍远程代理的Go语言实现。
+Go实现 考虑要将消息处理系统输出到数据存储到一个数据库中，数据库的接口如下：
+package db ... // Key-Value数据库接口 type KvDb interface { // 存储数据 	// 其中reply为操作结果，存储成功为true，否则为false 	// 当连接数据库失败时返回error，成功则返回nil 	Save(record Record, reply *bool) error // 根据key获取value，其中value通过函数参数中指针类型返回 	// 当连接数据库失败时返回error，成功则返回nil 	Get(key string, value *string) error } type Record struct { Key string Value string } 数据库是一个Key-Value数据库，使用map存储数据，下面为数据库的服务端实现，db.Server实现了db.KvDb接口：
+package db ... // 数据库服务端实现 type Server struct { // 采用map存储key-value数据 	data map[string]string } func (s *Server) Save(record Record, reply *bool) error { if s.'>
+<meta property='og:url' content='https://www.yrunz.com/p/%E4%BD%BF%E7%94%A8go%E5%AE%9E%E7%8E%B0gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B8%89/'>
+<meta property='og:site_name' content='元闰子的邀请'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='golang' /><meta property='article:tag' content='设计模式' /><meta property='article:published_time' content='2020-09-06T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2020-09-06T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="使用Go实现GoF的23种设计模式（三）">
+<meta name="twitter:description" content="前言 上一篇文章《使用Go实现GoF的23种设计模式（二）》中，我们介绍了结构型模式（Structural Pattern）中的组合模式、适配器模式和桥接模式。本文将会介绍完剩下的几种结构型模式，代理模式、装饰模式、外观模式和享元模式。本文将会继续采用消息处理系统作为例子，如果对该例子不清楚，请移步《使用Go实现GoF的23种设计模式（一）》和《使用Go实现GoF的23种设计模式（二）》对其相关的设计和实现进行了解。
+代理模式（Proxy Pattern） 简介 代理模式为一个对象提供一种代理以控制对该对象的访问，它是一个使用率非常高的设计模式，即使在现实生活中，也是很常见，比如演唱会门票黄牛。假设你需要看一场演唱会，但是官网上门票已经售罄，于是就当天到现场通过黄牛高价买了一张。在这个例子中，黄牛就相当于演唱会门票的代理，在正式渠道无法购买门票的情况下，你通过代理完成了该目标。
+从演唱会门票的例子我们也可以看出，使用代理模式的关键在于当Client不方便直接访问一个对象时，提供一个代理对象控制该对象的访问。Client实际上访问的是代理对象，代理对象会将Client的请求转给本体对象去处理。
+在程序设计中，代理模式也分为好几种：
+1、远程代理（remote proxy），远程代理适用于提供服务的对象处在远程的机器上，通过普通的函数调用无法使用服务，需要经过远程代理来完成。因为并不能直接访问本体对象，所有远程代理对象通常不会直接持有本体对象的引用，而是持有远端机器的地址，通过网络协议去访问本体对象。
+2、虚拟代理（virtual proxy），在程序设计中常常会有一些重量级的服务对象，如果一直持有该对象实例会非常消耗系统资源，这时可以通过虚拟代理来对该对象进行延迟初始化。
+3、保护代理（protection proxy），保护代理用于控制对本体对象的访问，常用于需要给Client的访问加上权限验证的场景。
+4、缓存代理（cache proxy），缓存代理主要在Client与本体对象之间加上一层缓存，用于加速本体对象的访问，常见于连接数据库的场景。
+5、智能引用（smart reference），智能引用为本体对象的访问提供了额外的动作，常见的实现为C&#43;&#43;中的智能指针，为对象的访问提供了计数功能，当访问对象的计数为0时销毁该对象。
+这几种代理都是一样的实现原理，下面我们将介绍远程代理的Go语言实现。
+Go实现 考虑要将消息处理系统输出到数据存储到一个数据库中，数据库的接口如下：
+package db ... // Key-Value数据库接口 type KvDb interface { // 存储数据 	// 其中reply为操作结果，存储成功为true，否则为false 	// 当连接数据库失败时返回error，成功则返回nil 	Save(record Record, reply *bool) error // 根据key获取value，其中value通过函数参数中指针类型返回 	// 当连接数据库失败时返回error，成功则返回nil 	Get(key string, value *string) error } type Record struct { Key string Value string } 数据库是一个Key-Value数据库，使用map存储数据，下面为数据库的服务端实现，db.Server实现了db.KvDb接口：
+package db ... // 数据库服务端实现 type Server struct { // 采用map存储key-value数据 	data map[string]string } func (s *Server) Save(record Record, reply *bool) error { if s.">
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "light");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/yrz_hudc7c8721ecce4b724df5002339c76402_174377_300x0_resize_box_2.png" width="300"
+                            height="306" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://www.yrunz.com">元闰子的邀请</a></h1>
+        <h2 class="site-description">阅读、写作、生活（个人技术分享）</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>首页</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>博客</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%85%B3%E4%BA%8E%E5%85%83%E9%97%B0%E5%AD%90/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24"
+     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+     stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z"/>
+    <circle cx="12" cy="7" r="4"/>
+    <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/>
+</svg>
+
+                
+                <span>关于元闰子</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%8F%8B%E6%83%85%E9%93%BE%E6%8E%A5/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-friends" width="44" height="44"
+     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+    <circle cx="7" cy="5" r="2"/>
+    <path d="M5 22v-5l-1 -1v-4a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4l-1 1v5"/>
+    <circle cx="17" cy="5" r="2"/>
+    <path d="M15 22v-4h-2l2 -6a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1l2 6h-2v4"/>
+</svg>
+
+                
+                <span>友情链接</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>暗色模式</span>
+            </li>
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://www.yrunz.com" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/golang/" >
+                Golang
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/%E4%BD%BF%E7%94%A8go%E5%AE%9E%E7%8E%B0gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B8%89/">使用Go实现GoF的23种设计模式（三）</a>
+    </h2>
+
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Sep 06, 2020</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <h2 id="前言">前言</h2>
+<p>上一篇文章<a class="link" href="https://www.yrunz.com/archives/%e4%bd%bf%e7%94%a8Go%e5%ae%9e%e7%8e%b0GoF%e7%9a%8423%e7%a7%8d%e8%ae%be%e8%ae%a1%e6%a8%a1%e5%bc%8f%ef%bc%88%e4%ba%8c%ef%bc%89"  target="_blank" rel="noopener"
+    >《使用Go实现GoF的23种设计模式（二）》</a>中，我们介绍了<strong>结构型模式</strong>（Structural Pattern）中的组合模式、适配器模式和桥接模式。本文将会介绍完剩下的几种结构型模式，代理模式、装饰模式、外观模式和享元模式。本文将会继续采用消息处理系统作为例子，如果对该例子不清楚，请移步<a class="link" href="https://www.yrunz.com/archives/%e4%bd%bf%e7%94%a8Go%e5%ae%9e%e7%8e%b0GoF%e7%9a%8423%e7%a7%8d%e8%ae%be%e8%ae%a1%e6%a8%a1%e5%bc%8f%ef%bc%88%e4%b8%80%ef%bc%89"  target="_blank" rel="noopener"
+    >《使用Go实现GoF的23种设计模式（一）》</a>和<a class="link" href="https://www.yrunz.com/archives/%e4%bd%bf%e7%94%a8Go%e5%ae%9e%e7%8e%b0GoF%e7%9a%8423%e7%a7%8d%e8%ae%be%e8%ae%a1%e6%a8%a1%e5%bc%8f%ef%bc%88%e4%ba%8c%ef%bc%89"  target="_blank" rel="noopener"
+    >《使用Go实现GoF的23种设计模式（二）》</a>对其相关的设计和实现进行了解。</p>
+<h2 id="代理模式proxy-pattern">代理模式（Proxy Pattern）</h2>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1gi7cqybscgj31am0kcu0x.jpg" alt="代理模式结构"  /></p>
+<h3 id="简介">简介</h3>
+<p><strong>代理模式为一个对象提供一种代理以控制对该对象的访问</strong>，它是一个使用率非常高的设计模式，即使在现实生活中，也是很常见，比如演唱会门票黄牛。假设你需要看一场演唱会，但是官网上门票已经售罄，于是就当天到现场通过黄牛高价买了一张。在这个例子中，黄牛就相当于演唱会门票的代理，在正式渠道无法购买门票的情况下，你通过代理完成了该目标。</p>
+<p>从演唱会门票的例子我们也可以看出，使用代理模式的关键在于<strong>当Client不方便直接访问一个对象时，提供一个代理对象控制该对象的访问</strong>。Client实际上访问的是代理对象，代理对象会将Client的请求转给本体对象去处理。</p>
+<p>在程序设计中，代理模式也分为好几种：</p>
+<p>1、<strong>远程代理</strong>（remote proxy），远程代理适用于提供服务的对象处在远程的机器上，通过普通的函数调用无法使用服务，需要经过远程代理来完成。<em>因为并不能直接访问本体对象，所有远程代理对象通常不会直接持有本体对象的引用，而是持有远端机器的地址，通过网络协议去访问本体对象</em>。</p>
+<p>2、<strong>虚拟代理</strong>（virtual proxy），在程序设计中常常会有一些重量级的服务对象，如果一直持有该对象实例会非常消耗系统资源，这时可以通过虚拟代理来对该对象进行延迟初始化。</p>
+<p>3、<strong>保护代理</strong>（protection proxy），保护代理用于控制对本体对象的访问，常用于需要给Client的访问加上权限验证的场景。</p>
+<p>4、<strong>缓存代理</strong>（cache proxy），缓存代理主要在Client与本体对象之间加上一层缓存，用于加速本体对象的访问，常见于连接数据库的场景。</p>
+<p>5、<strong>智能引用</strong>（smart reference），智能引用为本体对象的访问提供了额外的动作，常见的实现为C++中的智能指针，为对象的访问提供了计数功能，当访问对象的计数为0时销毁该对象。</p>
+<p>这几种代理都是一样的实现原理，下面我们将介绍远程代理的Go语言实现。</p>
+<h3 id="go实现">Go实现</h3>
+<p>考虑要将消息处理系统输出到数据存储到一个数据库中，数据库的接口如下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">db</span>
+<span class="o">...</span>
+<span class="c1">// Key-Value数据库接口
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">KvDb</span> <span class="kd">interface</span> <span class="p">{</span>
+	<span class="c1">// 存储数据
+</span><span class="c1"></span>	<span class="c1">// 其中reply为操作结果，存储成功为true，否则为false
+</span><span class="c1"></span>	<span class="c1">// 当连接数据库失败时返回error，成功则返回nil
+</span><span class="c1"></span>	<span class="nf">Save</span><span class="p">(</span><span class="nx">record</span> <span class="nx">Record</span><span class="p">,</span> <span class="nx">reply</span> <span class="o">*</span><span class="kt">bool</span><span class="p">)</span> <span class="kt">error</span>
+	<span class="c1">// 根据key获取value，其中value通过函数参数中指针类型返回
+</span><span class="c1"></span>	<span class="c1">// 当连接数据库失败时返回error，成功则返回nil
+</span><span class="c1"></span>	<span class="nf">Get</span><span class="p">(</span><span class="nx">key</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">value</span> <span class="o">*</span><span class="kt">string</span><span class="p">)</span> <span class="kt">error</span>
+<span class="p">}</span>
+
+<span class="kd">type</span> <span class="nx">Record</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">Key</span>   <span class="kt">string</span>
+	<span class="nx">Value</span> <span class="kt">string</span>
+<span class="p">}</span>
+</code></pre></div><p>数据库是一个Key-Value数据库，使用<code>map</code>存储数据，下面为数据库的服务端实现，<code>db.Server</code>实现了<code>db.KvDb</code>接口：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">db</span>
+<span class="o">...</span>
+<span class="c1">// 数据库服务端实现
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Server</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="c1">// 采用map存储key-value数据
+</span><span class="c1"></span>	<span class="nx">data</span> <span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">Server</span><span class="p">)</span> <span class="nf">Save</span><span class="p">(</span><span class="nx">record</span> <span class="nx">Record</span><span class="p">,</span> <span class="nx">reply</span> <span class="o">*</span><span class="kt">bool</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+	<span class="k">if</span> <span class="nx">s</span><span class="p">.</span><span class="nx">data</span> <span class="o">==</span> <span class="kc">nil</span><span class="p">{</span>
+		<span class="nx">s</span><span class="p">.</span><span class="nx">data</span> <span class="p">=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span><span class="p">)</span>
+	<span class="p">}</span>
+	<span class="nx">s</span><span class="p">.</span><span class="nx">data</span><span class="p">[</span><span class="nx">record</span><span class="p">.</span><span class="nx">Key</span><span class="p">]</span> <span class="p">=</span> <span class="nx">record</span><span class="p">.</span><span class="nx">Value</span>
+	<span class="o">*</span><span class="nx">reply</span> <span class="p">=</span> <span class="kc">true</span>
+	<span class="k">return</span> <span class="kc">nil</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">Server</span><span class="p">)</span> <span class="nf">Get</span><span class="p">(</span><span class="nx">key</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">reply</span> <span class="o">*</span><span class="kt">string</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+	<span class="nx">val</span><span class="p">,</span> <span class="nx">ok</span> <span class="o">:=</span> <span class="nx">s</span><span class="p">.</span><span class="nx">data</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span>
+	<span class="k">if</span> <span class="p">!</span><span class="nx">ok</span> <span class="p">{</span>
+		<span class="o">*</span><span class="nx">reply</span> <span class="p">=</span> <span class="s">&#34;&#34;</span>
+		<span class="k">return</span> <span class="nx">errors</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="s">&#34;Db has no key &#34;</span> <span class="o">+</span> <span class="nx">key</span><span class="p">)</span>
+	<span class="p">}</span>
+	<span class="o">*</span><span class="nx">reply</span> <span class="p">=</span> <span class="nx">val</span>
+	<span class="k">return</span> <span class="kc">nil</span>
+<span class="p">}</span>
+</code></pre></div><p>消息处理系统和数据库并不在同一台机器上，因此消息处理系统不能直接调用<code>db.Server</code>的方法进行数据存储，像这种服务提供者和服务使用者不在同一机器上的场景，使用远程代理再适合不过了。</p>
+<p>远程代理中，最常见的一种实现是<strong>远程过程调用</strong>（Remote Procedure Call，简称 <strong>RPC</strong>），它允许客户端应用可以像调用本地对象一样直接调用另一台不同的机器上服务端应用的方法。在Go语言领域，除了大名鼎鼎的<strong>gRPC</strong>，Go标准库<code>net/rpc</code>包里也提供了RPC的实现。下面，我们通过<code>net/rpc</code>对外提供数据库服务端的能力：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">db</span>
+<span class="o">...</span>
+<span class="c1">// 启动数据库，对外提供RPC接口进行数据库的访问
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">Start</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">rpcServer</span> <span class="o">:=</span> <span class="nx">rpc</span><span class="p">.</span><span class="nf">NewServer</span><span class="p">()</span>
+	<span class="nx">server</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">Server</span><span class="p">{</span><span class="nx">data</span><span class="p">:</span> <span class="nb">make</span><span class="p">(</span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span><span class="p">)}</span>
+  <span class="c1">// 将数据库接口注册到RPC服务器上
+</span><span class="c1"></span>	<span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">rpcServer</span><span class="p">.</span><span class="nf">Register</span><span class="p">(</span><span class="nx">server</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Register Server to rpc failed, error: %v&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+		<span class="k">return</span>
+	<span class="p">}</span>
+	<span class="nx">l</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">net</span><span class="p">.</span><span class="nf">Listen</span><span class="p">(</span><span class="s">&#34;tcp&#34;</span><span class="p">,</span> <span class="s">&#34;127.0.0.1:1234&#34;</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Listen tcp failed, error: %v&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+		<span class="k">return</span>
+	<span class="p">}</span>
+	<span class="k">go</span> <span class="nx">rpcServer</span><span class="p">.</span><span class="nf">Accept</span><span class="p">(</span><span class="nx">l</span><span class="p">)</span>
+	<span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="mi">1</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Rpc server start success.&#34;</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div><p>到目前为止，我们已经为数据库提供了对外访问的方式。现在，我们需要一个远程代理来连接数据库服务端，并进行相关的数据库操作。对消息处理系统而言，它不需要，也不应该知道远程代理与数据库服务端交互的底层细节，这样可以减轻系统之间的耦合。因此，远程代理需要实现<code>db.KvDb</code>：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">db</span>
+<span class="o">...</span>
+<span class="c1">// 数据库服务端远程代理，实现db.KvDb接口
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Client</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="c1">// RPC客户端
+</span><span class="c1"></span>	<span class="nx">cli</span> <span class="o">*</span><span class="nx">rpc</span><span class="p">.</span><span class="nx">Client</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">c</span> <span class="o">*</span><span class="nx">Client</span><span class="p">)</span> <span class="nf">Save</span><span class="p">(</span><span class="nx">record</span> <span class="nx">Record</span><span class="p">,</span> <span class="nx">reply</span> <span class="o">*</span><span class="kt">bool</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+	<span class="kd">var</span> <span class="nx">ret</span> <span class="kt">bool</span>
+	<span class="c1">// 通过RPC调用服务端的接口
+</span><span class="c1"></span>	<span class="nx">err</span> <span class="o">:=</span> <span class="nx">c</span><span class="p">.</span><span class="nx">cli</span><span class="p">.</span><span class="nf">Call</span><span class="p">(</span><span class="s">&#34;Server.Save&#34;</span><span class="p">,</span> <span class="nx">record</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">ret</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Call db Server.Save rpc failed, error: %v&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+		<span class="o">*</span><span class="nx">reply</span> <span class="p">=</span> <span class="kc">false</span>
+		<span class="k">return</span> <span class="nx">err</span>
+	<span class="p">}</span>
+	<span class="o">*</span><span class="nx">reply</span> <span class="p">=</span> <span class="nx">ret</span>
+	<span class="k">return</span> <span class="kc">nil</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">c</span> <span class="o">*</span><span class="nx">Client</span><span class="p">)</span> <span class="nf">Get</span><span class="p">(</span><span class="nx">key</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">reply</span> <span class="o">*</span><span class="kt">string</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+	<span class="kd">var</span> <span class="nx">ret</span> <span class="kt">string</span>
+	<span class="c1">// 通过RPC调用服务端的接口
+</span><span class="c1"></span>	<span class="nx">err</span> <span class="o">:=</span> <span class="nx">c</span><span class="p">.</span><span class="nx">cli</span><span class="p">.</span><span class="nf">Call</span><span class="p">(</span><span class="s">&#34;Server.Get&#34;</span><span class="p">,</span> <span class="nx">key</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">ret</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Call db Server.Get rpc failed, error: %v&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+		<span class="o">*</span><span class="nx">reply</span> <span class="p">=</span> <span class="s">&#34;&#34;</span>
+		<span class="k">return</span> <span class="nx">err</span>
+	<span class="p">}</span>
+	<span class="o">*</span><span class="nx">reply</span> <span class="p">=</span> <span class="nx">ret</span>
+	<span class="k">return</span> <span class="kc">nil</span>
+<span class="p">}</span>
+
+<span class="c1">// 工厂方法，返回远程代理实例
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">CreateClient</span><span class="p">()</span> <span class="o">*</span><span class="nx">Client</span> <span class="p">{</span>
+	<span class="nx">rpcCli</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">rpc</span><span class="p">.</span><span class="nf">Dial</span><span class="p">(</span><span class="s">&#34;tcp&#34;</span><span class="p">,</span> <span class="s">&#34;127.0.0.1:1234&#34;</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Create rpc client failed, error: %v.&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+		<span class="k">return</span> <span class="kc">nil</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="o">&amp;</span><span class="nx">Client</span><span class="p">{</span><span class="nx">cli</span><span class="p">:</span> <span class="nx">rpcCli</span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div><p>作为远程代理的<code>db.Client</code>并没有直接持有<code>db.Server</code>的引用，而是持有了它的<code>ip:port</code>，通过RPC客户端调用了它的方法。</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gig7p19gkdj318m0k4qv5.jpg" alt="数据库远程代理结构"  /></p>
+<p>接下来，我们需要为消息处理系统实现一个新的<code>Output</code>插件<code>DbOutput</code>，调用<code>db.Client</code>远程代理，将消息存储到数据库上。</p>
+<blockquote>
+<p>在<a class="link" href="https://www.yrunz.com/archives/%e4%bd%bf%e7%94%a8Go%e5%ae%9e%e7%8e%b0GoF%e7%9a%8423%e7%a7%8d%e8%ae%be%e8%ae%a1%e6%a8%a1%e5%bc%8f%ef%bc%88%e4%ba%8c%ef%bc%89"  target="_blank" rel="noopener"
+    >《使用Go实现GoF的23种设计模式（二）》</a>中我们为<code>Plugin</code>引入生命周期的三个方法<code>Start</code>、<code>Stop</code>、<code>Status</code>之后，每新增一个新的插件，都需要实现这三个方法。但是大多数插件的这三个方法的逻辑基本一致，因此导致了一定程度的代码冗余。对于重复代码问题，有什么好的解决方法呢？<strong>组合模式</strong>！</p>
+<p>下面，我们使用组合模式将这个方法提取成一个新的对象<code>LifeCycle</code>，这样新增一个插件时，只需将<code>LifeCycle</code>作为匿名成员（<strong>嵌入组合</strong>），就能解决冗余代码问题了。</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">plugin</span>
+<span class="o">...</span>
+<span class="kd">type</span> <span class="nx">LifeCycle</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">name</span>   <span class="kt">string</span>
+	<span class="nx">status</span> <span class="nx">Status</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">l</span> <span class="o">*</span><span class="nx">LifeCycle</span><span class="p">)</span> <span class="nf">Start</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">l</span><span class="p">.</span><span class="nx">status</span> <span class="p">=</span> <span class="nx">Started</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%s plugin started.\n&#34;</span><span class="p">,</span> <span class="nx">l</span><span class="p">.</span><span class="nx">name</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">l</span> <span class="o">*</span><span class="nx">LifeCycle</span><span class="p">)</span> <span class="nf">Stop</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">l</span><span class="p">.</span><span class="nx">status</span> <span class="p">=</span> <span class="nx">Stopped</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%s plugin stopped.\n&#34;</span><span class="p">,</span> <span class="nx">l</span><span class="p">.</span><span class="nx">name</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">l</span> <span class="o">*</span><span class="nx">LifeCycle</span><span class="p">)</span> <span class="nf">Status</span><span class="p">()</span> <span class="nx">Status</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="nx">l</span><span class="p">.</span><span class="nx">status</span>
+<span class="p">}</span>
+</code></pre></div></blockquote>
+<p><code>DbOutput</code>的实现如下，它持有一个远程代理，通过后者将消息存储到远端的数据库中。</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">plugin</span>
+<span class="o">...</span>
+<span class="kd">type</span> <span class="nx">DbOutput</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">LifeCycle</span>
+	<span class="c1">// 操作数据库的远程代理
+</span><span class="c1"></span>	<span class="nx">proxy</span> <span class="nx">db</span><span class="p">.</span><span class="nx">KvDb</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">d</span> <span class="o">*</span><span class="nx">DbOutput</span><span class="p">)</span> <span class="nf">Send</span><span class="p">(</span><span class="nx">msg</span> <span class="o">*</span><span class="nx">msg</span><span class="p">.</span><span class="nx">Message</span><span class="p">)</span> <span class="p">{</span>
+	<span class="k">if</span> <span class="nx">d</span><span class="p">.</span><span class="nx">status</span> <span class="o">!=</span> <span class="nx">Started</span> <span class="p">{</span>
+		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%s is not running, output nothing.\n&#34;</span><span class="p">,</span> <span class="nx">d</span><span class="p">.</span><span class="nx">name</span><span class="p">)</span>
+		<span class="k">return</span>
+	<span class="p">}</span>
+	<span class="nx">record</span> <span class="o">:=</span> <span class="nx">db</span><span class="p">.</span><span class="nx">Record</span><span class="p">{</span>
+		<span class="nx">Key</span><span class="p">:</span>   <span class="s">&#34;db&#34;</span><span class="p">,</span>
+		<span class="nx">Value</span><span class="p">:</span> <span class="nx">msg</span><span class="p">.</span><span class="nx">Body</span><span class="p">.</span><span class="nx">Items</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+	<span class="p">}</span>
+	<span class="nx">reply</span> <span class="o">:=</span> <span class="kc">false</span>
+	<span class="nx">err</span> <span class="o">:=</span> <span class="nx">d</span><span class="p">.</span><span class="nx">proxy</span><span class="p">.</span><span class="nf">Save</span><span class="p">(</span><span class="nx">record</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">reply</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="o">||</span> <span class="p">!</span><span class="nx">reply</span> <span class="p">{</span>
+		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Save msg to db server failed.&#34;</span><span class="p">)</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">d</span> <span class="o">*</span><span class="nx">DbOutput</span><span class="p">)</span> <span class="nf">Init</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">d</span><span class="p">.</span><span class="nx">proxy</span> <span class="p">=</span> <span class="nx">db</span><span class="p">.</span><span class="nf">CreateClient</span><span class="p">()</span>
+	<span class="nx">d</span><span class="p">.</span><span class="nx">name</span> <span class="p">=</span> <span class="s">&#34;db output&#34;</span>
+<span class="p">}</span>
+</code></pre></div><p>测试代码如下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">test</span>
+<span class="o">...</span>
+<span class="kd">func</span> <span class="nf">TestDbOutput</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">db</span><span class="p">.</span><span class="nf">Start</span><span class="p">()</span>
+	<span class="nx">config</span> <span class="o">:=</span> <span class="nx">pipeline</span><span class="p">.</span><span class="nx">Config</span><span class="p">{</span>
+		<span class="nx">Name</span><span class="p">:</span> <span class="s">&#34;pipeline3&#34;</span><span class="p">,</span>
+		<span class="nx">Input</span><span class="p">:</span> <span class="nx">plugin</span><span class="p">.</span><span class="nx">Config</span><span class="p">{</span>
+			<span class="nx">PluginType</span><span class="p">:</span> <span class="nx">plugin</span><span class="p">.</span><span class="nx">InputType</span><span class="p">,</span>
+			<span class="nx">Name</span><span class="p">:</span>       <span class="s">&#34;hello&#34;</span><span class="p">,</span>
+		<span class="p">},</span>
+		<span class="nx">Filter</span><span class="p">:</span> <span class="nx">plugin</span><span class="p">.</span><span class="nx">Config</span><span class="p">{</span>
+			<span class="nx">PluginType</span><span class="p">:</span> <span class="nx">plugin</span><span class="p">.</span><span class="nx">FilterType</span><span class="p">,</span>
+			<span class="nx">Name</span><span class="p">:</span>       <span class="s">&#34;upper&#34;</span><span class="p">,</span>
+		<span class="p">},</span>
+		<span class="nx">Output</span><span class="p">:</span> <span class="nx">plugin</span><span class="p">.</span><span class="nx">Config</span><span class="p">{</span>
+			<span class="nx">PluginType</span><span class="p">:</span> <span class="nx">plugin</span><span class="p">.</span><span class="nx">OutputType</span><span class="p">,</span>
+			<span class="nx">Name</span><span class="p">:</span>       <span class="s">&#34;db&#34;</span><span class="p">,</span>
+		<span class="p">},</span>
+	<span class="p">}</span>
+	<span class="nx">p</span> <span class="o">:=</span> <span class="nx">pipeline</span><span class="p">.</span><span class="nf">Of</span><span class="p">(</span><span class="nx">config</span><span class="p">)</span>
+	<span class="nx">p</span><span class="p">.</span><span class="nf">Start</span><span class="p">()</span>
+	<span class="nx">p</span><span class="p">.</span><span class="nf">Exec</span><span class="p">()</span>
+
+	<span class="c1">// 验证DbOutput存储的正确性
+</span><span class="c1"></span>	<span class="nx">cli</span> <span class="o">:=</span> <span class="nx">db</span><span class="p">.</span><span class="nf">CreateClient</span><span class="p">()</span>
+	<span class="kd">var</span> <span class="nx">val</span> <span class="kt">string</span>
+	<span class="nx">err</span> <span class="o">:=</span> <span class="nx">cli</span><span class="p">.</span><span class="nf">Get</span><span class="p">(</span><span class="s">&#34;db&#34;</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">val</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="nx">t</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;Get db failed, error: %v\n.&#34;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+	<span class="p">}</span>
+	<span class="k">if</span> <span class="nx">val</span> <span class="o">!=</span> <span class="s">&#34;HELLO WORLD&#34;</span> <span class="p">{</span>
+		<span class="nx">t</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;expect HELLO WORLD, but actual %s.&#34;</span><span class="p">,</span> <span class="nx">val</span><span class="p">)</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+<span class="c1">// 运行结果
+</span><span class="c1"></span><span class="o">==</span><span class="p">=</span> <span class="nx">RUN</span>   <span class="nx">TestDbOutput</span>
+<span class="nx">Rpc</span> <span class="nx">server</span> <span class="nx">start</span> <span class="nx">success</span><span class="p">.</span>
+<span class="nx">db</span> <span class="nx">output</span> <span class="nx">plugin</span> <span class="nx">started</span><span class="p">.</span>
+<span class="nx">upper</span> <span class="nx">filter</span> <span class="nx">plugin</span> <span class="nx">started</span><span class="p">.</span>
+<span class="nx">hello</span> <span class="nx">input</span> <span class="nx">plugin</span> <span class="nx">started</span><span class="p">.</span>
+<span class="nx">Pipeline</span> <span class="nx">started</span><span class="p">.</span>
+<span class="o">---</span> <span class="nx">PASS</span><span class="p">:</span> <span class="nf">TestDbOutput</span> <span class="p">(</span><span class="mf">1.01</span><span class="nx">s</span><span class="p">)</span>
+<span class="nx">PASS</span>
+</code></pre></div><h2 id="装饰模式decorator-pattern">装饰模式（Decorator Pattern）</h2>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gigmr38eysj31c40kqx6p.jpg" alt="装饰模式结构"  /></p>
+<h3 id="简介-1">简介</h3>
+<p>在程序设计中，我们常常需要为对象添加新的行为，很多同学的第一个想法就是扩展本体对象，通过继承的方式达到目的。但是使用继承不可避免地有如下两个弊端：（1）继承时静态的，在编译期间就已经确定，无法在运行时改变对象的行为。（2）子类只能有一个父类，当需要添加的新功能太多时，容易导致类的数量剧增。</p>
+<p>对于这种场景，我们通常会使用<strong>装饰模式</strong>（Decorator Pattern）来解决，<strong>它使用组合而非继承的方式，能够动态地为本体对象叠加新的行为</strong>。理论上，只要没有限制，它可以一直把功能叠加下去。装饰模式最经典的应用当属Java的I/O流体系，通过装饰模式，使用者可以动态地为原始的输入输出流添加功能，比如按照字符串输入输出，添加缓存等，使得整个I/O流体系具有很高的可扩展性和灵活性。</p>
+<p>从结构上看，装饰模式和代理模式具有很高的相似性，但是两种所强调的点不一样。<strong>前者强调的是为本体对象添加新的功能，后者强调的是对本体对象的访问控制</strong>。当然，代理模式中的智能引用在笔者看来就跟装饰模式完全一样了。</p>
+<h3 id="go实现-1">Go实现</h3>
+<p>考虑为消息处理系统增加这样的一个功能，统计每个消息输入源分别产生了多少条消息，也就是分别统计每个<code>Input</code>产生<code>Message</code>的数量。最简单的方法是在每一个<code>Input</code>的<code>Receive</code>方法中进行打点统计，但是这样会导致统计代码与业务代码的耦合。如果统计逻辑发生了变化，就会产生<strong>霰弹式修改</strong>，随着<code>Input</code>类型的增多，相关代码也会变得越来越难维护。</p>
+<p>更好的方法是将统计逻辑放到一个地方，并在每次调用<code>Input</code>的<code>Receive</code>方法后进行打点统计。而这恰好适合采用装饰模式，为<code>Input</code>（<strong>本体对象</strong>）提供打点统计功能（<strong>新的行为</strong>）。我们可以设计一个<code>InputMetricDecorator</code>作为<code>Input</code>的装饰器，在装饰器中完成打点统计的逻辑。</p>
+<p>首先，我们需要设计一个用于统计每个<code>Input</code>产生<code>Message</code>数量的对象，该对象应该是一个全局唯一的，因此采用单例模式进行了实现：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">metric</span>
+<span class="o">...</span>
+<span class="c1">// 消息输入源统计，设计为单例
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">input</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="c1">// 存放统计结果，key为Input类型如hello、kafka
+</span><span class="c1"></span>	<span class="c1">// value为对应Input的消息统计
+</span><span class="c1"></span>	<span class="nx">metrics</span> <span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">uint64</span>
+	<span class="c1">// 统计打点时加锁
+</span><span class="c1"></span>	<span class="nx">mu</span>      <span class="o">*</span><span class="nx">sync</span><span class="p">.</span><span class="nx">Mutex</span>
+<span class="p">}</span>
+
+<span class="c1">// 给名称为inputName的Input消息计数加1
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">i</span> <span class="o">*</span><span class="nx">input</span><span class="p">)</span> <span class="nf">Inc</span><span class="p">(</span><span class="nx">inputName</span> <span class="kt">string</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">i</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nf">Lock</span><span class="p">()</span>
+	<span class="k">defer</span> <span class="nx">i</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nf">Unlock</span><span class="p">()</span>
+	<span class="k">if</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">ok</span> <span class="o">:=</span> <span class="nx">i</span><span class="p">.</span><span class="nx">metrics</span><span class="p">[</span><span class="nx">inputName</span><span class="p">];</span> <span class="p">!</span><span class="nx">ok</span> <span class="p">{</span>
+		<span class="nx">i</span><span class="p">.</span><span class="nx">metrics</span><span class="p">[</span><span class="nx">inputName</span><span class="p">]</span> <span class="p">=</span> <span class="mi">0</span>
+	<span class="p">}</span>
+	<span class="nx">i</span><span class="p">.</span><span class="nx">metrics</span><span class="p">[</span><span class="nx">inputName</span><span class="p">]</span> <span class="p">=</span> <span class="nx">i</span><span class="p">.</span><span class="nx">metrics</span><span class="p">[</span><span class="nx">inputName</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="p">}</span>
+
+<span class="c1">// 输出当前所有打点的情况
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">i</span> <span class="o">*</span><span class="nx">input</span><span class="p">)</span> <span class="nf">Show</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Input metric: %v\n&#34;</span><span class="p">,</span> <span class="nx">i</span><span class="p">.</span><span class="nx">metrics</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// 单例
+</span><span class="c1"></span><span class="kd">var</span> <span class="nx">inputInstance</span> <span class="p">=</span> <span class="o">&amp;</span><span class="nx">input</span><span class="p">{</span>
+	<span class="nx">metrics</span><span class="p">:</span> <span class="nb">make</span><span class="p">(</span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">uint64</span><span class="p">),</span>
+	<span class="nx">mu</span><span class="p">:</span>      <span class="o">&amp;</span><span class="nx">sync</span><span class="p">.</span><span class="nx">Mutex</span><span class="p">{},</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">Input</span><span class="p">()</span> <span class="o">*</span><span class="nx">input</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="nx">inputInstance</span>
+<span class="p">}</span>
+</code></pre></div><p>接下来我们开始实现<code>InputMetricDecorator</code>，它实现了<code>Input</code>接口，并持有一个本体对象<code>Input</code>。在<code>InputMetricDecorator</code>在<code>Receive</code>方法中调用本体<code>Input</code>的<code>Receive</code>方法，并完成统计动作。</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">plugin</span>
+<span class="o">...</span>
+<span class="kd">type</span> <span class="nx">InputMetricDecorator</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">input</span> <span class="nx">Input</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">i</span> <span class="o">*</span><span class="nx">InputMetricDecorator</span><span class="p">)</span> <span class="nf">Receive</span><span class="p">()</span> <span class="o">*</span><span class="nx">msg</span><span class="p">.</span><span class="nx">Message</span> <span class="p">{</span>
+	<span class="c1">// 调用本体对象的Receive方法
+</span><span class="c1"></span>	<span class="nx">record</span> <span class="o">:=</span> <span class="nx">i</span><span class="p">.</span><span class="nx">input</span><span class="p">.</span><span class="nf">Receive</span><span class="p">()</span>
+	<span class="c1">// 完成统计逻辑
+</span><span class="c1"></span>	<span class="k">if</span> <span class="nx">inputName</span><span class="p">,</span> <span class="nx">ok</span> <span class="o">:=</span> <span class="nx">record</span><span class="p">.</span><span class="nx">Header</span><span class="p">.</span><span class="nx">Items</span><span class="p">[</span><span class="s">&#34;input&#34;</span><span class="p">];</span> <span class="nx">ok</span> <span class="p">{</span>
+		<span class="nx">metric</span><span class="p">.</span><span class="nf">Input</span><span class="p">().</span><span class="nf">Inc</span><span class="p">(</span><span class="nx">inputName</span><span class="p">)</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="nx">record</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">i</span> <span class="o">*</span><span class="nx">InputMetricDecorator</span><span class="p">)</span> <span class="nf">Start</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">i</span><span class="p">.</span><span class="nx">input</span><span class="p">.</span><span class="nf">Start</span><span class="p">()</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">i</span> <span class="o">*</span><span class="nx">InputMetricDecorator</span><span class="p">)</span> <span class="nf">Stop</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">i</span><span class="p">.</span><span class="nx">input</span><span class="p">.</span><span class="nf">Stop</span><span class="p">()</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">i</span> <span class="o">*</span><span class="nx">InputMetricDecorator</span><span class="p">)</span> <span class="nf">Status</span><span class="p">()</span> <span class="nx">Status</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="nx">i</span><span class="p">.</span><span class="nx">input</span><span class="p">.</span><span class="nf">Status</span><span class="p">()</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">i</span> <span class="o">*</span><span class="nx">InputMetricDecorator</span><span class="p">)</span> <span class="nf">Init</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">i</span><span class="p">.</span><span class="nx">input</span><span class="p">.</span><span class="nf">Init</span><span class="p">()</span>
+<span class="p">}</span>
+
+<span class="c1">// 工厂方法, 完成装饰器的创建
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">CreateInputMetricDecorator</span><span class="p">(</span><span class="nx">input</span> <span class="nx">Input</span><span class="p">)</span> <span class="o">*</span><span class="nx">InputMetricDecorator</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="o">&amp;</span><span class="nx">InputMetricDecorator</span><span class="p">{</span><span class="nx">input</span><span class="p">:</span> <span class="nx">input</span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div><p>最后，我们在<code>Pipeline</code>的工厂方法上，为本体Input加上<code>InputMetricDecorator</code>代理：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">pipeline</span>
+<span class="o">...</span>
+<span class="c1">// 根据配置创建一个Pipeline实例
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">Of</span><span class="p">(</span><span class="nx">conf</span> <span class="nx">Config</span><span class="p">)</span> <span class="o">*</span><span class="nx">Pipeline</span> <span class="p">{</span>
+	<span class="nx">p</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">Pipeline</span><span class="p">{}</span>
+	<span class="nx">p</span><span class="p">.</span><span class="nx">input</span> <span class="p">=</span> <span class="nf">factoryOf</span><span class="p">(</span><span class="nx">plugin</span><span class="p">.</span><span class="nx">InputType</span><span class="p">).</span><span class="nf">Create</span><span class="p">(</span><span class="nx">conf</span><span class="p">.</span><span class="nx">Input</span><span class="p">).(</span><span class="nx">plugin</span><span class="p">.</span><span class="nx">Input</span><span class="p">)</span>
+	<span class="nx">p</span><span class="p">.</span><span class="nx">filter</span> <span class="p">=</span> <span class="nf">factoryOf</span><span class="p">(</span><span class="nx">plugin</span><span class="p">.</span><span class="nx">FilterType</span><span class="p">).</span><span class="nf">Create</span><span class="p">(</span><span class="nx">conf</span><span class="p">.</span><span class="nx">Filter</span><span class="p">).(</span><span class="nx">plugin</span><span class="p">.</span><span class="nx">Filter</span><span class="p">)</span>
+	<span class="nx">p</span><span class="p">.</span><span class="nx">output</span> <span class="p">=</span> <span class="nf">factoryOf</span><span class="p">(</span><span class="nx">plugin</span><span class="p">.</span><span class="nx">OutputType</span><span class="p">).</span><span class="nf">Create</span><span class="p">(</span><span class="nx">conf</span><span class="p">.</span><span class="nx">Output</span><span class="p">).(</span><span class="nx">plugin</span><span class="p">.</span><span class="nx">Output</span><span class="p">)</span>
+	<span class="c1">// 为本体Input加上InputMetricDecorator装饰器
+</span><span class="c1"></span>	<span class="nx">p</span><span class="p">.</span><span class="nx">input</span> <span class="p">=</span> <span class="nx">plugin</span><span class="p">.</span><span class="nf">CreateInputMetricDecorator</span><span class="p">(</span><span class="nx">p</span><span class="p">.</span><span class="nx">input</span><span class="p">)</span>
+	<span class="k">return</span> <span class="nx">p</span>
+<span class="p">}</span>
+</code></pre></div><p>测试代码如下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">test</span>
+<span class="o">...</span>
+<span class="kd">func</span> <span class="nf">TestInputMetricDecorator</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">p1</span> <span class="o">:=</span> <span class="nx">pipeline</span><span class="p">.</span><span class="nf">Of</span><span class="p">(</span><span class="nx">pipeline</span><span class="p">.</span><span class="nf">HelloConfig</span><span class="p">())</span>
+	<span class="nx">p2</span> <span class="o">:=</span> <span class="nx">pipeline</span><span class="p">.</span><span class="nf">Of</span><span class="p">(</span><span class="nx">pipeline</span><span class="p">.</span><span class="nf">KafkaInputConfig</span><span class="p">())</span>
+	<span class="nx">p1</span><span class="p">.</span><span class="nf">Start</span><span class="p">()</span>
+	<span class="nx">p2</span><span class="p">.</span><span class="nf">Start</span><span class="p">()</span>
+	<span class="nx">p1</span><span class="p">.</span><span class="nf">Exec</span><span class="p">()</span>
+	<span class="nx">p2</span><span class="p">.</span><span class="nf">Exec</span><span class="p">()</span>
+	<span class="nx">p1</span><span class="p">.</span><span class="nf">Exec</span><span class="p">()</span>
+
+	<span class="nx">metric</span><span class="p">.</span><span class="nf">Input</span><span class="p">().</span><span class="nf">Show</span><span class="p">()</span>
+<span class="p">}</span>
+<span class="c1">// 运行结果
+</span><span class="c1"></span><span class="o">==</span><span class="p">=</span> <span class="nx">RUN</span>   <span class="nx">TestInputMetricDecorator</span>
+<span class="nx">Console</span> <span class="nx">output</span> <span class="nx">plugin</span> <span class="nx">started</span><span class="p">.</span>
+<span class="nx">Upper</span> <span class="nx">filter</span> <span class="nx">plugin</span> <span class="nx">started</span><span class="p">.</span>
+<span class="nx">Hello</span> <span class="nx">input</span> <span class="nx">plugin</span> <span class="nx">started</span><span class="p">.</span>
+<span class="nx">Pipeline</span> <span class="nx">started</span><span class="p">.</span>
+<span class="nx">Console</span> <span class="nx">output</span> <span class="nx">plugin</span> <span class="nx">started</span><span class="p">.</span>
+<span class="nx">Upper</span> <span class="nx">filter</span> <span class="nx">plugin</span> <span class="nx">started</span><span class="p">.</span>
+<span class="nx">Kafka</span> <span class="nx">input</span> <span class="nx">plugin</span> <span class="nx">started</span><span class="p">.</span>
+<span class="nx">Pipeline</span> <span class="nx">started</span><span class="p">.</span>
+<span class="nx">Output</span><span class="p">:</span>
+	<span class="nx">Header</span><span class="p">:</span><span class="kd">map</span><span class="p">[</span><span class="nx">content</span><span class="p">:</span><span class="nx">text</span> <span class="nx">input</span><span class="p">:</span><span class="nx">hello</span><span class="p">],</span> <span class="nx">Body</span><span class="p">:[</span><span class="nx">HELLO</span> <span class="nx">WORLD</span><span class="p">]</span>
+<span class="nx">Output</span><span class="p">:</span>
+	<span class="nx">Header</span><span class="p">:</span><span class="kd">map</span><span class="p">[</span><span class="nx">content</span><span class="p">:</span><span class="nx">text</span> <span class="nx">input</span><span class="p">:</span><span class="nx">kafka</span><span class="p">],</span> <span class="nx">Body</span><span class="p">:[</span><span class="nx">I</span> <span class="nx">AM</span> <span class="nx">MOCK</span> <span class="nx">CONSUMER</span><span class="p">.]</span>
+<span class="nx">Output</span><span class="p">:</span>
+	<span class="nx">Header</span><span class="p">:</span><span class="kd">map</span><span class="p">[</span><span class="nx">content</span><span class="p">:</span><span class="nx">text</span> <span class="nx">input</span><span class="p">:</span><span class="nx">hello</span><span class="p">],</span> <span class="nx">Body</span><span class="p">:[</span><span class="nx">HELLO</span> <span class="nx">WORLD</span><span class="p">]</span>
+<span class="nx">Input</span> <span class="nx">metric</span><span class="p">:</span> <span class="kd">map</span><span class="p">[</span><span class="nx">hello</span><span class="p">:</span><span class="mi">2</span> <span class="nx">kafka</span><span class="p">:</span><span class="mi">1</span><span class="p">]</span>
+<span class="o">---</span> <span class="nx">PASS</span><span class="p">:</span> <span class="nf">TestInputMetricProxy</span> <span class="p">(</span><span class="mf">0.00</span><span class="nx">s</span><span class="p">)</span>
+<span class="nx">PASS</span>
+</code></pre></div><h2 id="外观模式facade-pattern">外观模式（Facade Pattern）</h2>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gigourw3ksj316g0jgkjl.jpg" alt="外观模式结构"  /></p>
+<h3 id="简介-2">简介</h3>
+<p>从结构上看，外观模式非常的简单，它主要是<strong>为子系统提供了一个更高层次的对外统一接口，使得Client能够更友好地使用子系统的功能</strong>。图中，Subsystem Class是子系统中对象的简称，它可能是一个对象，也可能是数十个对象的集合。外观模式降低了Client与Subsystem之间的耦合，只要Facade不变，不管Subsystem怎么变化，对于Client而言都是无感知的。</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gigpit27haj31k80r44qr.jpg" alt="使用外观模式进行系统优化"  /></p>
+<p>外观模式在程序设计中用的非常多，比如我们在商城上点击<code>购买</code>的按钮，对于购买者而言，只看到了<code>购买</code>这一统一的接口，但是对于商城系统而言，其内部则进行了一系列的业务处理，比如库存检查、订单处理、支付、物流等等。外观模式极大地提升了用户体验，将用户从复杂的业务流程中解放了出来。</p>
+<p>外观模式经常运用于<strong>分层架构</strong>上，通常我们都会为分层架构中的每一个层级提供一个或多个统一对外的访问接口，这样就能让各个层级之间的耦合性更低，使得系统的架构更加合理。</p>
+<h3 id="go实现-2">Go实现</h3>
+<p>外观模式实现起来也很简单，还是考虑前面的消息处理系统。在<code>Pipeline</code>中，每一条消息会依次经过<strong>Input-&gt;Filter-&gt;Output</strong>的处理，代码实现起来就是这样：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">p</span> <span class="o">:=</span> <span class="nx">pipeline</span><span class="p">.</span><span class="nf">Of</span><span class="p">(</span><span class="nx">config</span><span class="p">)</span>
+<span class="nx">message</span> <span class="o">:=</span> <span class="nx">p</span><span class="p">.</span><span class="nx">input</span><span class="p">.</span><span class="nf">Receive</span><span class="p">()</span>
+<span class="nx">message</span> <span class="p">=</span> <span class="nx">p</span><span class="p">.</span><span class="nx">filter</span><span class="p">.</span><span class="nf">Process</span><span class="p">(</span><span class="nx">message</span><span class="p">)</span>
+<span class="nx">p</span><span class="p">.</span><span class="nx">output</span><span class="p">.</span><span class="nf">Send</span><span class="p">(</span><span class="nx">message</span><span class="p">)</span>
+</code></pre></div><p>但是，对于<code>Pipeline</code>的使用者而言，他可能并不关心消息具体的处理流程，他只需知道消息已经经过<code>Pipeline</code>处理即可。因此，我们需要设计一个简单的对外接口：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">pipeline</span>
+<span class="o">...</span>
+<span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">Pipeline</span><span class="p">)</span> <span class="nf">Exec</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">msg</span> <span class="o">:=</span> <span class="nx">p</span><span class="p">.</span><span class="nx">input</span><span class="p">.</span><span class="nf">Receive</span><span class="p">()</span>
+	<span class="nx">msg</span> <span class="p">=</span> <span class="nx">p</span><span class="p">.</span><span class="nx">filter</span><span class="p">.</span><span class="nf">Process</span><span class="p">(</span><span class="nx">msg</span><span class="p">)</span>
+	<span class="nx">p</span><span class="p">.</span><span class="nx">output</span><span class="p">.</span><span class="nf">Send</span><span class="p">(</span><span class="nx">msg</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div><p>这样，使用者只需简单地调用<code>Exec</code>方法，就能完成一次消息的处理，测试代码如下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">test</span>
+<span class="o">...</span>
+<span class="kd">func</span> <span class="nf">TestPipeline</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">p</span> <span class="o">:=</span> <span class="nx">pipeline</span><span class="p">.</span><span class="nf">Of</span><span class="p">(</span><span class="nx">pipeline</span><span class="p">.</span><span class="nf">HelloConfig</span><span class="p">())</span>
+	<span class="nx">p</span><span class="p">.</span><span class="nf">Start</span><span class="p">()</span>
+  <span class="c1">// 调用Exec方法完成一次消息的处理
+</span><span class="c1"></span>	<span class="nx">p</span><span class="p">.</span><span class="nf">Exec</span><span class="p">()</span>
+<span class="p">}</span>
+<span class="c1">// 运行结果
+</span><span class="c1"></span><span class="o">==</span><span class="p">=</span> <span class="nx">RUN</span>   <span class="nx">TestPipeline</span>
+<span class="nx">console</span> <span class="nx">output</span> <span class="nx">plugin</span> <span class="nx">started</span><span class="p">.</span>
+<span class="nx">upper</span> <span class="nx">filter</span> <span class="nx">plugin</span> <span class="nx">started</span><span class="p">.</span>
+<span class="nx">hello</span> <span class="nx">input</span> <span class="nx">plugin</span> <span class="nx">started</span><span class="p">.</span>
+<span class="nx">Pipeline</span> <span class="nx">started</span><span class="p">.</span>
+<span class="nx">Output</span><span class="p">:</span>
+	<span class="nx">Header</span><span class="p">:</span><span class="kd">map</span><span class="p">[</span><span class="nx">content</span><span class="p">:</span><span class="nx">text</span> <span class="nx">input</span><span class="p">:</span><span class="nx">hello</span><span class="p">],</span> <span class="nx">Body</span><span class="p">:[</span><span class="nx">HELLO</span> <span class="nx">WORLD</span><span class="p">]</span>
+<span class="o">---</span> <span class="nx">PASS</span><span class="p">:</span> <span class="nf">TestPipeline</span> <span class="p">(</span><span class="mf">0.00</span><span class="nx">s</span><span class="p">)</span>
+<span class="nx">PASS</span>
+</code></pre></div><h2 id="享元模式flyweight-pattern">享元模式（Flyweight Pattern）</h2>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gigral1b1cj318i0hihdt.jpg" alt="享元模式结构"  /></p>
+<h3 id="简介-3">简介</h3>
+<p>在程序设计中，我们常常会碰到一些很重型的对象，它们通常拥有很多的成员属性，当系统中充斥着大量的这些对象时，系统的内存将会承受巨大的压力。此外，频繁的创建这些对象也极大地消耗了系统的CPU。很多时候，这些重型对象里，大部分的成员属性都是固定的，这种场景下， 可以使用<strong>享元模式</strong>进行优化，将其中固定不变的部分设计成共享对象（享元，flyweight），这样就能节省大量的系统内存和CPU。</p>
+<p><strong>享元模式摒弃了在每个对象中保存所有数据的方式， 通过共享多个对象所共有的相同状态， 让你能在有限的内存容量中载入更多对象</strong>。</p>
+<p>当我们决定对一个重型对象采用享元模式进行优化时，首先需要将该重型对象的属性划分为两类，能够共享的和不能共享的。前者我们称为<strong>内部状态</strong>（intrinsic state），存储在享元中，不随享元所处上下文的变化而变化；后者称为<strong>外部状态</strong>（extrinsic state），它的值取决于享元所处的上下文，因此不能共享。比如，文章A和文章B都引用了图片A，由于文章A和文章B的文字内容是不一样的，因此文字就是外部状态，不能共享；但是它们所引用的图片A是一样的，属于内部状态，因此可以将图片A设计为一个享元</p>
+<p><strong>工厂模式</strong>通常都会和享元模式结对出现，享元工厂提供了唯一获取享元对象的接口，这样Client就感知不到享元是如何共享的，降低了模块的耦合性。享元模式和<strong>单例模式</strong>有些类似的地方，都是在系统中共享对象，但是单例模式更关心的是<strong>对象在系统中仅仅创建一次</strong>，而享元模式更关心的是<strong>如何在多个对象中共享相同的状态</strong>。</p>
+<h3 id="go实现-3">Go实现</h3>
+<p>假设现在需要设计一个系统，用于记录NBA中的球员信息、球队信息以及比赛结果。</p>
+<p>球队<code>Team</code>的数据结构定义如下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">nba</span>
+<span class="o">...</span>
+<span class="kd">type</span> <span class="nx">TeamId</span> <span class="kt">uint8</span>
+
+<span class="kd">const</span> <span class="p">(</span>
+	<span class="nx">Warrior</span> <span class="nx">TeamId</span> <span class="p">=</span> <span class="kc">iota</span>
+	<span class="nx">Laker</span>
+<span class="p">)</span>
+
+<span class="kd">type</span> <span class="nx">Team</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">Id</span>      <span class="nx">TeamId</span>    <span class="c1">// 球队ID
+</span><span class="c1"></span>	<span class="nx">Name</span>    <span class="kt">string</span>    <span class="c1">// 球队名称
+</span><span class="c1"></span>	<span class="nx">Players</span> <span class="p">[]</span><span class="o">*</span><span class="nx">Player</span> <span class="c1">// 球队中的球员
+</span><span class="c1"></span><span class="p">}</span>
+</code></pre></div><p>球员<code>Player</code>的数据结构定义如下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">nba</span>
+<span class="o">...</span>
+<span class="kd">type</span> <span class="nx">Player</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">Name</span> <span class="kt">string</span> <span class="c1">// 球员名字
+</span><span class="c1"></span>	<span class="nx">Team</span> <span class="nx">TeamId</span> <span class="c1">// 球员所属球队ID
+</span><span class="c1"></span><span class="p">}</span>
+</code></pre></div><p>比赛结果<code>Match</code>的数据结构定义如下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">nba</span>
+<span class="o">...</span>
+<span class="kd">type</span> <span class="nx">Match</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">Date</span>         <span class="nx">time</span><span class="p">.</span><span class="nx">Time</span> <span class="c1">// 比赛时间
+</span><span class="c1"></span>	<span class="nx">LocalTeam</span>    <span class="o">*</span><span class="nx">Team</span>     <span class="c1">// 主场球队
+</span><span class="c1"></span>	<span class="nx">VisitorTeam</span>  <span class="o">*</span><span class="nx">Team</span>     <span class="c1">// 客场球队
+</span><span class="c1"></span>	<span class="nx">LocalScore</span>   <span class="kt">uint8</span>     <span class="c1">// 主场球队得分
+</span><span class="c1"></span>	<span class="nx">VisitorScore</span> <span class="kt">uint8</span>     <span class="c1">// 客场球队得分
+</span><span class="c1"></span><span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">m</span> <span class="o">*</span><span class="nx">Match</span><span class="p">)</span> <span class="nf">ShowResult</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%s VS %s - %d:%d\n&#34;</span><span class="p">,</span> <span class="nx">m</span><span class="p">.</span><span class="nx">LocalTeam</span><span class="p">.</span><span class="nx">Name</span><span class="p">,</span> <span class="nx">m</span><span class="p">.</span><span class="nx">VisitorTeam</span><span class="p">.</span><span class="nx">Name</span><span class="p">,</span>
+		<span class="nx">m</span><span class="p">.</span><span class="nx">LocalScore</span><span class="p">,</span> <span class="nx">m</span><span class="p">.</span><span class="nx">VisitorScore</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div><p>NBA中的一场比赛由两个球队，主场球队和客场球队，完成比赛，对应着代码就是，一个<code>Match</code>实例会持有2个<code>Team</code>实例。目前，NBA总共由30支球队，按照每个赛季每个球队打82场常规赛算，一个赛季总共会有2460场比赛，对应地，就会有4920个<code>Team</code>实例。但是，NBA的30支球队是固定的，实际上只需30个<code>Team</code>实例就能完整地记录一个赛季的所有比赛信息，剩下的4890个<code>Team</code>实例属于冗余的数据。</p>
+<p>这种场景下就适合采用享元模式来进行优化，我们把<code>Team</code>设计成多个<code>Match</code>实例之间的享元。享元的获取通过享元工厂来完成，享元工厂<code>teamFactory</code>的定义如下，Client统一使用<code>teamFactory.TeamOf</code>方法来获取球队<code>Team</code>实例。其中，每个球队<code>Team</code>实例只会创建一次，然后添加到球队池中，后续获取都是直接从池中获取，这样就达到了共享的目的。</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">nba</span>
+<span class="o">...</span>
+<span class="kd">type</span> <span class="nx">teamFactory</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="c1">// 球队池，缓存球队实例
+</span><span class="c1"></span>	<span class="nx">teams</span> <span class="kd">map</span><span class="p">[</span><span class="nx">TeamId</span><span class="p">]</span><span class="o">*</span><span class="nx">Team</span>
+<span class="p">}</span>
+
+<span class="c1">// 根据TeamId获取Team实例，从池中获取，如果池里没有，则创建
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">teamFactory</span><span class="p">)</span> <span class="nf">TeamOf</span><span class="p">(</span><span class="nx">id</span> <span class="nx">TeamId</span><span class="p">)</span> <span class="o">*</span><span class="nx">Team</span> <span class="p">{</span>
+	<span class="nx">team</span><span class="p">,</span> <span class="nx">ok</span> <span class="o">:=</span> <span class="nx">t</span><span class="p">.</span><span class="nx">teams</span><span class="p">[</span><span class="nx">id</span><span class="p">]</span>
+	<span class="k">if</span> <span class="p">!</span><span class="nx">ok</span> <span class="p">{</span>
+		<span class="nx">team</span> <span class="p">=</span> <span class="nf">createTeam</span><span class="p">(</span><span class="nx">id</span><span class="p">)</span>
+		<span class="nx">t</span><span class="p">.</span><span class="nx">teams</span><span class="p">[</span><span class="nx">id</span><span class="p">]</span> <span class="p">=</span> <span class="nx">team</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="nx">team</span>
+<span class="p">}</span>
+
+<span class="c1">// 享元工厂的单例
+</span><span class="c1"></span><span class="kd">var</span> <span class="nx">factory</span> <span class="p">=</span> <span class="o">&amp;</span><span class="nx">teamFactory</span><span class="p">{</span>
+	<span class="nx">teams</span><span class="p">:</span> <span class="nb">make</span><span class="p">(</span><span class="kd">map</span><span class="p">[</span><span class="nx">TeamId</span><span class="p">]</span><span class="o">*</span><span class="nx">Team</span><span class="p">),</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">Factory</span><span class="p">()</span> <span class="o">*</span><span class="nx">teamFactory</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="nx">factory</span>
+<span class="p">}</span>
+
+<span class="c1">// 根据TeamId创建Team实例，只在TeamOf方法中调用，外部不可见
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">createTeam</span><span class="p">(</span><span class="nx">id</span> <span class="nx">TeamId</span><span class="p">)</span> <span class="o">*</span><span class="nx">Team</span> <span class="p">{</span>
+	<span class="k">switch</span> <span class="nx">id</span> <span class="p">{</span>
+	<span class="k">case</span> <span class="nx">Warrior</span><span class="p">:</span>
+		<span class="nx">w</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">Team</span><span class="p">{</span>
+			<span class="nx">Id</span><span class="p">:</span>      <span class="nx">Warrior</span><span class="p">,</span>
+			<span class="nx">Name</span><span class="p">:</span>    <span class="s">&#34;Golden State Warriors&#34;</span><span class="p">,</span>
+		<span class="p">}</span>
+		<span class="nx">curry</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">Player</span><span class="p">{</span>
+			<span class="nx">Name</span><span class="p">:</span> <span class="s">&#34;Stephen Curry&#34;</span><span class="p">,</span>
+			<span class="nx">Team</span><span class="p">:</span> <span class="nx">Warrior</span><span class="p">,</span>
+		<span class="p">}</span>
+		<span class="nx">thompson</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">Player</span><span class="p">{</span>
+			<span class="nx">Name</span><span class="p">:</span> <span class="s">&#34;Klay Thompson&#34;</span><span class="p">,</span>
+			<span class="nx">Team</span><span class="p">:</span> <span class="nx">Warrior</span><span class="p">,</span>
+		<span class="p">}</span>
+		<span class="nx">w</span><span class="p">.</span><span class="nx">Players</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">w</span><span class="p">.</span><span class="nx">Players</span><span class="p">,</span> <span class="nx">curry</span><span class="p">,</span> <span class="nx">thompson</span><span class="p">)</span>
+		<span class="k">return</span> <span class="nx">w</span>
+	<span class="k">case</span> <span class="nx">Laker</span><span class="p">:</span>
+		<span class="nx">l</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">Team</span><span class="p">{</span>
+			<span class="nx">Id</span><span class="p">:</span>      <span class="nx">Laker</span><span class="p">,</span>
+			<span class="nx">Name</span><span class="p">:</span>    <span class="s">&#34;Los Angeles Lakers&#34;</span><span class="p">,</span>
+		<span class="p">}</span>
+		<span class="nx">james</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">Player</span><span class="p">{</span>
+			<span class="nx">Name</span><span class="p">:</span> <span class="s">&#34;LeBron James&#34;</span><span class="p">,</span>
+			<span class="nx">Team</span><span class="p">:</span> <span class="nx">Laker</span><span class="p">,</span>
+		<span class="p">}</span>
+		<span class="nx">davis</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">Player</span><span class="p">{</span>
+			<span class="nx">Name</span><span class="p">:</span> <span class="s">&#34;Anthony Davis&#34;</span><span class="p">,</span>
+			<span class="nx">Team</span><span class="p">:</span> <span class="nx">Laker</span><span class="p">,</span>
+		<span class="p">}</span>
+		<span class="nx">l</span><span class="p">.</span><span class="nx">Players</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">l</span><span class="p">.</span><span class="nx">Players</span><span class="p">,</span> <span class="nx">james</span><span class="p">,</span> <span class="nx">davis</span><span class="p">)</span>
+		<span class="k">return</span> <span class="nx">l</span>
+	<span class="k">default</span><span class="p">:</span>
+		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;Get an invalid team id %v.\n&#34;</span><span class="p">,</span> <span class="nx">id</span><span class="p">)</span>
+		<span class="k">return</span> <span class="kc">nil</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div><p>测试代码如下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">test</span>
+<span class="o">...</span>
+<span class="kd">func</span> <span class="nf">TestFlyweight</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">game1</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">nba</span><span class="p">.</span><span class="nx">Match</span><span class="p">{</span>
+		<span class="nx">Date</span><span class="p">:</span>         <span class="nx">time</span><span class="p">.</span><span class="nf">Date</span><span class="p">(</span><span class="mi">2020</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Local</span><span class="p">),</span>
+		<span class="nx">LocalTeam</span><span class="p">:</span>    <span class="nx">nba</span><span class="p">.</span><span class="nf">Factory</span><span class="p">().</span><span class="nf">TeamOf</span><span class="p">(</span><span class="nx">nba</span><span class="p">.</span><span class="nx">Warrior</span><span class="p">),</span>
+		<span class="nx">VisitorTeam</span><span class="p">:</span>  <span class="nx">nba</span><span class="p">.</span><span class="nf">Factory</span><span class="p">().</span><span class="nf">TeamOf</span><span class="p">(</span><span class="nx">nba</span><span class="p">.</span><span class="nx">Laker</span><span class="p">),</span>
+		<span class="nx">LocalScore</span><span class="p">:</span>   <span class="mi">102</span><span class="p">,</span>
+		<span class="nx">VisitorScore</span><span class="p">:</span> <span class="mi">99</span><span class="p">,</span>
+	<span class="p">}</span>
+	<span class="nx">game1</span><span class="p">.</span><span class="nf">ShowResult</span><span class="p">()</span>
+	<span class="nx">game2</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">nba</span><span class="p">.</span><span class="nx">Match</span><span class="p">{</span>
+		<span class="nx">Date</span><span class="p">:</span>         <span class="nx">time</span><span class="p">.</span><span class="nf">Date</span><span class="p">(</span><span class="mi">2020</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Local</span><span class="p">),</span>
+		<span class="nx">LocalTeam</span><span class="p">:</span>    <span class="nx">nba</span><span class="p">.</span><span class="nf">Factory</span><span class="p">().</span><span class="nf">TeamOf</span><span class="p">(</span><span class="nx">nba</span><span class="p">.</span><span class="nx">Laker</span><span class="p">),</span>
+		<span class="nx">VisitorTeam</span><span class="p">:</span>  <span class="nx">nba</span><span class="p">.</span><span class="nf">Factory</span><span class="p">().</span><span class="nf">TeamOf</span><span class="p">(</span><span class="nx">nba</span><span class="p">.</span><span class="nx">Warrior</span><span class="p">),</span>
+		<span class="nx">LocalScore</span><span class="p">:</span>   <span class="mi">110</span><span class="p">,</span>
+		<span class="nx">VisitorScore</span><span class="p">:</span> <span class="mi">118</span><span class="p">,</span>
+	<span class="p">}</span>
+	<span class="nx">game2</span><span class="p">.</span><span class="nf">ShowResult</span><span class="p">()</span>
+  <span class="c1">// 两个Match的同一个球队应该是同一个实例的
+</span><span class="c1"></span>	<span class="k">if</span> <span class="nx">game1</span><span class="p">.</span><span class="nx">LocalTeam</span> <span class="o">!=</span> <span class="nx">game2</span><span class="p">.</span><span class="nx">VisitorTeam</span> <span class="p">{</span>
+		<span class="nx">t</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;Warrior team do not use flyweight pattern&#34;</span><span class="p">)</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+<span class="c1">// 运行结果
+</span><span class="c1"></span><span class="o">==</span><span class="p">=</span> <span class="nx">RUN</span>   <span class="nx">TestFlyweight</span>
+<span class="nx">Golden</span> <span class="nx">State</span> <span class="nx">Warriors</span> <span class="nx">VS</span> <span class="nx">Los</span> <span class="nx">Angeles</span> <span class="nx">Lakers</span> <span class="o">-</span> <span class="mi">102</span><span class="p">:</span><span class="mi">99</span>
+<span class="nx">Los</span> <span class="nx">Angeles</span> <span class="nx">Lakers</span> <span class="nx">VS</span> <span class="nx">Golden</span> <span class="nx">State</span> <span class="nx">Warriors</span> <span class="o">-</span> <span class="mi">110</span><span class="p">:</span><span class="mi">118</span>
+<span class="o">---</span> <span class="nx">PASS</span><span class="p">:</span> <span class="nf">TestFlyweight</span> <span class="p">(</span><span class="mf">0.00</span><span class="nx">s</span><span class="p">)</span>
+</code></pre></div><h2 id="总结">总结</h2>
+<p>本文我们主要介绍了结构型模式中的代理模式、装饰模式、外观模式和享元模式。<strong>代理模式</strong>为一个对象提供一种代理以控制对该对象的访问，强调的是对本体对象的访问控制；<strong>装饰模式</strong>能够动态地为本体对象叠加新的行为，强调的是为本体对象添加新的功能；<strong>外观模式</strong>为子系统提供了一个更高层次的对外统一接口，强调的是分层和解耦；<strong>享元模式</strong>通过共享对象来降低系统的资源消耗，强调的是如何在多个对象中共享相同的状态。</p>
+<p>到目前为止，7种结构型模式已经全部介绍完，下一篇文章，我们开始将介绍最后一类设计模式——<strong>行为型模式</strong>（Behavioral Pattern）。</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/golang/">golang</a>
+        
+            <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">设计模式</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>CC BY 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/%E4%BD%BF%E7%94%A8go%E5%AE%9E%E7%8E%B0gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%BA%8C/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">使用Go实现GoF的23种设计模式（二）</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E4%BD%BF%E7%94%A8go%E5%AE%9E%E7%8E%B0gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B8%80/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">使用Go实现GoF的23种设计模式（一）</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E5%A6%82%E4%BD%95%E9%AB%98%E6%95%88%E7%BC%96%E5%86%99go%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E4%BA%8C/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">如何高效编写Go单元测试（二）</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E5%A6%82%E4%BD%95%E9%AB%98%E6%95%88%E7%BC%96%E5%86%99go%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E4%B8%80/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">如何高效编写Go单元测试（一）</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+
+    
+        
+    <script src="https://utteranc.es/client.js" 
+        repo="ruanrunxue/yrunz-comments"
+        issue-term="pathname"
+        
+        label="yrunz"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
+
+<style>
+    .utterances {
+        max-width: unset;
+    }
+</style>
+
+<script>
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
+        }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+        setUtterancesTheme(document.body.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        setUtterancesTheme(e.detail)
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_SVG"></script>
+    <section class="copyright">
+        &copy;
+        
+            2019 -
+        
+        2023 元闰子的邀请
+    </section>
+
+    <section class="powerby">
+        
+
+        <a href="https://beian.miit.gov.cn/">粤ICP备19152659号 | </a>Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.3.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        <br />
+    </section>
+</footer>
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

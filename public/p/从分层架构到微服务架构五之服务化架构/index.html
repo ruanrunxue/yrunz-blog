@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='SBA 可以看成是单体架构和微服务架构之间的一个折中方案，它也是按照业务领域进行服务划分，但服务划分的粒度相比微服务要更粗。从单体架构演进到 SBA，会比直接演进到微服务架构更加容易。'><title>从分层架构到微服务架构（五）之服务化架构</title>
+
+<link rel='canonical' href='https://www.yrunz.com/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E4%BA%94%E4%B9%8B%E6%9C%8D%E5%8A%A1%E5%8C%96%E6%9E%B6%E6%9E%84/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='从分层架构到微服务架构（五）之服务化架构'>
+<meta property='og:description' content='SBA 可以看成是单体架构和微服务架构之间的一个折中方案，它也是按照业务领域进行服务划分，但服务划分的粒度相比微服务要更粗。从单体架构演进到 SBA，会比直接演进到微服务架构更加容易。'>
+<meta property='og:url' content='https://www.yrunz.com/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E4%BA%94%E4%B9%8B%E6%9C%8D%E5%8A%A1%E5%8C%96%E6%9E%B6%E6%9E%84/'>
+<meta property='og:site_name' content='元闰子的邀请'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='架构' /><meta property='article:tag' content='读书笔记' /><meta property='article:tag' content='从分层架构到微服务架构' /><meta property='article:published_time' content='2022-04-08T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2022-04-08T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="从分层架构到微服务架构（五）之服务化架构">
+<meta name="twitter:description" content="SBA 可以看成是单体架构和微服务架构之间的一个折中方案，它也是按照业务领域进行服务划分，但服务划分的粒度相比微服务要更粗。从单体架构演进到 SBA，会比直接演进到微服务架构更加容易。">
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "light");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/yrz_hudc7c8721ecce4b724df5002339c76402_174377_300x0_resize_box_2.png" width="300"
+                            height="306" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://www.yrunz.com">元闰子的邀请</a></h1>
+        <h2 class="site-description">阅读、写作、生活（个人技术分享）</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>首页</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>博客</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%85%B3%E4%BA%8E%E5%85%83%E9%97%B0%E5%AD%90/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24"
+     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+     stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z"/>
+    <circle cx="12" cy="7" r="4"/>
+    <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/>
+</svg>
+
+                
+                <span>关于元闰子</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%8F%8B%E6%83%85%E9%93%BE%E6%8E%A5/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-friends" width="44" height="44"
+     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+    <circle cx="7" cy="5" r="2"/>
+    <path d="M5 22v-5l-1 -1v-4a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4l-1 1v5"/>
+    <circle cx="17" cy="5" r="2"/>
+    <path d="M15 22v-4h-2l2 -6a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1l2 6h-2v4"/>
+</svg>
+
+                
+                <span>友情链接</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>暗色模式</span>
+            </li>
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://www.yrunz.com" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E6%9E%B6%E6%9E%84/" >
+                架构
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E4%BA%94%E4%B9%8B%E6%9C%8D%E5%8A%A1%E5%8C%96%E6%9E%B6%E6%9E%84/">从分层架构到微服务架构（五）之服务化架构</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        SBA 可以看成是单体架构和微服务架构之间的一个折中方案，它也是按照业务领域进行服务划分，但服务划分的粒度相比微服务要更粗。从单体架构演进到 SBA，会比直接演进到微服务架构更加容易。
+    </h3>
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Apr 08, 2022</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <blockquote>
+<p>《从分层架构到微服务架构》是一系列介绍<a class="link" href="https://learning.oreilly.com/library/view/fundamentals-of-software/9781492043447/"  target="_blank" rel="noopener"
+    >《Fundamentals of Software Architecture》</a>中提到的8种架构模式的文章，这里不会事无巨细地介绍所有的细节，而是会挑选其中关键内容，更多详情请阅读原书。</p>
+<p><strong>往期精彩</strong>：</p>
+<ul>
+<li><a class="link" href="https://mp.weixin.qq.com/s/6BvsfzDKeVI7_DyNj5gPvA"  target="_blank" rel="noopener"
+    >从分层架构到微服务架构（一）</a></li>
+<li><a class="link" href="https://mp.weixin.qq.com/s/upSALrwyzE_qhtMZRDRLUg"  target="_blank" rel="noopener"
+    >从分层架构到微服务架构（二）之分层架构</a></li>
+<li><a class="link" href="https://mp.weixin.qq.com/s/rw1r53GXmvzFLEDrYKKCxQ"  target="_blank" rel="noopener"
+    >从分层架构到微服务架构（三）之管道架构</a></li>
+<li><a class="link" href="https://mp.weixin.qq.com/s/4vofgxx-vasf-957Y_dcww"  target="_blank" rel="noopener"
+    >从分层架构到微服务架构（四）之微内核架构</a></li>
+</ul>
+</blockquote>
+<h2 id="前言">前言</h2>
+<p>从本文开始，我们进入了《从分层架构到微服务架构》系列中<strong>分布式架构</strong>的介绍，本文要介绍的是<strong>服务化架构</strong>（<strong>S</strong>ervice-<strong>B</strong>ased <strong>A</strong>rchitecture，<strong>SBA</strong>）。</p>
+<p>SBA 可以看成是单体架构和微服务架构之间的一个折中方案，它也是按照业务领域进行服务划分，但服务划分的粒度相比微服务要更粗。SBA 与微服务架构一大不同是，<strong>它允许各个服务间共享同一个数据库实例</strong>，这也使得 SBA 在架构上既有单体架构的特点，也有分布式架构的特点，显得更加的灵活。因此，<strong>从单体架构演进到 SBA，会比直接演进到微服务架构更加容易</strong>。</p>
+<h2 id="架构视图">架构视图</h2>
+<h3 id="基础视图">基础视图</h3>
+<p>SBA 的基础架构视图分成 3 部分：</p>
+<ul>
+<li><strong>User Interface</strong>，作为系统的接入口，接收客户端的请求，并转发到业务服务。。</li>
+<li><strong>Domain</strong> <strong>Services</strong>，业务服务按照领域进行划分，分开部署、业务独立。</li>
+<li><strong>Database</strong>，服务间共享的数据库实例，因为数据库实例只有一个，所以可以支持 ACID 事务。</li>
+</ul>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h11kxh6pp8j21030iqwgc.jpg" alt=""  /></p>
+<p>使用 SBA 的系统通常只会划分 4 ～ 12 个服务，避免产生过多的数据库连接。服务数量不多，也决定了 SBA 中的服务相比微服务架构中的服务有着更粗的粒度。User Interface 与服务间通过<strong>远程通信协议</strong>来完成业务往来，常见的通信方式有REST、RPC、消息队列等。需要注意的是，<strong>SBA 是不允许服务间通信的</strong>，这与微服务架构有着本质的区别。</p>
+<p>大多数情况下，<strong>SBA 中的服务只有一个或者少量实例</strong>，与微服务动辄成百上千个实例有着很大的区别。主要是因为 SBA 服务粒度更粗，无法做到像微服务那样精准的按需扩容，扩容太多反而会导致资源的浪费。</p>
+<p><strong>SBA 的另一大特点是允许所有服务共享同一数据库实例</strong>，使得它能够直接将传统单体架构的那一套 SQL 查询逻辑、ACID 事务搬过来，让架构的演进更加的平滑。不过，共享数据也会带来一些问题，比如数据模型变更的影响范围更大，后面会在“**数据拆分”**一节详细讲述。</p>
+<h3 id="拆分-user-interface">拆分 User Interface</h3>
+<p>在大型系统中，单一的 User Interface 可能导致代码耦合、性能瓶颈等问题，这时候我们可以进一步对它进行拆分。拆分的方法可以是<strong>基于业务领域的拆分</strong>，业务相关的几个服务使用同一个 User Interface；或者<strong>基于服务的拆分</strong>，为每个服务都配备一个 User Interface。</p>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h11yx34j9sj20u011z443.jpg" alt=""  /></p>
+<h3 id="拆分-database">拆分 Database</h3>
+<p>类似地，我们也可以对数据库进行拆分，可以拆分成几个服务共享一个实例；也可以像微服务架构中那样，每个服务独享一个实例。数据库拆分的原则就是：<strong>确保数据是解耦的，不会被其他服务所依赖</strong>，避免出现跨库查询或服务间通信。</p>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h11z4hpo5fj20u010aaf7.jpg" alt=""  /></p>
+<h3 id="增加-api-网关">增加 API 网关</h3>
+<p>我们也可以在 User Interface  和 Domain Services 之间增加一个 API 网关层，提供流控、鉴权、指标统计、服务发现等公共能力，进一步提升系统架构的安全性、可靠性、可维护性。</p>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h11zg6tke4j21030pmq5s.jpg" alt=""  /></p>
+<h2 id="业务服务的设计">业务服务的设计</h2>
+<p>SBA 中的服务具有较粗的粒度，因此在业务服务的架构设计上通常也会用到一些单体架构模式，常见的有<strong>分层架构</strong>和基于领域的<strong>组件化架构</strong>。</p>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h11zywcwnsj20u00vhq6c.jpg" alt=""  /></p>
+<p>不管是分层架构还是组件化架构，通常都需要增加一个 API 层，负责编排和转发来自 User Interface 的业务请求。下面以订单创建流程作为示例。</p>
+<p>假设现在有一个订单服务 <code>OrderService</code>，当它的 API 层接收到来自 User Interface 的订单创建请求时，API 层协调会各个组件依次完成如下的几个业务流程 ：</p>
+<ol>
+<li>调用订单组件，完成订单ID、订单内容的生成。</li>
+<li>调用支付组件，完成用户的扣款。</li>
+<li>调用库存组件，更新商品的库存数量。</li>
+</ol>
+<p>因为这些业务流程都是在同一个服务内完成，当其中的某个流程异常后，我们很容易通过数据库的 ACID 事务来完成回滚，从而能够确保<strong>数据的强一致性</strong>。</p>
+<p>相比在微服务架构之下，订单创建请求往往需要订单微服务、支付微服务、库存微服务之间协作来完成，这就涉及到分布式事务，也即 <strong>BASE（B</strong>asic <strong>A</strong>vailability, <strong>S</strong>oft state, <strong>E</strong>ventual consistency） 事务。BASE 事务更加的复杂，而且无法保证数据的强一致性。<!-- raw HTML omitted -->当然，更粗的服务粒度也会带来<strong>服务可用性问题</strong>，比如在订单服务例子中，你会因为订单ID生成逻辑的变更而升级整个服务，也会因为库存组件中的一个BUG导致整个服务的故障。</p>
+<p><strong>所以，服务粒度的粗与细，实际上也是数据一致性和服务可用性的一次 trade-off</strong>。</p>
+<h2 id="数据拆分">数据拆分</h2>
+<p>服务间共享数据库使得系统具有更强的数据完整性和一致性，但简单的<strong>单库单表</strong>数据模型会带来<strong>耦合</strong>的问题。</p>
+<p>在单库单表的模型下，我们大概率会这么实现，将与数据库操作相关的实体对象、SQL 逻辑全部封装在一个共享的 shared  lib 库上，供所有业务服务复用：</p>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h12kvz93g9j21180peae3.jpg" alt=""  /></p>
+<p>这样的实现方式虽然简单，但是会带来“<strong>牵一发而动全身</strong>”的问题。假设某个服务所用到的某个字段类型需要变化，势必会修改表结构和 shared lib 库，而这两者是所有服务共用的，因此也就会导致所有服务都需要升级重新上线。这样的耦合会给 SRE 带来极大的困扰，一点也不<strong>敏捷</strong>。</p>
+<p>更好的方法是<strong>根据业务对数据进行拆分</strong>，将相对独立的数据拆分成多个表，每个表都有一个独立的 lib 库，对于公共表，则有一个 common lib 库，各服务按需依赖。对于 common lib 库的变更，我们还可以通过<strong>版本控制</strong>来尽量降低影响范围，但必须在 common lib 进行版本升级时<strong>保持向后兼容</strong>。</p>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h12lbdx2v1j21010u00wu.jpg" alt=""  /></p>
+<h2 id="架构评分">架构评分</h2>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h12llqs0qqj20u00xwgpw.jpg" alt=""  /></p>
+<p>SBA 虽然是分布式架构，但是也保留了单体架构下的一些特点，在架构上具有较高的灵活性，也使得它在各方面的评分都比较高，没有明显的缺点。</p>
+<p>SBA 是一个 domain-partitioned 的架构，因此适合使用<strong>领域驱动设计</strong>来进行领域限界上下文的划分，进而规划出业务独立的服务。服务间业务独立，而且不会相互间通信，也就意味着具有更好的 <strong>Testability</strong>。</p>
+<p>前文有提到过，SBA 虽然支持服务实例扩容，但是更粗的服务粒度会导致扩容的性价比并不高，因此 <strong>Scalability</strong> 和 <strong>Elasticity</strong> 得分不高。</p>
+<blockquote>
+<p><strong>Scalability</strong> 和 <strong>Elasticity</strong>的差异：</p>
+<ul>
+<li><strong>Scalability</strong> 通常指软件系统在<strong>不中断业务</strong>的前提下，通过 scale-up 或 scale-out 等手段来应对更高业务负载，强调的是软件系统应对高负载的能力。</li>
+<li><strong>Elasticity</strong> 通常指硬件系统能够根据实际的业务负载情况，适时增加或减少硬件资源，强调的是硬件资源的高效利用。</li>
+</ul>
+</blockquote>
+<h2 id="总结">总结</h2>
+<p><strong>如果你打算从单体架构演进到分布式架构，SBA 会是一个不错的选择</strong>：</p>
+<ul>
+<li>相比单体架构，SBA 按照业务进行服务拆分，在业务解耦、开发流程敏捷等方面有着明显的优势。</li>
+<li>相比其他分布式架构，SBA 有着更粗的服务粒度，因此也得以减少了服务间的远程调用、网络带宽消耗，受网络故障的影响更小。</li>
+<li>服务间共享数据库使得 SBA 支持 ACID 事务，在数据一致性方面具有良好的表现，但我们还是应该尽量按照业务进行分表，避免出现严重的数据耦合。</li>
+<li>在架构评分上，SBA 各方面评分都不错，没有明显的缺点，是典型的“<strong>六边形战士</strong>”。</li>
+</ul>
+<blockquote>
+<p><strong>参考</strong></p>
+<ol>
+<li><a class="link" href="https://learning.oreilly.com/library/view/fundamentals-of-software/9781492043447/ch13.html#idm45838971632320"  target="_blank" rel="noopener"
+    >Fundamentals of Software Architecture (Chapter 13. Service-Based Architecture Style)</a>,  Mark Richards, Neal Ford</li>
+<li><a class="link" href="https://www.infoq.com/news/2016/10/service-based-architecture/"  target="_blank" rel="noopener"
+    >Service-Based Architecture as an Alternative to Microservice Architecture</a>, Matt Fletcher</li>
+<li><a class="link" href="https://stackoverflow.com/questions/9587919/what-is-the-difference-between-scalability-and-elasticity"  target="_blank" rel="noopener"
+    >What is the difference between scalability and elasticity?</a>, stackoverflow</li>
+</ol>
+</blockquote>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/%E6%9E%B6%E6%9E%84/">架构</a>
+        
+            <a href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">读书笔记</a>
+        
+            <a href="/tags/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84/">从分层架构到微服务架构</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>CC BY 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E5%9B%9B%E4%B9%8B%E5%BE%AE%E5%86%85%E6%A0%B8%E6%9E%B6%E6%9E%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">从分层架构到微服务架构（四）之微内核架构</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E4%B8%89%E4%B9%8B%E7%AE%A1%E9%81%93%E6%9E%B6%E6%9E%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">从分层架构到微服务架构（三）之管道架构</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E4%BA%8C%E4%B9%8B%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">从分层架构到微服务架构（二）之分层架构</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E4%B8%80/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">从分层架构到微服务架构（一）</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E5%AE%9E%E7%8E%B0dci%E6%9E%B6%E6%9E%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">实现DCI架构</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+
+    
+        
+    <script src="https://utteranc.es/client.js" 
+        repo="ruanrunxue/yrunz-comments"
+        issue-term="pathname"
+        
+        label="yrunz"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
+
+<style>
+    .utterances {
+        max-width: unset;
+    }
+</style>
+
+<script>
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
+        }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+        setUtterancesTheme(document.body.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        setUtterancesTheme(e.detail)
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_SVG"></script>
+    <section class="copyright">
+        &copy;
+        
+            2019 -
+        
+        2023 元闰子的邀请
+    </section>
+
+    <section class="powerby">
+        
+
+        <a href="https://beian.miit.gov.cn/">粤ICP备19152659号 | </a>Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.3.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        <br />
+    </section>
+</footer>
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

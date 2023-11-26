@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>CSAPP on 元闰子的邀请</title>
+    <link>https://www.yrunz.com/tags/csapp/</link>
+    <description>Recent content in CSAPP on 元闰子的邀请</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 18 Aug 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://www.yrunz.com/tags/csapp/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>深入理解计算机系统的数值类型</title>
+      <link>https://www.yrunz.com/p/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E7%9A%84%E6%95%B0%E5%80%BC%E7%B1%BB%E5%9E%8B/</link>
+      <pubDate>Thu, 18 Aug 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E7%9A%84%E6%95%B0%E5%80%BC%E7%B1%BB%E5%9E%8B/</guid>
+      <description>前言 在日常编程中，数值类型（numeric types）是我们打交道最多的类型，可能没有之一。除了最熟悉的 int，还有 long、float、double 等。正因太熟悉，我们往往不会深究它们的底层原理。因为平时的工作中，知道个大概，也够用了。
+但，在某些业务场景下，比如金融业务，数值运算不准确会带来灾难性的后果。这时，你就必须清楚数值类型的二进制表示、截断、转型等原理，否则很难保证运算结果的正确性。
+另外，数值类型也是一个容易被黑客攻击的点，考虑如下一段代码：
+// C++ /* Declaration of library function memcpy */ void *memcpy(void *dest, void *src, size_t n); /* Kernel memory region holding user-accessible data */ #define KSIZE 1024 char kbuf[KSIZE]; /* Copy at most maxlen bytes from kernel region to user buffer */ int copy_from_kernel(void *user_dest, int maxlen) { /* Byte count len is minimum of buffer size and maxlen */ int len = KSIZE &amp;lt; maxlen ?</description>
+    </item>
+    
+  </channel>
+</rss>

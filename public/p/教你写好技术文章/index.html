@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='前言 对于软件工程师来说，编码能力的重要性自不必说，技术写作的能力也相当重要。一篇好的设计文档能够指导需求的开发测试，提升软件质量；一篇好的用户文档能够帮助用户迅速熟悉软件的使用方法；一篇好的技术博文可以让人耳目一新，受益匪浅；一篇好的经验总结可以让新手们少走弯路。
+技术写作的目的是让读者能够顺利地使用一个软件或理解一项技术或弄懂业务流程。它与创作型写作的最大区别在于，技术写作并非为了取悦读者，而是追求以简洁和精确的文字去阐明事实。
+ 一篇好的技术文章应该能够让符合条件的读者，在良好的阅读体验下，理解甚至掌握文章所要传达的内容。
+ 技术写作是一项学问，很多同学或多或少都有写些技术文章的想法，但因为缺乏一些基本的写作技巧，常常无从下手。本文将给出一些技术写作的建议，力求让软件工程师们能够写好技术文章，爱上技术写作。
+为什么要技术写作 前言有提到，一篇好的技术文章能够给读者带来众多益处，其实，技术写作也同样能让作者本身收益颇丰。
+提升表达能力 如何组织文章，如何将复杂的技术原理通熟易懂地表达出来，这都非常考验人的表达能力。
+加强架构和逻辑思维 文章如同软件，也有架构和逻辑。博士们的架构和逻辑思维之所以普遍强大，一个很重要原因是他们都经过了严格的论文写作磨练。当我们把文章写好时，架构和逻辑思维会得到增强，软件设计和开发能力也能随之提高。
+加深对技术/业务的理解 想要写好技术文章，必须要熟悉写作的内容，自然地要求作者在写作前做足功课，如此一来也就加深了对相关技术/业务的理解。
+展示自我 通过技术文章来分享知识是一个很好的展示自我的途径，让大家知道你当前熟悉的领域，逐渐扩大自己的影响力，对后续的职业发展可以起到很大的帮助。
+心灵愉悦 在公开平台上发表技术文章，收获很多浏览量，被读者评论，得到读者点赞和收藏，这些都能够让人得到心灵上的愉悦。
+如何开始技术写作 所谓万事开头难，对习惯于与代码打交道的软件工程师来说，要开始与文字打交道的技术写作，很难。相信很多同学都遇到过憋了几个小时都没写出几个字，或者一直在纠结写什么内容的窘境。其实，只要找到一些方法，着手技术写作，并没那么难。
+从记录学习/工作内容开始 可以先从记录日常的学习/工作内容开始，慢慢习惯与文字打交道，此过程重在建立起写作的自信。
+文章长短不重要 不要一开始就想着写出惊骇世俗的文章，成为最出色的技术博主。也并非只有长篇大论才算得上好的技术文章，一些问题解决记录、经验总结的短文也能给读者很大的帮助。
+通过学习找到写作灵感 如果你还在为要写什么内容而焦头烂额，那么就去学习一项新的技术或者去阅读一本书吧。最好的写作时机就是刚学到知识的时候，因为这时你很清楚从零到一的过程，这也是你要传递给读者的东西。
+学会做笔记 笔记是很好的写作素材，在日常的工作和学习中多做些笔记，把自己的灵感记录下来，后面写作起来也会轻松许多。
+写作的三部曲 第一步：立下写作目标 写作的第一步是立下目标，明确要写哪一类的文章，并朝着目标去写作。比如，立下了介绍Java中HashMap数据类型的目标，就不要在文章上描述JVM的垃圾回收原理，这是混淆了写作目标。
+第二步：确定受众读者 写作的第二步是确定受众读者，只写这类读者可以接受的知识。比如，要写一篇题目是《从零开始学习Java语言》的文章，这明显是一篇针对Java初学者的文章，那么就不要在文章里剖析JVM内存管理的实现源码，这是混淆了文章受众。
+第三步：组织文章 组织文章就是根据中心旨意，把要表达的知识串联成一篇条理清晰的文章。很多新手都会面临“心中想法万千，却无从下笔”的困境，这就是缺乏文章组织导致的。《文心》一书中有提到：
+ 对于文章的组织，也不妨举出一个总方法来，那就是 ‘回问自己’ 四个大字。
+ 我们可以通过“回问自己”的方法来组织文章，以《教你写好代码注释》一文为例：
+&amp;ldquo;是为了要说些什么才写这篇文章的？&amp;rdquo;
+—— 为了总结些写好代码注释的方法。这样文章的中心意旨就明确了。
+&amp;ldquo;中心意旨在我们意念中间是怎么来的？&amp;rdquo;
+—— 读到《A Philosophy of Software Design》一书中关于代码注释的章节深有感触，想分享给大家。这样文章依据的材料范围也就确认了。
+“这个材料可以增加中心意旨的力量吗？”
+—— 书中关于high-level注释和low-level注释的例子可以很好地体现“什么是好的代码注释”这个旨意。这样就可以不断筛选出好的素材，文章的主要内容也就确认了。
+“还有更简练通顺的表达吗？”
+—— 这样写好像更通顺一些。这样经过不断的修正，一篇文章也就出来了。
+一些技术写作建议 1 熟悉写作内容 作为文章的作者，你需要比读者更熟悉写作内容。可以不是相关领域的专家，但至少能够将知识清晰表达出来，并且能够回答大部分读者的问题。这就要求在写作之前，花时间去阅读相关文章、书籍，甚至是请教专家。
+2 写作前先列大纲 文章不仅仅是把内容罗列出来，要注重知识的表达，因此需要一个清晰的文章架构。在写作前先列出大纲，能够帮你理清写作思路，确认内容是否符合逻辑，构建清晰的文章架构。多想想，哪个内容需要先阐述？段落的顺序要怎么排？哪些知识需要更多的解释？哪些点到为止即可？
+3 精简文字 技术写作不是剧本小说，不需要反转曲折的剧情，更不需要含沙射影的表达，它追求的是直接、实用、清晰明了的表达风格。没必要使用过于复杂的文字去描述技术原理，这只会让它们更加难以理解。使用简洁的文字，多用短句，能够让文章可读性更好。
+4 多举例子 避免通篇介绍技术原理的写作，这会让文章过于枯燥，内容也晦涩难懂。要多举例子，它不仅能让技术原理更易懂，也能让主题更加深刻。比如在《教你写好代码注释》中，通过举例正反面的代码注释，更能让读者对好的代码注释产生共鸣。'><title>教你写好技术文章</title>
+
+<link rel='canonical' href='https://www.yrunz.com/p/%E6%95%99%E4%BD%A0%E5%86%99%E5%A5%BD%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='教你写好技术文章'>
+<meta property='og:description' content='前言 对于软件工程师来说，编码能力的重要性自不必说，技术写作的能力也相当重要。一篇好的设计文档能够指导需求的开发测试，提升软件质量；一篇好的用户文档能够帮助用户迅速熟悉软件的使用方法；一篇好的技术博文可以让人耳目一新，受益匪浅；一篇好的经验总结可以让新手们少走弯路。
+技术写作的目的是让读者能够顺利地使用一个软件或理解一项技术或弄懂业务流程。它与创作型写作的最大区别在于，技术写作并非为了取悦读者，而是追求以简洁和精确的文字去阐明事实。
+ 一篇好的技术文章应该能够让符合条件的读者，在良好的阅读体验下，理解甚至掌握文章所要传达的内容。
+ 技术写作是一项学问，很多同学或多或少都有写些技术文章的想法，但因为缺乏一些基本的写作技巧，常常无从下手。本文将给出一些技术写作的建议，力求让软件工程师们能够写好技术文章，爱上技术写作。
+为什么要技术写作 前言有提到，一篇好的技术文章能够给读者带来众多益处，其实，技术写作也同样能让作者本身收益颇丰。
+提升表达能力 如何组织文章，如何将复杂的技术原理通熟易懂地表达出来，这都非常考验人的表达能力。
+加强架构和逻辑思维 文章如同软件，也有架构和逻辑。博士们的架构和逻辑思维之所以普遍强大，一个很重要原因是他们都经过了严格的论文写作磨练。当我们把文章写好时，架构和逻辑思维会得到增强，软件设计和开发能力也能随之提高。
+加深对技术/业务的理解 想要写好技术文章，必须要熟悉写作的内容，自然地要求作者在写作前做足功课，如此一来也就加深了对相关技术/业务的理解。
+展示自我 通过技术文章来分享知识是一个很好的展示自我的途径，让大家知道你当前熟悉的领域，逐渐扩大自己的影响力，对后续的职业发展可以起到很大的帮助。
+心灵愉悦 在公开平台上发表技术文章，收获很多浏览量，被读者评论，得到读者点赞和收藏，这些都能够让人得到心灵上的愉悦。
+如何开始技术写作 所谓万事开头难，对习惯于与代码打交道的软件工程师来说，要开始与文字打交道的技术写作，很难。相信很多同学都遇到过憋了几个小时都没写出几个字，或者一直在纠结写什么内容的窘境。其实，只要找到一些方法，着手技术写作，并没那么难。
+从记录学习/工作内容开始 可以先从记录日常的学习/工作内容开始，慢慢习惯与文字打交道，此过程重在建立起写作的自信。
+文章长短不重要 不要一开始就想着写出惊骇世俗的文章，成为最出色的技术博主。也并非只有长篇大论才算得上好的技术文章，一些问题解决记录、经验总结的短文也能给读者很大的帮助。
+通过学习找到写作灵感 如果你还在为要写什么内容而焦头烂额，那么就去学习一项新的技术或者去阅读一本书吧。最好的写作时机就是刚学到知识的时候，因为这时你很清楚从零到一的过程，这也是你要传递给读者的东西。
+学会做笔记 笔记是很好的写作素材，在日常的工作和学习中多做些笔记，把自己的灵感记录下来，后面写作起来也会轻松许多。
+写作的三部曲 第一步：立下写作目标 写作的第一步是立下目标，明确要写哪一类的文章，并朝着目标去写作。比如，立下了介绍Java中HashMap数据类型的目标，就不要在文章上描述JVM的垃圾回收原理，这是混淆了写作目标。
+第二步：确定受众读者 写作的第二步是确定受众读者，只写这类读者可以接受的知识。比如，要写一篇题目是《从零开始学习Java语言》的文章，这明显是一篇针对Java初学者的文章，那么就不要在文章里剖析JVM内存管理的实现源码，这是混淆了文章受众。
+第三步：组织文章 组织文章就是根据中心旨意，把要表达的知识串联成一篇条理清晰的文章。很多新手都会面临“心中想法万千，却无从下笔”的困境，这就是缺乏文章组织导致的。《文心》一书中有提到：
+ 对于文章的组织，也不妨举出一个总方法来，那就是 ‘回问自己’ 四个大字。
+ 我们可以通过“回问自己”的方法来组织文章，以《教你写好代码注释》一文为例：
+&amp;ldquo;是为了要说些什么才写这篇文章的？&amp;rdquo;
+—— 为了总结些写好代码注释的方法。这样文章的中心意旨就明确了。
+&amp;ldquo;中心意旨在我们意念中间是怎么来的？&amp;rdquo;
+—— 读到《A Philosophy of Software Design》一书中关于代码注释的章节深有感触，想分享给大家。这样文章依据的材料范围也就确认了。
+“这个材料可以增加中心意旨的力量吗？”
+—— 书中关于high-level注释和low-level注释的例子可以很好地体现“什么是好的代码注释”这个旨意。这样就可以不断筛选出好的素材，文章的主要内容也就确认了。
+“还有更简练通顺的表达吗？”
+—— 这样写好像更通顺一些。这样经过不断的修正，一篇文章也就出来了。
+一些技术写作建议 1 熟悉写作内容 作为文章的作者，你需要比读者更熟悉写作内容。可以不是相关领域的专家，但至少能够将知识清晰表达出来，并且能够回答大部分读者的问题。这就要求在写作之前，花时间去阅读相关文章、书籍，甚至是请教专家。
+2 写作前先列大纲 文章不仅仅是把内容罗列出来，要注重知识的表达，因此需要一个清晰的文章架构。在写作前先列出大纲，能够帮你理清写作思路，确认内容是否符合逻辑，构建清晰的文章架构。多想想，哪个内容需要先阐述？段落的顺序要怎么排？哪些知识需要更多的解释？哪些点到为止即可？
+3 精简文字 技术写作不是剧本小说，不需要反转曲折的剧情，更不需要含沙射影的表达，它追求的是直接、实用、清晰明了的表达风格。没必要使用过于复杂的文字去描述技术原理，这只会让它们更加难以理解。使用简洁的文字，多用短句，能够让文章可读性更好。
+4 多举例子 避免通篇介绍技术原理的写作，这会让文章过于枯燥，内容也晦涩难懂。要多举例子，它不仅能让技术原理更易懂，也能让主题更加深刻。比如在《教你写好代码注释》中，通过举例正反面的代码注释，更能让读者对好的代码注释产生共鸣。'>
+<meta property='og:url' content='https://www.yrunz.com/p/%E6%95%99%E4%BD%A0%E5%86%99%E5%A5%BD%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/'>
+<meta property='og:site_name' content='元闰子的邀请'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='写作' /><meta property='article:published_time' content='2021-05-02T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2021-05-02T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="教你写好技术文章">
+<meta name="twitter:description" content="前言 对于软件工程师来说，编码能力的重要性自不必说，技术写作的能力也相当重要。一篇好的设计文档能够指导需求的开发测试，提升软件质量；一篇好的用户文档能够帮助用户迅速熟悉软件的使用方法；一篇好的技术博文可以让人耳目一新，受益匪浅；一篇好的经验总结可以让新手们少走弯路。
+技术写作的目的是让读者能够顺利地使用一个软件或理解一项技术或弄懂业务流程。它与创作型写作的最大区别在于，技术写作并非为了取悦读者，而是追求以简洁和精确的文字去阐明事实。
+ 一篇好的技术文章应该能够让符合条件的读者，在良好的阅读体验下，理解甚至掌握文章所要传达的内容。
+ 技术写作是一项学问，很多同学或多或少都有写些技术文章的想法，但因为缺乏一些基本的写作技巧，常常无从下手。本文将给出一些技术写作的建议，力求让软件工程师们能够写好技术文章，爱上技术写作。
+为什么要技术写作 前言有提到，一篇好的技术文章能够给读者带来众多益处，其实，技术写作也同样能让作者本身收益颇丰。
+提升表达能力 如何组织文章，如何将复杂的技术原理通熟易懂地表达出来，这都非常考验人的表达能力。
+加强架构和逻辑思维 文章如同软件，也有架构和逻辑。博士们的架构和逻辑思维之所以普遍强大，一个很重要原因是他们都经过了严格的论文写作磨练。当我们把文章写好时，架构和逻辑思维会得到增强，软件设计和开发能力也能随之提高。
+加深对技术/业务的理解 想要写好技术文章，必须要熟悉写作的内容，自然地要求作者在写作前做足功课，如此一来也就加深了对相关技术/业务的理解。
+展示自我 通过技术文章来分享知识是一个很好的展示自我的途径，让大家知道你当前熟悉的领域，逐渐扩大自己的影响力，对后续的职业发展可以起到很大的帮助。
+心灵愉悦 在公开平台上发表技术文章，收获很多浏览量，被读者评论，得到读者点赞和收藏，这些都能够让人得到心灵上的愉悦。
+如何开始技术写作 所谓万事开头难，对习惯于与代码打交道的软件工程师来说，要开始与文字打交道的技术写作，很难。相信很多同学都遇到过憋了几个小时都没写出几个字，或者一直在纠结写什么内容的窘境。其实，只要找到一些方法，着手技术写作，并没那么难。
+从记录学习/工作内容开始 可以先从记录日常的学习/工作内容开始，慢慢习惯与文字打交道，此过程重在建立起写作的自信。
+文章长短不重要 不要一开始就想着写出惊骇世俗的文章，成为最出色的技术博主。也并非只有长篇大论才算得上好的技术文章，一些问题解决记录、经验总结的短文也能给读者很大的帮助。
+通过学习找到写作灵感 如果你还在为要写什么内容而焦头烂额，那么就去学习一项新的技术或者去阅读一本书吧。最好的写作时机就是刚学到知识的时候，因为这时你很清楚从零到一的过程，这也是你要传递给读者的东西。
+学会做笔记 笔记是很好的写作素材，在日常的工作和学习中多做些笔记，把自己的灵感记录下来，后面写作起来也会轻松许多。
+写作的三部曲 第一步：立下写作目标 写作的第一步是立下目标，明确要写哪一类的文章，并朝着目标去写作。比如，立下了介绍Java中HashMap数据类型的目标，就不要在文章上描述JVM的垃圾回收原理，这是混淆了写作目标。
+第二步：确定受众读者 写作的第二步是确定受众读者，只写这类读者可以接受的知识。比如，要写一篇题目是《从零开始学习Java语言》的文章，这明显是一篇针对Java初学者的文章，那么就不要在文章里剖析JVM内存管理的实现源码，这是混淆了文章受众。
+第三步：组织文章 组织文章就是根据中心旨意，把要表达的知识串联成一篇条理清晰的文章。很多新手都会面临“心中想法万千，却无从下笔”的困境，这就是缺乏文章组织导致的。《文心》一书中有提到：
+ 对于文章的组织，也不妨举出一个总方法来，那就是 ‘回问自己’ 四个大字。
+ 我们可以通过“回问自己”的方法来组织文章，以《教你写好代码注释》一文为例：
+&amp;ldquo;是为了要说些什么才写这篇文章的？&amp;rdquo;
+—— 为了总结些写好代码注释的方法。这样文章的中心意旨就明确了。
+&amp;ldquo;中心意旨在我们意念中间是怎么来的？&amp;rdquo;
+—— 读到《A Philosophy of Software Design》一书中关于代码注释的章节深有感触，想分享给大家。这样文章依据的材料范围也就确认了。
+“这个材料可以增加中心意旨的力量吗？”
+—— 书中关于high-level注释和low-level注释的例子可以很好地体现“什么是好的代码注释”这个旨意。这样就可以不断筛选出好的素材，文章的主要内容也就确认了。
+“还有更简练通顺的表达吗？”
+—— 这样写好像更通顺一些。这样经过不断的修正，一篇文章也就出来了。
+一些技术写作建议 1 熟悉写作内容 作为文章的作者，你需要比读者更熟悉写作内容。可以不是相关领域的专家，但至少能够将知识清晰表达出来，并且能够回答大部分读者的问题。这就要求在写作之前，花时间去阅读相关文章、书籍，甚至是请教专家。
+2 写作前先列大纲 文章不仅仅是把内容罗列出来，要注重知识的表达，因此需要一个清晰的文章架构。在写作前先列出大纲，能够帮你理清写作思路，确认内容是否符合逻辑，构建清晰的文章架构。多想想，哪个内容需要先阐述？段落的顺序要怎么排？哪些知识需要更多的解释？哪些点到为止即可？
+3 精简文字 技术写作不是剧本小说，不需要反转曲折的剧情，更不需要含沙射影的表达，它追求的是直接、实用、清晰明了的表达风格。没必要使用过于复杂的文字去描述技术原理，这只会让它们更加难以理解。使用简洁的文字，多用短句，能够让文章可读性更好。
+4 多举例子 避免通篇介绍技术原理的写作，这会让文章过于枯燥，内容也晦涩难懂。要多举例子，它不仅能让技术原理更易懂，也能让主题更加深刻。比如在《教你写好代码注释》中，通过举例正反面的代码注释，更能让读者对好的代码注释产生共鸣。">
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "light");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/yrz_hudc7c8721ecce4b724df5002339c76402_174377_300x0_resize_box_2.png" width="300"
+                            height="306" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://www.yrunz.com">元闰子的邀请</a></h1>
+        <h2 class="site-description">阅读、写作、生活（个人技术分享）</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>首页</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>博客</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%85%B3%E4%BA%8E%E5%85%83%E9%97%B0%E5%AD%90/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24"
+     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+     stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z"/>
+    <circle cx="12" cy="7" r="4"/>
+    <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/>
+</svg>
+
+                
+                <span>关于元闰子</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%8F%8B%E6%83%85%E9%93%BE%E6%8E%A5/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-friends" width="44" height="44"
+     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+    <circle cx="7" cy="5" r="2"/>
+    <path d="M5 22v-5l-1 -1v-4a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4l-1 1v5"/>
+    <circle cx="17" cy="5" r="2"/>
+    <path d="M15 22v-4h-2l2 -6a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1l2 6h-2v4"/>
+</svg>
+
+                
+                <span>友情链接</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>暗色模式</span>
+            </li>
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://www.yrunz.com" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E5%86%99%E5%AD%97%E7%9A%84%E5%9C%B0%E6%96%B9/" >
+                写字的地方
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/%E6%95%99%E4%BD%A0%E5%86%99%E5%A5%BD%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/">教你写好技术文章</a>
+    </h2>
+
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">May 02, 2021</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <h2 id="前言">前言</h2>
+<p>对于软件工程师来说，编码能力的重要性自不必说，技术写作的能力也相当重要。一篇好的设计文档能够指导需求的开发测试，提升软件质量；一篇好的用户文档能够帮助用户迅速熟悉软件的使用方法；一篇好的技术博文可以让人耳目一新，受益匪浅；一篇好的经验总结可以让新手们少走弯路。</p>
+<p>技术写作的目的是让读者能够顺利地使用一个软件或理解一项技术或弄懂业务流程。它与创作型写作的最大区别在于，<strong>技术写作并非为了取悦读者，而是追求以简洁和精确的文字去阐明事实</strong>。</p>
+<blockquote>
+<p>一篇好的技术文章应该能够让符合条件的读者，在良好的阅读体验下，理解甚至掌握文章所要传达的内容。</p>
+</blockquote>
+<p>技术写作是一项学问，很多同学或多或少都有写些技术文章的想法，但因为缺乏一些基本的写作技巧，常常无从下手。本文将给出一些技术写作的建议，力求让软件工程师们能够写好技术文章，爱上技术写作。</p>
+<h2 id="为什么要技术写作">为什么要技术写作</h2>
+<p>前言有提到，一篇好的技术文章能够给读者带来众多益处，其实，技术写作也同样能让作者本身收益颇丰。</p>
+<h3 id="提升表达能力"><strong>提升表达能力</strong></h3>
+<p>如何组织文章，如何将复杂的技术原理通熟易懂地表达出来，这都非常考验人的表达能力。</p>
+<h3 id="加强架构和逻辑思维"><strong>加强架构和逻辑思维</strong></h3>
+<p>文章如同软件，也有架构和逻辑。博士们的架构和逻辑思维之所以普遍强大，一个很重要原因是他们都经过了严格的论文写作磨练。当我们把文章写好时，架构和逻辑思维会得到增强，软件设计和开发能力也能随之提高。</p>
+<h3 id="加深对技术业务的理解"><strong>加深对技术/业务的理解</strong></h3>
+<p>想要写好技术文章，必须要熟悉写作的内容，自然地要求作者在写作前做足功课，如此一来也就加深了对相关技术/业务的理解。</p>
+<h3 id="展示自我"><strong>展示自我</strong></h3>
+<p>通过技术文章来分享知识是一个很好的展示自我的途径，让大家知道你当前熟悉的领域，逐渐扩大自己的影响力，对后续的职业发展可以起到很大的帮助。</p>
+<h3 id="心灵愉悦"><strong>心灵愉悦</strong></h3>
+<p>在公开平台上发表技术文章，收获很多浏览量，被读者评论，得到读者点赞和收藏，这些都能够让人得到心灵上的愉悦。</p>
+<h2 id="如何开始技术写作">如何开始技术写作</h2>
+<p>所谓万事开头难，对习惯于与代码打交道的软件工程师来说，要开始与文字打交道的技术写作，很难。相信很多同学都遇到过憋了几个小时都没写出几个字，或者一直在纠结写什么内容的窘境。其实，只要找到一些方法，着手技术写作，并没那么难。</p>
+<h3 id="从记录学习工作内容开始"><strong>从记录学习/工作内容开始</strong></h3>
+<p>可以先从记录日常的学习/工作内容开始，慢慢习惯与文字打交道，此过程重在建立起写作的自信。</p>
+<h3 id="文章长短不重要"><strong>文章长短不重要</strong></h3>
+<p>不要一开始就想着写出惊骇世俗的文章，成为最出色的技术博主。也并非只有长篇大论才算得上好的技术文章，一些问题解决记录、经验总结的短文也能给读者很大的帮助。</p>
+<h3 id="通过学习找到写作灵感"><strong>通过学习找到写作灵感</strong></h3>
+<p>如果你还在为要写什么内容而焦头烂额，那么就去学习一项新的技术或者去阅读一本书吧。<strong>最好的写作时机就是刚学到知识的时候</strong>，因为这时你很清楚从零到一的过程，这也是你要传递给读者的东西。</p>
+<h3 id="学会做笔记"><strong>学会做笔记</strong></h3>
+<p><strong>笔记是很好的写作素材</strong>，在日常的工作和学习中多做些笔记，把自己的灵感记录下来，后面写作起来也会轻松许多。</p>
+<h2 id="写作的三部曲">写作的三部曲</h2>
+<h3 id="第一步立下写作目标">第一步：立下写作目标</h3>
+<p>写作的第一步是立下目标，明确要写哪一类的文章，并朝着目标去写作。比如，立下了介绍Java中<code>HashMap</code>数据类型的目标，就不要在文章上描述JVM的垃圾回收原理，这是混淆了写作目标。</p>
+<h3 id="第二步确定受众读者">第二步：确定受众读者</h3>
+<p>写作的第二步是确定受众读者，只写这类读者可以接受的知识。比如，要写一篇题目是《从零开始学习Java语言》的文章，这明显是一篇针对Java初学者的文章，那么就不要在文章里剖析JVM内存管理的实现源码，这是混淆了文章受众。</p>
+<h3 id="第三步组织文章">第三步：组织文章</h3>
+<p><strong>组织文章就是根据中心旨意，把要表达的知识串联成一篇条理清晰的文章</strong>。很多新手都会面临“心中想法万千，却无从下笔”的困境，这就是缺乏文章组织导致的。《文心》一书中有提到：</p>
+<blockquote>
+<p>对于文章的组织，也不妨举出一个总方法来，那就是 ‘<strong>回问自己</strong>’ 四个大字。</p>
+</blockquote>
+<p>我们可以通过“<strong>回问自己</strong>”的方法来组织文章，以<a class="link" href="https://mp.weixin.qq.com/s/1y7EgRyFm_CLMqf3WeFVEA"  target="_blank" rel="noopener"
+    >《教你写好代码注释》</a>一文为例：</p>
+<p>&ldquo;<em><strong>是为了要说些什么才写这篇文章的</strong></em>？&rdquo;</p>
+<p>—— 为了总结些写好代码注释的方法。这样文章的中心意旨就明确了。</p>
+<p>&ldquo;<em><strong>中心意旨在我们意念中间是怎么来的</strong></em>？&rdquo;</p>
+<p>——  读到《A Philosophy of Software Design》一书中关于代码注释的章节深有感触，想分享给大家。这样文章依据的材料范围也就确认了。</p>
+<p>“<em><strong>这个材料可以增加中心意旨的力量吗</strong></em>？”</p>
+<p>—— 书中关于high-level注释和low-level注释的例子可以很好地体现“什么是好的代码注释”这个旨意。这样就可以不断筛选出好的素材，文章的主要内容也就确认了。</p>
+<p>“<em><strong>还有更简练通顺的表达吗</strong></em>？”</p>
+<p>—— 这样写好像更通顺一些。这样经过不断的修正，一篇文章也就出来了。</p>
+<h2 id="一些技术写作建议">一些技术写作建议</h2>
+<h3 id="1-熟悉写作内容">1 熟悉写作内容</h3>
+<p>作为文章的作者，你需要比读者更熟悉写作内容。可以不是相关领域的专家，但至少能够将知识清晰表达出来，并且能够回答大部分读者的问题。这就要求在写作之前，花时间去阅读相关文章、书籍，甚至是请教专家。</p>
+<h3 id="2-写作前先列大纲">2 写作前先列大纲</h3>
+<p>文章不仅仅是把内容罗列出来，要注重知识的表达，因此需要一个清晰的文章架构。<strong>在写作前先列出大纲，能够帮你理清写作思路，确认内容是否符合逻辑，构建清晰的文章架构</strong>。多想想，哪个内容需要先阐述？段落的顺序要怎么排？哪些知识需要更多的解释？哪些点到为止即可？</p>
+<h3 id="3-精简文字">3 精简文字</h3>
+<p>技术写作不是剧本小说，不需要反转曲折的剧情，更不需要含沙射影的表达，它追求的是<strong>直接、实用、清晰明了的表达风格</strong>。没必要使用过于复杂的文字去描述技术原理，这只会让它们更加难以理解。使用<strong>简洁的文字，多用短句</strong>，能够让文章可读性更好。</p>
+<h3 id="4-多举例子">4 多举例子</h3>
+<p>避免通篇介绍技术原理的写作，这会让文章过于枯燥，内容也晦涩难懂。要多举例子，它不仅能让技术原理更易懂，也能让主题更加深刻。比如在<a class="link" href="https://mp.weixin.qq.com/s/1y7EgRyFm_CLMqf3WeFVEA"  target="_blank" rel="noopener"
+    >《教你写好代码注释》</a>中，通过举例正反面的代码注释，更能让读者对好的代码注释产生共鸣。</p>
+<h3 id="5-善用图表">5 善用图表</h3>
+<p>有时候，我们会遇到很难用文字，或需要用很多文字才能描述清楚的东西，比如复杂的业务流程和模块依赖。这时可以使用图表来可视化表达，一张恰当的图表能够清晰地阐明技术原理，胜过千言万语。</p>
+<blockquote>
+<p>一些画图软件推荐</p>
+<ul>
+<li>适合新手：MicroSoft Office PowerPoint、MicroSoft Office Visio、Apple Keynote</li>
+<li>在线画图：Draw.io、ProcessOn、Excalidraw</li>
+<li>代码绘图：PlantUML</li>
+<li>手绘风格：Apple Keynote、Excalidraw</li>
+<li>高级玩家：Sketch、Lunacy</li>
+</ul>
+</blockquote>
+<h3 id="6-代码分段">6 代码分段</h3>
+<p>在深度剖析一些技术原理或系统框架时，我们往往都会涉及源码分析，<strong>切忌直接在文章中贴上上百行的代码</strong>，然后在代码前/后用一段文字对其说明。这会导致读者为了将代码和说明对应上，而频繁上下翻页，严重影响阅读感受。</p>
+<blockquote>
+<p><strong>反面教材</strong>：</p>
+<div class="highlight"><pre class="chroma"><code class="language-c++" data-lang="c++"><span class="p">...</span>
+<span class="kr">inline</span> <span class="kt">void</span><span class="o">*</span> <span class="n">oopDesc</span><span class="o">::</span><span class="n">field_base</span><span class="p">(</span><span class="kt">int</span> <span class="n">offset</span><span class="p">)</span> <span class="k">const</span> <span class="p">{</span> 
+  <span class="k">return</span> <span class="p">(</span><span class="kt">void</span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="p">((</span><span class="kt">char</span><span class="o">*</span><span class="p">)</span><span class="k">this</span><span class="p">)[</span><span class="n">offset</span><span class="p">];</span>
+<span class="p">}</span>
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">T</span><span class="o">&gt;</span> <span class="kr">inline</span> <span class="n">T</span><span class="o">*</span> <span class="n">oopDesc</span><span class="o">::</span><span class="n">obj_field_addr</span><span class="p">(</span><span class="kt">int</span> <span class="n">offset</span><span class="p">)</span> <span class="k">const</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="p">(</span><span class="n">T</span><span class="o">*</span><span class="p">)</span><span class="n">field_base</span><span class="p">(</span><span class="n">offset</span><span class="p">);</span> 
+<span class="p">}</span>
+<span class="c1">// 剩余上百行的代码
+</span><span class="c1"></span><span class="p">...</span>
+</code></pre></div><p>由上述代码片段可知，每个field在<code>oop</code>中都有一个对应的偏移量（offset），xxx。</p>
+</blockquote>
+<p>更好的方法是将代码分段讲解，并在在其中穿插关键注释。</p>
+<blockquote>
+<p><strong>正面例子</strong>：</p>
+<div class="highlight"><pre class="chroma"><code class="language-c++" data-lang="c++"><span class="c1">// 获取field前需要先判断是否采用了指针压缩技术，先根据offset调用obj_field_addr
+</span><span class="c1">// 得到field的地址，然后调用load_decode_heap_oop得到实例
+</span><span class="c1"></span><span class="kr">inline</span> <span class="n">oop</span> <span class="n">oopDesc</span><span class="o">::</span><span class="n">obj_field</span><span class="p">(</span><span class="kt">int</span> <span class="n">offset</span><span class="p">)</span> <span class="k">const</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="n">UseCompressedOops</span> <span class="o">?</span>
+    <span class="n">load_decode_heap_oop</span><span class="p">(</span><span class="n">obj_field_addr</span><span class="o">&lt;</span><span class="n">narrowOop</span><span class="o">&gt;</span><span class="p">(</span><span class="n">offset</span><span class="p">))</span> <span class="o">:</span>
+    <span class="n">load_decode_heap_oop</span><span class="p">(</span><span class="n">obj_field_addr</span><span class="o">&lt;</span><span class="n">oop</span><span class="o">&gt;</span><span class="p">(</span><span class="n">offset</span><span class="p">));</span>
+<span class="p">}</span>
+</code></pre></div><p><code>oopDesc::obj_field</code>方法主要用于xxx。</p>
+<div class="highlight"><pre class="chroma"><code class="language-c++" data-lang="c++"><span class="c1">// 基础类型特有的实现与obj_field_addr类似，只是转型成特有的基础类型指针
+</span><span class="c1"></span><span class="kr">inline</span> <span class="n">jbyte</span><span class="o">*</span> <span class="n">oopDesc</span><span class="o">::</span><span class="n">byte_field_addr</span><span class="p">(</span><span class="kt">int</span> <span class="n">offset</span><span class="p">)</span> <span class="k">const</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="p">(</span><span class="n">jbyte</span><span class="o">*</span><span class="p">)</span><span class="n">field_base</span><span class="p">(</span><span class="n">offset</span><span class="p">);</span> 
+<span class="p">}</span>
+</code></pre></div><p><code>oopDesc::byte_field_addr</code>主要用于xxx，在xxx时会被调用。</p>
+</blockquote>
+<h3 id="7-反复修正">7 反复修正</h3>
+<p>好的文章都是经过反复的修正才诞生，不仅仅局限于错别字和用词的修改，要以读者，甚至是审稿人的视角去审视整篇文章。怎么才能让这段内容表达更清晰？哪些知识需要延展？哪些片段可以裁剪掉？</p>
+<p><strong>养成在发布前仔细阅读一遍文章的习惯，杜绝低级错误，这也是对读者最大的尊重</strong>。</p>
+<h3 id="8-做好排版">8 做好排版</h3>
+<p>如同代码需要分段讲解，文字也需要分段，一大段的文字容易让人觉得枯燥。对重点语句/词语需要加粗突出；善用标题、有序/无序列表来罗列知识点，让文章看起来更加清晰。</p>
+<p>推荐使用<strong>markdown</strong>进行技术写作，它排版简洁美观，语法简单，而且绝大多数的平台都支持markdown格式的文章发布。另外，还可以使用markdown-nice等排版工具自定义文章背景、色彩、字体等，提升阅读观感。</p>
+<h3 id="9-读好的文章">9 读好的文章</h3>
+<p>养成读好文章的习惯，学习他们的写作方式，不断提升自己的写作技巧。</p>
+<h2 id="总结">总结</h2>
+<p>《文心》将文章写作归结为三个阶段：<strong>习作、应用和创作</strong>。</p>
+<blockquote>
+<p>习作只是法则与手腕的练习，应用之作只是对付他人和事务的东西，创作才是发挥自己天分的真成绩。</p>
+</blockquote>
+<p>技术写作也一样，第一阶段<strong>习作</strong>，对应读书笔记、经验分享等总结类文章；第二阶段<strong>应用</strong>，对应工作中的设计文档、用户文档等指南类文档；第三阶段<strong>创作</strong>，对应类似《对XXX领域未来发展的看法》的这类文章，这往往也要求作者具备深厚的知识储备。</p>
+<p>这三者之中，<strong>最基本、最重要的是习作</strong>。只有当习作到了相当的程度，才能有应用，也才能谈得上创作。</p>
+<p>上面介绍了很多写好技术文章的方法，但最简单，也是最有效的方法是：<strong>不要停止写作</strong>。</p>
+<blockquote>
+<p><strong>参考</strong></p>
+<ul>
+<li><a class="link" href="https://book.douban.com/subject/27154464/"  target="_blank" rel="noopener"
+    >文心</a>, 夏丏尊/叶圣陶</li>
+<li><a class="link" href="https://www.cnblogs.com/cj723/archive/2012/03/15/2396422.html"  target="_blank" rel="noopener"
+    >技术文章如何写作才能有较好的阅读体验</a>, 伍迷</li>
+<li><a class="link" href="https://www.thoughtco.com/technical-writing-1692530"  target="_blank" rel="noopener"
+    >Technical Writing: Definition and Observations</a>, Richard Nordquist</li>
+<li><a class="link" href="https://thebestschools.org/magazine/technical-writing-tips/"  target="_blank" rel="noopener"
+    >15 Tips to Improve Your Technical Writing</a>, TBS Staff</li>
+<li><a class="link" href="https://css-tricks.com/advice-for-technical-writing/"  target="_blank" rel="noopener"
+    >Advice for Technical Writing</a>, Chris Coyier</li>
+<li><a class="link" href="https://www.freecodecamp.org/news/developers-the-why-and-how-to-writing-technical-articles-54e824789ef6/"  target="_blank" rel="noopener"
+    >Developers: The Why and How to Writing Technical Articles</a>, Goodness Kayode</li>
+</ul>
+</blockquote>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/%E5%86%99%E4%BD%9C/">写作</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>CC BY 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/%E7%94%A8keynote%E7%94%BB%E5%87%BA%E6%89%8B%E7%BB%98%E9%A3%8E%E6%A0%BC%E7%9A%84%E9%85%8D%E5%9B%BE/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">用Keynote画出手绘风格的配图</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E4%B8%8D%E4%B8%80%E6%A0%B7%E7%9A%84%E5%9B%BD%E6%96%87%E8%AF%BE/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">不一样的国文课</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/2022-%E5%B9%B4%E5%B0%8F%E7%BB%93/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">2022 年小结</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E9%80%81%E8%A1%8C/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">送行</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E5%B1%9E%E4%BA%8E%E7%AF%AE%E7%90%83%E7%9A%84%E5%BF%AB%E4%B9%90%E5%8F%88%E5%9B%9E%E6%9D%A5%E4%BA%86/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">属于篮球的快乐又回来了</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+
+    
+        
+    <script src="https://utteranc.es/client.js" 
+        repo="ruanrunxue/yrunz-comments"
+        issue-term="pathname"
+        
+        label="yrunz"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
+
+<style>
+    .utterances {
+        max-width: unset;
+    }
+</style>
+
+<script>
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
+        }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+        setUtterancesTheme(document.body.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        setUtterancesTheme(e.detail)
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_SVG"></script>
+    <section class="copyright">
+        &copy;
+        
+            2019 -
+        
+        2023 元闰子的邀请
+    </section>
+
+    <section class="powerby">
+        
+
+        <a href="https://beian.miit.gov.cn/">粤ICP备19152659号 | </a>Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.3.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        <br />
+    </section>
+</footer>
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Pages on 元闰子的邀请</title>
+    <link>https://www.yrunz.com/page/</link>
+    <description>Recent content in Pages on 元闰子的邀请</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 11 Jun 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://www.yrunz.com/page/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>友情链接</title>
+      <link>https://www.yrunz.com/%E5%8F%8B%E6%83%85%E9%93%BE%E6%8E%A5/</link>
+      <pubDate>Fri, 11 Jun 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/%E5%8F%8B%E6%83%85%E9%93%BE%E6%8E%A5/</guid>
+      <description> 酷壳 - CoolShell：大牛左耳朵耗子-陈浩的个人博客 No Headback：曹大的个人博客，《Go语言高级编程》的作者 面向信仰编程：《Go语言设计与实现》的作者 Martin Fowler：大名鼎鼎的《重构》作者，软件领域的大神，Martin Fowler的个人网站 The acme of foolishness：Go大神Dave Cheney的个人博客 the morning paper：计算机领域经典论文的导读  </description>
+    </item>
+    
+    <item>
+      <title>关于元闰子</title>
+      <link>https://www.yrunz.com/%E5%85%B3%E4%BA%8E%E5%85%83%E9%97%B0%E5%AD%90/</link>
+      <pubDate>Tue, 01 Jun 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/%E5%85%B3%E4%BA%8E%E5%85%83%E9%97%B0%E5%AD%90/</guid>
+      <description>Q1: 你是什么时候开始写技术博客的呀？ 搭建个人网站，写技术博客的想法，很早就有了，但是因为各种原因一直搁置着，其实就是太懒了。
+在2019年底的时候，那会恰好工作没那么忙，趁着双十一，就在腾讯云买了一个服务器，搭建起了个人网站，顺便也开通了微信公众号，这时候才算是真正开始技术博客的写作生涯。
+Q2: “元闰子的邀请”这个名字是怎么来的呀？ 这个名字源自于2019年读的一本书，语言学的邀请，这是一本讲语义学的书，内容挺有趣的。书原本的名字叫做Language in Thought and Action，当时觉得这个翻译很有味道，扑面而来的就是一股书生气，非常的喜欢。于是就有了“元闰子的邀请”这个名字了，其中“元闰子”就是本人的笔名。
+Q3: 可以介绍一下你的程序员生涯吗？ 截止目前，本人有四年的软件开发相关经验。在这四年里，自己对“程序员”这一职业的想法也在不断的变化，从中也能反映自己程序员生涯的几个阶段：
+ 第一年，认为技术对程序员来说是最重要的，这一阶段主要热衷于学习各种技术框架，唯恐跟不上时代的潮流。 第二年，学习了一些软件方法论，结合工作上的项目经验，慢慢认识到，软件技术万变不离其宗，业务才是软件的核心。不懂业务的程序员，谈不上是一个好的程序员。 第三年，在工作上经历了很艰难的一年，很多时候，团队攻克难关所需要的不是技术，而是意志。意志也是程序员的核心竞争力。 第四年，结合工作上遇到的一些问题，慢慢认识到所有的软件技术原理都是相通的。一个人在有生之年里，很难把所有的技术都学个遍，却可以把基础知识学习透。基础知识不牢固，在技术的路线上将会举步维艰。  Q4: 哪本书对你的影响最大呢？ 对我影响很大的书挺多的，很难挑选出影响最大的一本，倒是可以按照技术、学习、阅读、写作几个维度来整理：
+ 技术。对我技术影响最大的一本书是《实现领域驱动设计》，从这本书开始，写代码的思维完全变了，模块设计的水平提升了一个档次。 学习。这几年来自己能够坚持学习，很大程度上得感谢《曾国藩家书》这本书，一直记得书中的那句“少睡多做，一人之生气”。 阅读。本来阅读的书籍，大部分都是技术类，自从读了《穷查理宝典》之后，阅读的习惯开始变化，开始注意多学科交叉，开始可以阅读各个学科的书籍。 写作。有幸在写博客的初始阶段就读到了《文心》这本书，一方面提升了写作技巧；另一方面，也是最重要的，提升了写作兴趣，从而让自己能够一直坚持下去。  Q5: 你是怎么学习的呀？ 主要的学习输入是看书，辅助以大神们的Blog。
+个人认为，书是最好的学习输入来源。虽然现在网上有着大量的知识来源，但是那都是碎片化的，容易让人迷失。更重要的是碎片化的学习很难形成自己的知识体系。而书，大部分都有着系统的知识框架，特别那些是经过了时间考验的经典好书。通过伟大的书籍就能够与伟大的作者来一场精神上的面对面交流，何乐而不为。
+Q6: 有什么学习的技巧吗？ 关于学习技巧的话，个人觉得做笔记很重要。前些年虽然看了很多书，但是现在书中的内容也忘得差不多了，归根结底还是自己追求数量而忽略了质量。
+现在的我，无论是看书，或者是看大神们的Blog，都养成了做笔记的习惯，用自己的语言将知识复述一遍，加深对知识的印象。而且笔记是一个很好的写作原素材，后面有空时再把笔记写成文章，这样一来，所学的知识就不容易忘记了。</description>
+    </item>
+    
+    <item>
+      <title>博客</title>
+      <link>https://www.yrunz.com/archives/</link>
+      <pubDate>Tue, 28 May 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/archives/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>搜索</title>
+      <link>https://www.yrunz.com/search/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/search/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>

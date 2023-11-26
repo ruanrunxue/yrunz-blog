@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='本文将从最简单的内存管理原理说起，带大家一起窥探OS的内存管理机制，由此熟悉底层的内存管理机制，写出高效的应用程序'><title>探索OS的内存原理</title>
+
+<link rel='canonical' href='https://www.yrunz.com/p/%E6%8E%A2%E7%B4%A2os%E7%9A%84%E5%86%85%E5%AD%98%E5%8E%9F%E7%90%86/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='探索OS的内存原理'>
+<meta property='og:description' content='本文将从最简单的内存管理原理说起，带大家一起窥探OS的内存管理机制，由此熟悉底层的内存管理机制，写出高效的应用程序'>
+<meta property='og:url' content='https://www.yrunz.com/p/%E6%8E%A2%E7%B4%A2os%E7%9A%84%E5%86%85%E5%AD%98%E5%8E%9F%E7%90%86/'>
+<meta property='og:site_name' content='元闰子的邀请'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='操作系统' /><meta property='article:tag' content='内存管理' /><meta property='article:published_time' content='2022-01-09T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2022-01-09T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="探索OS的内存原理">
+<meta name="twitter:description" content="本文将从最简单的内存管理原理说起，带大家一起窥探OS的内存管理机制，由此熟悉底层的内存管理机制，写出高效的应用程序">
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "light");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/yrz_hudc7c8721ecce4b724df5002339c76402_174377_300x0_resize_box_2.png" width="300"
+                            height="306" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://www.yrunz.com">元闰子的邀请</a></h1>
+        <h2 class="site-description">阅读、写作、生活（个人技术分享）</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>首页</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>博客</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%85%B3%E4%BA%8E%E5%85%83%E9%97%B0%E5%AD%90/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24"
+     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+     stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z"/>
+    <circle cx="12" cy="7" r="4"/>
+    <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/>
+</svg>
+
+                
+                <span>关于元闰子</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%8F%8B%E6%83%85%E9%93%BE%E6%8E%A5/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-friends" width="44" height="44"
+     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+    <circle cx="7" cy="5" r="2"/>
+    <path d="M5 22v-5l-1 -1v-4a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4l-1 1v5"/>
+    <circle cx="17" cy="5" r="2"/>
+    <path d="M15 22v-4h-2l2 -6a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1l2 6h-2v4"/>
+</svg>
+
+                
+                <span>友情链接</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>暗色模式</span>
+            </li>
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://www.yrunz.com" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E5%9F%BA%E7%A1%80/" >
+                基础
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/%E6%8E%A2%E7%B4%A2os%E7%9A%84%E5%86%85%E5%AD%98%E5%8E%9F%E7%90%86/">探索OS的内存原理</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        本文将从最简单的内存管理原理说起，带大家一起窥探OS的内存管理机制，由此熟悉底层的内存管理机制，写出高效的应用程序
+    </h3>
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Jan 09, 2022</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <h2 id="前言">前言</h2>
+<p><strong>内存</strong>作为计算机系统的组成部分，跟开发人员的日常开发活动有着密切的联系，我们平时遇到的<strong>Segment Fault</strong>、<strong>OutOfMemory</strong>、<strong>Memory Leak</strong>、<strong>GC</strong>等都与它有关。本文所说的内存，指的是计算机系统中的主存（Main Memory），它位于存储金字塔中CPU缓存和磁盘之间，是程序运行不可或缺的一部分。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNgy1gxxhp396kqj31ca0pater.jpg" alt="图1"  /></p>
+<p>在计算机系统中，<strong>主存通常都是由操作系统（OS）来管理</strong>，而内存管理的细则对开发者来说是无感的。对于一个普通的开发者，他只需懂得如何调用编程语言的接口来进行内存申请和释放，即可写出一个<strong>可用</strong>的应用程序。如果你使用的是带有垃圾回收机制的语言，如Java和Go，甚至都不用主动释放内存。但如果你想写出<strong>高效</strong>应用程序，熟悉OS的内存管理原理就变得很有必要了。</p>
+<p>下面，我们将从最简单的内存管理原理说起，带大家一起窥探OS的内存管理机制，由此熟悉底层的内存管理机制，写出高效的应用程序。</p>
+<h2 id="独占式内存管理">独占式内存管理</h2>
+<p>早期的单任务系统中，同一时刻只能有一个应用程序独享所有的内存（除开OS占用的内存），因此，内存管理可以很简单，只需在内存上划分两个区域：</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNgy1gy7gugkwy4j31a60lqaeb.jpg" alt="图2"  /></p>
+<p>在多任务系统中，计算机系统已经可以做到多个任务并发运行。如果还是按照独占式的管理方式，那么每次任务切换时，都会涉及多次内存和磁盘之间的<strong>数据拷贝</strong>，效率极其低下：</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNgy1gy7h43ww46j31fk0t6n50.jpg" alt="图3"  /></p>
+<p>最直观的解决方法就是让所有程序的数据都常驻在内存中（<strong>假设内存足够大</strong>），这样就能避免数据拷贝了：</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNgy1gy7h53kzefj31ae0ssn37.jpg" alt="图4"  /></p>
+<p>但这样又会带来另一个问题，<strong>程序之间的内存地址空间是没有隔离的</strong>，也就是程序A可以修改程序B的内存数据。这样的一个重大的安全问题是用户所无法接受的，要解决该问题，就要借助<strong>虚拟化</strong>的力量了。</p>
+<h2 id="虚拟地址空间">虚拟地址空间</h2>
+<p>为了实现程序间内存的隔离，OS对物理内存做了一层虚拟化。OS为每个程序都虚拟化出一段内存空间，这段虚拟内存空间会映射到一段物理内存上。但对程序自身而言，它只能看到自己的<strong>虚拟地址空间</strong>，也就有独占整个内存的错觉了。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNgy1gy7h7d75ipj31gq0ty10n.jpg" alt="图5"  /></p>
+<p>上图中，虚拟内存空间分成了三个区域，其中<strong>Code</strong>区域存储的是程序代码的机器指令；<strong>Heap</strong>区域存储程序运行过程中动态申请的内存；<strong>Stack</strong>区域则是存储函数入参、局部变量、返回值等。Heap和Stack会在程序运行过程中不断增长，分别放置在虚拟内存空间的上方和下方，并往相反方向增长。</p>
+<p>从虚拟地址空间到物理地址空间的映射，需要一个转换的过程，完成这个转换运算的部件就是<strong>MMU</strong>（memory management unit），也即<strong>内存管理单元</strong>，它位于CPU芯片之内。</p>
+<p>要完成从虚拟地址到物理地址到转换，MMU需要<strong>base</strong>和<strong>bound</strong>两个寄存器。其中<strong>base</strong>寄存器用来存储程序在物理内存上的<strong>基地址</strong>，比如在<em>图5</em>中，程序A的基地址就是192KB；<strong>bound</strong>寄存器（有时候也叫<strong>limit</strong>寄存器）则保存虚拟地址空间的Size，主要用来避免越界访问，比如<em>图5</em>中程序A的size值为64K。那么，基于这种方式的地址转换公式是这样的：</p>
+<blockquote>
+<p><strong>物理地址 = 虚拟地址 + 基地址</strong></p>
+</blockquote>
+<p>以<em>图5</em>中程序A的地址转换为例，当程序A尝试访问超过其bound范围的地址时，物理地址会转换失败：</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNgy1gxy464t0gaj31560iytch.jpg" alt="图6"  /></p>
+<p>现在，我们再次仔细看下程序A的物理内存分布，如下<em>图7</em>所示，中间有很大的一段空闲内存是“<strong>已申请，未使用</strong>”的空闲状态。这也意味着即使这部分是空闲的，也无法再次分配给其他程序使用，这是一种巨大的<strong>空间浪费</strong>！为了解决这个内存利用率低下的问题，我们熟悉的<strong>段式内存管理</strong>出现了。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNgy1gy7he1mj1ij31co0sqjxr.jpg" alt="图7"  /></p>
+<h2 id="段式内存管理">段式内存管理</h2>
+<p>在上一节中，我们发现如果以程序为单位去做内存管理，会存在内存利用率不足的问题。为了解决该问题，段式内存管理被引入。<strong>段（Segment）是逻辑上的概念，本质上是一块连续的、有一定大小限制的内存区域</strong>，前文中，我们一共提到过3个段：Code、Heap和Stack。</p>
+<p>段式内存管理以段为单位进行管理，它允许OS将每个段灵活地放置在物理内存的空闲位置上，因此也避免了“已申请，未使用”的内存区域出现：</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gy7hfkvp97j31bx0u0tf3.jpg" alt="图8"  /></p>
+<h3 id="地址转换">地址转换</h3>
+<p>从上<em>图8</em>可知，段式内存管理中程序的物理内存空间可能不再连续了，因此为了实现从虚拟地址到物理地址到转换，MMU需要为每个段都提供一对base-bound寄存器，比如：</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNgy1gxymel4ghwj31e20lg79j.jpg" alt="图9"  /></p>
+<p><em>给一个虚拟地址，MMU是如何知道该地址属于哪个段，从而根据对应的base-bound寄存器转换为对应的物理地址呢？</em></p>
+<p>假设虚拟地址有16位，因为只有3个段，因此，我们可以使用虚拟地址的高2位来作为段标识，比如<code>00</code>表示Code段，<code>01</code>表示Heap段，<code>11</code>表示Stack段。这样MMU就能根据虚拟地址来找到对应段的base-bound寄存器了：</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNgy1gxycvqrkhvj318g06a75o.jpg" alt="图10"  /></p>
+<p>但这样还不是能够顺利的将虚拟地址转换为物理地址，我们忽略了重要的一点：<strong>Heap段和Stack段的增长方向是相反的</strong>，这也意味着两者的地址转换方式是不一样的。因此，我们还必须在虚拟地址中多使用一位来标识段的增长方向，比如<code>0</code>表示向上（低地址方向）增长，<code>1</code>表示向下（高地址方向）增长：</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNgy1gxycuqkqn4j31b406i0ud.jpg" alt="图11"  /></p>
+<p>下面，看一组段式内存管理地址转换的例子：</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNgy1gxz2mws246j31a20pe0z4.jpg" alt="图12"  /></p>
+<p>那么，总结段式内存管理的地址转换算法如下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-c++" data-lang="c++"><span class="c1">// 获取当前虚拟地址属于哪个段
+</span><span class="c1"></span><span class="n">Segment</span> <span class="o">=</span> <span class="p">(</span><span class="n">VirtualAddress</span> <span class="o">&amp;</span> <span class="n">SEG_MASK</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="n">SEG_SHIFT</span>
+<span class="c1">// 得到段内偏移量
+</span><span class="c1"></span><span class="n">Offset</span>  <span class="o">=</span> <span class="n">VirtualAddress</span> <span class="o">&amp;</span> <span class="n">OFFSET_MASK</span>
+<span class="c1">// 获得内存增长的方向
+</span><span class="c1"></span><span class="n">GrowsDirection</span> <span class="o">=</span> <span class="n">VirtualAddress</span> <span class="o">&amp;</span> <span class="n">GROWS_DIRECTION_MASK</span>
+<span class="c1">// 有效性校验
+</span><span class="c1"></span><span class="k">if</span> <span class="p">(</span><span class="n">Offset</span> <span class="o">&gt;=</span> <span class="n">Bounds</span><span class="p">[</span><span class="n">Segment</span><span class="p">])</span>
+    <span class="n">RaiseException</span><span class="p">(</span><span class="n">PROTECTION_FAULT</span><span class="p">)</span>
+<span class="k">else</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">GrowsDirection</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">PhysAddr</span> <span class="o">=</span> <span class="n">Base</span><span class="p">[</span><span class="n">Segment</span><span class="p">]</span> <span class="o">+</span> <span class="n">Offset</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+      <span class="n">PhysAddr</span> <span class="o">=</span> <span class="n">Base</span><span class="p">[</span><span class="n">Segment</span><span class="p">]</span> <span class="o">-</span> <span class="n">Offset</span>
+    <span class="p">}</span>
+</code></pre></div><h3 id="内存共享和保护">内存共享和保护</h3>
+<p>段式内存管理还可以很方便地<strong>支持内存共享</strong>，从而达到节省内存的目的。比如，如果存在多个程序都是同一个可执行文件运行起来的，那么这些程序是可以共享Code段的。为了实现这个功能，我们可以在虚拟地址上设置保护位，当保护位为只读时，表示该段可以共享。另外，如果程序修改了只读的段，则转换地址失败，因此也可以达到<strong>内存保护</strong>的目的。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNgy1gxz3m0ivxij31jg0l4tel.jpg" alt="图13"  /></p>
+<h3 id="内存碎片">内存碎片</h3>
+<p>段式内存管理的最明显的缺点就是<strong>容易产生内存碎片</strong>，这是因为在系统上运行的程序的各个段的大小往往都不是固定的，而且段的分布也不是连续的。当系统的内存碎片很多时，内存的利用率也会急剧下降，对外表现就是<strong>虽然系统看起来还有很多内存，却无法再运行起一个程序</strong>。</p>
+<p>解决内存碎片的方法之一是<strong>定时进行碎片整理</strong>：</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNgy1gy7hixb8r4j31ey0so44v.jpg" alt="图14"  /></p>
+<p>但是碎片整理的代价极大，一方面需要进行多次内存拷贝；另一方面，在拷贝过程中，正在运行的程序必须停止，这对于一些以人机交互任务为主的应用程序，将会极大影响用户体验。</p>
+<p>另一个解决方法就是接下来要介绍的<strong>页式内存管理</strong>。</p>
+<h2 id="页式内存管理">页式内存管理</h2>
+<p>页式内存管理的思路，是将虚拟内存和物理内存都划分为多个<strong>固定大小的区域</strong>，这些区域我们称之为<strong>页</strong>（<strong>Page</strong>）。页是内存的最小分配单位，一个应用程序的虚拟页可以存放在任意一个空闲的物理页中。</p>
+<blockquote>
+<p>物理内存中的页，我们通常称之为页帧（Page Frame）</p>
+</blockquote>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNgy1gy7hlgtozxj31fs0ts109.jpg" alt="图15"  /></p>
+<p><strong>因为页的大小是固定的，而且作为最小的分配单位，这样就可以解决段式内存管理中内存碎片的问题了</strong>。</p>
+<blockquote>
+<p>但页内仍然有可能存在内存碎片。</p>
+</blockquote>
+<h3 id="地址转换-1">地址转换</h3>
+<p>页式内存管理使用<strong>页表</strong>（<strong>Page Table</strong>）来进行虚拟地址到物理地址到转换，地址转换的关键步骤如下：</p>
+<p><strong>1）根据虚拟页找到对应的物理页帧</strong></p>
+<p>每个虚拟页都有一个编号，叫做<strong>VPN</strong>（<strong>Virtual Page Number</strong>）；相应的，每个物理页帧也有一个编号，叫做<strong>PFN</strong>（<strong>Physical Frame Number</strong>）。页表存储的就是VPN到PFN的映射关系。</p>
+<p><strong>2）找到地址在物理页帧内的偏移（Offset）</strong></p>
+<p>地址在物理页帧内的偏移与在虚拟页内的偏移保持一致。</p>
+<p>我们可以将虚拟地址划分成两部分，分别存储VPN和Offset，这样就能通过VPN找到PFN，从而得到PFN+Offset的实际物理地址了。</p>
+<p>比如，假设虚拟内存空间大小为64Byte（6位地址），页的大小为16Byte，那么整个虚拟内存空间一共有4个页。因此我们可以使用高2位来存储VPN，低4位存储Offset：</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNgy1gy0b23g3woj316606w0ty.jpg" alt="图16"  /></p>
+<p>下面看一个转换例子，VPN（<code>01</code>）通过页表找到对应的PFN（<code>111</code>），虚拟地址和物理地址的页内偏移都是<code>0100</code>，那么虚拟地址<code>010100</code>对应的物理地址就是<code>1110100</code>了。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNgy1gy0c0lqyk4j319a0k0n1p.jpg" alt="图17"  /></p>
+<h3 id="页表和页表项">页表和页表项</h3>
+<p>OS为每个程序都分配了一个页表，存储在内存当中，页表里由多个<strong>页表项</strong>（<strong>PTE</strong>，Page Table Entry）组成。我们可以把页表看成是一个数组，数组的元素为PTE：</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNgy1gy0fpotssxj31io0r0gth.jpg" alt="图18"  /></p>
+<p>以x86系统下的PTE组成为例，PTE一共占32位，除了PFN之外，还有一些比较重要的信息，比如<strong>P</strong>（Present）标识当前页是否位于内存上（或是磁盘上）；<strong>R/W</strong>（Read/Write）标识当前页是否允许读写（或是只读）；<strong>U/S</strong>（User/Supervisor）标识当前页是否允许用户态访问；<strong>A</strong>（Access）标识当前页是否被访问过，在判断当前页是否为热点数据、页换出时特别有用；<strong>D</strong>（Dirty）标识当前页是否被修改过。</p>
+<h3 id="页式内存管理的缺点">页式内存管理的缺点</h3>
+<h4 id="地址转换效率低">地址转换效率低</h4>
+<p>根据前文介绍，我们可以总结页式内存管理机制下地址转换的算法如下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-c++" data-lang="c++"><span class="c1">// 从虚拟地址上得到VPN
+</span><span class="c1"></span><span class="n">VPN</span> <span class="o">=</span> <span class="p">(</span><span class="n">VirtualAddress</span> <span class="o">&amp;</span> <span class="n">VPN_MASK</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="n">SHIFT</span>
+<span class="c1">// 找到VPN对应的PTE的内存地址
+</span><span class="c1"></span><span class="n">PTEAddr</span> <span class="o">=</span> <span class="n">PTBR</span> <span class="o">+</span> <span class="p">(</span><span class="n">VPN</span> <span class="o">*</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">PTE</span><span class="p">))</span>
+<span class="c1">// 访问主存，获取PTE
+</span><span class="c1"></span><span class="n">PTE</span> <span class="o">=</span> <span class="n">AccessMemory</span><span class="p">(</span><span class="n">PTEAddr</span><span class="p">)</span>
+<span class="c1">// 有效性校验
+</span><span class="c1"></span><span class="k">if</span> <span class="p">(</span><span class="n">PTE</span><span class="p">.</span><span class="n">Valid</span> <span class="o">==</span> <span class="n">False</span><span class="p">)</span>
+    <span class="n">RaiseException</span><span class="p">(</span><span class="n">INVALID_ACCESS</span><span class="p">)</span>
+<span class="k">else</span>
+    <span class="c1">// 获取页内偏移量
+</span><span class="c1"></span>    <span class="n">offset</span> <span class="o">=</span> <span class="n">VirtualAddress</span> <span class="o">&amp;</span> <span class="n">OFFSET_MASK</span>
+    <span class="c1">// 计算得出物理地址
+</span><span class="c1"></span>    <span class="n">PhysAddr</span> <span class="o">=</span> <span class="p">(</span><span class="n">PTE</span><span class="p">.</span><span class="n">PFN</span> <span class="o">&lt;&lt;</span> <span class="n">PFN_SHIFT</span><span class="p">)</span> <span class="o">|</span> <span class="n">offset</span>
+</code></pre></div><p>我们发现，每次地址转换都会<strong>访问一次主存来获取页表</strong>，比段式内存管理（无主存访问）低效很多。</p>
+<h4 id="占用空间大">占用空间大</h4>
+<p>假设地址空间为32-bit，页的大小固定为4KB，那么整个地址空间一共有$2^{32}/4KB=2^{20}$个页表，也即页表一共有$2^{20}$个PTE。现假设每个PTE大小为4-byte，那么每个页表占用4MB的内存。如果整个系统中有100个程序在运行，那么光是页表就占用了400MB的内存，这同样是用户无法接受的。</p>
+<p>接下来，我们将介绍如何去优化页式内存管理的这两个显著缺点。</p>
+<h2 id="让页式管理的地址转换更快">让页式管理的地址转换更快</h2>
+<h3 id="tlbtranslation-lookaside-buffer">TLB：Translation-Lookaside Buffer</h3>
+<p>根据前文所述，页式内存管理地址转换因为多了一次主存访问，导致效率很低。如果能够避免或者减少对主存的访问，那么就能让地址转换更快了。</p>
+<p>很多人应该都可以想到通过<strong>增加缓存</strong>的方式提升效率，比如为避免频繁查询磁盘，我们一般在内存中增加一层缓存来提升数据访问效率。<strong>那么为了提升访问主存中数据的效率，自然应该在离CPU更近的地方增加一层缓存</strong>。这个离CPU更近的地方，就是前文提到的位于CPU芯片之内的MMU。而这个高速缓存，就是<strong>TLB</strong>（<strong>Translation-Lookaside Buffer</strong>），它缓存了VPN到PFN到映射关系，类似于这样：</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNgy1gy6l3tw7bij31fy0qwdm7.jpg" alt="图19"  /></p>
+<p>增加TLB之后，地址转换的算法如下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-c++" data-lang="c++"><span class="n">VPN</span> <span class="o">=</span> <span class="p">(</span><span class="n">VirtualAddress</span> <span class="o">&amp;</span> <span class="n">VPN_MASK</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="n">SHIFT</span>
+<span class="p">(</span><span class="n">Success</span><span class="p">,</span> <span class="n">TlbEntry</span><span class="p">)</span> <span class="o">=</span> <span class="n">TLB_Lookup</span><span class="p">(</span><span class="n">VPN</span><span class="p">)</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">Success</span> <span class="o">==</span> <span class="n">True</span><span class="p">)</span>   <span class="c1">// TLB Hit
+</span><span class="c1"></span>    <span class="k">if</span> <span class="p">(</span><span class="n">CanAccess</span><span class="p">(</span><span class="n">TlbEntry</span><span class="p">.</span><span class="n">ProtectBits</span><span class="p">)</span> <span class="o">==</span> <span class="n">True</span><span class="p">)</span>
+        <span class="n">Offset</span>   <span class="o">=</span> <span class="n">VirtualAddress</span> <span class="o">&amp;</span> <span class="n">OFFSET_MASK</span>
+        <span class="n">PhysAddr</span> <span class="o">=</span> <span class="p">(</span><span class="n">TlbEntry</span><span class="p">.</span><span class="n">PFN</span> <span class="o">&lt;&lt;</span> <span class="n">SHIFT</span><span class="p">)</span> <span class="o">|</span> <span class="n">Offset</span>
+    <span class="k">else</span>
+        <span class="n">RaiseException</span><span class="p">(</span><span class="n">PROTECTION_FAULT</span><span class="p">)</span>
+<span class="k">else</span>                  <span class="c1">// TLB Miss
+</span><span class="c1"></span>    <span class="n">PTEAddr</span> <span class="o">=</span> <span class="n">PTBR</span> <span class="o">+</span> <span class="p">(</span><span class="n">VPN</span> <span class="o">*</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">PTE</span><span class="p">))</span>
+    <span class="n">PTE</span> <span class="o">=</span> <span class="n">AccessMemory</span><span class="p">(</span><span class="n">PTEAddr</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">PTE</span><span class="p">.</span><span class="n">Valid</span> <span class="o">==</span> <span class="n">False</span><span class="p">)</span>
+        <span class="n">RaiseException</span><span class="p">(</span><span class="n">SEGMENTATION_FAULT</span><span class="p">)</span>
+    <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">CanAccess</span><span class="p">(</span><span class="n">PTE</span><span class="p">.</span><span class="n">ProtectBits</span><span class="p">)</span> <span class="o">==</span> <span class="n">False</span><span class="p">)</span>
+        <span class="n">RaiseException</span><span class="p">(</span><span class="n">PROTECTION_FAULT</span><span class="p">)</span>
+    <span class="k">else</span>
+        <span class="n">TLB_Insert</span><span class="p">(</span><span class="n">VPN</span><span class="p">,</span> <span class="n">PTE</span><span class="p">.</span><span class="n">PFN</span><span class="p">,</span> <span class="n">PTE</span><span class="p">.</span><span class="n">ProtectBits</span><span class="p">)</span>
+        <span class="n">RetryInstruction</span><span class="p">()</span>
+</code></pre></div><p>从上述算法可以发现，在TLB缓存命中（TLB Hit）时，能够避免直接访问主存，从而提升了地址转换的效率；但是在TLB缓存不命中（TLB Miss）时，仍然需要访问一次主存，而且还要往TLB中插入从主存中查询到的PFN，效率变得更低了。因此，<strong>我们必须尽量避免TLB Miss的出现</strong>。</p>
+<h3 id="更好地利用tlb">更好地利用TLB</h3>
+<p>下面，我们通过一个数组遍历的例子来介绍如何更好地利用TLB。</p>
+<p>假设我们要进行如下的一次数组遍历：</p>
+<div class="highlight"><pre class="chroma"><code class="language-c++" data-lang="c++"><span class="kt">int</span> <span class="n">sum</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">sum</span> <span class="o">+=</span> <span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">];</span> 
+<span class="p">}</span>
+</code></pre></div><p>数组的内存的分布如下：</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNgy1gy6l4ath2oj31dm0t645j.jpg" alt="图20"  /></p>
+<p>a[0]~a[2]位于Page 5上，a[3]~a[6]位于Page 6上，a[7]~a[8]位于Page 7上。当我们首先访问a[0]时，由于Page 5并未在TLB缓存里，所以会先出现一次TLB Miss，接下来的a[1]和a[2]都是TLB Hit；同理，访问a[3]和a[7]时都是TLB Miss，a[4]~a[6]和a[8]~a[9]都是TLB Hit。所以，整个数组遍历下来，TLB的缓存命中情况为：<code>Miss，Hit，Hit，Miss，Hit，Hit，Hit，Miss，Hit，Hit</code>，TLB缓存命中率为70%。我们发现，访问同一页上的数据TLB的缓存更易命中，这就是<strong>空间局部性</strong>的原理。</p>
+<p>接下来，我们再次重新遍历一次数组，由于经过上一次之后Page 5 ～ Page 7的转换信息已经在TLB缓存里里，所以第二次遍历的TLB命中情况为：<code>Hit，Hit，Hit，Hit，Hit，Hit，Hit，Hit，Hit，Hit</code>，TLB缓存命中率为100%！这就是<strong>时间局部性</strong>的原理，短时间内访问同一内存数据也能够提升TLB缓存命中率。</p>
+<h3 id="tlb的上下文切换">TLB的上下文切换</h3>
+<p>因为TLB缓存的是<strong>当前正在运行</strong>程序的上下文信息，当出现程序切换时，TLB里面的上下文信息也必须更新，否则地址转换就会异常。解决方法主要有2种：</p>
+<ul>
+<li>方法1：每次程序切换都清空TLB缓存（Flush TLB），让程序在运行过程中重新建立缓存。</li>
+<li>方法2：允许TLB缓存多个程序的上下文信息，并通过<strong>ASID</strong>（<strong>address space identifier</strong>，地址空间标识符，可以理解为程序的PID）做区分。</li>
+</ul>
+<p>方法1实现简单，但是每次程序切换都需要重新预热一遍缓存，效率较低，主流的做法是采用方法2。</p>
+<blockquote>
+<p>需要注意的是TLB是嵌入到CPU芯片之内的，对于多核系统而言，如果程序在CPU之间来回切换，也是需要重新建立TLB缓存！因此，把一个程序绑定在一个固定的核上有助于提升性能。</p>
+</blockquote>
+<h2 id="让页表更小">让页表更小</h2>
+<h3 id="大页内存">大页内存</h3>
+<p>降低页表大小最简单的方法就是<strong>让页更大</strong>。前文的例子中，地址空间为32-bit，页的大小为4KB，PTE的大小为4-byte，那么每个页表需要4MB的内存空间。现在，我们把页的大小增加到16KB，其他保持不变，那么每个页表只需要$2^{32}/16KB=2^{18} $个PTE，也即1MB内存，内存占用降低了4倍。</p>
+<p>大页内存对TLB的使用也有优化效果，因TLB能够缓存的上下文数量是固定的，当页的数量更少时，上下文换出的频率会降低，TLB的缓存命中率也就增加了，从而让地址转换的效率更高。</p>
+<h3 id="段页式内存管理">段页式内存管理</h3>
+<p>根据前文所述，程序的地址空间中，堆与栈之间的空间很多时候都是处于未使用状态。对应到页表里，就是有很大一部分的PTE是invalid状态。但因为<strong>页表要涵盖整个地址空间的范围</strong>，这部分invalid的PTE只能留在页表中，从而造成了很大的空间浪费。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNgy1gy6qm1r64qj31j00u045u.jpg" alt="图21"  /></p>
+<p>前文中，我们通过段式内存管理解决了堆与栈之间内存空间的浪费问题。对应到页表中，我们也可以为页式内存管理引入段式管理的方式，也即<strong>段页式内存管理</strong>，解决页表空间浪费的问题。</p>
+<p>具体的方法是，为程序的地址空间划分出多个段，比如Code、Heap、Stack等。然后，在每个段内单独进行页式管理，也即为每个段引入一个页表：</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNgy1gy74t4g3bkj31fy0tqdnc.jpg" alt="图22"  /></p>
+<p>从上图可知，将页表分段之后，页表不再需要记录那些处于空闲状态的页的PTE，从而节省了内存空间的消耗。</p>
+<h3 id="多级页表">多级页表</h3>
+<p>降低页表大小另一个常见的方法就是<strong>多级页表</strong>（Multi-level Page Table），多级页表的思路也是减少处于空闲状态的页的PTE数量，但方法与段页式内存管理不同。<strong>如果说段页式内存管理可以看成是将页表分段，那么多级页表则可以看成是将页表分页</strong>。</p>
+<p>具体的做法是将页表按照一定大小分成多个部分（<strong>页目录</strong>，Page Directory，PD），如果某个页目录下所有的页都是处于空闲状态，则无须为该页目录下的页申请PTE。</p>
+<p>以二级页表为例，下图对比了普通页表和多级页表的构成差异：</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gy77cb1vt2j31i00ssdni.jpg" alt="图23"  /></p>
+<p>下面，我们再对比一下普通页表和多级页表的空间消耗。还是假设地址空间为32-bit，页的大小为4KB，PTE的大小为4-byte，一共有$2^{20}$个页，那么普通页表需要<strong>4MB</strong>的内存空间。现在，我们将$2^{20}$个页切分为$2^{10}$份，也即有$2^{10}$个页目录，每个页目录下管理$2^{10}$个页，也即有$2^{10}$个<strong>PDE</strong>（Page Directory Entry）。假设PDE也占4-byte内存，且根据<strong>20/80定律</strong>假设有80%的页处于空闲状态，那么二级页表只需要<strong>0.804MB</strong>！(${2^{10}*4}$${+2^{20}<em>4</em>(1-80%)}$)</p>
+<p>由此可见，多级页表能够有效降低页表的内存消耗。多级页表在实际运用中还是较为常见的，比如Linux系统采用的就是4级页表的结构。</p>
+<h2 id="swap-sapce-磁盘交换区">Swap Sapce: 磁盘交换区</h2>
+<p>到目前为止，我们都是假设物理内存足够大，可以容纳所有程序的虚拟内存空间。然而，这往往是不切实际的，以32-bit地址空间为例，一个程序的虚拟内存为4G，假设有100个程序，那么一共需要400G的物理内存（忽略共享部分）！另外，程序运行过程中，并不是一直都需要所有的页，很多时候只需要其中的一小部分。</p>
+<p>因此，<strong>如果我们可以先把那些暂时用不到的页先存在磁盘上，等需要用到时再加载到内存上，那么就可以节省很多物理内存</strong>。磁盘中用来存放这些页的区域，被称作<strong>Swap Sapce</strong>，也即交换区。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNgy1gy7f8jmqk8j31gy0n0q8r.jpg" alt="图24"  /></p>
+<p>在这种机制之下，当程序访问某一个地址，而这个地址所在的页又不在内存上时，就会触发<strong>缺页（Page Fault）中断</strong>。就像TLB缓存不命中时会带来额外的开销一样，<strong>缺页也会导致内存的访问效率降低</strong>。因为在处理缺页中断时，OS必须从磁盘交换区上把数据加载到内存上；而且当空闲内存不足时，OS还必须将内存上的某些页换出到交换区中。这一进一出的磁盘IO访问也直接导致缺页发生时，内存访问的效率下降许多。</p>
+<p>因此，在空闲内存不足时，页的换出策略显得极为重要。如果把一个即将要被访问的页换出到交换区上，就会带来本可避免的无谓消耗。页的换出策略很多，常见的有<strong>FIFO</strong>（先进先出）、<strong>Random</strong>（随机）、<strong>LRU</strong>（最近最少使用）、<strong>LFU</strong>（最近最不经常使用）等。在常见的工作负载下，FIFO和Random算法的效果较差，实际用的不多；LRU和LFU算法都是建立在历史内存访问统计的基础上，因此表现较前两者好些，实际应用也多一些。目前很多主流的操作系统的页换出算法都是在LRU或LFU的基础上进行优化改进的结果。</p>
+<h2 id="最后">最后</h2>
+<p>本文主要介绍了OS内存管理的一些基本原理，从独占式内存管理，到页式内存管理，这过程中经历了许多次优化。这其中的每一种优化手段，都朝着如下3个目标前进：</p>
+<p>1、<strong>透明化</strong>（transparency）。内存管理的细节对程序不可见，换句话说，程序可以自认为独占整个内存空间。</p>
+<p>2、<strong>效率</strong>（efficiency ）。地址转换和内存访问的效率要高，不能让程序运行太慢；空间利用效率也要高，不能占用太多空闲内存。</p>
+<p>3、<strong>保护</strong>（protection）。保证OS自身不受应用程序的影响；应用程序之间也不能相互影响。</p>
+<p>当然，目前主流的操作系统（如Linux、MacOS等）的内存管理机制要比本文介绍的原理复杂许多，但本质原理依然离不开本文所描述的几种基础的内存管理原理。</p>
+<blockquote>
+<p>参考</p>
+<p>1、<a class="link" href="https://book.douban.com/subject/34994608/"  target="_blank" rel="noopener"
+    >Operating Systems: Three Easy Pieces</a>, Remzi H Arpaci-Dusseau / Andrea C Arpaci-Dusseau</p>
+<p>2、<a class="link" href="https://draveness.me/whys-the-design-linux-hugepages/"  target="_blank" rel="noopener"
+    >为什么 HugePages 可以提升数据库性能</a> , 面向信仰编程</p>
+<p>3、<a class="link" href="https://mp.weixin.qq.com/s/FCA6rnFgRA1L8E9FTFnoGw"  target="_blank" rel="noopener"
+    >探索CPU的调度原理</a>, 元闰子的邀请</p>
+<p>更多文章请关注微信公众号：<strong>元闰子的邀请</strong></p>
+</blockquote>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">操作系统</a>
+        
+            <a href="/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/">内存管理</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>CC BY 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/%E5%81%87%E5%A6%82%E8%AE%A9%E4%BD%A0%E6%9D%A5%E8%AE%BE%E8%AE%A1ssl/tls%E5%8D%8F%E8%AE%AE/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">假如让你来设计SSL/TLS协议</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E6%8E%A2%E7%B4%A2cpu%E7%9A%84%E8%B0%83%E5%BA%A6%E5%8E%9F%E7%90%86/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">探索CPU的调度原理</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E7%9A%84%E6%95%B0%E5%80%BC%E7%B1%BB%E5%9E%8B/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">深入理解计算机系统的数值类型</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3-sql-%E4%B8%AD%E7%9A%84-grouping-sets-%E8%AF%AD%E5%8F%A5/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">深入理解 SQL 中的 Grouping Sets 语句</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+
+    
+        
+    <script src="https://utteranc.es/client.js" 
+        repo="ruanrunxue/yrunz-comments"
+        issue-term="pathname"
+        
+        label="yrunz"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
+
+<style>
+    .utterances {
+        max-width: unset;
+    }
+</style>
+
+<script>
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
+        }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+        setUtterancesTheme(document.body.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        setUtterancesTheme(e.detail)
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_SVG"></script>
+    <section class="copyright">
+        &copy;
+        
+            2019 -
+        
+        2023 元闰子的邀请
+    </section>
+
+    <section class="powerby">
+        
+
+        <a href="https://beian.miit.gov.cn/">粤ICP备19152659号 | </a>Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.3.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        <br />
+    </section>
+</footer>
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

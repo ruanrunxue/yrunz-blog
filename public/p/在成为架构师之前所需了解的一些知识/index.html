@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='前言 当你点开一个招聘APP，筛选条件选择互联网技术，在列出来的一大堆职位上，往往有那么几个带有“架构师”三个字眼的高薪职位。当你被它的高薪所吸引而点击查看职位详情时，又会被它的高要求所劝退。它们往往要求工作年限在5年以上，需要求职者有过3年以上的系统设计经验，精通各种架构模式和系统框架，反观自己却一个条件都不满足。
+软件架构师就是这么一个让人向往，但又让人望洋兴叹的一个职位。就像建筑设计师总有成为总设计师的梦想，航天工作者总有成为总工程师的壮志，相信每一个软件工程师都有过成为软件架构师的想法。引用维基百科里的定义，软件架构师的职责就是在软件系统研发中，负责依据需求来确定主要的技术选择、设计系统的主体框架结构，并负责搭建实施。然而，架构师所需的技能远远不止于技术选择和系统设计。本文主要介绍软件架构的定义，以及要成为一个软件架构师所需具备的一些技能，让你对软件架构师这一职位有一个更深的了解。
+ 文中大部分的观点来自于《Fundamentals of Software Architecture》一书，想了解更多详情推荐阅读原书。
+ 软件架构的定义 对于软件架构（Software Architecture），我们通常将它看成是软件系统的蓝图（blueprint），但是如果要给出一个精确的定义，往往很难。维基百科里对软件架构的定义为，有关软件整体结构与组件的抽象描述，用于指导大型软件系统各个方面的设计。但是，这种定义也是片面的，软件架构并不仅仅是系统的整体结构和组件，光有这些还不足以指导设计出好的软件系统。
+Mark Richards和Neal Ford在书中，从四个维度上对软件架构进行了描述，分别是Structure、Architecture characteristics、Architecture decisions和Design principles。
+Structure Structure描述的是软件系统所使用的架构风格，比如最常见的分层架构（layered architecture）、事件驱动架构（event-driven architecture）、微核架构（microkernel architecture）、微服务架构（microservices architecture）等等。当你去问架构师一个软件系统使用什么架构时，如果他告诉你，“系统使用的是微服务架构”，那么也他仅仅阐明了系统的架构风格而已。若想了解整个系统的软件架构，对architecture characteristics、architecture decisions和design principles都要有深入的认识。
+Architecture characteristics Architecture characteristics也就是我们常说的非功能需求，比如有可用性（Availability）、可扩展性（Scalability）、可靠性（Reliability）等。Architecture characteristics往往容易被软件新手所忽略，但是它对于软件系统而言却是非常的重要。如果说功能需求决定了一个软件系统的下限，那么非功能需求则决定了它的上限。
+Architecture decisions Architecture decisions描述了开发软件系统时所必须遵循的规则，比如图中例子，对于一个分层架构风格的系统而言，开发工程师需要遵循以下规则：只有业务层才能直接访问服务层，表现层不能直接访问服务层。Architecture decisions更多的只是一种约束，违反了这种约束可能并不会对系统的功能造成影响，但是却是系统架构腐化的源头。
+Design principles Design principles指的是系统设计的原则，用于引导开发团队选择更符合系统特点的技术方案。Design principles只会给出一个方向，而不是具体的实现方案。比如图中例子给出的系统设计原则就是：微服务之间应该尽可能通过异步通信来提升系统的性能。至于开发团队通过REST或者RPC的方式进行异步通信实现，设计原则并未进行限制。
+成为架构师所需的技能 就像软件架构不仅仅是系统的整体结构和组件一样，要成为一个软件架构师，只会技术选型是远远不够的。一个合格的软件架构师应该具备以下的几种技能：
+进行架构决策  An architect is expected to define the architecture decisions and design principles used to guide technology decisions within the team, the department, or across the enterprise.'><title>在成为架构师之前所需了解的一些知识</title>
+
+<link rel='canonical' href='https://www.yrunz.com/p/%E5%9C%A8%E6%88%90%E4%B8%BA%E6%9E%B6%E6%9E%84%E5%B8%88%E4%B9%8B%E5%89%8D%E6%89%80%E9%9C%80%E4%BA%86%E8%A7%A3%E7%9A%84%E4%B8%80%E4%BA%9B%E7%9F%A5%E8%AF%86/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='在成为架构师之前所需了解的一些知识'>
+<meta property='og:description' content='前言 当你点开一个招聘APP，筛选条件选择互联网技术，在列出来的一大堆职位上，往往有那么几个带有“架构师”三个字眼的高薪职位。当你被它的高薪所吸引而点击查看职位详情时，又会被它的高要求所劝退。它们往往要求工作年限在5年以上，需要求职者有过3年以上的系统设计经验，精通各种架构模式和系统框架，反观自己却一个条件都不满足。
+软件架构师就是这么一个让人向往，但又让人望洋兴叹的一个职位。就像建筑设计师总有成为总设计师的梦想，航天工作者总有成为总工程师的壮志，相信每一个软件工程师都有过成为软件架构师的想法。引用维基百科里的定义，软件架构师的职责就是在软件系统研发中，负责依据需求来确定主要的技术选择、设计系统的主体框架结构，并负责搭建实施。然而，架构师所需的技能远远不止于技术选择和系统设计。本文主要介绍软件架构的定义，以及要成为一个软件架构师所需具备的一些技能，让你对软件架构师这一职位有一个更深的了解。
+ 文中大部分的观点来自于《Fundamentals of Software Architecture》一书，想了解更多详情推荐阅读原书。
+ 软件架构的定义 对于软件架构（Software Architecture），我们通常将它看成是软件系统的蓝图（blueprint），但是如果要给出一个精确的定义，往往很难。维基百科里对软件架构的定义为，有关软件整体结构与组件的抽象描述，用于指导大型软件系统各个方面的设计。但是，这种定义也是片面的，软件架构并不仅仅是系统的整体结构和组件，光有这些还不足以指导设计出好的软件系统。
+Mark Richards和Neal Ford在书中，从四个维度上对软件架构进行了描述，分别是Structure、Architecture characteristics、Architecture decisions和Design principles。
+Structure Structure描述的是软件系统所使用的架构风格，比如最常见的分层架构（layered architecture）、事件驱动架构（event-driven architecture）、微核架构（microkernel architecture）、微服务架构（microservices architecture）等等。当你去问架构师一个软件系统使用什么架构时，如果他告诉你，“系统使用的是微服务架构”，那么也他仅仅阐明了系统的架构风格而已。若想了解整个系统的软件架构，对architecture characteristics、architecture decisions和design principles都要有深入的认识。
+Architecture characteristics Architecture characteristics也就是我们常说的非功能需求，比如有可用性（Availability）、可扩展性（Scalability）、可靠性（Reliability）等。Architecture characteristics往往容易被软件新手所忽略，但是它对于软件系统而言却是非常的重要。如果说功能需求决定了一个软件系统的下限，那么非功能需求则决定了它的上限。
+Architecture decisions Architecture decisions描述了开发软件系统时所必须遵循的规则，比如图中例子，对于一个分层架构风格的系统而言，开发工程师需要遵循以下规则：只有业务层才能直接访问服务层，表现层不能直接访问服务层。Architecture decisions更多的只是一种约束，违反了这种约束可能并不会对系统的功能造成影响，但是却是系统架构腐化的源头。
+Design principles Design principles指的是系统设计的原则，用于引导开发团队选择更符合系统特点的技术方案。Design principles只会给出一个方向，而不是具体的实现方案。比如图中例子给出的系统设计原则就是：微服务之间应该尽可能通过异步通信来提升系统的性能。至于开发团队通过REST或者RPC的方式进行异步通信实现，设计原则并未进行限制。
+成为架构师所需的技能 就像软件架构不仅仅是系统的整体结构和组件一样，要成为一个软件架构师，只会技术选型是远远不够的。一个合格的软件架构师应该具备以下的几种技能：
+进行架构决策  An architect is expected to define the architecture decisions and design principles used to guide technology decisions within the team, the department, or across the enterprise.'>
+<meta property='og:url' content='https://www.yrunz.com/p/%E5%9C%A8%E6%88%90%E4%B8%BA%E6%9E%B6%E6%9E%84%E5%B8%88%E4%B9%8B%E5%89%8D%E6%89%80%E9%9C%80%E4%BA%86%E8%A7%A3%E7%9A%84%E4%B8%80%E4%BA%9B%E7%9F%A5%E8%AF%86/'>
+<meta property='og:site_name' content='元闰子的邀请'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='架构' /><meta property='article:tag' content='架构师' /><meta property='article:published_time' content='2020-09-13T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2020-09-13T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="在成为架构师之前所需了解的一些知识">
+<meta name="twitter:description" content="前言 当你点开一个招聘APP，筛选条件选择互联网技术，在列出来的一大堆职位上，往往有那么几个带有“架构师”三个字眼的高薪职位。当你被它的高薪所吸引而点击查看职位详情时，又会被它的高要求所劝退。它们往往要求工作年限在5年以上，需要求职者有过3年以上的系统设计经验，精通各种架构模式和系统框架，反观自己却一个条件都不满足。
+软件架构师就是这么一个让人向往，但又让人望洋兴叹的一个职位。就像建筑设计师总有成为总设计师的梦想，航天工作者总有成为总工程师的壮志，相信每一个软件工程师都有过成为软件架构师的想法。引用维基百科里的定义，软件架构师的职责就是在软件系统研发中，负责依据需求来确定主要的技术选择、设计系统的主体框架结构，并负责搭建实施。然而，架构师所需的技能远远不止于技术选择和系统设计。本文主要介绍软件架构的定义，以及要成为一个软件架构师所需具备的一些技能，让你对软件架构师这一职位有一个更深的了解。
+ 文中大部分的观点来自于《Fundamentals of Software Architecture》一书，想了解更多详情推荐阅读原书。
+ 软件架构的定义 对于软件架构（Software Architecture），我们通常将它看成是软件系统的蓝图（blueprint），但是如果要给出一个精确的定义，往往很难。维基百科里对软件架构的定义为，有关软件整体结构与组件的抽象描述，用于指导大型软件系统各个方面的设计。但是，这种定义也是片面的，软件架构并不仅仅是系统的整体结构和组件，光有这些还不足以指导设计出好的软件系统。
+Mark Richards和Neal Ford在书中，从四个维度上对软件架构进行了描述，分别是Structure、Architecture characteristics、Architecture decisions和Design principles。
+Structure Structure描述的是软件系统所使用的架构风格，比如最常见的分层架构（layered architecture）、事件驱动架构（event-driven architecture）、微核架构（microkernel architecture）、微服务架构（microservices architecture）等等。当你去问架构师一个软件系统使用什么架构时，如果他告诉你，“系统使用的是微服务架构”，那么也他仅仅阐明了系统的架构风格而已。若想了解整个系统的软件架构，对architecture characteristics、architecture decisions和design principles都要有深入的认识。
+Architecture characteristics Architecture characteristics也就是我们常说的非功能需求，比如有可用性（Availability）、可扩展性（Scalability）、可靠性（Reliability）等。Architecture characteristics往往容易被软件新手所忽略，但是它对于软件系统而言却是非常的重要。如果说功能需求决定了一个软件系统的下限，那么非功能需求则决定了它的上限。
+Architecture decisions Architecture decisions描述了开发软件系统时所必须遵循的规则，比如图中例子，对于一个分层架构风格的系统而言，开发工程师需要遵循以下规则：只有业务层才能直接访问服务层，表现层不能直接访问服务层。Architecture decisions更多的只是一种约束，违反了这种约束可能并不会对系统的功能造成影响，但是却是系统架构腐化的源头。
+Design principles Design principles指的是系统设计的原则，用于引导开发团队选择更符合系统特点的技术方案。Design principles只会给出一个方向，而不是具体的实现方案。比如图中例子给出的系统设计原则就是：微服务之间应该尽可能通过异步通信来提升系统的性能。至于开发团队通过REST或者RPC的方式进行异步通信实现，设计原则并未进行限制。
+成为架构师所需的技能 就像软件架构不仅仅是系统的整体结构和组件一样，要成为一个软件架构师，只会技术选型是远远不够的。一个合格的软件架构师应该具备以下的几种技能：
+进行架构决策  An architect is expected to define the architecture decisions and design principles used to guide technology decisions within the team, the department, or across the enterprise.">
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "light");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/yrz_hudc7c8721ecce4b724df5002339c76402_174377_300x0_resize_box_2.png" width="300"
+                            height="306" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://www.yrunz.com">元闰子的邀请</a></h1>
+        <h2 class="site-description">阅读、写作、生活（个人技术分享）</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>首页</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>博客</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%85%B3%E4%BA%8E%E5%85%83%E9%97%B0%E5%AD%90/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24"
+     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+     stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z"/>
+    <circle cx="12" cy="7" r="4"/>
+    <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/>
+</svg>
+
+                
+                <span>关于元闰子</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%8F%8B%E6%83%85%E9%93%BE%E6%8E%A5/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-friends" width="44" height="44"
+     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+    <circle cx="7" cy="5" r="2"/>
+    <path d="M5 22v-5l-1 -1v-4a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4l-1 1v5"/>
+    <circle cx="17" cy="5" r="2"/>
+    <path d="M15 22v-4h-2l2 -6a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1l2 6h-2v4"/>
+</svg>
+
+                
+                <span>友情链接</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>暗色模式</span>
+            </li>
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://www.yrunz.com" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E6%9E%B6%E6%9E%84/" >
+                架构
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/%E5%9C%A8%E6%88%90%E4%B8%BA%E6%9E%B6%E6%9E%84%E5%B8%88%E4%B9%8B%E5%89%8D%E6%89%80%E9%9C%80%E4%BA%86%E8%A7%A3%E7%9A%84%E4%B8%80%E4%BA%9B%E7%9F%A5%E8%AF%86/">在成为架构师之前所需了解的一些知识</a>
+    </h2>
+
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Sep 13, 2020</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <h2 id="前言">前言</h2>
+<p>当你点开一个招聘APP，筛选条件选择互联网技术，在列出来的一大堆职位上，往往有那么几个带有“<strong>架构师</strong>”三个字眼的高薪职位。当你被它的高薪所吸引而点击查看职位详情时，又会被它的高要求所劝退。它们往往要求工作年限在5年以上，需要求职者有过3年以上的系统设计经验，精通各种架构模式和系统框架，反观自己却一个条件都不满足。</p>
+<p>软件架构师就是这么一个让人向往，但又让人望洋兴叹的一个职位。就像建筑设计师总有成为总设计师的梦想，航天工作者总有成为总工程师的壮志，相信每一个软件工程师都有过成为软件架构师的想法。引用维基百科里的定义，<strong>软件架构师的职责就是在软件系统研发中，负责依据需求来确定主要的技术选择、设计系统的主体框架结构，并负责搭建实施</strong>。然而，架构师所需的技能远远不止于技术选择和系统设计。本文主要介绍软件架构的定义，以及要成为一个软件架构师所需具备的一些技能，让你对软件架构师这一职位有一个更深的了解。</p>
+<blockquote>
+<p>文中大部分的观点来自于<a class="link" href="https://learning.oreilly.com/library/view/fundamentals-of-software/9781492043447/"  target="_blank" rel="noopener"
+    >《Fundamentals of Software Architecture》</a>一书，想了解更多详情推荐阅读原书。</p>
+</blockquote>
+<h2 id="软件架构的定义">软件架构的定义</h2>
+<p>对于<strong>软件架构</strong>（Software Architecture），我们通常将它看成是软件系统的蓝图（blueprint），但是如果要给出一个精确的定义，往往很难。维基百科里对软件架构的定义为，<strong>有关软件整体结构与组件的抽象描述，用于指导大型软件系统各个方面的设计</strong>。但是，这种定义也是片面的，软件架构并不仅仅是系统的整体结构和组件，光有这些还不足以指导设计出好的软件系统。</p>
+<p>Mark Richards和Neal Ford在书中，从四个维度上对软件架构进行了描述，分别是<strong>Structure</strong>、<strong>Architecture characteristics</strong>、<strong>Architecture decisions</strong>和<strong>Design principles</strong>。</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gioyo85i4xj312t0r1tej.jpg" alt="软件架构的描述"  /></p>
+<h3 id="structure">Structure</h3>
+<p><strong>Structure描述的是软件系统所使用的架构风格</strong>，比如最常见的分层架构（layered architecture）、事件驱动架构（event-driven architecture）、微核架构（microkernel architecture）、微服务架构（microservices architecture）等等。当你去问架构师一个软件系统使用什么架构时，如果他告诉你，“系统使用的是微服务架构”，那么也他仅仅阐明了系统的架构风格而已。若想了解整个系统的软件架构，对architecture characteristics、architecture decisions和design principles都要有深入的认识。</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1giozdgb81jj312t0r1q9j.jpg" alt="Structure"  /></p>
+<h3 id="architecture-characteristics">Architecture characteristics</h3>
+<p><strong>Architecture characteristics也就是我们常说的非功能需求</strong>，比如有可用性（Availability）、可扩展性（Scalability）、可靠性（Reliability）等。Architecture characteristics往往容易被软件新手所忽略，但是它对于软件系统而言却是非常的重要。如果说功能需求决定了一个软件系统的下限，那么非功能需求则决定了它的上限。</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gip27nnfq6j312t0r1ado.jpg" alt="Architecture characteristics"  /></p>
+<h3 id="architecture-decisions">Architecture decisions</h3>
+<p><strong>Architecture decisions描述了开发软件系统时所必须遵循的规则</strong>，比如图中例子，对于一个分层架构风格的系统而言，开发工程师需要遵循以下规则：只有业务层才能直接访问服务层，表现层不能直接访问服务层。Architecture decisions更多的只是一种约束，违反了这种约束可能并不会对系统的功能造成影响，但是却是系统架构腐化的源头。</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gip2p775m6j312t0rdgqe.jpg" alt="Architecture decisions"  /></p>
+<h3 id="design-principles">Design principles</h3>
+<p><strong>Design principles指的是系统设计的原则</strong>，用于引导开发团队选择更符合系统特点的技术方案。Design principles只会给出一个方向，而不是具体的实现方案。比如图中例子给出的系统设计原则就是：微服务之间应该尽可能通过异步通信来提升系统的性能。至于开发团队通过REST或者RPC的方式进行异步通信实现，设计原则并未进行限制。</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1gip355yqidj312t0r1dl1.jpg" alt="Design principles"  /></p>
+<h2 id="成为架构师所需的技能">成为架构师所需的技能</h2>
+<p>就像软件架构不仅仅是系统的整体结构和组件一样，要成为一个软件架构师，只会技术选型是远远不够的。一个合格的软件架构师应该具备以下的几种技能：</p>
+<h3 id="进行架构决策">进行架构决策</h3>
+<blockquote>
+<p>An architect is expected to define the architecture decisions and design principles used to guide technology decisions within the team, the department, or across the enterprise.</p>
+</blockquote>
+<p>这是一个架构师所需具备的最基本的技能，需要为开发团队给出系统设计的原则和系统开发的约束。<strong>架构师在这里的角色更多的是一个引导者，而不是具体技术方案的制定者</strong>。比如，开发团队要进行前端框架的选型，作为架构师应该给出的建议是选择Reactive风格的前端框架（引导团队在React.js、Angular、Vue.js或者其他Reactive风格的前端框架之间进行选择），而不是直接建议选择React.js框架。前者属于架构决策，而后者则是技术决策。</p>
+<h3 id="持续对系统架构进行分析">持续对系统架构进行分析</h3>
+<blockquote>
+<p>An architect is expected to continually analyze the architecture and current technology environment and then recommend solutions for improvement.</p>
+</blockquote>
+<p>就像一个软件系统的生命周期并不止于开发阶段的结束，软件架构也不是一锤子买卖。这就要求架构师能够持续对系统架构进行分析，并提出改进的建议，使得系统在面对业务和技术的双重变化时，仍然能够保持架构良好。</p>
+<h3 id="保持对技术和业界的发展趋势的敏感">保持对技术和业界的发展趋势的敏感</h3>
+<blockquote>
+<p>An architect is expected to keep current with the latest technology and industry trends</p>
+</blockquote>
+<p>作为一个架构师必须时刻保持对技术和业界发展趋势的敏感。在敏捷开发的潮流下，软件的特性会频繁的发生变化，但是软件的基础架构往往是很少改变的。架构师如果不能把握当前技术和业界发展的趋势，从而导致设计出来的软件架构不能够应付未来几年的业务和技术变化，这对于一个软件系统而言将会是灾难性的。</p>
+<h3 id="确保团队按照既定的规则进行开发">确保团队按照既定的规则进行开发</h3>
+<blockquote>
+<p>An architect is expected to ensure compliance with architecture decisions and design principles.</p>
+</blockquote>
+<p>架构师不仅仅需要制定设计原则和开发约束，还需要确保团队能够一直按照这些规则进行软件开发。这就要求架构师对开发人员提交的核心代码进行Code Review，否则系统的架构很容易就腐化掉了。</p>
+<h3 id="扩展知识的广度">扩展知识的广度</h3>
+<blockquote>
+<p>An architect is expected to have exposure to multiple and diverse technologies, frameworks, platforms, and environments.</p>
+</blockquote>
+<p>对于一个架构师而言，他并不需要精通每一种框架、平台和语言，但至少要尽可能多的了解它们，这样才能更好的支撑架构决策。这就要求架构师能够持续的学习新的知识，不断地跳出自己的舒适区。最好的情况就是精通2～3种语言和框架，并且熟悉业界各种常用的语言和框架，这样的知识深度和广度的结合才能设计出更好的软件架构。</p>
+<h3 id="拥有一定的领域知识">拥有一定的领域知识</h3>
+<blockquote>
+<p>An architect is expected to have a certain level of business domain expertise.</p>
+</blockquote>
+<p><strong>所有的技术都是服务于既有的业务，剥离了业务的软件技术毫无价值</strong>。架构师无需像领域专家一样精通系统的各种业务，但至少也要有一定的业务积累。软件是用来解决问题的，不懂业务的架构师来做软件架构设计，就相当于还没读懂题目就开始解题，结果往往适得其反。比如一个需要低时延的业务，交给一个不懂业务的架构师来进行系统设计，可能得出来的是一个高吞吐量的架构。</p>
+<h3 id="人际交往的能力">人际交往的能力</h3>
+<blockquote>
+<p>An architect is expected to possess exceptional interpersonal skills, including teamwork, facilitation, and leadership.</p>
+</blockquote>
+<p>对于大部分的开发工程师和架构师而言，这可能是最难的一条了要求了。他们很擅长，也很乐意去解决技术上的问题，但是对于与人相关的问题则相当的抵触。但这对于一个合格架构师来说所必须克服的一点，因为架构师不仅仅需要制定技术规则，更重要的是领导团队按照既定规则进行开发，这不可避免地就涉及到领导力和人际交往的能力。</p>
+<p>当一个开发工程师决定在一次需求开发中采用<a class="link" href="https://juejin.im/post/6859015515344633863"  target="_blank" rel="noopener"
+    >单例模式</a>，可能团队里的其他人并不会有太多的关注。但是当一个架构师决定采用微服务架构来设计系统时，可能就会受到团队内各类人员的挑战，比如版本经理可能觉得微服务架构太复杂，会不会影响交付的节奏；开发人员可能觉得分层架构更好实现。这种情况下就要求架构师能够有很好的人际交往能力，说服各类人员，这样项目才能更好的进行下去。</p>
+<h2 id="总结">总结</h2>
+<p>软件架构是一个很抽象的东西，目前对它的定义大部分都是一些很宽泛的描述。<a class="link" href="https://learning.oreilly.com/library/view/fundamentals-of-software/9781492043447/"  target="_blank" rel="noopener"
+    >《Fundamentals of Software Architecture》</a>从四个维度上对软件架构进行了描述，让软件架构有了一个更加清晰的视图。在此基础上，书中也提出了一个合格的软件架构师所需要具备的几种技能。总的来说，就是<strong>想要设计出一个好的软件架构很难，要成为一个好的软件架构师更难</strong>。</p>
+<p>另外，书中还提出了软件架构的两个准则，很有道理，就是有点抽象。不过没关系，<strong>不要试图理解它，要去感受它</strong>。</p>
+<blockquote>
+<p>1、Everything in software architecture is a trade-off.</p>
+<p>2、Why is more important than how.</p>
+</blockquote>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/%E6%9E%B6%E6%9E%84/">架构</a>
+        
+            <a href="/tags/%E6%9E%B6%E6%9E%84%E5%B8%88/">架构师</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>CC BY 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E4%BA%94%E4%B9%8B%E6%9C%8D%E5%8A%A1%E5%8C%96%E6%9E%B6%E6%9E%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">从分层架构到微服务架构（五）之服务化架构</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E5%AE%9E%E7%8E%B0dci%E6%9E%B6%E6%9E%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">实现DCI架构</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E5%9B%9B%E4%B9%8B%E5%BE%AE%E5%86%85%E6%A0%B8%E6%9E%B6%E6%9E%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">从分层架构到微服务架构（四）之微内核架构</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E4%B8%89%E4%B9%8B%E7%AE%A1%E9%81%93%E6%9E%B6%E6%9E%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">从分层架构到微服务架构（三）之管道架构</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E4%BA%8C%E4%B9%8B%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">从分层架构到微服务架构（二）之分层架构</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+
+    
+        
+    <script src="https://utteranc.es/client.js" 
+        repo="ruanrunxue/yrunz-comments"
+        issue-term="pathname"
+        
+        label="yrunz"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
+
+<style>
+    .utterances {
+        max-width: unset;
+    }
+</style>
+
+<script>
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
+        }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+        setUtterancesTheme(document.body.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        setUtterancesTheme(e.detail)
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_SVG"></script>
+    <section class="copyright">
+        &copy;
+        
+            2019 -
+        
+        2023 元闰子的邀请
+    </section>
+
+    <section class="powerby">
+        
+
+        <a href="https://beian.miit.gov.cn/">粤ICP备19152659号 | </a>Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.3.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        <br />
+    </section>
+</footer>
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

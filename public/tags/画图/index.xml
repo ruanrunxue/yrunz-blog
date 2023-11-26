@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>画图 on 元闰子的邀请</title>
+    <link>https://www.yrunz.com/tags/%E7%94%BB%E5%9B%BE/</link>
+    <description>Recent content in 画图 on 元闰子的邀请</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 07 May 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://www.yrunz.com/tags/%E7%94%BB%E5%9B%BE/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>用Keynote画出手绘风格的配图</title>
+      <link>https://www.yrunz.com/p/%E7%94%A8keynote%E7%94%BB%E5%87%BA%E6%89%8B%E7%BB%98%E9%A3%8E%E6%A0%BC%E7%9A%84%E9%85%8D%E5%9B%BE/</link>
+      <pubDate>Sat, 07 May 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E7%94%A8keynote%E7%94%BB%E5%87%BA%E6%89%8B%E7%BB%98%E9%A3%8E%E6%A0%BC%E7%9A%84%E9%85%8D%E5%9B%BE/</guid>
+      <description>开篇词 一直以来，时不时都会收到一些小伙伴的私信或留言，问“文章中的配图是用什么工具画的？”，比如：
+              我的回答也一直都很简练，“Keynote 画的”。细想一下，其实有种听君一席话，如听一席话的感觉。所以，今天专门花点时间总结一下自己文章配图的一些风格选择。
+用 MacOS 的小伙伴应该都对 Keynote 很熟悉，可以把它看成是 MacOS 上的 PowerPoint。
+想到用 Keynote 来画图的源头，是从看到《A successful Git branching model》这篇文章上很好看的手绘风格配图开始：
+        几轮 Google 之后才找到原来是通过 Keynote 画出来的，从此迷上了用 Keynote 来画这种手绘风格的配图。
+中途也有尝试过其他手绘风格的画图软件，比如 Excalidraw。Excalidraw 是一款开源免费的手绘风格画图软件，相比 Keynote，它显得更加的手绘风。不过对中文字体的支持太弱了，与英文字体放在一起显得极其不协调，最后也就放弃了。
+        几番对比之后，还是觉得 Keynote 在易用性、效率、配色、样式等方面更好用。下面，开始简单介绍下在使用 Keynote 画图时，主题、样式、形状、配色、字体等方面的一些选择和搭配。
+主题 Keynote 上有很多内置的主题，主题们都非常的好看（个人觉得 MacOS 在审美方面还是比 Windows 强不少）：</description>
+    </item>
+    
+  </channel>
+</rss>

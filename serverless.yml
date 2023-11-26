@@ -1,0 +1,29 @@
+# serverless.yml
+component: cos
+org: yrunz
+app: yrunz
+stage: dev
+name: yrunz
+inputs:
+  region: ap-guangzhou
+  bucket: yrunz
+  protocol: https
+  src:
+    src: ./public # Upload static files
+  targetDir: /
+  replace: false # 部署时会先清理桶内所有文件，谨慎使用！！！
+  website: true
+  websiteConfig:
+    index: index.html
+    error: 404.html
+    ignoreHtmlExt: false # 是否是否忽略 html 扩展名，默认 false
+    disableErrorStatus: false # 是否禁用错误码，默认 false
+
+  # 新增的 CDN 自定义域名配置
+  hosts:
+    - host: www.yrunz.com # 希望配置的自定义域名
+      https:
+        switch: on
+        http2: on
+        certInfo:
+          certId: 'iD1MPcU7'

@@ -1,0 +1,20 @@
+# serverless.yml
+
+yrunz:
+  component: "@serverless/tencent-website"
+  inputs:
+    code:
+      src: ./public # Upload static files
+      index: index.html
+      error: 404.html
+    region: ap-guangzhou
+    bucketName: yrunz
+    protocol: https
+    # 新增的 CDN 自定义域名配置
+    hosts:
+      - host: www.yrunz.com # 希望配置的自定义域名
+        https:
+          switch: on
+          http2: on
+          certInfo:
+            certId: 'iD1MPcU7'

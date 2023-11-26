@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='最近几年，领域驱动设计（Domain-Driven Design，DDD）这个术语越来越多地出现在软件工程师的视野里。对DDD不熟悉的人可能会觉得它是软件领域里的一个新的概念，但是实际上，Eric Evans在十几年前就已经提出了这个概念。这个“古老”的概念在之所以能够重焕新生，很大程度上是因为遇上了“微服务”这个浪潮。如果把DDD里面的理念拿去和微服务架构做对比，你会发现它们有着高度的相似性——DDD里的限界上下文不正是微服务架构中的微服务吗？于是，各大公司纷纷运用DDD的方法论来构建自己的产品架构。有些团队成功地将DDD结合到了产品架构中，产生了许多优秀的实践；也有些团队反映DDD太过复杂，很难落地。那么DDD究竟是个什么样的理念？为什么大家都争先恐后地使用它，彷佛不加点DDD都不好意思说自己是微服务架构？然而又为什么那么多团队说DDD难以落地？本文将会结合简单的代码实现来谈谈笔者对DDD的理解。
+什么是领域驱动设计？ 软件的核心是其为用户解决领域相关的问题的能力。
+软件就是为了解决某一领域相关问题而存在的，比如一个普通的计算器软件，就是为了满足我们进行简单的加减乘除运算而存在。对于计算器这种小而简单的软件，一个普通的软件工程师可能花上几天就能过设计开发出来，而且基本不会出现Bug。但是对于一些大型而且复杂的系统，一个团队都得花上很长的时间去设计整个架构，然后经过n轮迭代才能开发出可用的版本，而且后面还有各种Bug要去处理。比如证券交易系统，里面就包括了用户系统、账户系统、订单系统、撮合系统等一系列的子系统，而且其中的调用关系和业务都非常复杂。像这样一个庞大的系统，怎样才能把它设计好呢？这正是DDD要回答的问题。
+领域驱动设计（DDD）是一种软件开发的方法论，旨在帮助我们设计出高质量的软件模型。
+在软件领域，解决复杂问题的方法不外乎是“分治”和“抽象”，DDD也是基于这两个理念建立起一套方法论。其中将一个系统划分成多个限界上下文，限界上下文中划分出多个子域，这是分治；然后在分别对各个子域进行领域建模，这是抽象。当你在设计一个业务复杂的系统却无从下手时，尝试一下DDD，说不定困难就会迎刃而解了。DDD中最核心的理念就是领域建模，可以说它提供的各种方法都是为了帮助我们设计出更能准确传达业务规则的领域模型。一个好的领域模型可以让一个系统更加健壮，可以让一个框架易用性更加好，可以让一段代码更加好维护。那么，什么样的模型才是好的领域模型？下面，我们通过一个例子来简单说明下。
+ 什么是领域模型？
+领域模型是关于某个特定业务领域的软件模型。通常，领域模型通过对象模型来实现，这些对象同时包含了数据和行为，并且表达了准确的业务含义。
+ 日期和时间领域模型 如何设计一个日期和时间API？
+首先需要对日期和时间的概念进行建模，从直觉上，我们可以将日期和时间抽象成一个对象Date。另外，时间和日期经常都需要进行格式化输出，因此我们还需要一个用于表示时间格式的对象DateFormat。为了更好地表示年月周日等概念，再抽象出一个表示日历的Calendar对象，以及表示时区的TimeZone对象。
+相信到这里大家都已经知道，这正是JDK 1.1版本的日期时间API，下面我们先回顾一下它的用法：
+public class TestOldDate { public static void main(String[] args) { // 获取表示当前时刻的Date对象  Date date1 = new Date(); // 通过Calendar等到指定日期时间的Date对象，采用当前的系统时区  Calendar calendar = Calendar.getInstance(TimeZone.getDefault()); calendar.set(2020, 2, 10, 0, 0, 0); Date date2 = calendar.getTime(); // 进行时间比较  System.out.println(&amp;#34;date1 is after date2: &amp;#34; &#43; date1.after(date2)); // 进行时间的加减法，如获得昨天的这个时刻：  calendar.setTime(date1); calendar.set(Calendar.DAY_OF_MONTH, calendar.get(Calendar.DAY_OF_MONTH) - 1); Date date3 = calendar.'><title>实践领域驱动设计（一）</title>
+
+<link rel='canonical' href='https://www.yrunz.com/p/%E5%AE%9E%E8%B7%B5%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1%E4%B8%80/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='实践领域驱动设计（一）'>
+<meta property='og:description' content='最近几年，领域驱动设计（Domain-Driven Design，DDD）这个术语越来越多地出现在软件工程师的视野里。对DDD不熟悉的人可能会觉得它是软件领域里的一个新的概念，但是实际上，Eric Evans在十几年前就已经提出了这个概念。这个“古老”的概念在之所以能够重焕新生，很大程度上是因为遇上了“微服务”这个浪潮。如果把DDD里面的理念拿去和微服务架构做对比，你会发现它们有着高度的相似性——DDD里的限界上下文不正是微服务架构中的微服务吗？于是，各大公司纷纷运用DDD的方法论来构建自己的产品架构。有些团队成功地将DDD结合到了产品架构中，产生了许多优秀的实践；也有些团队反映DDD太过复杂，很难落地。那么DDD究竟是个什么样的理念？为什么大家都争先恐后地使用它，彷佛不加点DDD都不好意思说自己是微服务架构？然而又为什么那么多团队说DDD难以落地？本文将会结合简单的代码实现来谈谈笔者对DDD的理解。
+什么是领域驱动设计？ 软件的核心是其为用户解决领域相关的问题的能力。
+软件就是为了解决某一领域相关问题而存在的，比如一个普通的计算器软件，就是为了满足我们进行简单的加减乘除运算而存在。对于计算器这种小而简单的软件，一个普通的软件工程师可能花上几天就能过设计开发出来，而且基本不会出现Bug。但是对于一些大型而且复杂的系统，一个团队都得花上很长的时间去设计整个架构，然后经过n轮迭代才能开发出可用的版本，而且后面还有各种Bug要去处理。比如证券交易系统，里面就包括了用户系统、账户系统、订单系统、撮合系统等一系列的子系统，而且其中的调用关系和业务都非常复杂。像这样一个庞大的系统，怎样才能把它设计好呢？这正是DDD要回答的问题。
+领域驱动设计（DDD）是一种软件开发的方法论，旨在帮助我们设计出高质量的软件模型。
+在软件领域，解决复杂问题的方法不外乎是“分治”和“抽象”，DDD也是基于这两个理念建立起一套方法论。其中将一个系统划分成多个限界上下文，限界上下文中划分出多个子域，这是分治；然后在分别对各个子域进行领域建模，这是抽象。当你在设计一个业务复杂的系统却无从下手时，尝试一下DDD，说不定困难就会迎刃而解了。DDD中最核心的理念就是领域建模，可以说它提供的各种方法都是为了帮助我们设计出更能准确传达业务规则的领域模型。一个好的领域模型可以让一个系统更加健壮，可以让一个框架易用性更加好，可以让一段代码更加好维护。那么，什么样的模型才是好的领域模型？下面，我们通过一个例子来简单说明下。
+ 什么是领域模型？
+领域模型是关于某个特定业务领域的软件模型。通常，领域模型通过对象模型来实现，这些对象同时包含了数据和行为，并且表达了准确的业务含义。
+ 日期和时间领域模型 如何设计一个日期和时间API？
+首先需要对日期和时间的概念进行建模，从直觉上，我们可以将日期和时间抽象成一个对象Date。另外，时间和日期经常都需要进行格式化输出，因此我们还需要一个用于表示时间格式的对象DateFormat。为了更好地表示年月周日等概念，再抽象出一个表示日历的Calendar对象，以及表示时区的TimeZone对象。
+相信到这里大家都已经知道，这正是JDK 1.1版本的日期时间API，下面我们先回顾一下它的用法：
+public class TestOldDate { public static void main(String[] args) { // 获取表示当前时刻的Date对象  Date date1 = new Date(); // 通过Calendar等到指定日期时间的Date对象，采用当前的系统时区  Calendar calendar = Calendar.getInstance(TimeZone.getDefault()); calendar.set(2020, 2, 10, 0, 0, 0); Date date2 = calendar.getTime(); // 进行时间比较  System.out.println(&amp;#34;date1 is after date2: &amp;#34; &#43; date1.after(date2)); // 进行时间的加减法，如获得昨天的这个时刻：  calendar.setTime(date1); calendar.set(Calendar.DAY_OF_MONTH, calendar.get(Calendar.DAY_OF_MONTH) - 1); Date date3 = calendar.'>
+<meta property='og:url' content='https://www.yrunz.com/p/%E5%AE%9E%E8%B7%B5%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1%E4%B8%80/'>
+<meta property='og:site_name' content='元闰子的邀请'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='架构' /><meta property='article:tag' content='领域驱动设计' /><meta property='article:tag' content='DDD' /><meta property='article:published_time' content='2020-03-08T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2020-03-08T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="实践领域驱动设计（一）">
+<meta name="twitter:description" content="最近几年，领域驱动设计（Domain-Driven Design，DDD）这个术语越来越多地出现在软件工程师的视野里。对DDD不熟悉的人可能会觉得它是软件领域里的一个新的概念，但是实际上，Eric Evans在十几年前就已经提出了这个概念。这个“古老”的概念在之所以能够重焕新生，很大程度上是因为遇上了“微服务”这个浪潮。如果把DDD里面的理念拿去和微服务架构做对比，你会发现它们有着高度的相似性——DDD里的限界上下文不正是微服务架构中的微服务吗？于是，各大公司纷纷运用DDD的方法论来构建自己的产品架构。有些团队成功地将DDD结合到了产品架构中，产生了许多优秀的实践；也有些团队反映DDD太过复杂，很难落地。那么DDD究竟是个什么样的理念？为什么大家都争先恐后地使用它，彷佛不加点DDD都不好意思说自己是微服务架构？然而又为什么那么多团队说DDD难以落地？本文将会结合简单的代码实现来谈谈笔者对DDD的理解。
+什么是领域驱动设计？ 软件的核心是其为用户解决领域相关的问题的能力。
+软件就是为了解决某一领域相关问题而存在的，比如一个普通的计算器软件，就是为了满足我们进行简单的加减乘除运算而存在。对于计算器这种小而简单的软件，一个普通的软件工程师可能花上几天就能过设计开发出来，而且基本不会出现Bug。但是对于一些大型而且复杂的系统，一个团队都得花上很长的时间去设计整个架构，然后经过n轮迭代才能开发出可用的版本，而且后面还有各种Bug要去处理。比如证券交易系统，里面就包括了用户系统、账户系统、订单系统、撮合系统等一系列的子系统，而且其中的调用关系和业务都非常复杂。像这样一个庞大的系统，怎样才能把它设计好呢？这正是DDD要回答的问题。
+领域驱动设计（DDD）是一种软件开发的方法论，旨在帮助我们设计出高质量的软件模型。
+在软件领域，解决复杂问题的方法不外乎是“分治”和“抽象”，DDD也是基于这两个理念建立起一套方法论。其中将一个系统划分成多个限界上下文，限界上下文中划分出多个子域，这是分治；然后在分别对各个子域进行领域建模，这是抽象。当你在设计一个业务复杂的系统却无从下手时，尝试一下DDD，说不定困难就会迎刃而解了。DDD中最核心的理念就是领域建模，可以说它提供的各种方法都是为了帮助我们设计出更能准确传达业务规则的领域模型。一个好的领域模型可以让一个系统更加健壮，可以让一个框架易用性更加好，可以让一段代码更加好维护。那么，什么样的模型才是好的领域模型？下面，我们通过一个例子来简单说明下。
+ 什么是领域模型？
+领域模型是关于某个特定业务领域的软件模型。通常，领域模型通过对象模型来实现，这些对象同时包含了数据和行为，并且表达了准确的业务含义。
+ 日期和时间领域模型 如何设计一个日期和时间API？
+首先需要对日期和时间的概念进行建模，从直觉上，我们可以将日期和时间抽象成一个对象Date。另外，时间和日期经常都需要进行格式化输出，因此我们还需要一个用于表示时间格式的对象DateFormat。为了更好地表示年月周日等概念，再抽象出一个表示日历的Calendar对象，以及表示时区的TimeZone对象。
+相信到这里大家都已经知道，这正是JDK 1.1版本的日期时间API，下面我们先回顾一下它的用法：
+public class TestOldDate { public static void main(String[] args) { // 获取表示当前时刻的Date对象  Date date1 = new Date(); // 通过Calendar等到指定日期时间的Date对象，采用当前的系统时区  Calendar calendar = Calendar.getInstance(TimeZone.getDefault()); calendar.set(2020, 2, 10, 0, 0, 0); Date date2 = calendar.getTime(); // 进行时间比较  System.out.println(&amp;#34;date1 is after date2: &amp;#34; &#43; date1.after(date2)); // 进行时间的加减法，如获得昨天的这个时刻：  calendar.setTime(date1); calendar.set(Calendar.DAY_OF_MONTH, calendar.get(Calendar.DAY_OF_MONTH) - 1); Date date3 = calendar.">
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "light");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/yrz_hudc7c8721ecce4b724df5002339c76402_174377_300x0_resize_box_2.png" width="300"
+                            height="306" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://www.yrunz.com">元闰子的邀请</a></h1>
+        <h2 class="site-description">阅读、写作、生活（个人技术分享）</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>首页</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>博客</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%85%B3%E4%BA%8E%E5%85%83%E9%97%B0%E5%AD%90/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24"
+     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+     stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z"/>
+    <circle cx="12" cy="7" r="4"/>
+    <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/>
+</svg>
+
+                
+                <span>关于元闰子</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%8F%8B%E6%83%85%E9%93%BE%E6%8E%A5/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-friends" width="44" height="44"
+     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+    <circle cx="7" cy="5" r="2"/>
+    <path d="M5 22v-5l-1 -1v-4a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4l-1 1v5"/>
+    <circle cx="17" cy="5" r="2"/>
+    <path d="M15 22v-4h-2l2 -6a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1l2 6h-2v4"/>
+</svg>
+
+                
+                <span>友情链接</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>暗色模式</span>
+            </li>
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://www.yrunz.com" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E6%9E%B6%E6%9E%84/" >
+                架构
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/%E5%AE%9E%E8%B7%B5%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1%E4%B8%80/">实践领域驱动设计（一）</a>
+    </h2>
+
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Mar 08, 2020</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <p>最近几年，<strong>领域驱动设计</strong>（Domain-Driven Design，<strong>DDD</strong>）这个术语越来越多地出现在软件工程师的视野里。对DDD不熟悉的人可能会觉得它是软件领域里的一个新的概念，但是实际上，<strong>Eric Evans</strong>在十几年前就已经提出了这个概念。这个“古老”的概念在之所以能够重焕新生，很大程度上是因为遇上了“<strong>微服务</strong>”这个浪潮。如果把DDD里面的理念拿去和微服务架构做对比，你会发现它们有着高度的相似性——DDD里的<strong>限界上下文</strong>不正是微服务架构中的微服务吗？于是，各大公司纷纷运用DDD的方法论来构建自己的产品架构。有些团队成功地将DDD结合到了产品架构中，产生了许多优秀的实践；也有些团队反映DDD太过复杂，很难落地。那么DDD究竟是个什么样的理念？为什么大家都争先恐后地使用它，彷佛不加点DDD都不好意思说自己是微服务架构？然而又为什么那么多团队说DDD难以落地？本文将会结合简单的代码实现来谈谈笔者对DDD的理解。</p>
+<h2 id="什么是领域驱动设计">什么是领域驱动设计？</h2>
+<p><em>软件的核心是其为用户解决领域相关的问题的能力。</em></p>
+<p>软件就是为了解决某一领域相关问题而存在的，比如一个普通的计算器软件，就是为了满足我们进行简单的加减乘除运算而存在。对于计算器这种小而简单的软件，一个普通的软件工程师可能花上几天就能过设计开发出来，而且基本不会出现Bug。但是对于一些大型而且复杂的系统，一个团队都得花上很长的时间去设计整个架构，然后经过n轮迭代才能开发出可用的版本，而且后面还有各种Bug要去处理。比如证券交易系统，里面就包括了用户系统、账户系统、订单系统、撮合系统等一系列的子系统，而且其中的调用关系和业务都非常复杂。像这样一个庞大的系统，怎样才能把它设计好呢？这正是DDD要回答的问题。</p>
+<p><em>领域驱动设计（DDD）是一种软件开发的方法论，旨在帮助我们设计出高质量的软件模型</em>。</p>
+<p>在软件领域，解决复杂问题的方法不外乎是“<strong>分治</strong>”和“<strong>抽象</strong>”，DDD也是基于这两个理念建立起一套方法论。其中将一个系统划分成多个限界上下文，限界上下文中划分出多个子域，这是分治；然后在分别对各个子域进行领域建模，这是抽象。当你在设计一个业务复杂的系统却无从下手时，尝试一下DDD，说不定困难就会迎刃而解了。DDD中最核心的理念就是<strong>领域建模</strong>，可以说它提供的各种方法都是为了帮助我们设计出更能准确传达业务规则的领域模型。一个好的领域模型可以让一个系统更加健壮，可以让一个框架易用性更加好，可以让一段代码更加好维护。那么，什么样的模型才是好的领域模型？下面，我们通过一个例子来简单说明下。</p>
+<blockquote>
+<p><strong>什么是领域模型？</strong></p>
+<p>领域模型是关于某个特定业务领域的软件模型。通常，领域模型通过对象模型来实现，这些对象同时包含了数据和行为，并且表达了准确的业务含义。</p>
+</blockquote>
+<h2 id="日期和时间领域模型">日期和时间领域模型</h2>
+<p><em>如何设计一个日期和时间API？</em></p>
+<p>首先需要对日期和时间的概念进行建模，从直觉上，我们可以将日期和时间抽象成一个对象<code>Date</code>。另外，时间和日期经常都需要进行格式化输出，因此我们还需要一个用于表示时间格式的对象<code>DateFormat</code>。为了更好地表示年月周日等概念，再抽象出一个表示日历的<code>Calendar</code>对象，以及表示时区的<code>TimeZone</code>对象。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-12-154853.jpg" alt="JDK 1.1的日期时间模型"  /></p>
+<p>相信到这里大家都已经知道，这正是JDK 1.1版本的日期时间API，下面我们先回顾一下它的用法：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">TestOldDate</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// 获取表示当前时刻的Date对象
+</span><span class="c1"></span>        <span class="n">Date</span> <span class="n">date1</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Date</span><span class="o">();</span>
+        <span class="c1">// 通过Calendar等到指定日期时间的Date对象，采用当前的系统时区
+</span><span class="c1"></span>        <span class="n">Calendar</span> <span class="n">calendar</span> <span class="o">=</span> <span class="n">Calendar</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="n">TimeZone</span><span class="o">.</span><span class="na">getDefault</span><span class="o">());</span>
+        <span class="n">calendar</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="n">2020</span><span class="o">,</span> <span class="n">2</span><span class="o">,</span> <span class="n">10</span><span class="o">,</span> <span class="n">0</span><span class="o">,</span> <span class="n">0</span><span class="o">,</span> <span class="n">0</span><span class="o">);</span>
+        <span class="n">Date</span> <span class="n">date2</span> <span class="o">=</span> <span class="n">calendar</span><span class="o">.</span><span class="na">getTime</span><span class="o">();</span>
+        <span class="c1">// 进行时间比较
+</span><span class="c1"></span>        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;date1 is after date2: &#34;</span> <span class="o">+</span> <span class="n">date1</span><span class="o">.</span><span class="na">after</span><span class="o">(</span><span class="n">date2</span><span class="o">));</span>
+        <span class="c1">// 进行时间的加减法，如获得昨天的这个时刻：
+</span><span class="c1"></span>        <span class="n">calendar</span><span class="o">.</span><span class="na">setTime</span><span class="o">(</span><span class="n">date1</span><span class="o">);</span>
+        <span class="n">calendar</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="n">Calendar</span><span class="o">.</span><span class="na">DAY_OF_MONTH</span><span class="o">,</span> <span class="n">calendar</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">Calendar</span><span class="o">.</span><span class="na">DAY_OF_MONTH</span><span class="o">)</span> <span class="o">-</span> <span class="n">1</span><span class="o">);</span>
+        <span class="n">Date</span> <span class="n">date3</span> <span class="o">=</span> <span class="n">calendar</span><span class="o">.</span><span class="na">getTime</span><span class="o">();</span>
+        <span class="c1">// 对日期格式化输出
+</span><span class="c1"></span>        <span class="n">DateFormat</span> <span class="n">df</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SimpleDateFormat</span><span class="o">(</span><span class="s">&#34;yyyy-MM-dd HH:mm:ss&#34;</span><span class="o">);</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;date3: &#34;</span> <span class="o">+</span> <span class="n">df</span><span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="n">date3</span><span class="o">));</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+<span class="cm">/* Output:
+</span><span class="cm">date1 is after date2: false
+</span><span class="cm">date3: 2020-02-07 23:55:39
+</span><span class="cm">*/</span>
+</code></pre></div><p>如果你用习惯了JDK 1.1版本的日期时间API，可能会觉得上述例子中的用法也没有多大的问题。但是，仔细思考一下就会发现这其中的逻辑跟我们人类对时间的处理逻辑不太像，比如要对时间做加法，首先要将需要操作的<code>Date</code>对象设置到<code>Calendar</code>，然后对<code>Calendar</code>做加法，最后调用<code>Calendar</code>的接口得到结果。时间的加法难道不应该直接对<code>Date</code>对象加上一个<strong>时间段</strong>就行了吗？</p>
+<p>相信很多小伙伴都会遇到这种情况，自己写出来的代码可读性不够好。这其中原因可能是对领域的理解不够深，设计出来的领域模型没能准确的表达业务逻辑（如JDK 1.1的日期时间模型），或者开发前根本就没有进行领域建模。这样容易导致采用了一种“机器思维”去进行开发，而不是按照我们平常思考问题的思维去开发。</p>
+<p>JDK 1.8引入了全新的日期和时间API来解决老版本的API所存在的种种问题，下面，我们来看一下比之前更准确地表达日期和时间的领域模型：</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-12-154910.jpg" alt="JDK 1.8的日期时间模型"  /></p>
+<p>JDK 1.8的日期和时间领域模型中的<strong>领域知识</strong>明显比老版本的领域模型要丰富很多，而且模型更加符合人类思考日期和时间的思维。下面，我们看下新的日期和时间API的用法：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">TestNewDate</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// 获取表示当前时刻的LocalDateTime对象
+</span><span class="c1"></span>        <span class="n">LocalDateTime</span> <span class="n">date1</span> <span class="o">=</span> <span class="n">LocalDateTime</span><span class="o">.</span><span class="na">now</span><span class="o">(</span><span class="n">ZoneId</span><span class="o">.</span><span class="na">systemDefault</span><span class="o">());</span>
+        <span class="c1">// 获取指定时间的LocalDateTime对象
+</span><span class="c1"></span>        <span class="n">LocalDateTime</span> <span class="n">date2</span> <span class="o">=</span> <span class="n">LocalDateTime</span><span class="o">.</span><span class="na">of</span><span class="o">(</span>
+                <span class="n">LocalDate</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="n">2020</span><span class="o">,</span> <span class="n">2</span><span class="o">,</span> <span class="n">10</span><span class="o">),</span>
+                <span class="n">LocalTime</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="n">0</span><span class="o">,</span> <span class="n">0</span><span class="o">,</span> <span class="n">0</span><span class="o">));</span>
+        <span class="c1">// 进行是时间比较
+</span><span class="c1"></span>        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;date1 is after date2: &#34;</span> <span class="o">+</span> <span class="n">date1</span><span class="o">.</span><span class="na">isAfter</span><span class="o">(</span><span class="n">date2</span><span class="o">));</span>
+        <span class="c1">// 进行时间的加减法，如获得昨天的这个时刻：
+</span><span class="c1"></span>        <span class="n">LocalDateTime</span> <span class="n">date3</span> <span class="o">=</span> <span class="n">date1</span><span class="o">.</span><span class="na">minus</span><span class="o">(</span><span class="n">Period</span><span class="o">.</span><span class="na">ofDays</span><span class="o">(</span><span class="n">1</span><span class="o">));</span>
+        <span class="c1">// 对时间进行格式化输出
+</span><span class="c1"></span>        <span class="n">DateTimeFormatter</span> <span class="n">df</span> <span class="o">=</span> <span class="n">DateTimeFormatter</span><span class="o">.</span><span class="na">ofPattern</span><span class="o">(</span><span class="s">&#34;yyyy-MM-dd HH:mm:ss&#34;</span><span class="o">);</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;date3: &#34;</span> <span class="o">+</span> <span class="n">df</span><span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="n">date3</span><span class="o">));</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+<span class="cm">/* Output:
+</span><span class="cm">date1 is after date2: false
+</span><span class="cm">date3: 2020-02-07 23:56:51
+</span><span class="cm">*/</span>
+</code></pre></div><p>实现同样的功能，JDK 1.8版本的日期和时间API明显更加简洁，而且代码的逻辑更加符合人的思维，可读性更好（比如使用<code>.now()</code>函数创建当前时刻的<code>LocalDateTime</code>对象，代码阅读起来就跟人类的自然语言一样）。由此可见，设计出一个高质量的领域模型对于软件系统是多么的重要。</p>
+<p>在这个例子中，JDK并没有显式地使用DDD提供的<strong>战术建模</strong>手段对日期和时间API进行设计，但是从JDK 1.1到JDK 1.8版本中的变化，其中就蕴含着DDD最核心的内容：<em>设计出更符合业务规则和人类思维的领域模型</em>。从这个例子中我们也能看出，DDD并没有传说中的那么神秘，也未必一定要运用在复杂的系统，即使是一个简单的日期和时间API，其中也可以看到它的身影。</p>
+<p>如果让你对JDK 1.1的日期和时间API进行优化，相信很多人都设计不出像JDK 1.8版本的这样优秀的API，不管在经验，还是在方法上我们都欠点火候。简单的API如此，更别说设计复杂的大型系统了。这时，我们需要一些具体的建模方法来指导设计。</p>
+<h2 id="ddd的建模方法">DDD的建模方法</h2>
+<p><em>DDD主要提出了两种建模方法来帮助我们设计出高质量的领域模型：战略建模和战术建模。</em></p>
+<p><strong>战略建模</strong>根据领域知识对系统进行限界上下文和子域的划分，<strong>战术建模</strong>具体为每个限界上下文设计出领域模型。而这两者中又内涵很多知识点，光看下面的这张DDD的概念图，你可能会觉得DDD太过复杂了。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-12-154927.jpg" alt="DDD中的概念"  /></p>
+<p>确实，DDD的学习曲线比较陡，特别是第一次看Eric Evans所著的《领域驱动设计——软件核心复杂性应对之道》时，会有种不知所云的感觉。再看Vaughn Vernon所著的《实现领域驱动设计》可能会好点了，但是里面提到的各种概念还是没能很清晰地理解。所谓“<strong>实践出真知</strong>”，只有通过不断地实践，才能学习到DDD的精髓，体会到它的魔力。下一篇文章，我们将开始通过实践一个简单的业务功能着手介绍DDD的各种理论知识。</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/%E6%9E%B6%E6%9E%84/">架构</a>
+        
+            <a href="/tags/%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/">领域驱动设计</a>
+        
+            <a href="/tags/ddd/">DDD</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>CC BY 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E4%BA%94%E4%B9%8B%E6%9C%8D%E5%8A%A1%E5%8C%96%E6%9E%B6%E6%9E%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">从分层架构到微服务架构（五）之服务化架构</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E5%AE%9E%E7%8E%B0dci%E6%9E%B6%E6%9E%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">实现DCI架构</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E5%9B%9B%E4%B9%8B%E5%BE%AE%E5%86%85%E6%A0%B8%E6%9E%B6%E6%9E%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">从分层架构到微服务架构（四）之微内核架构</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E4%B8%89%E4%B9%8B%E7%AE%A1%E9%81%93%E6%9E%B6%E6%9E%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">从分层架构到微服务架构（三）之管道架构</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E4%BA%8C%E4%B9%8B%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">从分层架构到微服务架构（二）之分层架构</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+
+    
+        
+    <script src="https://utteranc.es/client.js" 
+        repo="ruanrunxue/yrunz-comments"
+        issue-term="pathname"
+        
+        label="yrunz"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
+
+<style>
+    .utterances {
+        max-width: unset;
+    }
+</style>
+
+<script>
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
+        }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+        setUtterancesTheme(document.body.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        setUtterancesTheme(e.detail)
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_SVG"></script>
+    <section class="copyright">
+        &copy;
+        
+            2019 -
+        
+        2023 元闰子的邀请
+    </section>
+
+    <section class="powerby">
+        
+
+        <a href="https://beian.miit.gov.cn/">粤ICP备19152659号 | </a>Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.3.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        <br />
+    </section>
+</footer>
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

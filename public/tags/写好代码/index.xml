@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>写好代码 on 元闰子的邀请</title>
+    <link>https://www.yrunz.com/tags/%E5%86%99%E5%A5%BD%E4%BB%A3%E7%A0%81/</link>
+    <description>Recent content in 写好代码 on 元闰子的邀请</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 08 Dec 2019 00:00:00 +0000</lastBuildDate><atom:link href="https://www.yrunz.com/tags/%E5%86%99%E5%A5%BD%E4%BB%A3%E7%A0%81/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>一步步降低软件复杂度</title>
+      <link>https://www.yrunz.com/p/%E4%B8%80%E6%AD%A5%E6%AD%A5%E9%99%8D%E4%BD%8E%E8%BD%AF%E4%BB%B6%E5%A4%8D%E6%9D%82%E5%BA%A6/</link>
+      <pubDate>Sun, 08 Dec 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E4%B8%80%E6%AD%A5%E6%AD%A5%E9%99%8D%E4%BD%8E%E8%BD%AF%E4%BB%B6%E5%A4%8D%E6%9D%82%E5%BA%A6/</guid>
+      <description>前言 在进行软件开发时，我们常常会追求软件的高可维护性，高可维护性意味着当有新需求来时，系统易扩展；当出现bug时，开发人员易定位。而当我们说一个系统的可维护性太差时，往往指的是该系统太过复杂，导致给系统增加新功能时容易出现bug，而出现bug之后又难以定位。
+那么，软件的复杂性又是如何定义的呢？
+John Ousterhout给出的定义如下：
+ Complexity is anything related to the structure of a software system that makes it hard to understand and modify the system.
+ 可见，软件的复杂性是一个很泛的概念，任何使软件难以理解和难以修改的东西，都属于软件的复杂性。为此，John Ousterhout提出了一个公式来度量一个系统的复杂性： $$ C = \sum_{p}c_{p}t_{p} $$
+ 式中，$p$表示系统中的模块，$c_{p}$表示该模块的认知负担（Cognitive Load，即一个模块难以理解的程度），$t_{p}$表示在日常开发中在该模块花费的开发时间。
+ 从公式上看，一个软件的复杂性由它的各个模块的复杂性累加而成，而 模块复杂性 = 模块认知负担 * 模块开发时间，也就是模块的复杂性即和模块本身有关，也跟在该模块上花费的开发时间有关。需要注意的是，如果一个模块非常难以理解，但是后续开发过程中几乎没有涉及到它，那么它的复杂性也是很低的。
+导致软件复杂的原因 导致软件复杂的原因可以细分出很多种来，而概括起来莫过于两种：依赖（dependencies） 和 隐晦（obscurity）。前者会让修改起来很费劲而且容易出现bug，比如当修改模块1时，往往也涉及到模块2、模块3、... 的改动；后者会让软件难以理解，定位一个bug，甚至是仅仅读懂一段代码都需要花费大量的时间。
+软件的复杂性往往伴随着如下几种症状：
+霰弹式修改（Change amplification）。当只需要修改一个功能，但又不得不对许多模块作出改动时，我们称之为霰弹式修改。这通常是因为模块之间耦合过重，相互依赖太多导致的。 比如，有一组Web页面，每个页面都是一个HTML文件，每个HTML都有一个背景属性。由于各个HTML的背景属性都是分开定义的，因此如果需要把背景颜色从橙色修改为蓝色时，就需要改动所有的HTML文件。
+认知负担（Cognitive load）。当我们说一个模块隐晦、难以理解时，它就有过重的认知负担，这种情况下往往需要读者花费大量时间才能明白该模块的功能。比如，提供一个不带任何注释的calculate接口，它有2个int类型的入参和一个int类型的返回值。从该函数的签名上看，调用者根本无法得知函数的功能是什么，他只能通过花时间去阅读源码来确定函数功能后才敢去调用该函数。
+int calculate(int val1, int val2); 不确定性（Unknown unknowns）。相比于前两种症状，不确定性的破坏性更大，它通常指一些在开发需求时，你必须注意的，但是又无从得知的点。它常常是因为一些隐晦的依赖导致的，会让你在开发完一个需求之后感觉心里很没谱，隐约觉得自己的代码哪里有问题，但又不清楚问题在哪，只能祈祷在测试阶段能够暴露而不要漏洞商用阶段。
+如何降低软件的复杂性 对 “战术编程” Say No！ 很多程序员在进行特性开发或bug修复时，关注点往往是如何简单快速让程序跑起来，这就是典型的战术编程（Tactical programming）方法，它追求的是短期的效益——节省开发时间。战术编程最普遍的体现就是在编码之前没有进行模块设计，想到哪里就写到哪里。战术编程在系统前期可能会比较方便，一旦系统庞大起来、模块之间的耦合变重之后，添加或修改功能、修复bug都会变得寸步难行。随着系统变得越来越复杂，最后不得不对系统进行重构甚至重写。</description>
+    </item>
+    
+    <item>
+      <title>教你写好代码注释</title>
+      <link>https://www.yrunz.com/p/%E6%95%99%E4%BD%A0%E5%86%99%E5%A5%BD%E4%BB%A3%E7%A0%81%E6%B3%A8%E9%87%8A/</link>
+      <pubDate>Wed, 04 Dec 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E6%95%99%E4%BD%A0%E5%86%99%E5%A5%BD%E4%BB%A3%E7%A0%81%E6%B3%A8%E9%87%8A/</guid>
+      <description>前言 相信大家都会遇到这种情况：一周前自己写的代码，现在再拿出来看，发现读不懂了，“ 这代码是我写的？？？”。这时候，代码注释就可以发挥它的作用了——提高晦涩难懂的代码的可读性；注释可以起到隐藏代码复杂细节的作用，比如接口注释可以帮助开发者在没有阅读代码的情况下快速了解该接口的功能和用法；如果写的好，注释还可以改善系统的设计。
+既然注释这么多好处，为什么我们程序员还是不愿意写注释？
+“代码都写不完了，哪有时间写注释，以后再补吧“
+时间不够论。这是最常见的原因，在交付速度飞快的今天，“代码写不完”是一个再常见不过的情况了，但写注释真的会导致需求延迟吗？绝不！相对于写一个接口的实现，写接口注释的时间可能只需要花费前者的5%。但不写注释，后面使用接口的人必须要多花费**50%**的时间去读懂代码！而且对于大部分程序员而言，“以后再补“大概要到2910年才能落实。
+“好的代码就是最好的注释，我的代码可读性很好，没必要写注释”
+好代码胜过注释论。不少程序员认为，好的代码就是最好的注释，只要代码可读性好，注释就可以省去。然而一个软件系统很多信息是无法通过代码呈现出来的，比如系统的设计思路、函数执行的预置条件等等。此外，代码可读性也不是绝对的，对于一个没有使用过Java 8 的 Lambda表达式的开发者而言，通篇的箭头“-&amp;gt;“简直就是一场噩梦。
+”过期的注释容易误导人“
+过期注释论。不可否认，过期的注释很容易误导读者，但是这并不能成为否认注释的借口。除非是重大的重构或重写，对注释进行大改动的情况很少出现。通常，在更改代码之后，只需花费极少的时间去更新注释，就可以避免过期注释这种情况了。
+注释的分类 注释大致可以分成四类：接口注释、数据成员注释、实现注释和模块依赖注释。
+接口注释 平时我们所说的接口，通常指的是一个类（包括interface、class、enum）和方法。对类而言，接口注释主要描述该类提供的功能；对方法而言，除了描述方法功能之外，方法的入参和返回值都要进行说明。当然，使用类/方法的一些预置条件和副作用等信息都需要在接口注释中提到。
+/** * Returns the length of this string. * The length is equal to the number of &amp;lt;a href=&amp;#34;Character.html#unicode&amp;#34;&amp;gt;Unicode * code units&amp;lt;/a&amp;gt; in the string. * * @return the length of the sequence of characters represented by this * object. */ public int length() { return value.length; }  典型的接口注释（选自JDK 1.8中的String类）
+ 数据成员注释 数据成员注释和接口注释在大多数情况下都是必须的，这对于让读者快速读懂代码有很大的帮助。数据成员包括类的普通成员变量和静态成员变量，数据成员注释除了描述数据成员的本身用途之外，成员的默认值、副作用等信息都需要提及。</description>
+    </item>
+    
+  </channel>
+</rss>

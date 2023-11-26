@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='《从分层架构到微服务架构》是一系列介绍《Fundamentals of Software Architecture》中提到的8种架构模式的文章，这里不会事无巨细地介绍所有的细节，而是会挑选其中关键内容，更多详情请阅读原书。
+ 前言 谈到软件系统设计的方法论，在代码层面，有我们熟悉的23种设计模式（design pattern），对应到架构层面，则有所谓的架构模式（architecture pattern）。它们分别从微观和宏观的角度指导着我们设计出良好的软件系统，因此，作为一个软件工程师，我们不仅要熟悉设计模式，对常见的架构模式也要熟稔于心。正如看到一个设计模式的名字脑里就能浮现出大致的结构图，当我们看到一个架构模式的名字时，也要马上想到对应的架构图及其基本特点。比如，当谈到分层架构时，我们就应该想起它的架构图是怎样的、有哪些出色的架构特征（architecture characteristics）、系统是如何部署的、数据存储的策略是哪种、等等。
+一般地，架构模式大致可以分成两类，单体架构（monolithic architecture）和分布式架构（distributed architecture）。本系列文章将会介绍以下8种常用的架构模式：
+单体架构
+ 分层架构（Layered architecture） 管道架构（Pipeline architecture） 微内核架构（Microkernel architecture）  分布式架构
+ 基于服务的架构（Service-based architecture） 事件驱动架构（Event-driven architecture） 基于空间的架构（Space-based architecture） 面向服务的架构（Service-oriented architecture） 微服务架构（Microservices architecture）  软件设计中的谬误 在介绍架构模式前，我们先谈谈软件设计中的谬误（fallacy）。所谓谬误，就是在设计软件系统，特别是分布式系统时，我们先入为主地假设它们是正确，但实际上并非如此的一些观念。这些观念都是我们在设计软件时考虑不周的体现。
+谬误1：网络是可靠的 很多软件工程师常常假设网络是可靠的，但实际并非如此。相比20年前，现在的网络会可靠很多，但是仍然具有很大的不确定性。如上图所述，Serivce B可能完全是正常运行的，但是因为网络的问题，Service A发出的请求无法到达Service B。一种更糟糕的场景是，Service B可以收到Service A的请求，并处理了相关的数据，但是网络问题导致了Service A无法收到Service B的响应，从而造成了数据不一致。网络的不可靠也是为什么系统中常常出现服务通信超时、服务熔断等的原因。
+总而言之，如果假设网络是可靠的，那么我们设计出来的软件系统将会是不可靠的。
+谬误2：时延是0 如上图所示，服务内组件间的函数/方法级别的调用，耗时是微妙，甚至是纳秒级别；但是服务间的远程调用（比如REST、消息队列、RPC），耗时会是微秒级别，甚至在异常场景会达到了秒级！在设计系统，特别是分布式系统时，时延是一个无法被忽视的因素，我们必须清楚系统的平均时延，否则设计出来的方案可能根本不可行。比如，假设系统中服务间通信时延为100ms，如果一个请求的调用链涉及到10个服务，那么该请求的时延将会是1000ms！这么高的平均时延对于一般系统来说是完全无法接受的。
+进行系统设计时，考虑平均时延还不够，更重要的是95th和99th百分点。一个系统的平均时延可能仅仅只有数十毫秒，但是95th百分点的时延却达到了数百毫秒，很多时候，这也恰恰成为了拖垮整系统性能的那块“短板”。
+谬误3：带宽是无限的 在单体架构中，业务流程都在单服务内闭环，消耗的带宽很少甚至为0，因此带宽并不是主要关注点。一旦将系统拆分成分布式架构，一个业务流程可能涉及多个服务间的通信，带宽就成了必须考虑的因素。带宽的不足，会导致网络变慢，从而影响系统的时延（谬误2：时延是0）和可靠性（谬误1：网络是可靠的）。
+如上图所示，假设在一个Web系统中，Service A负责处理前端请求，Service B负责管理用户信息（包括姓名、性别、年龄等45个属性）。Service A每处理一个请求都需要向Service B查询用户姓名（200 bytes），而在一次请求中，Service B却返回了用户的所有信息（500 kb）。如果系统每秒处理2000次请求，每次请求消耗500 kb带宽，那么每秒消耗的总带宽会是1 Gb！如果Service B仅仅返回必须的姓名，那么同等条件下，每秒消耗的总带宽仅仅是400 kb。
+此类问题就是所谓的stamp coupling，解决方法也很多，比如在请求中添加属性选择，使用GraphQL替代REST。相比于这些技术手段，更重要的是确定服务间通信所需的最小数据集，并在进行系统设计时将其作为一个重点关注的因素。
+谬误4：网络是安全的 VPN、防火墙等的广泛使用，使得很多工程师在设计系统时忽略了“网络是不安全的”这一重要原则。特别是从单体架构演进到分布式架构以后，系统被攻击的概率将会大大增加。因此，在分布式系统中，每个服务都必须是安全的endpoint，这样才能确保任何未知或恶意的请求都被拦截掉。当然，安全是有代价的，这也是像微服务架构这类细服务粒度的系统，一次业务请求中调用链过长后性能极速下降的重要原因。
+谬误5：网络拓扑一成不变 这里的网络拓扑指的是系统运行时所涉及到的网络设备，包括所有的路由器、防火墙、集线器、交换机等。很多工程师会假设网络拓扑是固定的，然而并非如此。'><title>从分层架构到微服务架构（一）</title>
+
+<link rel='canonical' href='https://www.yrunz.com/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E4%B8%80/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='从分层架构到微服务架构（一）'>
+<meta property='og:description' content='《从分层架构到微服务架构》是一系列介绍《Fundamentals of Software Architecture》中提到的8种架构模式的文章，这里不会事无巨细地介绍所有的细节，而是会挑选其中关键内容，更多详情请阅读原书。
+ 前言 谈到软件系统设计的方法论，在代码层面，有我们熟悉的23种设计模式（design pattern），对应到架构层面，则有所谓的架构模式（architecture pattern）。它们分别从微观和宏观的角度指导着我们设计出良好的软件系统，因此，作为一个软件工程师，我们不仅要熟悉设计模式，对常见的架构模式也要熟稔于心。正如看到一个设计模式的名字脑里就能浮现出大致的结构图，当我们看到一个架构模式的名字时，也要马上想到对应的架构图及其基本特点。比如，当谈到分层架构时，我们就应该想起它的架构图是怎样的、有哪些出色的架构特征（architecture characteristics）、系统是如何部署的、数据存储的策略是哪种、等等。
+一般地，架构模式大致可以分成两类，单体架构（monolithic architecture）和分布式架构（distributed architecture）。本系列文章将会介绍以下8种常用的架构模式：
+单体架构
+ 分层架构（Layered architecture） 管道架构（Pipeline architecture） 微内核架构（Microkernel architecture）  分布式架构
+ 基于服务的架构（Service-based architecture） 事件驱动架构（Event-driven architecture） 基于空间的架构（Space-based architecture） 面向服务的架构（Service-oriented architecture） 微服务架构（Microservices architecture）  软件设计中的谬误 在介绍架构模式前，我们先谈谈软件设计中的谬误（fallacy）。所谓谬误，就是在设计软件系统，特别是分布式系统时，我们先入为主地假设它们是正确，但实际上并非如此的一些观念。这些观念都是我们在设计软件时考虑不周的体现。
+谬误1：网络是可靠的 很多软件工程师常常假设网络是可靠的，但实际并非如此。相比20年前，现在的网络会可靠很多，但是仍然具有很大的不确定性。如上图所述，Serivce B可能完全是正常运行的，但是因为网络的问题，Service A发出的请求无法到达Service B。一种更糟糕的场景是，Service B可以收到Service A的请求，并处理了相关的数据，但是网络问题导致了Service A无法收到Service B的响应，从而造成了数据不一致。网络的不可靠也是为什么系统中常常出现服务通信超时、服务熔断等的原因。
+总而言之，如果假设网络是可靠的，那么我们设计出来的软件系统将会是不可靠的。
+谬误2：时延是0 如上图所示，服务内组件间的函数/方法级别的调用，耗时是微妙，甚至是纳秒级别；但是服务间的远程调用（比如REST、消息队列、RPC），耗时会是微秒级别，甚至在异常场景会达到了秒级！在设计系统，特别是分布式系统时，时延是一个无法被忽视的因素，我们必须清楚系统的平均时延，否则设计出来的方案可能根本不可行。比如，假设系统中服务间通信时延为100ms，如果一个请求的调用链涉及到10个服务，那么该请求的时延将会是1000ms！这么高的平均时延对于一般系统来说是完全无法接受的。
+进行系统设计时，考虑平均时延还不够，更重要的是95th和99th百分点。一个系统的平均时延可能仅仅只有数十毫秒，但是95th百分点的时延却达到了数百毫秒，很多时候，这也恰恰成为了拖垮整系统性能的那块“短板”。
+谬误3：带宽是无限的 在单体架构中，业务流程都在单服务内闭环，消耗的带宽很少甚至为0，因此带宽并不是主要关注点。一旦将系统拆分成分布式架构，一个业务流程可能涉及多个服务间的通信，带宽就成了必须考虑的因素。带宽的不足，会导致网络变慢，从而影响系统的时延（谬误2：时延是0）和可靠性（谬误1：网络是可靠的）。
+如上图所示，假设在一个Web系统中，Service A负责处理前端请求，Service B负责管理用户信息（包括姓名、性别、年龄等45个属性）。Service A每处理一个请求都需要向Service B查询用户姓名（200 bytes），而在一次请求中，Service B却返回了用户的所有信息（500 kb）。如果系统每秒处理2000次请求，每次请求消耗500 kb带宽，那么每秒消耗的总带宽会是1 Gb！如果Service B仅仅返回必须的姓名，那么同等条件下，每秒消耗的总带宽仅仅是400 kb。
+此类问题就是所谓的stamp coupling，解决方法也很多，比如在请求中添加属性选择，使用GraphQL替代REST。相比于这些技术手段，更重要的是确定服务间通信所需的最小数据集，并在进行系统设计时将其作为一个重点关注的因素。
+谬误4：网络是安全的 VPN、防火墙等的广泛使用，使得很多工程师在设计系统时忽略了“网络是不安全的”这一重要原则。特别是从单体架构演进到分布式架构以后，系统被攻击的概率将会大大增加。因此，在分布式系统中，每个服务都必须是安全的endpoint，这样才能确保任何未知或恶意的请求都被拦截掉。当然，安全是有代价的，这也是像微服务架构这类细服务粒度的系统，一次业务请求中调用链过长后性能极速下降的重要原因。
+谬误5：网络拓扑一成不变 这里的网络拓扑指的是系统运行时所涉及到的网络设备，包括所有的路由器、防火墙、集线器、交换机等。很多工程师会假设网络拓扑是固定的，然而并非如此。'>
+<meta property='og:url' content='https://www.yrunz.com/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E4%B8%80/'>
+<meta property='og:site_name' content='元闰子的邀请'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='架构' /><meta property='article:tag' content='读书笔记' /><meta property='article:tag' content='从分层架构到微服务架构' /><meta property='article:published_time' content='2021-01-23T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2021-01-23T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="从分层架构到微服务架构（一）">
+<meta name="twitter:description" content="《从分层架构到微服务架构》是一系列介绍《Fundamentals of Software Architecture》中提到的8种架构模式的文章，这里不会事无巨细地介绍所有的细节，而是会挑选其中关键内容，更多详情请阅读原书。
+ 前言 谈到软件系统设计的方法论，在代码层面，有我们熟悉的23种设计模式（design pattern），对应到架构层面，则有所谓的架构模式（architecture pattern）。它们分别从微观和宏观的角度指导着我们设计出良好的软件系统，因此，作为一个软件工程师，我们不仅要熟悉设计模式，对常见的架构模式也要熟稔于心。正如看到一个设计模式的名字脑里就能浮现出大致的结构图，当我们看到一个架构模式的名字时，也要马上想到对应的架构图及其基本特点。比如，当谈到分层架构时，我们就应该想起它的架构图是怎样的、有哪些出色的架构特征（architecture characteristics）、系统是如何部署的、数据存储的策略是哪种、等等。
+一般地，架构模式大致可以分成两类，单体架构（monolithic architecture）和分布式架构（distributed architecture）。本系列文章将会介绍以下8种常用的架构模式：
+单体架构
+ 分层架构（Layered architecture） 管道架构（Pipeline architecture） 微内核架构（Microkernel architecture）  分布式架构
+ 基于服务的架构（Service-based architecture） 事件驱动架构（Event-driven architecture） 基于空间的架构（Space-based architecture） 面向服务的架构（Service-oriented architecture） 微服务架构（Microservices architecture）  软件设计中的谬误 在介绍架构模式前，我们先谈谈软件设计中的谬误（fallacy）。所谓谬误，就是在设计软件系统，特别是分布式系统时，我们先入为主地假设它们是正确，但实际上并非如此的一些观念。这些观念都是我们在设计软件时考虑不周的体现。
+谬误1：网络是可靠的 很多软件工程师常常假设网络是可靠的，但实际并非如此。相比20年前，现在的网络会可靠很多，但是仍然具有很大的不确定性。如上图所述，Serivce B可能完全是正常运行的，但是因为网络的问题，Service A发出的请求无法到达Service B。一种更糟糕的场景是，Service B可以收到Service A的请求，并处理了相关的数据，但是网络问题导致了Service A无法收到Service B的响应，从而造成了数据不一致。网络的不可靠也是为什么系统中常常出现服务通信超时、服务熔断等的原因。
+总而言之，如果假设网络是可靠的，那么我们设计出来的软件系统将会是不可靠的。
+谬误2：时延是0 如上图所示，服务内组件间的函数/方法级别的调用，耗时是微妙，甚至是纳秒级别；但是服务间的远程调用（比如REST、消息队列、RPC），耗时会是微秒级别，甚至在异常场景会达到了秒级！在设计系统，特别是分布式系统时，时延是一个无法被忽视的因素，我们必须清楚系统的平均时延，否则设计出来的方案可能根本不可行。比如，假设系统中服务间通信时延为100ms，如果一个请求的调用链涉及到10个服务，那么该请求的时延将会是1000ms！这么高的平均时延对于一般系统来说是完全无法接受的。
+进行系统设计时，考虑平均时延还不够，更重要的是95th和99th百分点。一个系统的平均时延可能仅仅只有数十毫秒，但是95th百分点的时延却达到了数百毫秒，很多时候，这也恰恰成为了拖垮整系统性能的那块“短板”。
+谬误3：带宽是无限的 在单体架构中，业务流程都在单服务内闭环，消耗的带宽很少甚至为0，因此带宽并不是主要关注点。一旦将系统拆分成分布式架构，一个业务流程可能涉及多个服务间的通信，带宽就成了必须考虑的因素。带宽的不足，会导致网络变慢，从而影响系统的时延（谬误2：时延是0）和可靠性（谬误1：网络是可靠的）。
+如上图所示，假设在一个Web系统中，Service A负责处理前端请求，Service B负责管理用户信息（包括姓名、性别、年龄等45个属性）。Service A每处理一个请求都需要向Service B查询用户姓名（200 bytes），而在一次请求中，Service B却返回了用户的所有信息（500 kb）。如果系统每秒处理2000次请求，每次请求消耗500 kb带宽，那么每秒消耗的总带宽会是1 Gb！如果Service B仅仅返回必须的姓名，那么同等条件下，每秒消耗的总带宽仅仅是400 kb。
+此类问题就是所谓的stamp coupling，解决方法也很多，比如在请求中添加属性选择，使用GraphQL替代REST。相比于这些技术手段，更重要的是确定服务间通信所需的最小数据集，并在进行系统设计时将其作为一个重点关注的因素。
+谬误4：网络是安全的 VPN、防火墙等的广泛使用，使得很多工程师在设计系统时忽略了“网络是不安全的”这一重要原则。特别是从单体架构演进到分布式架构以后，系统被攻击的概率将会大大增加。因此，在分布式系统中，每个服务都必须是安全的endpoint，这样才能确保任何未知或恶意的请求都被拦截掉。当然，安全是有代价的，这也是像微服务架构这类细服务粒度的系统，一次业务请求中调用链过长后性能极速下降的重要原因。
+谬误5：网络拓扑一成不变 这里的网络拓扑指的是系统运行时所涉及到的网络设备，包括所有的路由器、防火墙、集线器、交换机等。很多工程师会假设网络拓扑是固定的，然而并非如此。">
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "light");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/yrz_hudc7c8721ecce4b724df5002339c76402_174377_300x0_resize_box_2.png" width="300"
+                            height="306" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://www.yrunz.com">元闰子的邀请</a></h1>
+        <h2 class="site-description">阅读、写作、生活（个人技术分享）</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>首页</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>博客</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%85%B3%E4%BA%8E%E5%85%83%E9%97%B0%E5%AD%90/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24"
+     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+     stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z"/>
+    <circle cx="12" cy="7" r="4"/>
+    <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/>
+</svg>
+
+                
+                <span>关于元闰子</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%8F%8B%E6%83%85%E9%93%BE%E6%8E%A5/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-friends" width="44" height="44"
+     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+    <circle cx="7" cy="5" r="2"/>
+    <path d="M5 22v-5l-1 -1v-4a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4l-1 1v5"/>
+    <circle cx="17" cy="5" r="2"/>
+    <path d="M15 22v-4h-2l2 -6a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1l2 6h-2v4"/>
+</svg>
+
+                
+                <span>友情链接</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>暗色模式</span>
+            </li>
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://www.yrunz.com" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E6%9E%B6%E6%9E%84/" >
+                架构
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E4%B8%80/">从分层架构到微服务架构（一）</a>
+    </h2>
+
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Jan 23, 2021</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <blockquote>
+<p>《从分层架构到微服务架构》是一系列介绍<a class="link" href="https://learning.oreilly.com/library/view/fundamentals-of-software/9781492043447/"  target="_blank" rel="noopener"
+    >《Fundamentals of Software Architecture》</a>中提到的8种架构模式的文章，这里不会事无巨细地介绍所有的细节，而是会挑选其中关键内容，更多详情请阅读原书。</p>
+</blockquote>
+<h2 id="前言">前言</h2>
+<p>谈到软件系统设计的方法论，在代码层面，有我们熟悉的23种<strong>设计模式</strong>（design pattern），对应到架构层面，则有所谓的<strong>架构模式</strong>（architecture pattern）。它们分别从微观和宏观的角度指导着我们设计出良好的软件系统，因此，作为一个软件工程师，我们不仅要熟悉设计模式，对常见的架构模式也要熟稔于心。正如看到一个设计模式的名字脑里就能浮现出大致的结构图，当我们看到一个架构模式的名字时，也要马上想到对应的架构图及其基本特点。比如，当谈到<strong>分层架构</strong>时，我们就应该想起它的架构图是怎样的、有哪些出色的架构特征（architecture characteristics）、系统是如何部署的、数据存储的策略是哪种、等等。</p>
+<p>一般地，架构模式大致可以分成两类，<strong>单体架构</strong>（monolithic architecture）和<strong>分布式架构</strong>（distributed architecture）。本系列文章将会介绍以下8种常用的架构模式：</p>
+<p><strong>单体架构</strong></p>
+<ul>
+<li>分层架构（Layered architecture）</li>
+<li>管道架构（Pipeline architecture）</li>
+<li>微内核架构（Microkernel architecture）</li>
+</ul>
+<p><strong>分布式架构</strong></p>
+<ul>
+<li>基于服务的架构（Service-based architecture）</li>
+<li>事件驱动架构（Event-driven architecture）</li>
+<li>基于空间的架构（Space-based architecture）</li>
+<li>面向服务的架构（Service-oriented architecture）</li>
+<li>微服务架构（Microservices architecture）</li>
+</ul>
+<h2 id="软件设计中的谬误">软件设计中的谬误</h2>
+<p>在介绍架构模式前，我们先谈谈软件设计中的<strong>谬误</strong>（fallacy）。所谓谬误，就是在设计软件系统，特别是分布式系统时，我们先入为主地假设它们是正确，但实际上并非如此的一些观念。这些观念都是我们在设计软件时考虑不周的体现。</p>
+<h3 id="谬误1网络是可靠的">谬误1：网络是可靠的</h3>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gmsozmkrmhj313a0b0dif.jpg" alt="网络是不可靠的"  /></p>
+<p>很多软件工程师常常假设网络是可靠的，但实际并非如此。相比20年前，现在的网络会可靠很多，但是仍然具有很大的不确定性。如上图所述，Serivce B可能完全是正常运行的，但是因为网络的问题，Service A发出的请求无法到达Service B。一种更糟糕的场景是，Service B可以收到Service A的请求，并处理了相关的数据，但是网络问题导致了Service A无法收到Service B的响应，从而造成了<strong>数据不一致</strong>。网络的不可靠也是为什么系统中常常出现服务通信超时、服务熔断等的原因。</p>
+<p><em>总而言之，如果假设网络是可靠的，那么我们设计出来的软件系统将会是不可靠的。</em></p>
+<h3 id="谬误2时延是0">谬误2：时延是0</h3>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gmspdp76m4j313a0gb40r.jpg" alt="时延不为0"  /></p>
+<p>如上图所示，服务内组件间的函数/方法级别的调用，耗时是微妙，甚至是纳秒级别；但是服务间的远程调用（比如REST、消息队列、RPC），耗时会是微秒级别，甚至在异常场景会达到了秒级！在设计系统，特别是分布式系统时，时延是一个无法被忽视的因素，我们必须清楚系统的平均时延，否则设计出来的方案可能根本不可行。比如，假设系统中服务间通信时延为100ms，如果一个请求的调用链涉及到10个服务，那么该请求的时延将会是1000ms！这么高的平均时延对于一般系统来说是完全无法接受的。</p>
+<p><strong>进行系统设计时，考虑平均时延还不够，更重要的是95th和99th百分点</strong>。一个系统的平均时延可能仅仅只有数十毫秒，但是95th百分点的时延却达到了数百毫秒，很多时候，这也恰恰成为了拖垮整系统性能的那块“短板”。</p>
+<h3 id="谬误3带宽是无限的">谬误3：带宽是无限的</h3>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gmttf388tqj313a0b0410.jpg" alt="带宽是有限的"  /></p>
+<p>在单体架构中，业务流程都在单服务内闭环，消耗的带宽很少甚至为0，因此带宽并不是主要关注点。一旦将系统拆分成分布式架构，一个业务流程可能涉及多个服务间的通信，带宽就成了必须考虑的因素。<strong>带宽的不足，会导致网络变慢，从而影响系统的时延（<a class="link" href="%e8%b0%ac%e8%af%af2%ef%bc%9a%e6%97%b6%e5%bb%b6%e6%98%af0" >谬误2：时延是0</a>）和可靠性（<a class="link" href="#%e8%b0%ac%e8%af%af1%ef%bc%9a%e7%bd%91%e7%bb%9c%e6%98%af%e5%8f%af%e9%9d%a0%e7%9a%84" >谬误1：网络是可靠的</a>）</strong>。</p>
+<p>如上图所示，假设在一个Web系统中，Service A负责处理前端请求，Service B负责管理用户信息（包括姓名、性别、年龄等45个属性）。Service A每处理一个请求都需要向Service B查询用户姓名（200 bytes），而在一次请求中，Service B却返回了用户的所有信息（500 kb）。如果系统每秒处理2000次请求，每次请求消耗500 kb带宽，那么每秒消耗的总带宽会是1 Gb！如果Service B仅仅返回必须的姓名，那么同等条件下，每秒消耗的总带宽仅仅是400 kb。</p>
+<p>此类问题就是所谓的<strong>stamp coupling</strong>，解决方法也很多，比如在请求中添加属性选择，使用GraphQL替代REST。<strong>相比于这些技术手段，更重要的是确定服务间通信所需的最小数据集，并在进行系统设计时将其作为一个重点关注的因素</strong>。</p>
+<h3 id="谬误4网络是安全的">谬误4：网络是安全的</h3>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gmtul9i8t1j31320b4aby.jpg" alt="网络是不安全的"  /></p>
+<p>VPN、防火墙等的广泛使用，使得很多工程师在设计系统时忽略了“<strong>网络是不安全的</strong>”这一重要原则。特别是从单体架构演进到分布式架构以后，系统被攻击的概率将会大大增加。<strong>因此，在分布式系统中，每个服务都必须是安全的endpoint，这样才能确保任何未知或恶意的请求都被拦截掉</strong>。当然，安全是有代价的，这也是像微服务架构这类细服务粒度的系统，一次业务请求中调用链过长后性能极速下降的重要原因。</p>
+<h3 id="谬误5网络拓扑一成不变">谬误5：网络拓扑一成不变</h3>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gmtv1jdnoxj313a0clq5x.jpg" alt="网络拓扑是时常变化的"  /></p>
+<p>这里的网络拓扑指的是系统运行时所涉及到的网络设备，包括所有的路由器、防火墙、集线器、交换机等。很多工程师会假设网络拓扑是固定的，然而并非如此。</p>
+<p>假设如下场景，为架构师的你在周一早上回到公司后，发现组内同事都在为系统中所有的服务间通信都在不断出现响应超时现象而抓狂，但奇怪的是周末并没有做服务变更。经过几个小时的攻关后，你发现周一凌晨2点时有过一次网络升级，而恰恰是这次“次要”的网络升级，推翻之前设计系统时的时延假设，从而触发了本次事故。</p>
+<p>因此，<strong>软件工程师也需要与网络管理员时常联系，确保在每次网络升级前都明确网络拓扑的变更点，从而做出相应的调整</strong>。</p>
+<h3 id="谬误6只有一个网络管理员">谬误6：只有一个网络管理员</h3>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gmvr8wixbjj310p0n7q65.jpg" alt="不只有一个网络管理员"  /></p>
+<p>网络管理员往往不止有一个，特别是在“云”时代，数据中心分散在多个地域，理所当然也存在着多个局域网。运行在“云”上的系统很有可能跨越多个数据中心，因此工程师们应当感知各个数据中心的网络管理员对网络的相关操作，提前做出应对措施，避免出现因网络拓扑变更（<a class="link" href="#%e8%b0%ac%e8%af%af5%ef%bc%9a%e7%bd%91%e7%bb%9c%e6%8b%93%e6%89%91%e4%b8%80%e6%88%90%e4%b8%8d%e5%8f%98" >谬误5：网络拓扑一成不变</a>）而导致的服务通信超时，甚至触发服务熔断。</p>
+<h3 id="谬误7通信成本为0">谬误7：通信成本为0</h3>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gmw4jwxp34j313a0b00vh.jpg" alt="通信成本不为0"  /></p>
+<p>这里的通信成本并非指网络时延，而是指每增加一次服务间调用所导致的<strong>钱</strong>的花销。很多工程师在设计系统时常常忽视掉通信成本，大家都在鼓吹分布式架构相对了单体架构的优越性，却忘记了它带来的服务器、防火墙、网关等硬件的数量增加，这些都是白花花的银子。</p>
+<p><em>因此，在进行系统设计时，我们也应该将硬件资源和网络拓扑纳入考虑因素。</em></p>
+<h3 id="谬误8网络是同质的">谬误8：网络是同质的</h3>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gmw503jxhvj313z0b0775.jpg" alt="网络并非同质的"  /></p>
+<p>很多工程师都会假设网络是同质的，也就是所有的网络设备都来自同一硬件厂商，这当然也是一个谬误。实际上，<strong>一个大的通信网络中，硬件设备往往来自于不同的厂商，这得益于网络协议标准的统一</strong>。厂商间设备的协作测试毕竟不会太充分，在一些特殊场景下极有可能存在网络丢包，从而影响了网络的可靠性（<a class="link" href="#%e8%b0%ac%e8%af%af1%ef%bc%9a%e7%bd%91%e7%bb%9c%e6%98%af%e5%8f%af%e9%9d%a0%e7%9a%84" >谬误1：网络是可靠的</a>）、时延（<a class="link" href="#%e8%b0%ac%e8%af%af2%ef%bc%9a%e6%97%b6%e5%bb%b6%e6%98%af0" >谬误2：时延是0</a>）以及带宽（<a class="link" href="#%e8%b0%ac%e8%af%af3%ef%bc%9a%e5%b8%a6%e5%ae%bd%e6%98%af%e6%97%a0%e9%99%90%e7%9a%84" >谬误3：带宽是无限的</a>）。</p>
+<h2 id="一切从大泥球开始">一切从“大泥球”开始</h2>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gmw5pnepgdj30gn0goq74.jpg" alt="“大泥球”架构"  /></p>
+<p><strong>“大泥球”架构</strong>是著名的反模式架构，最初在1997年由Brian Foote 和 Joseph Yoder提出。在“大泥球”架构里，系统没有进行内部的模块划分，代码耦合严重，调用关系混乱，就像一个大的泥球。如上图所示，每一个点代表一个类，红线则表示类之间的耦合关系。这样的架构对需求变更极不友好，往往牵一发而动全身，而且在部署、可测试性、性能等方面也存在着很多问题。所有的架构师都在极力避免“大泥球”的出现，但很不幸的是，它仍然在实际项目中很常见，特别是项目伊始，代码质量和结构还没被严格管控起来前。</p>
+<p>有反模式的出现，必然就有解决它的方法，这便是架构模式，从下一篇文章开始，我们将逐个介绍常见的8种架构模式。</p>
+<h2 id="总结">总结</h2>
+<p>跟设计模式类似，架构模式是软件工程师们多年来在架构设计方面的经验总结。每种架构模式并没有绝对的优劣之分，我们不能说微服务架构就一定比单体分层架构优越，它们都有着各自的应用场景。分布式架构比单体架构有着更好的可扩展性、容错性，但也带来了更高的复杂性，比如分布式事务。因此，我们应该熟知各个架构模式的特点，这样才能在特定的业务场景使用合适的架构模式。</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/%E6%9E%B6%E6%9E%84/">架构</a>
+        
+            <a href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">读书笔记</a>
+        
+            <a href="/tags/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84/">从分层架构到微服务架构</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>CC BY 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E4%BA%94%E4%B9%8B%E6%9C%8D%E5%8A%A1%E5%8C%96%E6%9E%B6%E6%9E%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">从分层架构到微服务架构（五）之服务化架构</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E5%9B%9B%E4%B9%8B%E5%BE%AE%E5%86%85%E6%A0%B8%E6%9E%B6%E6%9E%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">从分层架构到微服务架构（四）之微内核架构</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E4%B8%89%E4%B9%8B%E7%AE%A1%E9%81%93%E6%9E%B6%E6%9E%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">从分层架构到微服务架构（三）之管道架构</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E4%BA%8C%E4%B9%8B%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">从分层架构到微服务架构（二）之分层架构</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E5%AE%9E%E7%8E%B0dci%E6%9E%B6%E6%9E%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">实现DCI架构</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+
+    
+        
+    <script src="https://utteranc.es/client.js" 
+        repo="ruanrunxue/yrunz-comments"
+        issue-term="pathname"
+        
+        label="yrunz"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
+
+<style>
+    .utterances {
+        max-width: unset;
+    }
+</style>
+
+<script>
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
+        }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+        setUtterancesTheme(document.body.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        setUtterancesTheme(e.detail)
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_SVG"></script>
+    <section class="copyright">
+        &copy;
+        
+            2019 -
+        
+        2023 元闰子的邀请
+    </section>
+
+    <section class="powerby">
+        
+
+        <a href="https://beian.miit.gov.cn/">粤ICP备19152659号 | </a>Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.3.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        <br />
+    </section>
+</footer>
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Spark SQL on 元闰子的邀请</title>
+    <link>https://www.yrunz.com/tags/spark-sql/</link>
+    <description>Recent content in Spark SQL on 元闰子的邀请</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 03 Jul 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://www.yrunz.com/tags/spark-sql/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>深入理解 SQL 中的 Grouping Sets 语句</title>
+      <link>https://www.yrunz.com/p/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3-sql-%E4%B8%AD%E7%9A%84-grouping-sets-%E8%AF%AD%E5%8F%A5/</link>
+      <pubDate>Sun, 03 Jul 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3-sql-%E4%B8%AD%E7%9A%84-grouping-sets-%E8%AF%AD%E5%8F%A5/</guid>
+      <description>前言 SQL 中 Group By 语句大家都很熟悉，根据指定的规则对数据进行分组，常常和聚合函数一起使用。
+比如，考虑有表 dealer，表中数据如下：
+   id (Int) city (String) car_model (String) quantity (Int)     100 Fremont Honda Civic 10   100 Fremont Honda Accord 15   100 Fremont Honda CRV 7   200 Dublin Honda Civic 20   200 Dublin Honda Accord 10   200 Dublin Honda CRV 3   300 San Jose Honda Civic 5   300 San Jose Honda Accord 8    如果执行 SQL 语句 SELECT id, sum(quantity) FROM dealer GROUP BY id ORDER BY id，会得到如下结果：</description>
+    </item>
+    
+  </channel>
+</rss>

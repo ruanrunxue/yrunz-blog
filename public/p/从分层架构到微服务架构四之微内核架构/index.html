@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='《从分层架构到微服务架构》是一系列介绍《Fundamentals of Software Architecture》中提到的8种架构模式的文章，这里不会事无巨细地介绍所有的细节，而是会挑选其中关键内容，更多详情请阅读原书。
+往期精彩：
+ 从分层架构到微服务架构（一） 从分层架构到微服务架构（二）之分层架构 从分层架构到微服务架构（三）之管道架构   前言 微内核架构（Microkernel Architecture），也被称为插件式架构（plug-in architecture），作为一个在几十年前就被创建出来的架构模式，它如今仍然被广泛应用在各个领域中。比如在Web浏览器领域，谷歌的Chrome浏览器之所以被认为功能强大，一个很重要的原因是它有着丰富的插件类型；在开发工具领域，微软的VS Code初始安装后还只是个简单的文本编辑器，但用户可以安装各种插件，从而让它摇身一变成为功能强大的IDE。
+Chrome和VS Code都是微内核架构的典型应用例子，它们提供一个具备最基础能力的核心系统，并定义好插件的开发接口。至于需要开发或安装哪种类型的插件，则完全由普通开发者和用户决定，这样的设计让系统具备了极强的可定制化和可扩展能力。
+架构视图 微内核架构由以下两部分组成：核心系统（core system）和插件（plug-in component），将应用系统的业务逻辑拆分成核心系统和插件，能够提供很好的可扩展性和灵活性，极大地方便了后续需求的新增和修改。
+核心系统 核心系统通常只需提供能够支撑整个系统正常运行的基本功能，比如前文所举的VS Code例子，用户初始安装的是VS Code的核心系统，它只是一个提供了打开文件、编辑文件内容和保存文件等基本功能的文本编辑器，其他的扩展功能（如语法检查）都是通过安装插件集成的。将复杂的业务逻辑从核心系统中剥离出来，并通过插件实现，能够提升系统的可扩展性和可维护性。同时，因为复杂的功能都成了互不干扰的插件，系统的可测性也得到了提高。
+考虑现在需要实现一个电子设备回收系统，在回收之前，每种型号的手机设备的回收流程都不一样，那么我们可以这样去实现：
+public void assessDevice(String deviceID) { if (deviceID.equals(&amp;#34;iPhone6s&amp;#34;)) { assessiPhone6s(); } else if (deviceID.equals(&amp;#34;iPad1&amp;#34;)) assessiPad1(); } else if (deviceID.equals(&amp;#34;Galaxy5&amp;#34;)) assessGalaxy5(); } else ... ... } } 如果我们把assessDevice看成是核心系统，那么后面每次新增一个型号的手机，都需要新增一个if分支，也即对核心系统进行了改动。这样的设计会导致核心系统非常地脆弱，正所谓改的越多，出问题的概率也越大。
+比起这种将所有的可定制业务逻辑放在核心系统上的设计，更好的应该是将它们实现为插件的形式，这样不仅每个设备回收逻辑都解耦了，还提供了强大的可扩展性：添加一个新的回收设备类型，只需新增一种插件即可，核心系统无需变动。
+public void assessDevice(String deviceID) { String plugin = pluginRegistry.get(deviceID); DevicePlugin devicePlugin = (DevicePlugin)constructor.newInstance(); DevicePlugin.assess(); } 微内核架构在实现时通常都结合了其他架构模式，这主要体现在核心系统的设计上，比如根据具体的业务特点，我们可以将核心系统设计成technically partitioned的分层架构，或者是domain partitioned的模块化架构。'><title>从分层架构到微服务架构（四）之微内核架构</title>
+
+<link rel='canonical' href='https://www.yrunz.com/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E5%9B%9B%E4%B9%8B%E5%BE%AE%E5%86%85%E6%A0%B8%E6%9E%B6%E6%9E%84/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='从分层架构到微服务架构（四）之微内核架构'>
+<meta property='og:description' content='《从分层架构到微服务架构》是一系列介绍《Fundamentals of Software Architecture》中提到的8种架构模式的文章，这里不会事无巨细地介绍所有的细节，而是会挑选其中关键内容，更多详情请阅读原书。
+往期精彩：
+ 从分层架构到微服务架构（一） 从分层架构到微服务架构（二）之分层架构 从分层架构到微服务架构（三）之管道架构   前言 微内核架构（Microkernel Architecture），也被称为插件式架构（plug-in architecture），作为一个在几十年前就被创建出来的架构模式，它如今仍然被广泛应用在各个领域中。比如在Web浏览器领域，谷歌的Chrome浏览器之所以被认为功能强大，一个很重要的原因是它有着丰富的插件类型；在开发工具领域，微软的VS Code初始安装后还只是个简单的文本编辑器，但用户可以安装各种插件，从而让它摇身一变成为功能强大的IDE。
+Chrome和VS Code都是微内核架构的典型应用例子，它们提供一个具备最基础能力的核心系统，并定义好插件的开发接口。至于需要开发或安装哪种类型的插件，则完全由普通开发者和用户决定，这样的设计让系统具备了极强的可定制化和可扩展能力。
+架构视图 微内核架构由以下两部分组成：核心系统（core system）和插件（plug-in component），将应用系统的业务逻辑拆分成核心系统和插件，能够提供很好的可扩展性和灵活性，极大地方便了后续需求的新增和修改。
+核心系统 核心系统通常只需提供能够支撑整个系统正常运行的基本功能，比如前文所举的VS Code例子，用户初始安装的是VS Code的核心系统，它只是一个提供了打开文件、编辑文件内容和保存文件等基本功能的文本编辑器，其他的扩展功能（如语法检查）都是通过安装插件集成的。将复杂的业务逻辑从核心系统中剥离出来，并通过插件实现，能够提升系统的可扩展性和可维护性。同时，因为复杂的功能都成了互不干扰的插件，系统的可测性也得到了提高。
+考虑现在需要实现一个电子设备回收系统，在回收之前，每种型号的手机设备的回收流程都不一样，那么我们可以这样去实现：
+public void assessDevice(String deviceID) { if (deviceID.equals(&amp;#34;iPhone6s&amp;#34;)) { assessiPhone6s(); } else if (deviceID.equals(&amp;#34;iPad1&amp;#34;)) assessiPad1(); } else if (deviceID.equals(&amp;#34;Galaxy5&amp;#34;)) assessGalaxy5(); } else ... ... } } 如果我们把assessDevice看成是核心系统，那么后面每次新增一个型号的手机，都需要新增一个if分支，也即对核心系统进行了改动。这样的设计会导致核心系统非常地脆弱，正所谓改的越多，出问题的概率也越大。
+比起这种将所有的可定制业务逻辑放在核心系统上的设计，更好的应该是将它们实现为插件的形式，这样不仅每个设备回收逻辑都解耦了，还提供了强大的可扩展性：添加一个新的回收设备类型，只需新增一种插件即可，核心系统无需变动。
+public void assessDevice(String deviceID) { String plugin = pluginRegistry.get(deviceID); DevicePlugin devicePlugin = (DevicePlugin)constructor.newInstance(); DevicePlugin.assess(); } 微内核架构在实现时通常都结合了其他架构模式，这主要体现在核心系统的设计上，比如根据具体的业务特点，我们可以将核心系统设计成technically partitioned的分层架构，或者是domain partitioned的模块化架构。'>
+<meta property='og:url' content='https://www.yrunz.com/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E5%9B%9B%E4%B9%8B%E5%BE%AE%E5%86%85%E6%A0%B8%E6%9E%B6%E6%9E%84/'>
+<meta property='og:site_name' content='元闰子的邀请'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='架构' /><meta property='article:tag' content='读书笔记' /><meta property='article:tag' content='从分层架构到微服务架构' /><meta property='article:published_time' content='2021-04-23T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2021-04-23T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="从分层架构到微服务架构（四）之微内核架构">
+<meta name="twitter:description" content="《从分层架构到微服务架构》是一系列介绍《Fundamentals of Software Architecture》中提到的8种架构模式的文章，这里不会事无巨细地介绍所有的细节，而是会挑选其中关键内容，更多详情请阅读原书。
+往期精彩：
+ 从分层架构到微服务架构（一） 从分层架构到微服务架构（二）之分层架构 从分层架构到微服务架构（三）之管道架构   前言 微内核架构（Microkernel Architecture），也被称为插件式架构（plug-in architecture），作为一个在几十年前就被创建出来的架构模式，它如今仍然被广泛应用在各个领域中。比如在Web浏览器领域，谷歌的Chrome浏览器之所以被认为功能强大，一个很重要的原因是它有着丰富的插件类型；在开发工具领域，微软的VS Code初始安装后还只是个简单的文本编辑器，但用户可以安装各种插件，从而让它摇身一变成为功能强大的IDE。
+Chrome和VS Code都是微内核架构的典型应用例子，它们提供一个具备最基础能力的核心系统，并定义好插件的开发接口。至于需要开发或安装哪种类型的插件，则完全由普通开发者和用户决定，这样的设计让系统具备了极强的可定制化和可扩展能力。
+架构视图 微内核架构由以下两部分组成：核心系统（core system）和插件（plug-in component），将应用系统的业务逻辑拆分成核心系统和插件，能够提供很好的可扩展性和灵活性，极大地方便了后续需求的新增和修改。
+核心系统 核心系统通常只需提供能够支撑整个系统正常运行的基本功能，比如前文所举的VS Code例子，用户初始安装的是VS Code的核心系统，它只是一个提供了打开文件、编辑文件内容和保存文件等基本功能的文本编辑器，其他的扩展功能（如语法检查）都是通过安装插件集成的。将复杂的业务逻辑从核心系统中剥离出来，并通过插件实现，能够提升系统的可扩展性和可维护性。同时，因为复杂的功能都成了互不干扰的插件，系统的可测性也得到了提高。
+考虑现在需要实现一个电子设备回收系统，在回收之前，每种型号的手机设备的回收流程都不一样，那么我们可以这样去实现：
+public void assessDevice(String deviceID) { if (deviceID.equals(&amp;#34;iPhone6s&amp;#34;)) { assessiPhone6s(); } else if (deviceID.equals(&amp;#34;iPad1&amp;#34;)) assessiPad1(); } else if (deviceID.equals(&amp;#34;Galaxy5&amp;#34;)) assessGalaxy5(); } else ... ... } } 如果我们把assessDevice看成是核心系统，那么后面每次新增一个型号的手机，都需要新增一个if分支，也即对核心系统进行了改动。这样的设计会导致核心系统非常地脆弱，正所谓改的越多，出问题的概率也越大。
+比起这种将所有的可定制业务逻辑放在核心系统上的设计，更好的应该是将它们实现为插件的形式，这样不仅每个设备回收逻辑都解耦了，还提供了强大的可扩展性：添加一个新的回收设备类型，只需新增一种插件即可，核心系统无需变动。
+public void assessDevice(String deviceID) { String plugin = pluginRegistry.get(deviceID); DevicePlugin devicePlugin = (DevicePlugin)constructor.newInstance(); DevicePlugin.assess(); } 微内核架构在实现时通常都结合了其他架构模式，这主要体现在核心系统的设计上，比如根据具体的业务特点，我们可以将核心系统设计成technically partitioned的分层架构，或者是domain partitioned的模块化架构。">
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "light");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/yrz_hudc7c8721ecce4b724df5002339c76402_174377_300x0_resize_box_2.png" width="300"
+                            height="306" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://www.yrunz.com">元闰子的邀请</a></h1>
+        <h2 class="site-description">阅读、写作、生活（个人技术分享）</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>首页</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>博客</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%85%B3%E4%BA%8E%E5%85%83%E9%97%B0%E5%AD%90/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24"
+     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+     stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z"/>
+    <circle cx="12" cy="7" r="4"/>
+    <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/>
+</svg>
+
+                
+                <span>关于元闰子</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%8F%8B%E6%83%85%E9%93%BE%E6%8E%A5/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-friends" width="44" height="44"
+     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+    <circle cx="7" cy="5" r="2"/>
+    <path d="M5 22v-5l-1 -1v-4a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4l-1 1v5"/>
+    <circle cx="17" cy="5" r="2"/>
+    <path d="M15 22v-4h-2l2 -6a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1l2 6h-2v4"/>
+</svg>
+
+                
+                <span>友情链接</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>暗色模式</span>
+            </li>
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://www.yrunz.com" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E6%9E%B6%E6%9E%84/" >
+                架构
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E5%9B%9B%E4%B9%8B%E5%BE%AE%E5%86%85%E6%A0%B8%E6%9E%B6%E6%9E%84/">从分层架构到微服务架构（四）之微内核架构</a>
+    </h2>
+
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Apr 23, 2021</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <blockquote>
+<p>《从分层架构到微服务架构》是一系列介绍<a class="link" href="https://learning.oreilly.com/library/view/fundamentals-of-software/9781492043447/"  target="_blank" rel="noopener"
+    >《Fundamentals of Software Architecture》</a>中提到的8种架构模式的文章，这里不会事无巨细地介绍所有的细节，而是会挑选其中关键内容，更多详情请阅读原书。</p>
+<p>往期精彩：</p>
+<ul>
+<li><a class="link" href="https://mp.weixin.qq.com/s/6BvsfzDKeVI7_DyNj5gPvA"  target="_blank" rel="noopener"
+    >从分层架构到微服务架构（一）</a></li>
+<li><a class="link" href="https://mp.weixin.qq.com/s/upSALrwyzE_qhtMZRDRLUg"  target="_blank" rel="noopener"
+    >从分层架构到微服务架构（二）之分层架构</a></li>
+<li><a class="link" href="https://mp.weixin.qq.com/s/rw1r53GXmvzFLEDrYKKCxQ"  target="_blank" rel="noopener"
+    >从分层架构到微服务架构（三）之管道架构</a></li>
+</ul>
+</blockquote>
+<h2 id="前言">前言</h2>
+<p><strong>微内核架构</strong>（Microkernel Architecture），也被称为<strong>插件式架构</strong>（plug-in architecture），作为一个在几十年前就被创建出来的架构模式，它如今仍然被广泛应用在各个领域中。比如在Web浏览器领域，谷歌的Chrome浏览器之所以被认为功能强大，一个很重要的原因是它有着丰富的插件类型；在开发工具领域，微软的VS Code初始安装后还只是个简单的文本编辑器，但用户可以安装各种插件，从而让它摇身一变成为功能强大的IDE。</p>
+<p>Chrome和VS Code都是微内核架构的典型应用例子，它们提供一个具备最基础能力的核心系统，并定义好插件的开发接口。至于需要开发或安装哪种类型的插件，则完全由普通开发者和用户决定，这样的设计让系统<strong>具备了极强的可定制化和可扩展能力</strong>。</p>
+<h2 id="架构视图">架构视图</h2>
+<p>微内核架构由以下两部分组成：<strong>核心系统</strong>（core system）和<strong>插件</strong>（plug-in component），<strong>将应用系统的业务逻辑拆分成核心系统和插件，能够提供很好的可扩展性和灵活性，极大地方便了后续需求的新增和修改</strong>。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gpoprso01mj31180l977g.jpg" alt="微内核架构架构视图"  /></p>
+<h3 id="核心系统">核心系统</h3>
+<p><strong>核心系统通常只需提供能够支撑整个系统正常运行的基本功能</strong>，比如前文所举的VS Code例子，用户初始安装的是VS Code的核心系统，它只是一个提供了打开文件、编辑文件内容和保存文件等基本功能的文本编辑器，其他的扩展功能（如语法检查）都是通过安装插件集成的。<strong>将复杂的业务逻辑从核心系统中剥离出来，并通过插件实现，能够提升系统的可扩展性和可维护性</strong>。同时，因为复杂的功能都成了互不干扰的插件，系统的可测性也得到了提高。</p>
+<p>考虑现在需要实现一个电子设备回收系统，在回收之前，每种型号的手机设备的回收流程都不一样，那么我们可以这样去实现：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kt">void</span> <span class="nf">assessDevice</span><span class="o">(</span><span class="n">String</span> <span class="n">deviceID</span><span class="o">)</span> <span class="o">{</span>
+   <span class="k">if</span> <span class="o">(</span><span class="n">deviceID</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="s">&#34;iPhone6s&#34;</span><span class="o">))</span> <span class="o">{</span>
+      <span class="n">assessiPhone6s</span><span class="o">();</span>
+   <span class="o">}</span> <span class="k">else</span> <span class="k">if</span> <span class="o">(</span><span class="n">deviceID</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="s">&#34;iPad1&#34;</span><span class="o">))</span>
+      <span class="n">assessiPad1</span><span class="o">();</span>
+   <span class="o">}</span> <span class="k">else</span> <span class="k">if</span> <span class="o">(</span><span class="n">deviceID</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="s">&#34;Galaxy5&#34;</span><span class="o">))</span>
+      <span class="n">assessGalaxy5</span><span class="o">();</span>
+   <span class="o">}</span> <span class="k">else</span> <span class="o">...</span>
+      <span class="o">...</span>
+   <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div><p>如果我们把<code>assessDevice</code>看成是核心系统，那么后面每次新增一个型号的手机，都需要新增一个<code>if</code>分支，也即对核心系统进行了改动。这样的设计会导致核心系统非常地脆弱，正所谓<strong>改的越多，出问题的概率也越大</strong>。</p>
+<p>比起这种将所有的可定制业务逻辑放在核心系统上的设计，更好的应该是将它们实现为插件的形式，这样不仅每个设备回收逻辑都解耦了，还提供了强大的可扩展性：添加一个新的回收设备类型，只需新增一种插件即可，核心系统无需变动。</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kt">void</span> <span class="nf">assessDevice</span><span class="o">(</span><span class="n">String</span> <span class="n">deviceID</span><span class="o">)</span> <span class="o">{</span>
+  <span class="n">String</span> <span class="n">plugin</span> <span class="o">=</span> <span class="n">pluginRegistry</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">deviceID</span><span class="o">);</span>
+	<span class="n">DevicePlugin</span> <span class="n">devicePlugin</span> <span class="o">=</span>
+		<span class="o">(</span><span class="n">DevicePlugin</span><span class="o">)</span><span class="n">constructor</span><span class="o">.</span><span class="na">newInstance</span><span class="o">();</span>
+	<span class="n">DevicePlugin</span><span class="o">.</span><span class="na">assess</span><span class="o">();</span>
+<span class="o">}</span>
+</code></pre></div><p><strong>微内核架构在实现时通常都结合了其他架构模式</strong>，这主要体现在核心系统的设计上，比如根据具体的业务特点，我们可以将核心系统设计成<strong>technically partitioned</strong>的分层架构，或者是<strong>domain partitioned</strong>的模块化架构。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gpoqkw57g1j30u013613f.jpg" alt="核心系统的架构设计"  /></p>
+<h3 id="插件">插件</h3>
+<p><strong>插件就是一些包含了定制化业务逻辑、扩展功能、附加功能的独立组件，用于扩充核心系统的功能</strong>。插件之间是独立的，插件与核心系统之间则一般是“点对点”通信：核心系统通过调用插件提供的接口（比如插件类的方法）使用扩展功能。</p>
+<p>插件可以划分为编译时插件和运行时插件两种类型，前者每次变更都需要重新构建和部署整个系统，但实现较为简单；后者则可以在系统运行时进行插件的新增和删除操作，相对地，实现也较为复杂。</p>
+<h4 id="编译时插件">编译时插件</h4>
+<p>在编译时插件中，插件通常以package或namespace实现，比如在package中可以以这样的命名规则来区分插件：<code>app.plug-in.&lt;domain&gt;.&lt;context&gt;</code>。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gporg961wpj31180lnq6n.jpg" alt="编译时插件实现"  /></p>
+<h4 id="运行时插件">运行时插件</h4>
+<p>运行时插件中插件的实现通常是动态库的形式，比如<code>.jar</code> 、<code>.so</code>、<code>.dll</code>文件。在上述的设备回收系统的例子中，每种型号的手机设备回收逻辑包含在一个独立的<code>.jar</code>文件中：</p>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gporn2vykfj31180m0tc0.jpg" alt="运行时插件实现"  /></p>
+<h4 id="远端插件">远端插件</h4>
+<p>当然，插件和核心系统并非只能通过本地接口调用进行通信，还可以采用REST/消息队列/RPC等方式，这种场景下，插件就变成了一个独立部署的服务。远程插件具备运行时插件的特点，而且能够提供更好的scalability：<strong>插件和核心系统甚至都不必使用相同的技术栈实现，只需遵守既定的REST接口即可</strong>。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gporq3q2h1j313v0gn0vr.jpg" alt="远端插件"  /></p>
+<p><strong>为了提升系统处理请求的responsiveness，我们还可以将核心系统调用插件的过程实现为异步通信</strong>。以前文的电子设备回收系统为例，在异步通信的架构下，系统通过一个线程触发插件启动对某个设备的回收流程。之后，该线程无需一直等待回收结束，它可以去继续回收别的设备。当设备回收结束后，插件会通过异步队列告知核心系统。这样的异步设计可以减少无谓的等待流程，明显改善系统的responsiveness。</p>
+<p><strong>如果涉及到读写数据库，为了能够维持插件的独立性，每个插件最好能够拥有独立的数据库</strong>。如果插件间有着无可避免的数据交互，则可以为核心系统配置一个中心数据库，并通过它来进行数据中转。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gppx7nkidfj312q0kpwi5.jpg" alt="插件的的独立数据库"  /></p>
+<h2 id="插件中心">插件中心</h2>
+<p>核心系统在加载插件前，必须得知道<em>当前有哪些可用的插件</em>，以及<em>这些插件在哪里可以获取</em>。这要求系统有一个地方去管理插件，这就是<strong>插件中心</strong>（plug-in registry）的功能。插件中心类似于服务化架构中服务注册中心的作用，它保存了所有插件的基本信息，包括名称、数据契约、通信协议、加载地址等。</p>
+<p>我们可以简单地将插件中心实现为一个本地的<code>map</code>表，其中key可以是插件名称，value为获取插件的地址：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">registry</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashMap</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;();</span>
+<span class="kd">static</span> <span class="o">{</span>
+  <span class="c1">//point-to-point access example
+</span><span class="c1"></span>  <span class="n">registry</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;iPhone6s&#34;</span><span class="o">,</span> <span class="s">&#34;Iphone6sPlugin&#34;</span><span class="o">);</span>
+
+  <span class="c1">//messaging example
+</span><span class="c1"></span>  <span class="n">registry</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;iPhone6s&#34;</span><span class="o">,</span> <span class="s">&#34;iphone6s.queue&#34;</span><span class="o">);</span>
+
+  <span class="c1">//restful example
+</span><span class="c1"></span>  <span class="n">registry</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&#34;iPhone6s&#34;</span><span class="o">,</span> <span class="s">&#34;https://atlas:443/assess/iphone6s&#34;</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre></div><p>为了实现一些较为复杂的功能，如插件上下线通知等，我们还可以借助Apache ZooKeeper、ETCD这类的分布式协同系统实现<strong>远程插件中心</strong>。</p>
+<h2 id="通信契约">通信契约</h2>
+<p><strong>通信契约</strong>定义了插件与核心系统之间的通信方式、交互行为和数据格式。通信方式可以是本地接口调用、REST、RPC、消息队列等；交互行为则可以理解为插件对核心系统提供的接口，比如本地的函数/方法、REST的URI等；对本地插件而言，数据格式通常是一个类/结构体，对远程插件而言，常用的数据格式有JSON、XML、ProtoBuf等。</p>
+<p>考虑电子设备回收系统的例子，系统有着如下定义的通信契约：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">interface</span> <span class="nc">AssessmentPlugin</span> <span class="o">{</span>
+  <span class="c1">// 回收设备流程
+</span><span class="c1"></span>	<span class="kd">public</span> <span class="n">AssessmentOutput</span> <span class="nf">assess</span><span class="o">();</span>
+  <span class="c1">// 将该插件注册到插件中心
+</span><span class="c1"></span>	<span class="kd">public</span> <span class="n">String</span> <span class="nf">register</span><span class="o">();</span>
+  <span class="c1">// 从插件中心去注册
+</span><span class="c1"></span>	<span class="kd">public</span> <span class="n">String</span> <span class="nf">deregister</span><span class="o">();</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">AssessmentOutput</span> <span class="o">{</span>
+  <span class="c1">// 回收报告，仅仅用于展示结构给用户看，核心系统无需了解该格式
+</span><span class="c1"></span>	<span class="kd">public</span> <span class="n">String</span> <span class="n">assessmentReport</span><span class="o">;</span>
+  <span class="c1">// 用于标识该设备是否可以在二手市场上重新售卖
+</span><span class="c1"></span>	<span class="kd">public</span> <span class="n">Boolean</span> <span class="n">resell</span><span class="o">;</span>
+  <span class="c1">// 表示该设备的价值
+</span><span class="c1"></span>	<span class="kd">public</span> <span class="n">Double</span> <span class="n">value</span><span class="o">;</span>
+  <span class="c1">// 表示推荐的售卖价格
+</span><span class="c1"></span>	<span class="kd">public</span> <span class="n">Double</span> <span class="n">resellPrice</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div><p>从该契约定义中可以看出，通信方式为本地接口调用（<code>AssessmentPlugin</code>接口）；它有着3个交互行为，<code>assess()</code>为回收设备流程、<code>register()</code>表示将该插件注册到插件中心、<code>deregister</code>表示去注册；数据格式则是<code>AssessmentOutput</code>类，它定义了回收流程的结果。</p>
+<h2 id="架构评分">架构评分</h2>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNgy1gps84zcshgj30u00xwq9x.jpg" alt="微内核架构的架构评分"  /></p>
+<p>和之前介绍的分层架构、管道架构一样，微内核架构同样属于单体架构，因此Simplicity和Overall cost是该架构模式主要优势；而Elasticity、Fault tolerance和Scalability是主要劣势。</p>
+<p>另外，微内核架构的Testability、Deployability、Reliability、Modularity之所以能够取得3颗星，得益于不同的功能能够被拆分至独立的插件上，特别地，运行时插件的增删无需重新部署系统。<strong>这使得系统能够快速响应需求变更，具备很高的扩展性</strong>。比如对于前面的电子设备回收系统，如果需要新增一种新的电子设备回收流程，只需新增一个插件即可；如果某种设备不再需要回收，则去除对应插件即可。</p>
+<p>微内核架构比较特别的一点是，它既可以是technically partitioned，也可以是domain partitioned，这取决于核心系统的实现方式，前文也有介绍。</p>
+<h2 id="总结">总结</h2>
+<p>Robert C.Martin曾经说过，<strong>软件开发技术发展的历史就是一个如何想方设法方便地增加插件，从而构建一个可扩展、可维护的系统架构的故事</strong>。在敏捷开发的潮流之下，需求的变更如同家常便饭，系统不应该因为某一部分发生变更从而导致其他不相关的部分出现问题。将系统设计为微内核架构，就等于构建起了一面变更无法逾越的防火墙，插件发生的变更就不会影响系统的核心业务逻辑。</p>
+<p><strong>微内核架构的设计思想，能够极大提升系统的可扩展性和健壮性</strong>，在其他的一些软件方法论里，我们也隐约能看到它的影子。比如在领域驱动设计中，<strong>领域层</strong>就相当于核心系统，它定义了系统的核心业务逻辑；<strong>基础设施层</strong>则相当于插件，切换不同的基础设施并不会影响系统的业务逻辑，这得益于基础设施层<strong>依赖倒置</strong>的设计原则。</p>
+<p>当然，作为微内核架构也有着一些缺点，它天然具备了单体架构的一些劣势，比如核心系统作为架构的中心节点并不具备Fault tolerance能力。因此，该架构模式往往被广泛应用于一些着重提供很强的用户定制化功能的小型产品，如VS Code等，它们对系统的Elasticity、Fault tolerance和Scalability并没有很高的要求。</p>
+<p><em>每种架构模式都有其合适的应用场景，只有熟悉常用的几种架构模式，才能设计出更好的软件系统。下一篇文章，我们将继续介绍<strong>面向服务的架构</strong>。</em></p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/%E6%9E%B6%E6%9E%84/">架构</a>
+        
+            <a href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">读书笔记</a>
+        
+            <a href="/tags/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84/">从分层架构到微服务架构</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>CC BY 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E4%BA%94%E4%B9%8B%E6%9C%8D%E5%8A%A1%E5%8C%96%E6%9E%B6%E6%9E%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">从分层架构到微服务架构（五）之服务化架构</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E4%B8%89%E4%B9%8B%E7%AE%A1%E9%81%93%E6%9E%B6%E6%9E%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">从分层架构到微服务架构（三）之管道架构</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E4%BA%8C%E4%B9%8B%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">从分层架构到微服务架构（二）之分层架构</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E4%B8%80/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">从分层架构到微服务架构（一）</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E5%AE%9E%E7%8E%B0dci%E6%9E%B6%E6%9E%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">实现DCI架构</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+
+    
+        
+    <script src="https://utteranc.es/client.js" 
+        repo="ruanrunxue/yrunz-comments"
+        issue-term="pathname"
+        
+        label="yrunz"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
+
+<style>
+    .utterances {
+        max-width: unset;
+    }
+</style>
+
+<script>
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
+        }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+        setUtterancesTheme(document.body.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        setUtterancesTheme(e.detail)
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_SVG"></script>
+    <section class="copyright">
+        &copy;
+        
+            2019 -
+        
+        2023 元闰子的邀请
+    </section>
+
+    <section class="powerby">
+        
+
+        <a href="https://beian.miit.gov.cn/">粤ICP备19152659号 | </a>Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.3.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        <br />
+    </section>
+</footer>
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

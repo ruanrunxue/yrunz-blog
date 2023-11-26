@@ -1,0 +1,1335 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on 元闰子的邀请</title>
+    <link>https://www.yrunz.com/post/</link>
+    <description>Recent content in Posts on 元闰子的邀请</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 25 Nov 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://www.yrunz.com/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>【Go实现】实践GoF的23种设计模式：备忘录模式</title>
+      <link>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%A4%87%E5%BF%98%E5%BD%95%E6%A8%A1%E5%BC%8F/</link>
+      <pubDate>Sat, 25 Nov 2023 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%A4%87%E5%BF%98%E5%BD%95%E6%A8%A1%E5%BC%8F/</guid>
+      <description>上一篇：【Go实现】实践GoF的23种设计模式：命令模式
+简单的分布式应用系统（示例代码工程）：https://github.com/ruanrunxue/Practice-Design-Pattern&amp;ndash;Go-Implementation
+ 简介 相对于代理模式、工厂模式等设计模式，备忘录模式（Memento）在我们日常开发中出镜率并不高，除了应用场景的限制之外，另一个原因，可能是备忘录模式 UML 结构的几个概念比较晦涩难懂，难以映射到代码实现中。比如 Originator（原发器）和 Caretaker（负责人），从字面上很难看出它们在模式中的职责。
+但从定义来看，备忘录模式又是简单易懂的，GoF 对备忘录模式的定义如下：
+ Without violating encapsulation, capture and externalize an object’s internal state so that the object can be restored to this state later.
+ 也即，在不破坏封装的前提下，捕获一个对象的内部状态，并在该对象之外进行保存，以便在未来将对象恢复到原先保存的状态。
+从定义上看，备忘录模式有几个关键点：封装、保存、恢复。
+对状态的封装，主要是为了未来状态修改或扩展时，不会引发霰弹式修改；保存和恢复则是备忘录模式的主要特点，能够对当前对象的状态进行保存，并能够在未来某一时刻恢复出来。
+现在，在回过头来看备忘录模式的 3 个角色就比较好理解了：
+ Memento（备忘录）：是对状态的封装，可以是 struct ，也可以是 interface。 Originator（原发器）：备忘录的创建者，备忘录里存储的就是 Originator 的状态。 Caretaker（负责人）：负责对备忘录的保存和恢复，无须知道备忘录中的实现细节。  UML 结构 场景上下文 在前文 【Go实现】实践GoF的23种设计模式：命令模式 我们提到，在 简单的分布式应用系统（示例代码工程）中，db 模块用来存储服务注册信息和系统监控数据。其中，服务注册信息拆成了 profiles 和 regions 两个表，在服务发现的业务逻辑中，通常需要同时操作两个表，为了避免两个表数据不一致的问题，db 模块需要提供事务功能:
+事务的核心功能之一是，当其中某个语句执行失败时，之前已执行成功的语句能够回滚，前文我们已经介绍如何基于 命令模式 搭建事务框架，下面我们将重点介绍，如何基于备忘录模式实现失败回滚的功能。
+代码实现 // demo/db/transaction.go package db // Command 执行数据库操作的命令接口，同时也是备忘录接口 // 关键点1：定义Memento接口，其中Exec方法相当于UML图中的SetState方法，调用后会将状态保存至Db中 type Command interface { Exec() error // Exec 执行insert、update、delete命令  Undo() // Undo 回滚命令  setDb(db Db) // SetDb 设置关联的数据库 } // 关键点2：定义Originator，在本例子中，状态都是存储在Db对象中 type Db interface {.</description>
+    </item>
+    
+    <item>
+      <title>《纳瓦尔宝典》：如何获得幸福？</title>
+      <link>https://www.yrunz.com/p/%E7%BA%B3%E7%93%A6%E5%B0%94%E5%AE%9D%E5%85%B8%E5%A6%82%E4%BD%95%E8%8E%B7%E5%BE%97%E5%B9%B8%E7%A6%8F/</link>
+      <pubDate>Sun, 19 Nov 2023 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E7%BA%B3%E7%93%A6%E5%B0%94%E5%AE%9D%E5%85%B8%E5%A6%82%E4%BD%95%E8%8E%B7%E5%BE%97%E5%B9%B8%E7%A6%8F/</guid>
+      <description> 上一篇：《纳瓦尔宝典》：如何积累财富？
+ 你幸福吗？ “你幸福吗？”，看到这个问题，你的第一反应是什么？
+在孩童时候，我们常常会这样说，“我的梦想是&amp;hellip;，然后过上幸福的生活。”，但是，实现了梦想，就真的能获得幸福吗？有人的梦想是开公司做老板，但成为公司老板之后，可能会面临工作压力大、应酬多、陪伴家人时间少等问题，幸福感依然不强。
+所以，幸福到底是什么？我们要做些什么才能真正获得幸福？世俗意义上的成功与幸福是什么样的关系？
+对于这些问题，纳瓦尔有他的理解。
+什么是幸福？ 幸福很难有一个标准的定义，有人认为幸福是欲望得到满足、财富自由；也有人认为幸福是知足常乐、身体健康。
+在纳瓦尔看来，幸福是一种没有缺憾感、无欲无求、活在当下的状态。
+幸福并不是一种客观存在，而是一种主观感受。大自然并没有“幸福”和“不幸福”的概念，它只存在于我们大脑之中，因为我们有了欲望，才会给事物打上“好”和“不好”的标签。
+也因为有了欲望，人们才会深陷于过去的“错误”之中，总想着“要是&amp;hellip;，就好了”；才会对未来的“失败”深深恐惧，总想着“如果&amp;hellip;，那该怎么办”。这让我们长期处于焦虑的状态，从而无法真正感受当下，怎会幸福。
+而当你无欲无求时，自然也就不会悔不当初、不会谋求未来，此时此刻，你的内心会是一片宁静，是满足的，是快乐的，是幸福的。
+如何获得幸福 幸福，不是天生的，与基因无关，而是一种技能，能够通过后天习得的技能。
+就像可以通过锻炼来提高身体素质一样，我们也能通过刻意的练习来提高幸福感，可以尝试这么做：
+ 降低自己的身份感。我们都只是浩瀚宇宙中的一粒尘埃，没那么重要，关注自己就好。 屏蔽脑海中的噪音和杂念、不在乎那些无关紧要的事。人的精力是有限的，想得越多，做得就越少，就越焦虑。 冥想。冥想是锻炼屏蔽杂念能力的一个好方法。 远离郁郁寡欢的人、和快乐知足的人相处。情绪是会传染的，想要获得幸福，就要经常跟幸福的人相处。 珍惜时间。  幸福，需要心境平和、活在当下。
+在任何时候，我们的大脑都只有很小一部分是关注当下的，大部分精力都在规划未来或悔恨过去。比如，在下班的路上，我们可能会想今天的工作怎么又没做好，也可能会想明天的汇报该怎么办，但很少会关注此时此刻走路时身体的状态，或感受周围的环境。
+这样的状态，我们很难获得绝妙的生活体验，无法欣赏身边的一切美好；如果每天都沉浸于过去或未来，那无疑是亲手扼杀自己的幸福。
+要想活在当下，必须要做到心境平和。但是，事情总是一件压着一件，永远有做不完的事，所以焦虑感才会普遍存在。那么，要怎样才能做到心境平和呢？
+纳瓦尔的方法是，不与焦虑对抗，接受这一现实，并不断问自己，“我是想一直执着于这些想法，还是想重获内心的平静？”，答案显而易见。于接受中寻找幸福，是我们必备的技能。
+幸福，源于好习惯。
+孩童时候的我们，幸福感都差不多。然而随着年龄的增长，有些人的幸福感越来越强，而有些人变得越来越不快乐，一个重要的原因就是，两类人群习惯不同。
+好的习惯可能会导致短暂的痛苦，但会带来长期的幸福。比如，少喝酒少吃糖、远离社交媒体，都能提高情绪稳定性；不好的习惯能带来短暂的快感，却会摧毁长期的幸福，比如沉迷电子游戏、抽烟酗酒。
+而幸福生活的本质，就是不断用精心培养的好习惯，去替换那些在不经意间养成的坏习惯。
+成功与幸福 很多人把成功和幸福划上等号，而纳瓦尔则认为两者存在一定的冲突。幸福就是满足现状；而成功源于对现状的不满，是对现在的改造。
+这里纳瓦尔所说的成功，指的是物质上的成功，对此，他是这样的解释的：再好的东西，很快就会习惯，它们无法持续带来刺激或愉快的感觉。人类的本性是贪婪的，普通人追求物质成功的脚步很难停下来，而追逐过程本就是对现状不满的过程。
+所以，不要过度执着于成功，欲望是主动选择的不开心，减少欲望，反而能使幸福感增加。
+最后 每个人对幸福的理解都各有不同；同一个人在不同年龄段，对幸福的理解也会有所差异。
+我们可以参考纳瓦尔的幸福观，并得到一些启发，但更重要的是，探索出此时此刻自己对幸福的定义。
+ 参考 [1] 纳瓦尔宝典，埃里克·乔根森
+[2] 《纳瓦尔宝典》：如何积累财富？，元闰子
+[3] 《认知觉醒》的读后感，元闰子
+更多文章请关注微信公众号：元闰子的邀请
+ </description>
+    </item>
+    
+    <item>
+      <title>《纳瓦尔宝典》：如何积累财富？</title>
+      <link>https://www.yrunz.com/p/%E7%BA%B3%E7%93%A6%E5%B0%94%E5%AE%9D%E5%85%B8%E5%A6%82%E4%BD%95%E7%A7%AF%E7%B4%AF%E8%B4%A2%E5%AF%8C/</link>
+      <pubDate>Sun, 05 Nov 2023 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E7%BA%B3%E7%93%A6%E5%B0%94%E5%AE%9D%E5%85%B8%E5%A6%82%E4%BD%95%E7%A7%AF%E7%B4%AF%E8%B4%A2%E5%AF%8C/</guid>
+      <description>关于《纳瓦尔宝典》 《纳瓦尔宝典》的主角，纳瓦尔·拉维康特，是一名成功的创业者和天使投资人，典型的硅谷大佬。本书收集整理了他的一些智慧箴言，它与记录查理·芒格智慧箴言的《穷查理宝典》有着相似的出发点，给大众传授大师的人生建议。
+从书的副标题“财富与幸福指南”能看出，它的主题是关于如何积累财富和获得幸福人生。《纳瓦尔宝典》并非教你如何投资，而更偏向个人成长。与它类似的，除了前面提到的《穷查理宝典》，还有《认知觉醒》、《财富自由之路》等，都是好书，都值得一读。
+本文主要总结《纳瓦尔宝典》中关于“积累财富”的一些人生建议。
+财富是什么？ 很多人会把“金钱”和“财富”划上等号，但这两者有着本质的区别。纳瓦尔对财富给出了通俗易懂的定义：
+ 财富就是在你睡觉时也可以帮你赚钱的资产
+ 比如可出租的房子、投入生产的工厂、持续工作的计算机程序等，都是常见的财富。
+而金钱只是转移财富的方式，是社会的信用符号，具有调用别人时间的能力。
+大多数人终其一生都在追求财富，我们努力工作、省吃俭用，却仍然没能做到财富自由。
+所以，获得财富跟努力程度没有必然的联系，与埋头苦干相比，更重要的是选择正确的方向。想要获得财富，你必须要知道做什么、怎么做、什么时候做。
+我要做什么？ 这世上，有很多获得财富的成功案例，但并非所有案例都适合你。盲目追求热点，并不会带来财富，关键是找到你的专长。
+ 专长指的是无法通过培训获得的知识。如果社会可以培训你，那么社会也可以培训他人来取代你。
+ 每个人的 DNA 里或多或少都会有一些比大多数人都擅长的东西，我们把它称为，专长和天赋。这是与生俱来的，其他人很难通过社会培训习得，或者需要付出巨大的代价。
+在“成为你自己”这件事上，没人能做得比你好，
+专长能带来差异化的竞争力，而你要做的，就是要持续地扩大你的优势，彻底一骑绝尘。
+识别自己的专长并不容易，这需要对自身有一个全面的了解，可以尝试这样：
+ 从儿童时代开始回顾，找到那些别人要很努力，而你却毫无费劲就能完成的事。 从自己的兴趣中寻找，不是三分钟热度，而是你愿意为之付出一辈子的事。  我要怎么做？ 杠杆效应  给我一个支点，我可以翘起整个地球。 —— 阿基米德
+ 当你找到自己的专长后，下一步就是，利用杠杆效应把专长规模化。一般来说，杠杆有 3 种：
+  劳动力杠杆，也即让别人给你打工。这是最古老的一种杠杆，但在现代社会中最低效。人员管理是一件极其复杂、极具挑战的工作，需要高超的领导技巧。
+  资本杠杆，也即利用今钱来扩大影响力。这是一种更现代的杠杆，虽然也需要一定的技巧，但管理资本要比管理人简单得多。但前提是，有钱。
+  复制边际成本为零的产品（下文统称新型杠杆），这是最新出现的一种杠杆，也是普通人最能触及的，并且借助互联网能够产生爆发式的增长，比如，书籍、媒体、代码。
+  使用劳动力杠杆需要有人追随你；使用资本杠杆需要资金；使用新型杠杆只需一台电脑或手机，而且无须经过他人的许可。
+其中，代码是最强大的一种杠杆，只需运行一台计算机就够了。并且，随着 SaaS 愈发成熟，普通人利用代码来规模化产品也变得愈发简单。
+复利效应  复利是世界第八大奇迹。知之者赚、不知之者被赚。—— 爱因斯坦
+ 复利不仅仅适用于金融领域，在知识、经验、专长等方面，只要能积累的东西，都能产生复利效应。
+明确了杠杆后，下一步就是相信复利效应，坚持、坚持、再坚持。没有一夜暴富，成功需要时间，需要你对自己热爱的事物孜孜不倦，需要你的专长不断精进，需要你相信时间的力量。
+我要什么时候做？ 答案只有一个，现在！
+财富是人生的终极目标吗？ 财富不是人生的终极目标，幸福才是。财富只是通往幸福的一种工具，两者不能划等号，富豪的幸福感不见得一定比普通人的强。相比学习如何获得财富，其实，我们更应该学习如何获得幸福。
+下一篇，我们将总结纳瓦尔关于如何获得幸福的建议。
+文章配图 可以在 用Keynote画出手绘风格的配图 中找到文章的绘图方法。
+ 参考 [1] 纳瓦尔宝典，埃里克·乔根森</description>
+    </item>
+    
+    <item>
+      <title>2022 年小结</title>
+      <link>https://www.yrunz.com/p/2022-%E5%B9%B4%E5%B0%8F%E7%BB%93/</link>
+      <pubDate>Mon, 23 Jan 2023 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/2022-%E5%B9%B4%E5%B0%8F%E7%BB%93/</guid>
+      <description>我想，2022 年的关键字，是“变”，工作、生活、心态都在变。人，总是趋于稳定；然而，变，才是生命中的主旋律。变化来临时，我们通常会经历阻力、挫折、迷茫，如何面对这些，将人分成了不同的样子。有人迷失自我、随波逐流；有人保持初心、逆风前行。
+薛定谔说，“人活着就是在对抗熵增定律，生命以负熵为生。”
+但是，在变化中保持不变的初心，很难。自问在过去的一年里·做到了吗？有点，但不多。2022 年也曾迷茫过，所幸每次都能调整回来，阅读、写作、生活，一直都在。
+阅读 2022 年读过的书不多，读完的，也才一半。
+最近一直在反思，人的精力是有限的，但书是无尽的；不同的书、同一本书的不同章节，质量也参差不齐。这种情况下，选择读什么、怎么读变得尤为重要。最直接地，读经典。但经典也很多、很厚，全部读完，也很难。
+所以，还是要回到根本问题，你为什么要读书？
+个人以为，如果想学习一门技术、弄清楚一个问题，那么可以选读相关章节；如果是想提升人文素养、获得人生感悟，那么还是通读为好。所以，我的阅读策略慢慢调整为，选读技术类书籍，通读人文类书籍。不管那种方式，读书过程中，思考是必不可少的。
+ Computer Systems A Programmers Perspective (3rd edition)，中文名 深入理解计算机系统。CSAPP 不必多说，被誉为计算机必读经典，缺点是，难啃。今年因工作需要，专门把第二章精读了一遍，对数值类型有了更深刻的理解，还写了总结 深入理解计算机系统的数值类型。 Database System Concepts (7th edithion)，中文名 数据库系统概念。数据库领域的经典，值得通读，结合 CMU 的公开课更佳，目前只读到了第四章。 Clean Agile: Back to Basics，中文名 敏捷整洁之道。Martin 大叔继 代码整洁之道、架构整洁之道 之后的又一力作，介绍软件敏捷开发的流程。印象最深的一点是，项目管理是一个在 Good、Fast、Cheap、Done 之间 trade-off 的过程，四者只能满足其三，比如，想要在人力投入有限的情况下，快速完成需求交付，就必须牺牲软件的质量。 API Design Patterns，可以看成是 Google APIs 设计规范的详细版，对从事平台框架、微服务开发的同学很有帮助。 大数据处理框架 Apache Spark 设计与实现，对 Spark 的设计和实现原理都介绍得很清楚，做到了深入浅出，看完会对 Spark 有一个系统的认识。要是能够结合源码就更好了。 Spark SQL 内核剖析，读了前几章，算是 Spark 源码剖析类书籍里面讲的比较好的了，但对新手不友好，也可能是 Spark 太过博大精深了。 Trino: The Definitive Guide，可作为 Trino 的入门书籍，比较全，但很浅。Trino 是一个开源分布式 SQL 查询引擎，主打低时延和跨源查询，由 Facebook 开源的 Presto 演进而来。 Scala 编程（第三版），因工作需要在 Spark 上做开发，专门找来补 Scala 的知识，粗粗扫一遍。感受是，Scala 的语法糖真多。   棋王，阿城作品，包含了《棋王》、《树王》、《孩子王》三篇中篇小说，总结成一句话： 故事好、文字好。《棋王》最出名，关于“棋痴”王一生的故事，最后的九人车轮战，很有武侠风；《树王》最写实，两个“树王”，殊途同归；《孩子王》最童真，也是我最喜欢的一篇，探讨了教育问题，读完忍不住买了一本新华字典，想着每天学习几个字，最终没能坚持下来。 威尼斯日记、阿城文集之二，读完棋王，又专门找了两本阿城的作品来读。阿城的文字很有画面感，简洁、有力，而且读的过程中会不断惊叹于作者那渊博的知识。 芯片战争，因工作涉及，专门挑了一本关于芯片行业的通识书籍。读的时候会想起吴军的《浪潮之巅》，一本是互联网行业，一本是半导体行业，共同点是，可读性都很强。 极简欧洲史，把欧洲文明的基本要素总结为： 古希腊罗马文化、基督教教义以及日耳曼战士文化，以一个新颖的思路介绍了欧洲历史。印象最深的是，第一次发现，基督教里面的上帝和耶稣竟不是一个人。 人类群星闪耀时，描写了 14 个影响人类文明的历史瞬间，带有较多作者的主观感受。最喜欢的《决定世界的一分钟》，讲述拿破仑在滑铁卢战役上的惨败，记得还出现在初中课本上。 打开：周濂的 100 堂西方哲学课，介绍了从古希腊到近现代的西方哲学发展史，作为哲学入门读物很不错。今年看了不少哲学相关的知识，深感哲学对思维的重要性，它会让你养成思考的习惯。 刘擎西方现代思想讲义，2 年前买的书，没读完；阳的期间重新拿了起来，在发烧的深夜，读了 2 章，竟然神奇的退烧了。  写作 2022 年还算高产，写过的文章，比前两年加起来还多，类别也丰富起来了，技术类、思考类、记事类，都有。但也有很多计划写的，因为太懒、太拖，没完成。表达上，也有所转变，以前会想着，能不能再加点描述，再多点字；现在则是，能不能简洁点，再少点字。</description>
+    </item>
+    
+    <item>
+      <title>【Go实现】实践GoF的23种设计模式：命令模式</title>
+      <link>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%91%BD%E4%BB%A4%E6%A8%A1%E5%BC%8F/</link>
+      <pubDate>Thu, 22 Dec 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%91%BD%E4%BB%A4%E6%A8%A1%E5%BC%8F/</guid>
+      <description>上一篇：【Go实现】实践GoF的23种设计模式：代理模式
+简单的分布式应用系统（示例代码工程）：https://github.com/ruanrunxue/Practice-Design-Pattern&amp;ndash;Go-Implementation
+ 简介 现在的软件系统往往是分层设计。在业务层执行一次请求时，我们很清楚请求的上下文，包括，请求是做什么的、参数有哪些、请求的接收者是谁、返回值是怎样的。相反，基础设施层并不需要完全清楚业务上下文，它只需知道请求的接收者是谁即可，否则就耦合过深了。
+因此，我们需要对请求进行抽象，将上下文信息封装到请求对象里，这其实就是命令模式，而该请求对象就是 Command。
+GoF 对命令模式（Command Pattern）的定义如下：
+ Encapsulate a request as an object, thereby letting you parameterize clients with different requests, queue or log requests, and support undoable operations.
+ 也即，命令模式可将请求转换为一个包含与请求相关的所有信息的对象， 它能将请求参数化、延迟执行、实现 Undo / Redo 操作等。
+上述的请求是广义上的概念，可以是网络请求，也可以是函数调用，更通用地，指一个动作。
+命令模式主要包含 3 种角色：
+ Command，命令，是对请求的抽象。具体的命令实现时，通常会引用 Receiver。 Invoker，请求的发起发起方，它并不清楚 Command 和 Receiver 的实现细节，只管调用命令的接口。 Receiver，请求的接收方。  命令模式，一方面，能够使得 Invoker 与 Receiver 消除彼此之间的耦合，让对象之间的调用关系更加灵活；另一方面，能够很方便地实现延迟执行、Undo、Redo 等操作，因此被广泛应用在软件设计中。
+UML 结构 场景上下文 在 简单的分布式应用系统（示例代码工程）中，db 模块用来存储服务注册信息和系统监控数据。其中，服务注册信息拆成了 profiles 和 regions 两个表，在服务发现的业务逻辑中，通常需要同时操作两个表，为了避免两个表数据不一致的问题，db 模块需要提供事务功能:</description>
+    </item>
+    
+    <item>
+      <title>二阶思维</title>
+      <link>https://www.yrunz.com/p/%E4%BA%8C%E9%98%B6%E6%80%9D%E7%BB%B4/</link>
+      <pubDate>Sun, 20 Nov 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E4%BA%8C%E9%98%B6%E6%80%9D%E7%BB%B4/</guid>
+      <description>事情往往不是你想象的那样，有时候，看似解决了问题，却在不经意间，引发了更严重的后果。帮助我们思考、决策、解决问题的最有效方法是，运用二阶思维。
+什么是二阶思维？  一阶思维是单纯而肤浅的，几乎人人都能做到；二阶思维则是深邃、复杂而迂回的，能做到的人少之又少。
+—— 霍华德·马克斯
+ 我们的每一个行动都会导致一个后果，而每个后果，都会有进一步导致其他的后果。由行动直接导致的后果，我们称为一阶后果（First-Order Consequences）；由一阶后果导致的，二阶、三阶&amp;hellip; 后果，这里，我们统称为二阶后果（Second-Order Consequences）。
+好的一阶后果，不见得会有好的二阶后果，很多时候，它们是反的。
+二阶思维（Second-Order Thinking），简单来说，就是做事情不能只看一阶后果，还要考虑二阶后果。相对于一阶思维，它更强调对问题的深入思考，从逻辑、系统、因果、时间等多种维度来综合考虑。
+霍华德·马克斯在《投资最重要的事》中有举到一个股票投资的例子：
+ 一阶思维的人，会这么想：“公司的前景是光明的，这表示股票会上涨”。
+二阶思维的人，则会考虑到：
+ 未来可能出现的结果会在什么范围之内？ 我认为会出现什么样的结果？ 我正确的概率有多大？ 人们的共识是什么？ 我的预期与人们的共识有多大差异？ 资产的当前价格与大众所认为的未来价格以及我所认为的未来价格相符的程度如何？ 价格中所反映的共识心理是过于乐观，还是过于悲观？ 如果大众的看法是正确的，那么资产价格将会发生怎样的改变？如果我是正确的，那么资产价格又会怎样？   显然，二阶思维与一阶思维之间有着巨大的工作量差异，二阶思维对人的要求更高，实践起来也更复杂。
+二阶思维有什么用？  没有考虑二阶或者三阶后果，是造成众多痛苦而糟糕的决策的重要原因之一。
+—— 雷伊·达里奥
+ 善用二阶思维，能帮助我们更好地决策、更好地找到问题根本从而解决问题。
+更好地决策 以软件开发中需求管理为例。我们总说以客户为中心，那么，一阶思维者的做法，很有可能是，将客户/产品经理所提的每个需求都纳入到版本中。这种不假思索的做法，看似满足了客户的所有诉求，实际危害更大。它忽略了最重要的一点，开发的人力是有限的，从而很容易导致版本无法按时交付。
+更好的方法是，运用二阶思维来进行需求的管理。
+我们可以从多个维度来决策一个需求是否应该被纳入版本，比如，该需求能给客户带来多大的收益？在哪些场景下才有收益？没有它系统能不能正常运行？需求的工作量有多大？当前开发人力能不能满足？
+这样，我们就能大致估算出每个需求的价值，然后对需求做价值的优先排序，最后根据当前的开发人力做需求裁剪。确保在交付时间点到时，我们能够为客户提供一个可用的、价值最大的软件系统。
+更好地找到问题根源 在决策中，我们用的是正向的二阶思维，也即，从眼前一步步往后推演出未来的各种可能性。
+而在找问题根源时，我们用的是逆向的二阶思维，也即，从眼前要解决的问题开始，分析产生这个问题的原因，然后不断扩展、推演，一直找到问题根源。
+比如，在《深入理解计算机系统的数值类型》中，有一个 double 转型为 float 的例子：
+// Java public static void main(String[] args) { double d1 = 3.267393471324506; System.out.print(&amp;#34;double d1: &amp;#34;); System.out.println(d1); System.out.print(&amp;#34;float d1: &amp;#34;); System.out.println((float) d1); } // 输出结果 double d1: 3.</description>
+    </item>
+    
+    <item>
+      <title>【Go实现】实践GoF的23种设计模式：代理模式</title>
+      <link>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/</link>
+      <pubDate>Sun, 16 Oct 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/</guid>
+      <description>上一篇：【Go实现】实践GoF的23种设计模式：访问者模式
+简单的分布式应用系统（示例代码工程）：https://github.com/ruanrunxue/Practice-Design-Pattern&amp;ndash;Go-Implementation
+ 简介 GoF 对代理模式（Proxy Pattern）的定义如下：
+ Provide a surrogate or placeholder for another object to control access to it.
+ 也即，代理模式为一个对象提供一种代理以控制对该对象的访问。
+它是一个使用率非常高的设计模式，在现实生活中，也是很常见。比如，演唱会门票黄牛。假设你需要看一场演唱会，但官网上门票已经售罄，于是就当天到现场通过黄牛高价买了一张。在这个例子中，黄牛就相当于演唱会门票的代理，在正式渠道无法购买门票的情况下，你通过代理完成了该目标。
+从演唱会门票的例子我们也能看出，使用代理模式的关键在于，当 Client 不方便直接访问一个对象时，提供一个代理对象控制该对象的访问。Client 实际上访问的是代理对象，代理对象会将 Client 的请求转给本体对象去处理。
+UML 结构 场景上下文 在 简单的分布式应用系统（示例代码工程）中，db 模块用来存储服务注册和监控信息，它是一个 key-value 数据库。为了提升访问数据库的性能，我们决定为它新增一层缓存：
+另外，我们希望客户端在使用数据库时，并不感知缓存的存在，这些，代理模式可以做到。
+代码实现 // demo/db/cache.go package db // 关键点1: 定义代理对象，实现被代理对象的接口 type CacheProxy struct { // 关键点2: 组合被代理对象，这里应该是抽象接口，提升可扩展性  db Db cache sync.Map // key为tableName，value为sync.Map[key: primaryId, value: interface{}]  hit int miss int } // 关键点3: 在具体接口实现上，嵌入代理本身的逻辑 func (c *CacheProxy) Query(tableName string, primaryKey interface{}, result interface{}) error { cache, ok := c.</description>
+    </item>
+    
+    <item>
+      <title>【Go实现】实践GoF的23种设计模式：访问者模式</title>
+      <link>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E8%AE%BF%E9%97%AE%E8%80%85%E6%A8%A1%E5%BC%8F/</link>
+      <pubDate>Thu, 06 Oct 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E8%AE%BF%E9%97%AE%E8%80%85%E6%A8%A1%E5%BC%8F/</guid>
+      <description>上一篇：【Go实现】实践GoF的23种设计模式：迭代器模式
+简单的分布式应用系统（示例代码工程）：https://github.com/ruanrunxue/Practice-Design-Pattern&amp;ndash;Go-Implementation
+ 简介 GoF 对访问者模式（Visitor Pattern）的定义如下：
+ Represent an operation to be performed on the elements of an object structure. Visitor lets you define a new operation without changing the classes of the elements on which it operates.
+ 访问者模式的目的是，解耦数据结构和算法，使得系统能够在不改变现有代码结构的基础上，为对象新增一种新的操作。
+上一篇介绍的 迭代器模式 也做到了数据结构和算法的解耦，不过它专注于遍历算法。访问者模式，则在遍历的同时，将操作作用到数据结构上，一个常见的应用场景是语法树的解析。
+UML 结构 场景上下文 在 简单的分布式应用系统（示例代码工程）中，db 模块用来存储服务注册和监控信息，它是一个 key-value 数据库。另外，我们给 db 模块抽象出 Table 对象：
+// demo/db/table.go package db // Table 数据表定义 type Table struct { name string metadata map[string]int // key为属性名，value属性值的索引, 对应到record上存储  records map[interface{}]record iteratorFactory TableIteratorFactory // 默认使用随机迭代器 } 目的是提供类似于关系型数据库的按列查询能力，比如：</description>
+    </item>
+    
+    <item>
+      <title>送行</title>
+      <link>https://www.yrunz.com/p/%E9%80%81%E8%A1%8C/</link>
+      <pubDate>Sun, 04 Sep 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E9%80%81%E8%A1%8C/</guid>
+      <description>前些天回老家参加朋友婚礼，明天还要上班，下午也该回去了。
+午饭时候，侄女在旁边手玩着手，低头嘟囔，
+“学叔，你得听日先回无啦？”，
+“好快就翻黎啦”。
+粗粗吃完，回房间眯了一会，把行李拎下楼，准备启程了。
+老妈看见，急忙放下手中忙活，开始乒乒乓乓地收拾，虾、墨鱼滑、蜂蜜、苹果、橘子、一捆生菜，一个都没落下；随后匆忙换好鞋子，提着几袋就出门，连着行李一起放上车。
+等东西都放好，坐上车，启动，打开地图导航，出发了。
+老爸在前头，边摆弄好街上散落的摩托车，给车子腾出位置；边双手举过头顶，不停向后招手，指挥着车子向前。老妈则是默默在车后头跟着。
+经过旧屋时，奶奶也出来了，等车窗放下，两只手搭到车门，把头微微伸入，
+“家阵上嗲哈？”
+“系啊。”
+“回去健健康康喔，一路顺风哈，回到记得打个电话俾婆婆哈。”
+“好啊。”
+挤挤开过了这条街，来到街口，老爸突然说，“你妈妈讲要送你出路口哇。”
+于是，把车门解锁，爸妈先后打开车门，坐了上来。
+去路口的路的两边边停满了车，双行道容不下两辆车并排开，地面还偶尔冒出些小石包，不敢开快。
+车上三人一句句闲聊，没多久，就到路口；停下来，等前后车都过了，回头问，“系度放你地落哈？”
+老妈急忙回了句，“呃，系度落。”
+老爸先下车，微微站出路口，背扣双手；刺眼的阳光下，紧皱着眉头，来回观察路况。
+老妈下车后，不断叮嘱把车窗摇上来，别让空调漏了出去。
+看老爸没有明示，我也轻踩油门，出路口左转离去了。
+等车身回直，瞄了眼后视镜，发现他们还站在路口，背扣双手，看着这边；
+过了一会，再看，还在，远远地看着；
+又过了一会，老妈先转身回去了；没一会，老爸也回头走进了路口。
+（完 &amp;ndash; 2022.09.04）</description>
+    </item>
+    
+    <item>
+      <title>深入理解计算机系统的数值类型</title>
+      <link>https://www.yrunz.com/p/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E7%9A%84%E6%95%B0%E5%80%BC%E7%B1%BB%E5%9E%8B/</link>
+      <pubDate>Thu, 18 Aug 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E7%9A%84%E6%95%B0%E5%80%BC%E7%B1%BB%E5%9E%8B/</guid>
+      <description>前言 在日常编程中，数值类型（numeric types）是我们打交道最多的类型，可能没有之一。除了最熟悉的 int，还有 long、float、double 等。正因太熟悉，我们往往不会深究它们的底层原理。因为平时的工作中，知道个大概，也够用了。
+但，在某些业务场景下，比如金融业务，数值运算不准确会带来灾难性的后果。这时，你就必须清楚数值类型的二进制表示、截断、转型等原理，否则很难保证运算结果的正确性。
+另外，数值类型也是一个容易被黑客攻击的点，考虑如下一段代码：
+// C++ /* Declaration of library function memcpy */ void *memcpy(void *dest, void *src, size_t n); /* Kernel memory region holding user-accessible data */ #define KSIZE 1024 char kbuf[KSIZE]; /* Copy at most maxlen bytes from kernel region to user buffer */ int copy_from_kernel(void *user_dest, int maxlen) { /* Byte count len is minimum of buffer size and maxlen */ int len = KSIZE &amp;lt; maxlen ?</description>
+    </item>
+    
+    <item>
+      <title>【Go实现】实践GoF的23种设计模式：迭代器模式</title>
+      <link>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E8%BF%AD%E4%BB%A3%E5%99%A8%E6%A8%A1%E5%BC%8F/</link>
+      <pubDate>Sat, 30 Jul 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E8%BF%AD%E4%BB%A3%E5%99%A8%E6%A8%A1%E5%BC%8F/</guid>
+      <description>上一篇：【Go实现】实践GoF的23种设计模式：观察者模式
+简单的分布式应用系统（示例代码工程）：https://github.com/ruanrunxue/Practice-Design-Pattern&amp;ndash;Go-Implementation
+ 简介 有时会遇到这样的需求，开发一个模块，用于保存对象；不能用简单的数组、列表，得是红黑树、跳表等较为复杂的数据结构；有时为了提升存储效率或持久化，还得将对象序列化；但必须给客户端提供一个易用的 API，允许方便地、多种方式地遍历对象，丝毫不察觉背后的数据结构有多复杂。
+对这样的 API，很适合使用 迭代器模式（Iterator Pattern）实现。
+GoF 对 迭代器模式 的定义如下：
+ Provide a way to access the elements of an aggregate object sequentially without exposing its underlying representation.
+ 从描述可知，迭代器模式主要用在访问对象集合的场景，能够向客户端隐藏集合的实现细节。
+Java 的 Collection 家族、C++ 的 STL 标准库，都是使用迭代器模式的典范，它们为客户端提供了简单易用的 API，并且能够根据业务需要实现自己的迭代器，具备很好的可扩展性。
+UML 结构 场景上下文 在 简单的分布式应用系统（示例代码工程）中，db 模块用来存储服务注册和监控信息，它的主要接口如下：
+// demo/db/db.go package db // Db 数据库抽象接口 type Db interface { CreateTable(t *Table) error CreateTableIfNotExist(t *Table) error DeleteTable(tableName string) error Query(tableName string, primaryKey interface{}, result interface{}) error Insert(tableName string, primaryKey interface{}, record interface{}) error Update(tableName string, primaryKey interface{}, record interface{}) error Delete(tableName string, primaryKey interface{}) error .</description>
+    </item>
+    
+    <item>
+      <title>【Go实现】实践GoF的23种设计模式：观察者模式</title>
+      <link>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F/</link>
+      <pubDate>Sat, 23 Jul 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F/</guid>
+      <description>上一篇：【Go实现】实践GoF的23种设计模式：装饰者模式
+简单的分布式应用系统（示例代码工程）：https://github.com/ruanrunxue/Practice-Design-Pattern&amp;ndash;Go-Implementation
+ 简介 现在有 2 个服务，Service A 和 Service B，通过 REST 接口通信；Service A 在某个业务场景下调用 Service B 的接口完成一个计算密集型任务，假设接口为 http://service_b/api/v1/domain；该任务运行时间很长，但 Service A 不想一直阻塞在接口调用上。为了满足 Service A 的要求，通常有 2 种方案：
+  Service A 隔一段时间调用一次 Service B 的接口，如果任务还没完成，就返回 HTTP Status 102 Processing；如果已完成，则返回 HTTP Status 200 Ok。
+  Service A 在请求 Service B 接口时带上 callback uri，比如 http://service_b/api/v1/domain?callbackuri=http://service_a/api/v1/domain，Service B 收到请求后立即返回 HTTP Status 200 Ok，等任务完成后再调用 Service A callback uri 进行通知。
+  方案 1 须要轮询接口，轮询太频繁会导致资源浪费，间隔太长又会导致任务完成后 Service A 无法及时感知。显然，方案 2 更加高效，因此也被广泛应用。</description>
+    </item>
+    
+    <item>
+      <title>属于篮球的快乐又回来了</title>
+      <link>https://www.yrunz.com/p/%E5%B1%9E%E4%BA%8E%E7%AF%AE%E7%90%83%E7%9A%84%E5%BF%AB%E4%B9%90%E5%8F%88%E5%9B%9E%E6%9D%A5%E4%BA%86/</link>
+      <pubDate>Fri, 08 Jul 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E5%B1%9E%E4%BA%8E%E7%AF%AE%E7%90%83%E7%9A%84%E5%BF%AB%E4%B9%90%E5%8F%88%E5%9B%9E%E6%9D%A5%E4%BA%86/</guid>
+      <description>第一次接触篮球，大概是五年级的时候。那段时间跟大哥唯一的一次打架后，冷战了好久。不知老爸是不是察觉到什么，也许是临时兴起，给我们买了个篮球。球摸到了，兄弟也和好了。
+小学时候打篮球，热情是有的，常常早上 5 点多起床就去，但对篮球这项运动没什么概念。记得第一次比赛，替补上场，愣是在中场当了 2 个回合的立棍，不参与进攻，也不参与防守，就被教练急忙换下了。
+初中时候，身边都是些“要身体有身体，要技术有技术”的怪兽们，适合在场下静静地看，看他们飞天遁地的表演。偶尔还能偷学到一两招，转头就能在第二天用上。那时候的快乐很简单，跟同学们一起下课、打球，还常常叫嚣着要跟“南门头火箭队”决一胜负，只是一直没等来那场决战。
+高中时候，除了学习，还是学习，也就偶尔能在体育课上玩玩，次数也屈指可数。
+终于等到大学，逃不过男大学生的三点一线：上课、打球、游戏。一年级的学院新生杯比赛，我们一路打到决赛，面对的是不久前刚赢过我们的 S 班，但靠着 MVP 的稳定发挥，我们艰难拿下冠军。那是第一次冠军，也是最后一次。后来，我们的 MVP 专心搞学术了，而我们班，也再没达到原来的高度。
+后面来到北校区，遇到了一群很会打球的师兄们，第一次看他们用无球挡制造得分机会时，心里感叹，“篮球原来还能这么打！”。慢慢地，我们几个也有样学样，无球挡、跑位、内切、传球&amp;hellip;；你尽管跑，人到球到；接到传球，先大喊一声，“好球！”；投不进，懊恼的不是没得分，而是浪费了队友那一手好传球。
+偶尔也会遇到一些人，埋怨道，“怎么这么多挡，练过的吧”。
+窃喜，心想，“哪有，一起打久了，默契而已”。
+有些人以得分、打进高难度球为乐；我们，以分享球、打出流畅配合为乐。我想，这就是所谓的兄弟篮球吧。
+如果挑一个篮球生涯的巅峰期，得是研一时候。本科的好多伙伴都还在，兄弟篮球愈发成熟，正好遇上学校研究生篮球比赛。
+第一场，就遇上了实力很强的 J 学院，记得他们队中还有个校队大魔王。那场，我们打得很强硬，也很有韧性，就憋着一股气要赢；连讨厌抢篮板的我都去拼篮板了；赢球，也顺理成章了。
+过了第一场，后面几场轻松很多，下次再遇到强劲的对手，是半决赛的 C 学院。
+比赛打到最后几秒，落后 1 分，我方球权；
+底线发球，Z 爷接球，转身，摆脱，抛投；
+学生时代总有些遗憾，那一球，就是我们的遗憾之一。
+再后来，大家各自工作，也很难再遇上这样的一群家伙了。加上工作繁忙，几个月没打一次，偶尔几个聚起来玩玩，也没了以前那般体力。于是，打球的次数越来越少，想着再找不回以前打球的快乐了吧。
+前段时间工作换了新环境，没那么忙了，打球的次数变多了。遇到了新的伙伴们，无球挡、内切、传球竟也慢慢都有了，篮球的快乐好像又找回来了。
+大学时候，经常会在球场上遇到这样的几个人：他们满头白发；总是站在罚球线附近指挥；偶尔中投几个；更多的是各种使坏的小动作。
+以前很讨厌他们。
+现在想想，等老了，要是能成为他们这样，好像也挺不错的。
+（完）</description>
+    </item>
+    
+    <item>
+      <title>深入理解 SQL 中的 Grouping Sets 语句</title>
+      <link>https://www.yrunz.com/p/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3-sql-%E4%B8%AD%E7%9A%84-grouping-sets-%E8%AF%AD%E5%8F%A5/</link>
+      <pubDate>Sun, 03 Jul 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3-sql-%E4%B8%AD%E7%9A%84-grouping-sets-%E8%AF%AD%E5%8F%A5/</guid>
+      <description>前言 SQL 中 Group By 语句大家都很熟悉，根据指定的规则对数据进行分组，常常和聚合函数一起使用。
+比如，考虑有表 dealer，表中数据如下：
+   id (Int) city (String) car_model (String) quantity (Int)     100 Fremont Honda Civic 10   100 Fremont Honda Accord 15   100 Fremont Honda CRV 7   200 Dublin Honda Civic 20   200 Dublin Honda Accord 10   200 Dublin Honda CRV 3   300 San Jose Honda Civic 5   300 San Jose Honda Accord 8    如果执行 SQL 语句 SELECT id, sum(quantity) FROM dealer GROUP BY id ORDER BY id，会得到如下结果：</description>
+    </item>
+    
+    <item>
+      <title>【Go实现】实践GoF的23种设计模式：装饰者模式</title>
+      <link>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E8%A3%85%E9%A5%B0%E8%80%85%E6%A8%A1%E5%BC%8F/</link>
+      <pubDate>Tue, 28 Jun 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E8%A3%85%E9%A5%B0%E8%80%85%E6%A8%A1%E5%BC%8F/</guid>
+      <description>上一篇：【Go实现】实践GoF的23种设计模式：原型模式
+简单的分布式应用系统（示例代码工程）：https://github.com/ruanrunxue/Practice-Design-Pattern&amp;ndash;Go-Implementation
+ 简介 我们经常会遇到“给现有对象/模块新增功能”的场景，比如 http router 的开发场景下，除了最基础的路由功能之外，我们常常还会加上如日志、鉴权、流控等 middleware。如果你查看框架的源码，就会发现 middleware 功能的实现用的就是装饰者模式（Decorator Pattern）。
+GoF 给装饰者模式的定义如下：
+ Decorators provide a flexible alternative to subclassing for extending functionality. Attach additional responsibilities to an object dynamically.
+ 简单来说，装饰者模式通过组合的方式，提供了能够动态地给对象/模块扩展新功能的能力。理论上，只要没有限制，它可以一直把功能叠加下去，具有很高的灵活性。
+ 如果写过 Java，那么一定对 I/O Stream 体系不陌生，它是装饰者模式的经典用法，客户端程序可以动态地为原始的输入输出流添加功能，比如按字符串输入输出，加入缓冲等，使得整个 I/O Stream 体系具有很高的可扩展性和灵活性。
+ UML 结构 场景上下文 在简单的分布式应用系统（示例代码工程）中，我们设计了 Sidecar 边车模块，它的用处主要是为了 1）方便扩展 network.Socket 的功能，如增加日志、流控等非业务功能；2）让这些附加功能对业务程序隐藏起来，也即业务程序只须关心看到 network.Socket 接口即可。
+代码实现 Sidecar 的这个功能场景，很适合使用装饰者模式来实现，代码如下：
+// demo/network/socket.go package network // 关键点1: 定义被装饰的抽象接口 // Socket 网络通信Socket接口 type Socket interface { // Listen 在endpoint指向地址上起监听  Listen(endpoint Endpoint) error // Close 关闭监听  Close(endpoint Endpoint) // Send 发送网络报文  Send(packet *Packet) error // Receive 接收网络报文  Receive(packet *Packet) // AddListener 增加网络报文监听者  AddListener(listener SocketListener) } // 关键点2: 提供一个默认的基础实现 type socketImpl struct { listener SocketListener } func DefaultSocket() *socketImpl { return &amp;amp;socketImpl{} } func (s *socketImpl) Listen(endpoint Endpoint) error { return Instance().</description>
+    </item>
+    
+    <item>
+      <title>让人生多些可能</title>
+      <link>https://www.yrunz.com/p/%E8%AE%A9%E4%BA%BA%E7%94%9F%E5%A4%9A%E4%BA%9B%E5%8F%AF%E8%83%BD/</link>
+      <pubDate>Fri, 10 Jun 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E8%AE%A9%E4%BA%BA%E7%94%9F%E5%A4%9A%E4%BA%9B%E5%8F%AF%E8%83%BD/</guid>
+      <description> 一个月前作出换个领域的决定，今天清退完旧物，也算为过去 5 年的工作打了个结。新的征程即将开始。
+ 想的太多了，做的也就少了 很喜欢黄华老师在《云端遐思》里的一句话：这个世界很大，但我们很容易把自己锁死，锁在一座大城里，锁在一块业务里。而诗和远方却永远停留在自己的梦里。
+我想这是当代人的一个困境吧。我们常说“为生活所迫”，本应美好的生活，变成了一块巨石重重地压在我们身上。而且，随着年龄增长，巨石变得越来越重，我们前进的步伐也逐渐缓慢，直到最后停留在原地，走不动了。
+导致这块巨石加重的因素有很多，可能是一套房子、一次投资、一份工作；但导致我们走不动的原因，不是巨石，是我们选择了背负这块巨石。
+求稳，是刻在我们中华民族的骨子里的观念。《菜根谭》修身篇的第一条就说，“思立掀天揭地的事功，须向薄冰上履过”，劝告我们要如履薄冰地做人、做事。
+所以，我们在面临选择时，往往会考虑很多，“会不会是一个深坑，还是保险起见”，“感觉跟现在也差不太多，还是算了”。想得越多，就越倾向于维持在稳定的现状，反正石头还背得动；越到后面，就越没有勇气做出改变。
+假如洞穴之外仍是洞穴 柏拉图的《理想国》里有个著名的洞穴比喻，大概的意思是这样的：有一群被困在洞穴里的囚徒，他们认为洞穴就是世界的本身；有一天，其中一人被解除桎梏，来到了洞穴之外的阳光之下；刚开始，他的眼睛会很难受，后面渐渐开始适应阳光，认识到洞外的世界有多真实和美好。那个看到了阳光的囚徒，就是看到了“善的理念”的哲人。
+那么，假如洞穴之外还是洞穴，走出洞穴与留在洞穴又有什么区别呢？换作是你，又会怎么选择？
+洞穴之外的洞穴是生活中的常态。我们常常付出很多努力，然后鼓起勇气做出一个选择，但生活并没有因此得到改善，甚至变得更糟糕了。一来二去，也就失去了穿越洞穴的勇气，即使下一条路通向的是阳光。
+就算你是一个旁观者，在看到他的“不幸”遭遇之后，相信你也会更倾向于留下，以求得更稳定的生活。
+从一个洞穴，到另一个洞穴，真的完全没有收获吗？我想未必。比起永远困在同一个洞穴，在各个洞穴之间来回穿越，体验不同洞穴的风土人情，不断开阔眼界，也不失为一种好的生活。而且，这种生活也更符合苏格拉底的那个著名观点：未经审视的人生是不值得过的。
+人生有无限的可能 人生有无限的可能，《瞬息全宇宙》，前段时间很火的电影，很生动地把这句话呈现了出来。生活中我们所做的每一个细微的选择，都会导致一个平行宇宙的出现，不同宇宙里的你可能过着完全不同的人生。
+当前宇宙的你，可能就同电影里的主角 Evelyn 一样，过着最不好的人生，每天都充斥着各种琐碎的、不好的事情；但只要你下定决心做出选择，就有可能体验到另类人生。
+当然，选择的代价是巨大的，就像电影里想要在不同的宇宙间跳转就必须做出违反常理的行为一样，而且选择之后的人生也是不可知的。
+尽管如此，它还是值得去体验，最坏的结果也不过是在体验完之后，仍然觉得当前的人生最合适，再回来就是了。相信经历过这些之后，你也会更加珍惜当下的生活。
+认识你自己 德尔菲神庙上最著名的一条箴言：认识你自己。
+每个人都有“非你不能做，非你做不好”的自然天赋，我们要做的就是不断调整方向，校准目标，去发现和实现它们。这过程必然会经历失败，但是没关系，失败本来就是人生的一部分，我们应该敢于试错。
+人生就是不断地认识自己、发现自己，唯有这样，才能成为更好的自己。
+最后送上狄金森的一首短诗：
+假如我没见过太阳， 或许我还可以忍受黑暗， 可如今，太阳把我的寂寞照耀得更加荒凉  说回这次换领域的选择，如果你在一年前告诉我有这么一个机会，是我非常喜欢、感兴趣的领域，我会选择它吗？我想未必。
+就像你从小告诉我很多大道理，但直到我经历了很多、对这些道理有切身体会的那一刻之前，我都不会理解它们。
+可能这就是人生吧。
+ </description>
+    </item>
+    
+    <item>
+      <title>【Go实现】实践GoF的23种设计模式：原型模式</title>
+      <link>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%8E%9F%E5%9E%8B%E6%A8%A1%E5%BC%8F/</link>
+      <pubDate>Thu, 02 Jun 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%8E%9F%E5%9E%8B%E6%A8%A1%E5%BC%8F/</guid>
+      <description>上一篇：【Go实现】实践GoF的23种设计模式：抽象工厂模式
+简单的分布式应用系统（示例代码工程）：https://github.com/ruanrunxue/Practice-Design-Pattern&amp;ndash;Go-Implementation
+ 简介 原型模式（Prototype Pattern）主要解决对象复制的问题，它的核心就是 Clone() 方法，返回原型对象的复制品。
+最简单直接的对象复制方式是这样的：重新实例化一个该对象的实例，然后遍历原始对象的所有成员变量， 并将成员变量值复制到新实例中。但这种方式的缺点也很明显：
+ 客户端程序必须清楚对象的实现细节。暴露细节往往不是件好事，它会导致代码耦合过深。 对象可能存在一些私有属性，客户端程序无法访问它们，也就无法复制。 很难保证所有的客户端程序都能完整不漏地把所有成员属性复制完。  更好的方法是使用原型模式，将复制逻辑委托给对象本身，这样，上述两个问题也都解决了。
+UML 结构 场景上下文 在简单的分布式应用系统（示例代码工程）中，我们设计了一个服务消息中介（Service Mediator）服务，可以把它看成是一个消息路由器，负责服务发现和消息转发：
+消息转发也就意味着它必须将上游服务的请求原封不动地转发给下游服务，这是一个典型的对象复制场景。不过，在我们的实现里，服务消息中介会先修改上行请求的 URI，之后再转发给下游服务。因为上行请求 URI 中携带了下游服务的类型信息，用来做服务发现，在转发给下游服务时必须剔除。
+比如，订单服务（order service）要发请求给库存服务（stock service），那么：
+ 订单服务先往服务消息中介发出 HTTP 请求，其中 URI 为 /stock-service/api/v1/stock。 服务消息中介收到上行请求后，会从 URI 中提取出下游服务类型 stock-service ，通过服务注册中心发现库存服务的 Endpoint。 随后，服务消息中介将修改后的请求转发给库存服务，其中 URI 为 /api/v1/stock。  代码实现 如果按照简单直接的对象复制方式，实现是这样的：
+// 服务消息中介 type ServiceMediator struct { registryEndpoint network.Endpoint localIp string server *http.Server sidecarFactory sidecar.Factory } // Forward 转发请求，请求URL为 /{serviceType}+ServiceUri 的形式，如/serviceA/api/v1/task func (s *ServiceMediator) Forward(req *http.</description>
+    </item>
+    
+    <item>
+      <title>【Go实现】实践GoF的23种设计模式：抽象工厂模式</title>
+      <link>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/</link>
+      <pubDate>Sun, 29 May 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/</guid>
+      <description>上一篇：【Go实现】实践GoF的23种设计模式：工厂方法模式
+简单的分布式应用系统（示例代码工程）：https://github.com/ruanrunxue/Practice-Design-Pattern&amp;ndash;Go-Implementation
+ 简述 上一篇我们介绍了工厂方法模式，本文，我们继续介绍它的兄弟，抽象工厂模式（Abstract Factory Pattern）。
+在工厂方法模式中，我们通过一个工厂方法接口来创建产品，而创建哪类产品，由具体的工厂对象来决定。抽象工厂模式和工厂方法模式的功能很类似，只是把“产品”，变成了“产品族”。产品族就意味着这是一系列有关联的、一起使用的对象。我们当然也可以为产品族中的每个产品定义一个工厂方法接口，但这显得有些冗余，因为一起使用通常也意味着同时创建，所以把它们放到同一个抽象工厂来创建会更合适。
+UML 结构 场景上下文 在简单的分布式应用系统（示例代码工程）中，我们有一个 Monitor 监控系统模块，该模块可以看成是一个简单的 ETL 系统，负责对监控数据的采集、处理、输出。整个模块被设计为插件化风格的架构，Pipeline是数据处理的流水线，其中包含了 Input、Filter 和 Output 三类插件，Input 负责从各类数据源中获取监控数据，Filter 负责数据处理，Output 负责将处理后的数据输出。更详细的设计思想我们在桥接模式一篇再做介绍，本文主要聚焦如何使用抽象工厂模式来解决各类插件的配置加载问题。
+作为 ETL 系统，Monitor 模块应该具备灵活的扩展能力来应对不同的监控数据类型，因此，我们希望能够通过配置文件来定义 Pipeline 的行为。比如，下面就是一个 yaml 格式的配置内容：
+name:pipeline_0# pipeline名称type:simple# pipeline类型input:# input插件定义name:input_0# input插件名称type:memory_mq# input插件类型，这里使用的是MemoryMQ作为输入context:# input插件的配置上下文topic:access_log.topic# 这里配置的是订阅的MemoryMQ主题filters:# filter插件链定义，多个filter插件组成一个filters插件链- name:filter_0# filter插件名称type:extract_log# filter插件类型- name:filter_1type:add_timestampoutput:# output插件定义name:output_0# output插件名称type:memory_db# output插件类型，这里使用的是MemoryDB作为输出context:# output插件上下文tableName:monitor_record_0# 这里配置的是MemoryDB表名另外，我们也希望 Monitor 模块支持多种类型的配置文件格式，比如，json 配置内容应该也支持：
+{ &amp;#34;name&amp;#34;: &amp;#34;pipeline_0&amp;#34;, &amp;#34;type&amp;#34;: &amp;#34;simple&amp;#34;, &amp;#34;input&amp;#34;: { &amp;#34;name&amp;#34;: &amp;#34;input_0&amp;#34;, &amp;#34;type&amp;#34;: &amp;#34;memory_mq&amp;#34;, &amp;#34;context&amp;#34;: { &amp;#34;topic&amp;#34;: &amp;#34;access_log.topic&amp;#34; } }, &amp;#34;filters&amp;#34;: [ { &amp;#34;name&amp;#34;: &amp;#34;filter_0&amp;#34;, &amp;#34;type&amp;#34;: &amp;#34;extract_log&amp;#34; }, { &amp;#34;name&amp;#34;: &amp;#34;filter_1&amp;#34;, &amp;#34;type&amp;#34;: &amp;#34;add_timestamp&amp;#34; } ], &amp;#34;output&amp;#34;: { &amp;#34;name&amp;#34;: &amp;#34;output_0&amp;#34;, &amp;#34;type&amp;#34;: &amp;#34;memory_db&amp;#34;, &amp;#34;context&amp;#34;: { &amp;#34;tableName&amp;#34;: &amp;#34;monitor_record_0&amp;#34; } } } 所以，整体的效果是这样的：</description>
+    </item>
+    
+    <item>
+      <title>【Go实现】实践GoF的23种设计模式：工厂方法模式</title>
+      <link>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95%E6%A8%A1%E5%BC%8F/</link>
+      <pubDate>Sat, 21 May 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95%E6%A8%A1%E5%BC%8F/</guid>
+      <description>上一篇：【Go实现】实践GoF的23种设计模式：建造者模式
+简单的分布式应用系统（示例代码工程）：https://github.com/ruanrunxue/Practice-Design-Pattern&amp;ndash;Go-Implementation
+ 简述 工厂方法模式（Factory Method Pattern）跟上一篇讨论的建造者模式类似，都是将对象创建的逻辑封装起来，为使用者提供一个简单易用的对象创建接口。两者在应用场景上稍有区别，建造者模式常用于需要传递多个参数来进行实例化的场景；工厂方法模式常用于不指定对象具体类型的情况下创建对象的场景。
+UML 结构 代码实现 示例 在简单的分布式应用系统（示例代码工程）中，我们设计了 Sidecar 边车模块， Sidecar 的作用是为了给原生的 Socket 增加额外的功能，比如流控、日志等。
+Sidecar 模块的设计运用了装饰者模式，修饰的是 Socket 。所以客户端其实是把 Sidecar 当成是 Socket 来使用了，比如：
+// demo/network/http/http_client.go package http // 创建一个新的HTTP客户端，以Socket接口作为入参 func NewClient(socket network.Socket, ip string) (*Client, error) { ... // 一些初始化逻辑 	return client, nil } // 使用NewClient时，我们可以传入Sidecar来给Http客户端附加额外的流控功能 client, err := http.NewClient(sidecar.NewFlowCtrlSidecar(network.DefaultSocket()), &amp;#34;192.168.0.1&amp;#34;) 在服务消息中介中，每次收到上游服务的 HTTP 请求，都会调用 http.NewClient 来创建一个 HTTP 客户端，并通过它将请求转发给下游服务：
+type ServiceMediator struct { ... server *http.Server } // Forward 转发请求，请求URL为 /{serviceType}+ServiceUri 的形式，如/serviceA/api/v1/task func (s *ServiceMediator) Forward(req *http.</description>
+    </item>
+    
+    <item>
+      <title>懒惰</title>
+      <link>https://www.yrunz.com/p/%E6%87%92%E6%83%B0/</link>
+      <pubDate>Sun, 08 May 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E6%87%92%E6%83%B0/</guid>
+      <description>开始 前几天，看到这样的一句话：
+ 生活中往往没有标准答案，当你要求别人给你一个标准答案时，就是思想上的懒惰了。
+ 当我们说一个人“懒惰”时，通常都指他贪玩、不爱学习、好吃懒做。如果按照这个标准，自问我也不是一个懒惰的人。读书时就一直被当成是热爱学习的“好学生”；工作后也一直在践行曾国藩的“少睡多做，一人之生气”。
+但是，当我读到 思想上的懒惰 时，心里一惊，感觉自我设立的“勤奋”人设，在心中崩塌了。
+读书是很容易的事，可是思考却很难 富兰克林说，“读书是很容易的事，可是思考却很难”。
+在当代，读书更不是件难事。智能手机上的读书软件、听书 APP 层出不穷，只要利用好碎片时间，我们就能读书。工作之余，自己也读了不少书，特别是看完《穷查理宝典》后，开始践行查理芒格的“多学科交叉”理论，书籍涉猎也更广了。然后在年终时，把一年里读过的书列出来，给自己设立一个”勤奋“的人设，幻想着有一天能够融汇贯通，走上人生巅峰。
+人们总说读书是润物细无声，但几年过去了，读书好像并没有给自己的工作和生活带来多大的改变，难道努力和勤奋都配不上回报吗？
+最近算是想明白了，是自己缺少思考，陷入了思想上的懒惰。
+回顾过去的读书经历，也只是读而已。美其名曰追求知识广度，想着留个印象，以后总会有用处；实则在偷懒，逃避思考，毕竟吃透一个知识或问题，真的太烧脑、太耗时了。
+我想，很多人也会有类似的这些经历：复习时遇到一道题目，一时弄不太懂，“算了，时间来不及了，先记住，万一考试遇上了还能背出来”；工作时碰到一个程序 Bug，一时定位不出来，重启一下竟然好了，“算了，反正也不复现了，有问题也肯定是环境问题”。
+这些经历里，时间也许是个问题，但根本问题还是出在人类的懒惰天性。犹太人有句谚语，“人类一思考，上帝就发笑”，而我确实也做到了不给上帝发笑的机会。
+未经审视的人生是不值得过的 苏格拉底说，“未经审视的人生是不值得过的”。
+如果只在读书上缺乏思考，最多也就缺少点思想深度。但如果在人生规划上也缺乏思考，可能就会浑浑噩噩地过完一辈子。
+在当代的中国社会里，人们常常因为一套房子，就被锁在了一座城市里；因为一摞金钱，就忘掉了梦想；因为一份工作，就一直忍气吞声。在世俗意义上的成功的驱动之下，我们很容易疲于奔命，却很少停下来思考和规划自己的人生，问问自己到底真正想要的是什么。
+也许，只有等到年过花甲了，回过头来一看，才发现人生少了一点精彩。
+回顾过去二十几年的人生，自己也是一直在朝着世俗意义的成功稳步前进。努力读书，勤奋工作，工作之余还会读书写作，在很多家人朋友的眼里，也算是过得很好的了。但是，这段未经审视的人生，也许还可以更精彩一些。
+最后 这段时间也慢慢开始尝试着去思考了，在读书的时候，在独处的时候。也许跟最近接触了很多哲学方面的知识有关。以前觉得哲学家们都是些闲人，老是想一些不切实际的问题，最近才感受到，他们才是人类的明灯。平时多接触些西方哲学，学习他们刨根问底的特质，辩证思考问题的方法，慢慢的，自己也会去多问几个为什么了。
+至于如何才能在读书时培养深入思考的习惯，我想，做笔记会是一个很好的方法。做笔记能够让读书速度慢下来，有更多思考的间隙；而且把当时的想法记录下来，后面再回看，会有一种自豪感。
+至于如何才能过上精彩的人生，我想，需要勇气。</description>
+    </item>
+    
+    <item>
+      <title>用Keynote画出手绘风格的配图</title>
+      <link>https://www.yrunz.com/p/%E7%94%A8keynote%E7%94%BB%E5%87%BA%E6%89%8B%E7%BB%98%E9%A3%8E%E6%A0%BC%E7%9A%84%E9%85%8D%E5%9B%BE/</link>
+      <pubDate>Sat, 07 May 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E7%94%A8keynote%E7%94%BB%E5%87%BA%E6%89%8B%E7%BB%98%E9%A3%8E%E6%A0%BC%E7%9A%84%E9%85%8D%E5%9B%BE/</guid>
+      <description>开篇词 一直以来，时不时都会收到一些小伙伴的私信或留言，问“文章中的配图是用什么工具画的？”，比如：
+              我的回答也一直都很简练，“Keynote 画的”。细想一下，其实有种听君一席话，如听一席话的感觉。所以，今天专门花点时间总结一下自己文章配图的一些风格选择。
+用 MacOS 的小伙伴应该都对 Keynote 很熟悉，可以把它看成是 MacOS 上的 PowerPoint。
+想到用 Keynote 来画图的源头，是从看到《A successful Git branching model》这篇文章上很好看的手绘风格配图开始：
+        几轮 Google 之后才找到原来是通过 Keynote 画出来的，从此迷上了用 Keynote 来画这种手绘风格的配图。
+中途也有尝试过其他手绘风格的画图软件，比如 Excalidraw。Excalidraw 是一款开源免费的手绘风格画图软件，相比 Keynote，它显得更加的手绘风。不过对中文字体的支持太弱了，与英文字体放在一起显得极其不协调，最后也就放弃了。
+        几番对比之后，还是觉得 Keynote 在易用性、效率、配色、样式等方面更好用。下面，开始简单介绍下在使用 Keynote 画图时，主题、样式、形状、配色、字体等方面的一些选择和搭配。
+主题 Keynote 上有很多内置的主题，主题们都非常的好看（个人觉得 MacOS 在审美方面还是比 Windows 强不少）：</description>
+    </item>
+    
+    <item>
+      <title>【Go实现】实践GoF的23种设计模式：建造者模式</title>
+      <link>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%BB%BA%E9%80%A0%E8%80%85%E6%A8%A1%E5%BC%8F/</link>
+      <pubDate>Thu, 05 May 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%BB%BA%E9%80%A0%E8%80%85%E6%A8%A1%E5%BC%8F/</guid>
+      <description>上一篇：【Go实现】实践GoF的23种设计模式：单例模式
+简单的分布式应用系统（示例代码工程）：https://github.com/ruanrunxue/Practice-Design-Pattern&amp;ndash;Go-Implementation
+ 简述 在程序设计中，我们会经常遇到一些复杂的对象，其中有很多成员属性，甚至嵌套着多个复杂的对象。这种情况下，创建这个复杂对象就会变得很繁琐。对于 C++/Java 而言，最常见的表现就是构造函数有着长长的参数列表：
+MyObject obj = new MyObject(param1, param2, param3, param4, param5, param6, ...) 对于 Go 语言来说，最常见的表现就是多层的嵌套实例化：
+obj := &amp;amp;MyObject{ Field1: &amp;amp;Field1 { Param1: &amp;amp;Param1 { Val: 0, }, Param2: &amp;amp;Param2 { Val: 1, }, ... }, Field2: &amp;amp;Field2 { Param3: &amp;amp;Param3 { Val: 2, }, ... }, ... } 上述的对象创建方法有两个明显的缺点：（1）对使用者不友好，使用者在创建对象时需要知道的细节太多；（2）代码可读性很差。
+针对这种对象成员较多，创建对象逻辑较为繁琐的场景，非常适合使用建造者模式来进行优化。
+建造者模式的作用有如下几个：
+1、封装复杂对象的创建过程，使对象使用者不感知复杂的创建逻辑。2、可以一步步按照顺序对成员进行赋值，或者创建嵌套对象，并最终完成目标对象的创建。3、对多个对象复用同样的对象创建逻辑。其中，第1和第2点比较常用，下面对建造者模式的实现也主要是针对这两点进行示例。
+UML 结构 代码实现 示例 在简单的分布式应用系统（示例代码工程）中，我们定义了服务注册中心，提供服务注册、去注册、更新、 发现等功能。要实现这些功能，服务注册中心就必须保存服务的信息，我们把这些信息放在了 ServiceProfile 这个数据结构上，定义如下：
+// demo/service/registry/model/service_profile.go // ServiceProfile 服务档案，其中服务ID唯一标识一个服务实例，一种服务类型可以有多个服务实例 type ServiceProfile struct { Id string // 服务ID  Type ServiceType // 服务类型  Status ServiceStatus // 服务状态  Endpoint network.</description>
+    </item>
+    
+    <item>
+      <title>从分层架构到微服务架构（五）之服务化架构</title>
+      <link>https://www.yrunz.com/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E4%BA%94%E4%B9%8B%E6%9C%8D%E5%8A%A1%E5%8C%96%E6%9E%B6%E6%9E%84/</link>
+      <pubDate>Fri, 08 Apr 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E4%BA%94%E4%B9%8B%E6%9C%8D%E5%8A%A1%E5%8C%96%E6%9E%B6%E6%9E%84/</guid>
+      <description>《从分层架构到微服务架构》是一系列介绍《Fundamentals of Software Architecture》中提到的8种架构模式的文章，这里不会事无巨细地介绍所有的细节，而是会挑选其中关键内容，更多详情请阅读原书。
+往期精彩：
+ 从分层架构到微服务架构（一） 从分层架构到微服务架构（二）之分层架构 从分层架构到微服务架构（三）之管道架构 从分层架构到微服务架构（四）之微内核架构   前言 从本文开始，我们进入了《从分层架构到微服务架构》系列中分布式架构的介绍，本文要介绍的是服务化架构（Service-Based Architecture，SBA）。
+SBA 可以看成是单体架构和微服务架构之间的一个折中方案，它也是按照业务领域进行服务划分，但服务划分的粒度相比微服务要更粗。SBA 与微服务架构一大不同是，它允许各个服务间共享同一个数据库实例，这也使得 SBA 在架构上既有单体架构的特点，也有分布式架构的特点，显得更加的灵活。因此，从单体架构演进到 SBA，会比直接演进到微服务架构更加容易。
+架构视图 基础视图 SBA 的基础架构视图分成 3 部分：
+ User Interface，作为系统的接入口，接收客户端的请求，并转发到业务服务。。 Domain Services，业务服务按照领域进行划分，分开部署、业务独立。 Database，服务间共享的数据库实例，因为数据库实例只有一个，所以可以支持 ACID 事务。  使用 SBA 的系统通常只会划分 4 ～ 12 个服务，避免产生过多的数据库连接。服务数量不多，也决定了 SBA 中的服务相比微服务架构中的服务有着更粗的粒度。User Interface 与服务间通过远程通信协议来完成业务往来，常见的通信方式有REST、RPC、消息队列等。需要注意的是，SBA 是不允许服务间通信的，这与微服务架构有着本质的区别。
+大多数情况下，SBA 中的服务只有一个或者少量实例，与微服务动辄成百上千个实例有着很大的区别。主要是因为 SBA 服务粒度更粗，无法做到像微服务那样精准的按需扩容，扩容太多反而会导致资源的浪费。
+SBA 的另一大特点是允许所有服务共享同一数据库实例，使得它能够直接将传统单体架构的那一套 SQL 查询逻辑、ACID 事务搬过来，让架构的演进更加的平滑。不过，共享数据也会带来一些问题，比如数据模型变更的影响范围更大，后面会在“**数据拆分”**一节详细讲述。
+拆分 User Interface 在大型系统中，单一的 User Interface 可能导致代码耦合、性能瓶颈等问题，这时候我们可以进一步对它进行拆分。拆分的方法可以是基于业务领域的拆分，业务相关的几个服务使用同一个 User Interface；或者基于服务的拆分，为每个服务都配备一个 User Interface。
+拆分 Database 类似地，我们也可以对数据库进行拆分，可以拆分成几个服务共享一个实例；也可以像微服务架构中那样，每个服务独享一个实例。数据库拆分的原则就是：确保数据是解耦的，不会被其他服务所依赖，避免出现跨库查询或服务间通信。</description>
+    </item>
+    
+    <item>
+      <title>【Go实现】实践GoF的23种设计模式：单例模式</title>
+      <link>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/</link>
+      <pubDate>Tue, 05 Apr 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/</guid>
+      <description>上一篇：【Go实现】实践GoF的23种设计模式：SOLID原则
+简单的分布式应用系统（示例代码工程）：https://github.com/ruanrunxue/Practice-Design-Pattern&amp;ndash;Go-Implementation
+ 简述 GoF 对单例模式（Singleton）的定义如下：
+ Ensure a class only has one instance, and provide a global point of access to it.
+ 也即，保证一个类只有一个实例，并且为它提供一个全局访问点。
+在程序设计中，有些对象通常只需要一个共享的实例，比如线程池、全局缓存、对象池等。实现共享实例最简单直接的方式就是全局变量。但是，使用全局变量会带来一些问题，比如：
+ 客户端程序可以创建同类实例，从而无法保证在整系统上只有一个共享实例。 难以控制对象的访问，比如想增加一个“访问次数统计”的功能就很难，可扩展性较低。 把实现细节暴露给客户端程序，加深了耦合，容易产生霰弹式修改。  对这种全局唯一的场景，更好的是使用单例模式去实现。单例模式能够限制客户端程序创建同类实例，并且可以在全局访问点上扩展或修改功能，而不影响客户端程序。
+但是，并非所有的全局唯一都适用单例模式。比如下面这种场景：
+ 考虑需要统计一个API调用的情况，有两个指标，成功调用次数和失败调用次数。这两个指标都是全局唯一的，所以有人可能会将其建模成两个单例SuccessApiMetric和FailApiMetric。按照这个思路，随着指标数量的增多，你会发现代码里类的定义会越来越多，也越来越臃肿。这也是单例模式最常见的误用场景，更好的方法是将两个指标设计成一个对象ApiMetric下的两个实例ApiMetic success和ApiMetic fail。
+ 那么，如何判断一个对象是否应该被建模成单例？通常，被建模成单例的对象都有“中心点”的含义，比如线程池就是管理所有线程的中心。所以，在判断一个对象是否适合单例模式时，先思考下，是一个中心点吗？
+UML结构 代码实现 根据单例模式的定义，实现的关键点有两个：
+ 限制调用者直接实例化该对象； 为该对象的单例提供一个全局唯一的访问方法。  对于 C++ / Java 而言，只需把对象的构造函数设计成私有的，并提供一个 static 方法去访问该对象的唯一实例即可。但 Go 语言并没有构造函数的概念，也没有 static 方法，所以需要另寻出路。
+我们可以利用 Go 语言 package 的访问规则来实现，将单例对象设计成首字母小写，这样就能限定它的访问范围只在当前package下，模拟了 C++ / Java 的私有构造函数；然后，在当前 package 下实现一个首字母大写的访问函数，也就相当于 static 方法的作用了。</description>
+    </item>
+    
+    <item>
+      <title>从哲学的角度看中医</title>
+      <link>https://www.yrunz.com/p/%E4%BB%8E%E5%93%B2%E5%AD%A6%E7%9A%84%E8%A7%92%E5%BA%A6%E7%9C%8B%E4%B8%AD%E5%8C%BB/</link>
+      <pubDate>Mon, 04 Apr 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E4%BB%8E%E5%93%B2%E5%AD%A6%E7%9A%84%E8%A7%92%E5%BA%A6%E7%9C%8B%E4%B8%AD%E5%8C%BB/</guid>
+      <description>最近在喜马拉雅上听王德峰的中西思想必修课，听到有关中医的哲学思辨，深有感触。本文将结合网上的一些资料和自身的经历，开启一本正经地胡说八道模式。
+ 前言 毫无疑问，当前的医疗体系主要是以现代医学，也即常说的西医，作为根基。我们平时去医院看病、体检，基本都是在西医的范畴之内。相比之下，中国传统医学，也即常说的中医，更多的是作为一种养生、调理的辅助手段，比如工作累了就去中医馆做做针灸、推拿等。
+在中医发源地的中国，却形成西医为主、中医为辅的局面，这其中的源头可以追溯到五四运动期间，我们从西方请来了“德先生”和“赛先生”，从此就奠定了我们不断学习西方的文化和技术的基调。在这个基调之下，我们普遍认为西方的文化和技术更先进。因此，当我们采用现代的科学手段去研究中医，却发现中医中的很多概念无法解释时，我们不免会发出这样的疑问：“中医科学吗？”。
+在回答这个问题之前，我们首先需要理解“科学”是什么。
+科学的哲学基础 维基百科中，对现代科学，也即常说的科学，有如下的定义：
+ Science is a systematic enterprise that builds and organizes knowledge in the form of testable explanations and predictions about the universe.
+ 翻译过来就是，科学是一个系统性的知识体系，它构建并组织了关于解释和预测宇宙运作机制的知识，并强调了其中的可验证性。当然，科学也不等同于寻求绝对无误的真理，而是在现有基础上，摸索式地不断接近真理。
+哲学是科学之源，科学的前身就是古希腊的自然哲学，从前面对科学的解释中，我们也大概能看出柏拉图的理念论的影子。
+不管是古希腊的哲学，还是现代西方哲学，它们的内核都是一样的，那就是知识。西方哲学的主题是知识问题的解决，而如何解决则取决于对世间万物本质的理性的把握，以及概念的确认。所以，我们会看到西方的学者们对浩渺星空的好奇和惊异、宇宙本质问题的痴迷和热情、对思想穷根究底的辩驳和拷问、对逻辑与理性的推崇和赞赏。这些正是现代科学的精神内核。
+在西方的哲学看来，宇宙是由实体构成的，西方的学者会不断寻求该实体的基本单位，“生物-&amp;gt;细胞-&amp;gt;分子-&amp;gt;原子-&amp;gt;质子-&amp;gt;...”就是一个不断寻求的过程。所以西医认为疾病就是实体性的病变，比如流行性感冒就是因为人体感染了流感病毒，这些都是可以通过医学手段检验出来的，满足科学的可验证性。
+中医的哲学基础 中医的哲学基础自然是中国哲学，而中国哲学是与西方哲学截然不同的一套哲学体系。
+在中国哲学看来，宇宙的本质是气，气的变化就是宇宙的真相。相反，西方哲学是将宇宙看成由统一不变的实体所构成，这是中西方哲学的一大差异。气有“阴”和“阳”两个方面，有“金”、“木”、“水”、“火”、“土”五种类型，也即常说的阴阳五行。阴阳五行相生相克，它们之间的转换构成了整个宇宙，这就是中国哲学的宇宙观。
+中国哲学的内核是人生，主题是人生问题的解决，而人生问题的解决基本上取决于我们对天道的体认和觉解。所以，中国哲学的思辨是依靠“感性”，这与西方哲学的“理性”思辨的是两种不同的思辨路径。
+中国哲学强调“天人合一”，自然也会将阴阳五行这套宇宙观映射到我们人体身上，也就形成了中医的理论基础。中医将人的五脏六腑都看成是金木水火土之气，它们彼此之间的相互作用（相生相克）构成了人体。所以，中医认为疾病就是人体内阴阳五行之气的平衡被打破所导致的，治病就是重建人体之气的平衡，也即常说的调理。
+所以中医的精神是调理，西医的精神是解剖、分析和手术。
+中医科学吗？ 再回到“中医科学吗？”这个问题上，根据前文的内容，我们可以发现这个问题本身就是个伪问题的。因为这相当于在拿西方哲学的标准去衡量中国哲学，得到的答案自然是否定的，它们本身就是截然不同的哲学体系。
+下面可以列举一些中医不科学的例子：
+ 中医的很多概念，比如气、经脉，是无法通过科学的手段进行检验的，也即在最基本的可验证性上就不成立了。 中医讲求“以形补形”，认为某种植物或动物的真正医药价值，在于它的形状、颜色、质地、名称等与人体器官或疾病是否具有对应性。如果具有对应性，则意味着这个植物或动物对那 个器官或疾病有疗效。这些在现代的生物医学看来同样也是不成立的。 中医古典中的一些偏方在现代科学看来完全就是无稽之谈，比如《本草纲目》有提到鱼骨鲠喉，把渔网煮成汁或烧成灰喝了，就能让鱼骨掉下。  既然中医不科学，那么中医有效吗？
+中医有效吗？ 从个体的角度看，中医是有效的。现在已经有足够多的例子说明在某些病例上，中医能够达到比西医更好的效果。国家在大力推进中医的现代化建设、世界卫生组织把中医药纳入国际医药体系，这些都侧面说明了中医的有效性。另外，一些中医药的成分也得到了科学的验证，最著名的就是屠呦呦发现青蒿素的例子。
+但从整体的角度看，特别是在西方统计学的视角下，中医的有效性是被质疑的。最有力的证据就是中国和欧洲平均寿命的对比：
+从表中可以看出，在现代医学传入中国之前中国人的平均寿命并不高于其他民族， 在古代和近代都只有三十岁左右，现代中国人平均寿命大幅度提高到七十多岁基本上是得益于现代医学。
+但是，就像前文所介绍，中医和科学起源于两套完全不同的哲学体系，用科学的手段衡量中医，注定得不到圆满。国医大师陆广莘也曾表示：
+ “中医是个性化的，其治疗是因人而异的，总结和归纳是不符合中医特色的，医生面对的是动态的生命，而不是物，这与西方医学有着本质的区别。”
+ 最后 我对中医感到震撼的一次经历是，高中时某次出现莫名其妙的头晕，然后去找一位老中医进行诊断，一坐下就开始把脉，几分钟过后就诊断出问题在头部。这是和西医完全不同的诊断方式，相反在西医的诊断手段下，我的身体并没有任何的问题。
+中医的哲学基础就注定它是一种“感性”的诊断和治疗方式，感性就意味着无法量化，而是依赖长时间的诊断经验来进行领悟。所以，中医的培养方式适合中国传统的师徒相授模式，而不是西方的高等教育批量培养模式。
+中国哲学和西方哲学都是看待宇宙的方式，并没有对错之分。只是目前来看，西方的科学宇宙观是更成功的一方，但也不能将它视为真理。我们还是要辩证地看待中医和中国哲学，而不是以现代科学的标准来评判它的对错。
+最后，我们应该做的是用科学的方法充实自己，但不应该用科学的标准来限制自己。
+ 参考
+ 王德峰的中西思想必修课，王德峰 科学的定义，维基百科 进一步深刻认识科学与哲学的关系，白春礼 论中医在现代医疗体系中的角色，Joshua Lotz, B.</description>
+    </item>
+    
+    <item>
+      <title>【Go实现】实践GoF的23种设计模式：SOLID原则</title>
+      <link>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8Fsolid%E5%8E%9F%E5%88%99/</link>
+      <pubDate>Sun, 13 Mar 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8Fsolid%E5%8E%9F%E5%88%99/</guid>
+      <description>之前也有写过关于设计模式的文章《使用Go实现GoF的23种设计模式》，但是那个系列写了3篇文章就没再继续了，主要的原因是找不到合适的示例代码。考虑到，如果以类似于“鸭子是否会飞”、“烘焙的制作流程”等贴近生活的事情举例，很难在我们日常的开发中产生联系。（目前应该很少有这些逻辑的软件系统吧）
+《实践GoF的23种设计模式》可以看成是《使用Go实现GoF的23种设计模式》系列的重启，吸取了上次烂尾的教训，本次在写文章之前就已经完成了23种设计模式的示例代码实现。示例代码以我们日常开发中经常碰到的一些技术/问题/场景作为切入点，示范如何运用设计模式来完成相关的实现。
+ 前言 从1995年GoF提出23种设计模式到现在，25年过去了，设计模式依旧是软件领域的热门话题。设计模式通常被定义为：
+ 设计模式（Design Pattern）是一套被反复使用、多数人知晓的、经过分类编目的、代码设计经验的总结，使用设计模式是为了可重用代码、让代码更容易被他人理解并且保证代码可靠性。
+ 从定义上看，设计模式其实是一种经验的总结，是针对特定问题的简洁而优雅的解决方案。既然是经验总结，那么学习设计模式最直接的好处就在于可以站在巨人的肩膀上解决软件开发过程中的一些特定问题。
+学习设计模式的最高境界是吃透它们本质思想，可以做到即使已经忘掉某个设计模式的名称和结构，也能在解决特定问题时信手拈来。设计模式背后的本质思想，就是我们熟知的SOLID原则。如果把设计模式类比为武侠世界里的武功招式，那么SOLID原则就是内功内力。通常来说，先把内功练好，再来学习招式，会达到事半功倍的效果。因此，在介绍设计模式之前，很有必要先介绍一下SOLID原则。
+本文首先会介绍本系列文章中用到的示例代码demo的整体结构，然后开始逐一介绍SOLID原则，也即单一职责原则、开闭原则、里氏替换原则、接口隔离原则和依赖倒置原则。
+一个简单的分布式应用系统  本系列示例代码demo获取地址：https://github.com/ruanrunxue/Practice-Design-Pattern&amp;ndash;Go-Implementation
+ 示例代码demo工程实现了一个简单的分布式应用系统（单机版），该系统主要由以下几个模块组成：
+ 网络 Network，网络功能模块，模拟实现了报文转发、socket通信、http通信等功能。 数据库 Db，数据库功能模块，模拟实现了表、事务、dsl等功能。 消息队列 Mq，消息队列模块，模拟实现了基于topic的生产者/消费者的消息队列。 监控系统 Monitor，监控系统模块，模拟实现了服务日志的收集、分析、存储等功能。 边车 Sidecar，边车模块，模拟对网络报文进行拦截，实现access log上报、消息流控等功能。 服务 Service，运行服务，当前模拟实现了服务注册中心、在线商城服务集群、服务消息中介等服务。  示例代码demo工程的主要目录结构如下：
+├── db # 数据库模块，定义Db、Table、TableVisitor等抽象接口和实现 ├── monitor # 监控系统模块，采用插件式的架构风格，当前实现access log日志etl功能 │ ├── config # 监控系统插件配置模块 │ ├── filter # 过滤插件的实现定义 │ ├── input # 输入插件的实现定义 │ ├── output # 输出插件的实现定义 │ ├── pipeline # Pipeline插件的实现定义，一个pipeline表示一个ETL处理流程 │ ├── plugin # 插件抽象接口的定义，比如Plugin、Config等 │ └── model # 监控系统模型对象定义 ├── mq # 消息队列模块 ├── network # 网络模块，模拟网络通信，定义了socket、packet等通用类型/接口  │ └── http # 模拟实现了http通信等服务端、客户端能力 ├── service # 服务模块，定义了服务的基本接口 │ ├── mediator # 服务消息中介，作为服务通信的中转方，实现了服务发现，消息转发的能力 │ ├── registry # 服务注册中心，提供服务注册、去注册、更新、 发现、订阅、去订阅、通知等功能 │ │ └── model # 服务注册/发现相关的模型定义 │ └── shopping # 模拟在线商城服务群的定义，包含订单服务、库存服务、支付服务、发货服务 └── sidecar # 边车模块，对socket进行拦截，提供http access log、流控功能 └── flowctrl # 流控模块，基于消息速率进行随机流控 SRP：单一职责原则 单一职责原则（The Single Responsibility Principle，SRP）应该是SOLID原则中，最容易被理解的一个，但同时也是最容易被误解的一个。很多人会把“将大函数重构成一个个职责单一的小函数”这一重构手法等价为SRP，这是不对的，小函数固然体现了职责单一，但这并不是SRP。</description>
+    </item>
+    
+    <item>
+      <title>假如让你来设计SSL/TLS协议</title>
+      <link>https://www.yrunz.com/p/%E5%81%87%E5%A6%82%E8%AE%A9%E4%BD%A0%E6%9D%A5%E8%AE%BE%E8%AE%A1ssl/tls%E5%8D%8F%E8%AE%AE/</link>
+      <pubDate>Sat, 05 Mar 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E5%81%87%E5%A6%82%E8%AE%A9%E4%BD%A0%E6%9D%A5%E8%AE%BE%E8%AE%A1ssl/tls%E5%8D%8F%E8%AE%AE/</guid>
+      <description>前言 说起网络通信协议，相信大家对 TCP 和 HTTP 都很熟悉，它们可以说是当今互联网通信的基石。但是，在网络安全方面，它们却是有着很大安全风险：
+ 窃听风险。第三方攻击者可以随意窃听通信内容，比如获取支付账号密码。 冒充风险。第三方攻击者可以冒充他人身份与你通信，比如冒充银行网站以窃取银行账号密码。 篡改风险。第三方攻击者可以随意修改通信内容，比如在响应上加入钓鱼网址。  为此，SSL/TLS 协议应运而生。SSL/TLS 是建立在传输层之上、应用层之下的安全通信协议，它主要的设计意图就是消除上述几种安全风险，保证网络通信安全。我们熟知的 HTTPS 就是 HTTP + SSL/TLS 构建的，可以说 SSL/TLS 是当今互联网安全通信的基石。
+那么，现在假如让你来设计 SSL/TLS 协议，你会怎么设计呢？
+ 本文将从设计者的视角介绍如何一步步设计出一个简易版的 SSL/TLS 的过程，在文章的最后，再简单介绍 TLS 1.2 版本的工作机制，以此帮助大家对 SSL/TLS 协议的基本原理有一个更深入的理解。
+ 基于对称加密算法的数据加密 窃听风险主要是因为通信双方在网络上明文传输数据，导致攻击者可以通过简单网络抓包就能获取到通信的内容。
+要解决窃听风险，就最好的方法就是对数据进行加密。也即客户端在把数据发送出去之前，先对数据进行加密；服务端收到密文之后，再进行解密还原数据。这样就能避免在网络上传播明文，从而可以防止第三方攻击者的窃听。
+提到加密算法，很多人首先会想到对称加密算法，它以简单和高效著称。对称加密指的是加密和解密都使用同一份密钥，常见的算法有 DES、AES 等。
+现在，我们试着使用对称加密算法来实现安全通信：
+使用对称密钥加密的前提是，通信双方都必须用同一份密钥来对数据进行加密。主要有线下和线上密钥交换两种方案可以达到该目的：
+ 线下密钥交换，也即通信双方线下约定好当面交换密钥（比如通过U盘作为媒介）。该方案可以保证密钥交换的安全性，但是很难推广使用。因为在绝大多数场景中，客户端和服务端都不可能碰面。 线上密钥交换，也即通过网络来传输密钥。但在网络明文传输密钥同样也会被攻击者拦截，这样的加密也没有意义了。  因此，单纯的对称加密并不能满足通信安全的要求，我们还要继续优化&amp;hellip;&amp;hellip;
+基于非对称加密算法的数据加密 非对称加密算法指的是加密和解密使用不同的密钥，这两个不同的密钥组成一个密钥对，也即公钥和私钥。公钥是公开的密钥，所有人都能获取到；私钥则是保密的。当我们使用公钥对数据进行加密后，只有对应的私钥才能完成解密。常见的非对称加密算法有 RSA、ECC 等。
+现在，我们试着使用非对称加密算法来实现安全通信：
+通过非对称加密算法，我们既能实现对数据的加密，又能解决密钥交换的问题，从而消除了窃听风险。但是，非对称加密算法最大的缺点，就是加解密速度很慢，相比于对称加密算法要慢1000多倍。因此，非对称加密算法通常只适用于对少量数据的加密。
+到目前为止，单纯地使用对称加密算法或非对称加密算法都无法满足要求，还需要继续优化&amp;hellip;&amp;hellip;
+基于对称加密+非对称加密算法的数据加密 既然对称加密算法加解密速度快，但存在密钥交换的问题；而非对称加密算法可以解决密钥交换问题，但加解密速度慢。那么我们可以把两种算法结合起来，也即通过对称加密算法进行数据加密，在交换对称密钥时，使用非对称加密算法来加密对称密钥，确保密钥在网络传输过程中不会被攻击者窃听。
+现在，我们试着使用对称加密+非对称加密算法来实现安全通信：
+使用对称加密+非对称加密算法的方案，我们消除了窃听风险，也不会存在加解密性能问题，但是还是无法消除冒充风险。
+考虑如下场景：
+ 攻击者把服务端的公钥拦截，并保存下来。 攻击者伪造成服务端，把自己的公钥发送给客户端。 攻击者拦截使用非法公钥加密后的对称密钥，解密后得到对称密钥明文，并保存下来 攻击者使用服务端公钥重新加密对称密钥，伪造成客户端发送给服务端。  这番操作后，攻击者就能在客户端和服务端都不知情的情况下，得到了对称密钥。在这种场景下，攻击者从被动攻击的窃听，转为主动攻击的冒充，让客户端和服务端都误以为一直在跟对方通信。
+因此，我们需要找到一种方法，让客户端能够确保自己收到的公钥，一定是真实的服务端发送过来的，也即能够认证“服务端”的真实身份&amp;hellip;&amp;hellip;
+基于CA证书的身份认证 数字证书概述 引用百度百科的定义：</description>
+    </item>
+    
+    <item>
+      <title>【Java实现】实践GoF的23种设计模式：SOLID原则</title>
+      <link>https://www.yrunz.com/p/java%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8Fsolid%E5%8E%9F%E5%88%99/</link>
+      <pubDate>Sat, 26 Feb 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/java%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8Fsolid%E5%8E%9F%E5%88%99/</guid>
+      <description>之前也有写过关于设计模式的文章《使用Go实现GoF的23种设计模式》，但是那个系列写了3篇文章就没在继续了，主要的原因是找不到合适的示例代码。考虑到，如果以类似于“鸭子是否会飞”、“烘培的制作流程”等贴近生活的事情举例，很难在我们日常的开发中产生联系。（目前应该很少有这些逻辑的软件系统吧）
+《实践GoF的23种设计模式》可以看成是《使用Go实现GoF的23种设计模式》系列的重启，吸取了上次烂尾的教训，本次在写文章之前就已经完成了23种设计模式的示例代码实现。和上次不同，本次示例代码使用Java实现，以我们日常开发中经常碰到的一些技术/问题/场景作为切入点，示范如何运用设计模式来完成相关的实现。
+ 前言 从1995年GoF提出23种设计模式到现在，25年过去了，设计模式依旧是软件领域的热门话题。设计模式通常被定义为：
+ 设计模式（Design Pattern）是一套被反复使用、多数人知晓的、经过分类编目的、代码设计经验的总结，使用设计模式是为了可重用代码、让代码更容易被他人理解并且保证代码可靠性。
+ 从定义上看，设计模式其实是一种经验的总结，是针对特定问题的简洁而优雅的解决方案。既然是经验总结，那么学习设计模式最直接的好处就在于可以站在巨人的肩膀上解决软件开发过程中的一些特定问题。
+学习设计模式的最高境界是吃透它们本质思想，可以做到即使已经忘掉某个设计模式的名称和结构，也能在解决特定问题时信手拈来。设计模式背后的本质思想，就是我们熟知的SOLID原则。如果把设计模式类比为武侠世界里的武功招式，那么SOLID原则就是内功内力。通常来说，先把内功练好，再来学习招式，会达到事半功倍的效果。因此，在介绍设计模式之前，很有必要先介绍一下SOLID原则。
+本文首先会介绍本系列文章中用到的示例代码demo的整体结构，然后开始逐一介绍SOLID原则，也即单一职责原则、开闭原则、里氏替换原则、接口隔离原则和依赖倒置原则。
+一个简单的分布式应用系统  本系列示例代码demo获取地址：https://github.com/ruanrunxue/Practice-Design-Pattern&amp;ndash;Java-Implementation
+ 示例代码demo工程实现了一个简单的分布式应用系统（单机版），该系统主要由以下几个模块组成：
+ 网络 Network，网络功能模块，模拟实现了报文转发、socket通信、http通信等功能。 数据库 Db，数据库功能模块，模拟实现了表、事务、dsl等功能。 消息队列 Mq，消息队列模块，模拟实现了基于topic的生产者/消费者的消息队列。 监控系统 Monitor，监控系统模块，模拟实现了服务日志的收集、分析、存储等功能。 边车 Sidecar，边车模块，模拟对网络报文进行拦截，实现access log上报、消息流控等功能。 服务 Service，运行服务，当前模拟实现了服务注册中心、在线商城服务集群、服务消息中介等服务。  示例代码demo工程的主要目录结构如下：
+├── db # 数据库模块，定义Db、Table、TableVisitor等抽象接口 【@单例模式】 │ ├── cache # 数据库缓存代理，为Db新增缓存功能 【@代理模式】 │ ├── console # 数据库控制台实现，支持dsl语句查询和结果显示 【@适配器模式】 │ ├── dsl # 实现数据库dsl语句查询能力，当前只支持select语句查询 【@解释器模式】 │ ├── exception # 数据库模块相关异常定义 │ ├── iterator # 遍历表迭代器，包含按序遍历和随机遍历 【@迭代器模式】 │ └── transaction # 实现数据库的事务功能，包括执行、提交、回滚等 【@命令模式】【@备忘录模式】 ├── monitor # 监控系统模块，采用插件式的架构风格，当前实现access log日志etl功能 │ ├── config # 监控系统插件配置模块 【@抽象工厂模式】【@组合模式】 │ │ ├── json # 实现基于json格式文件的配置加载功能 │ │ └── yaml # 实现基于yaml格式文件的配置加载功能 │ ├── entity # 监控系统实体对象定义 │ ├── exception # 监控系统相关异常 │ ├── filter # Filter插件的实现定义 【@责任链模式】 │ ├── input # Input插件的实现定义 【@策略模式】 │ ├── output # Output插件的实现定义 │ ├── pipeline # Pipeline插件的实现定义，一个pipeline表示一个ETL处理流程 【@桥接模式】 │ ├── plugin # 插件抽象接口定义 │ └── schema # 监控系统相关的数据表定义  ├── mq # 消息队列模块 ├── network # 网络模块，模拟网络通信，定义了socket、packet等通用类型/接口 【@观察者模式】 │ └── http # 模拟实现了http通信等服务端、客户端能力 ├── service # 服务模块，定义了服务的基本接口 │ ├── mediator # 服务消息中介，作为服务通信的中转方，实现了服务发现，消息转发的能力 【@中介者模式】 │ ├── registry # 服务注册中心，提供服务注册、去注册、更新、 发现、订阅、去订阅、通知等功能 │ │ ├── entity # 服务注册/发现相关的实体定义 【@原型模式】【@建造者模式】 │ │ └── schema # 服务注册中心相关的数据表定义 【@访问者模式】【@享元模式】 │ └── shopping # 模拟在线商城服务群的定义，包含订单服务、库存服务、支付服务、发货服务 【@外观模式】 └── sidecar # 边车模块，对socket进行拦截，提供http access log、流控功能 【@装饰者模式】【@工厂模式】 └── flowctrl # 流控模块，基于消息速率进行随机流控 【@模板方法模式】【@状态模式】 SRP：单一职责原则 单一职责原则（The Single Responsibility Principle，SRP）应该是SOLID原则中，最容易被理解的一个，但同时也是最容易被误解的一个。很多人会把“将大函数重构成一个个职责单一的小函数”这一重构手法等价为SRP，这是不对的，小函数固然体现了职责单一，但这并不是SRP。</description>
+    </item>
+    
+    <item>
+      <title>2021年小结</title>
+      <link>https://www.yrunz.com/p/2021%E5%B9%B4%E5%B0%8F%E7%BB%93/</link>
+      <pubDate>Mon, 31 Jan 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/2021%E5%B9%B4%E5%B0%8F%E7%BB%93/</guid>
+      <description>新年将至，照例还是要对过去的2021年做个小结。在过去的一年里，读过的书不多，写过的文章也少，生活倒是有不少感悟。
+阅读                         2021年读过的书不多，从数量上看，比起往年还是少了些。一方面是懒惰的天性驱使；另一方面也是读得更慢了。以前读书很多时候是为了追求知识广度，走马观花浏览一遍，留个大致的印象便算完事。久而久之，虽然明面上读了不少书，但是知识倒是没涨多少。
+为此，自己也在不断思考如何更好地读书，于是开始尝试做笔记，在读书过程中把关键知识和自己的思考记录下来。然后发现，读书笔记不仅仅有助于加深对知识的理解，而且为文章的写作提供了很好的素材。于是就逐渐养成了读书过程中做笔记的习惯，读书的速度也就慢下来了。
+ 《Fundamentals of Software Architecture》：被称为是架构师的入门指南，重点介绍了当今常见的8种架构模式。每种架构模式都有其优缺点以及适用场景，并不存在所谓的“银弹”。正如作者书中提到，Everything in software architecture is a trade-off。 《Microservices vs Service-Oriented Architecture》：可作为《Fundamentals of Software Architecture》的延伸阅读材料，重点对比了微服务架构和基于服务的架构之间的优缺点，有助于加深对两种架构的异同点的理解。 《Operating Systems: Three Easy Pieces》：读过的写得最好的操作系统书籍，作者把复杂的基本原理介绍得通俗易懂，又不乏深度。整本书条理清晰，非常值得一读，中文版被翻译成《操作系统导论》。 《软件架构设计：大型网站技术架构与业务架构融合之道》：同样是以架构设计为主题，相比于《Fundamentals of Software Architecture》，这本更“接地气”，不仅介绍了高并发、数据一致性等常用问题的解决方法，还介绍了诸如操作系统、数据库、网络等基础知识。 《凤凰架构》：周志明老师的又一力作，从架构的视角介绍了如何构建大型分布式系统，全书的话题涉猎很广，基本把分布式系统所能涉及的知识点都讲解了，比如远程服务调用、事务、安全、一致性等。书中罗列了很多参考阅读材料，可作为进阶架构师的一本导航书，如果把其中提到的知识点都研究透，那么可以就成为专家了。 《The Programmer&amp;rsquo;s Brain》：从认知科学的角度教你如何更好地阅读代码、理解代码、编写代码，对于程序员新手来说值得一读。书中提到的很多学习程序的方法，感觉就是将有经验的程序员的一些学习方法，结合认知科学的理论更好地呈现了出来。 《吴军阅读与写作讲义》：某天在一家书店上花了一下午的时间浏览完这本书的上半部分——“如何阅读和写作”，书中讨论的正是理工科学生容易忽视的阅读、写作、表达等软能力。 《邓小平时代》：读完本书，一方面被邓小平的坚韧、格局、领导力所屈服，另一方面也看到了我党一路走来也是在不断地犯错-反思-改正-进步。恰逢2021年是我党建党100周年，这一年里也看了很多关于党史的影视节目，对我党历史也有了更深刻的了解。从觉醒年代，到北伐战争，然后长征、抗日、大决战、抗美援朝、文革、改革开放，一路走来，我党在黑暗中不断摸索前行，磕磕碰碰，逐渐找到一条通往光明的道路。 《刘擎西方现代思想讲义》：通过介绍十多位西方思想家的思想结晶，将西方现代思想从启蒙逐渐走向成熟的过程呈现给读者。随着物质生活的满足，现代人也慢慢开始寻找人生的意义，“我是谁”，“我在做什么”，“我为什么这么做“，这些问题，那些伟大的思想家都有想过，读完这本书，也许会找到一些答案。   前些天有幸听了一场“哲学王子”王德峰的讲座，感触很大。中国的哲学（主要是孔子的儒家思想）和西方的哲学（主要是柏拉图的理念论）差别还是蛮大的，这也决定了西方和中国发展道路的不同。西方强调改变世界，中国则是强调天人合一。虽然目前结果来看，西方会更成功一些，但是天人合一的可持续发展也许更有潜力。
+  《人体简史》：印象最深的是书中最后关于衰老和死亡的描述，对于我们大多数人来说，死亡是能想象出的最可怕的事情，但是对于宇宙来说，人的死亡只不过又是物质的一次循环罢了。 “一具尸体仍然生机勃勃，只不过，它不再是你的生命。它属于你留下的细菌，以及其他蜂拥而至的细菌”。 《认知觉醒》：早冥读写跑，人生五件套；做每一件事情都要专注事情本身；坚持每日反思，每日计划。作者所提倡的这些虽然很难全部做到，但是至少在心里留下了个烙印，也在不断尝试在这个快节奏的生活里，学着慢下来专注和思考。 《巨人的陨落》、《世界的凛冬》、《永恒的边缘》：肯福莱特先生的三部史诗巨作，以小人物的视角讲述从一战到冷战的西方世界历史发展之路。在历史的滚滚车轮里，每一个迈向死亡的生命都在热烈地生长。这是对有声书的首次尝试，惠天和言亮老师（非星凡文化@喜马拉雅）的双人播讲体验极好，是通勤路上的必备小伴侣。除了小说剧情之外，两位老师以知识卡片的形式延伸了很多历史知识和人性感悟，非常值得一听。  写作 2021年只写了10篇文章，产出还是一如既往的少。而且一些打算写成系列的文章写着写着都烂尾断更了（2020年的《使用Go实现GoF的23种设计模式》系列，2021年的《从分层架构到微服务架构》系列），许多朋友催更也无果。倒不是因为偷懒，而是那份兴致很难再提起了，毕竟人总是喜新厌旧的😄。这也促使我后面宁愿写长文，也轻易不会再写系列短文。</description>
+    </item>
+    
+    <item>
+      <title>探索OS的内存原理</title>
+      <link>https://www.yrunz.com/p/%E6%8E%A2%E7%B4%A2os%E7%9A%84%E5%86%85%E5%AD%98%E5%8E%9F%E7%90%86/</link>
+      <pubDate>Sun, 09 Jan 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E6%8E%A2%E7%B4%A2os%E7%9A%84%E5%86%85%E5%AD%98%E5%8E%9F%E7%90%86/</guid>
+      <description>前言 内存作为计算机系统的组成部分，跟开发人员的日常开发活动有着密切的联系，我们平时遇到的Segment Fault、OutOfMemory、Memory Leak、GC等都与它有关。本文所说的内存，指的是计算机系统中的主存（Main Memory），它位于存储金字塔中CPU缓存和磁盘之间，是程序运行不可或缺的一部分。
+在计算机系统中，主存通常都是由操作系统（OS）来管理，而内存管理的细则对开发者来说是无感的。对于一个普通的开发者，他只需懂得如何调用编程语言的接口来进行内存申请和释放，即可写出一个可用的应用程序。如果你使用的是带有垃圾回收机制的语言，如Java和Go，甚至都不用主动释放内存。但如果你想写出高效应用程序，熟悉OS的内存管理原理就变得很有必要了。
+下面，我们将从最简单的内存管理原理说起，带大家一起窥探OS的内存管理机制，由此熟悉底层的内存管理机制，写出高效的应用程序。
+独占式内存管理 早期的单任务系统中，同一时刻只能有一个应用程序独享所有的内存（除开OS占用的内存），因此，内存管理可以很简单，只需在内存上划分两个区域：
+在多任务系统中，计算机系统已经可以做到多个任务并发运行。如果还是按照独占式的管理方式，那么每次任务切换时，都会涉及多次内存和磁盘之间的数据拷贝，效率极其低下：
+最直观的解决方法就是让所有程序的数据都常驻在内存中（假设内存足够大），这样就能避免数据拷贝了：
+但这样又会带来另一个问题，程序之间的内存地址空间是没有隔离的，也就是程序A可以修改程序B的内存数据。这样的一个重大的安全问题是用户所无法接受的，要解决该问题，就要借助虚拟化的力量了。
+虚拟地址空间 为了实现程序间内存的隔离，OS对物理内存做了一层虚拟化。OS为每个程序都虚拟化出一段内存空间，这段虚拟内存空间会映射到一段物理内存上。但对程序自身而言，它只能看到自己的虚拟地址空间，也就有独占整个内存的错觉了。
+上图中，虚拟内存空间分成了三个区域，其中Code区域存储的是程序代码的机器指令；Heap区域存储程序运行过程中动态申请的内存；Stack区域则是存储函数入参、局部变量、返回值等。Heap和Stack会在程序运行过程中不断增长，分别放置在虚拟内存空间的上方和下方，并往相反方向增长。
+从虚拟地址空间到物理地址空间的映射，需要一个转换的过程，完成这个转换运算的部件就是MMU（memory management unit），也即内存管理单元，它位于CPU芯片之内。
+要完成从虚拟地址到物理地址到转换，MMU需要base和bound两个寄存器。其中base寄存器用来存储程序在物理内存上的基地址，比如在图5中，程序A的基地址就是192KB；bound寄存器（有时候也叫limit寄存器）则保存虚拟地址空间的Size，主要用来避免越界访问，比如图5中程序A的size值为64K。那么，基于这种方式的地址转换公式是这样的：
+ 物理地址 = 虚拟地址 + 基地址
+ 以图5中程序A的地址转换为例，当程序A尝试访问超过其bound范围的地址时，物理地址会转换失败：
+现在，我们再次仔细看下程序A的物理内存分布，如下图7所示，中间有很大的一段空闲内存是“已申请，未使用”的空闲状态。这也意味着即使这部分是空闲的，也无法再次分配给其他程序使用，这是一种巨大的空间浪费！为了解决这个内存利用率低下的问题，我们熟悉的段式内存管理出现了。
+段式内存管理 在上一节中，我们发现如果以程序为单位去做内存管理，会存在内存利用率不足的问题。为了解决该问题，段式内存管理被引入。段（Segment）是逻辑上的概念，本质上是一块连续的、有一定大小限制的内存区域，前文中，我们一共提到过3个段：Code、Heap和Stack。
+段式内存管理以段为单位进行管理，它允许OS将每个段灵活地放置在物理内存的空闲位置上，因此也避免了“已申请，未使用”的内存区域出现：
+地址转换 从上图8可知，段式内存管理中程序的物理内存空间可能不再连续了，因此为了实现从虚拟地址到物理地址到转换，MMU需要为每个段都提供一对base-bound寄存器，比如：
+给一个虚拟地址，MMU是如何知道该地址属于哪个段，从而根据对应的base-bound寄存器转换为对应的物理地址呢？
+假设虚拟地址有16位，因为只有3个段，因此，我们可以使用虚拟地址的高2位来作为段标识，比如00表示Code段，01表示Heap段，11表示Stack段。这样MMU就能根据虚拟地址来找到对应段的base-bound寄存器了：
+但这样还不是能够顺利的将虚拟地址转换为物理地址，我们忽略了重要的一点：Heap段和Stack段的增长方向是相反的，这也意味着两者的地址转换方式是不一样的。因此，我们还必须在虚拟地址中多使用一位来标识段的增长方向，比如0表示向上（低地址方向）增长，1表示向下（高地址方向）增长：
+下面，看一组段式内存管理地址转换的例子：
+那么，总结段式内存管理的地址转换算法如下：
+// 获取当前虚拟地址属于哪个段 Segment = (VirtualAddress &amp;amp; SEG_MASK) &amp;gt;&amp;gt; SEG_SHIFT // 得到段内偏移量 Offset = VirtualAddress &amp;amp; OFFSET_MASK // 获得内存增长的方向 GrowsDirection = VirtualAddress &amp;amp; GROWS_DIRECTION_MASK // 有效性校验 if (Offset &amp;gt;= Bounds[Segment]) RaiseException(PROTECTION_FAULT) else if (GrowsDirection == 0) { PhysAddr = Base[Segment] + Offset } else { PhysAddr = Base[Segment] - Offset } 内存共享和保护 段式内存管理还可以很方便地支持内存共享，从而达到节省内存的目的。比如，如果存在多个程序都是同一个可执行文件运行起来的，那么这些程序是可以共享Code段的。为了实现这个功能，我们可以在虚拟地址上设置保护位，当保护位为只读时，表示该段可以共享。另外，如果程序修改了只读的段，则转换地址失败，因此也可以达到内存保护的目的。</description>
+    </item>
+    
+    <item>
+      <title>实现DCI架构</title>
+      <link>https://www.yrunz.com/p/%E5%AE%9E%E7%8E%B0dci%E6%9E%B6%E6%9E%84/</link>
+      <pubDate>Sun, 10 Oct 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E5%AE%9E%E7%8E%B0dci%E6%9E%B6%E6%9E%84/</guid>
+      <description>前言 在面向对象编程的理念里，应用程序是对现实世界的抽象，我们经常会将现实中的事物建模为编程语言中的类/对象（“是什么”），而事物的行为则建模为方法（“做什么”）。面向对象编程有三大基本特性（封装、继承/组合、多态）和五大基本原则（单一职责原则、开放封闭原则、里氏替换原则、依赖倒置原则、接口分离原则），但知道这些还并不足以让我们设计出好的程序，于是很多方法论就涌现了出来。
+近来最火的当属领域驱动设计（DDD），其中战术建模提出的实体、值对象、聚合等建模方法，能够很好的指导我们设计出符合现实世界的领域模型。但DDD也不是万能的，在某些应用场景下，按照传统的战术建模/面向对象方法设计出来的程序，也会存在可维护性差、违反单一职责原则等问题。
+本文介绍的DCI建模方法可以看成是战术建模的一种辅助，在某些场景下，它可以很好的弥补DDD战术建模的一些缺点。接下来，我们将会通过一个案例来介绍DCI是如何解决DDD战术建模的这些缺点的。
+ 本文涉及的代码归档在github项目：https://github.com/ruanrunxue/DCI-Architecture-Implementation
+ 案例 考虑一个普通人的生活日常，他会在学校上课，也会趁着暑假去公司工作，在工作之余去公园游玩，也会像普通人一样在家吃喝玩乐。当然，一个人的生活还远不止这些，为了讲解方便，本文只针对这几个典型的场景进行建模示例。
+使用DDD建模 按照DDD战术建模的思路，首先，我们会列出该案例的通用语言：
+ 人、身份证、银行卡、家、吃饭、睡觉、玩游戏、学校、学生卡、学习、考试、公司、工卡、上班、下班、公园、购票、游玩
+ 接着，我们使用战术建模技术（值对象、实体、聚合、领域服务、资源库）对通用语言进行领域建模。
+DDD建模后的代码目录结构如下：
+- aggregate:聚合- company.go- home.go- park.go- school.go- entity:实体- people.go- vo:值对象- account.go- identity_card.go- student_card.go- work_card.go我们将身份证、学生卡、工卡、银行卡这几个概念，建模为值对象（Value Object）：
+package vo // 身份证 type IdentityCard struct { Id uint32 Name string } // 学生卡 type StudentCard struct { Id uint32 Name string School string } // 工卡 type WorkCard struct { Id uint32 Name string Company string } // 银行卡 type Account struct { Id uint32 Balance int } .</description>
+    </item>
+    
+    <item>
+      <title>探索CPU的调度原理</title>
+      <link>https://www.yrunz.com/p/%E6%8E%A2%E7%B4%A2cpu%E7%9A%84%E8%B0%83%E5%BA%A6%E5%8E%9F%E7%90%86/</link>
+      <pubDate>Sun, 25 Jul 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E6%8E%A2%E7%B4%A2cpu%E7%9A%84%E8%B0%83%E5%BA%A6%E5%8E%9F%E7%90%86/</guid>
+      <description>前言 软件工程师们总习惯把OS（Operating System，操作系统）当成是一个非常值得信赖的管家，我们只管把程序托管到OS上运行，却很少深入了解操作系统的运行原理。确实，OS作为一个通用的软件系统，在大多数的场景下都表现得足够的优秀。但仍会有一些特殊的场景，需要我们对OS进行各项调优，才能让业务系统更高效地完成任务。这就要求我们必须深入了解OS的原理，不仅仅只会使唤这个管家，还能懂得如何让管家做得更好。
+OS是一个非常庞大的软件系统，本文主要探索其中的冰山一角：CPU的调度原理。
+说起CPU的调度原理，很多人的第一反应是基于时间片的调度，也即每个进程都有占用CPU运行的时间片，时间片用完之后，就让出CPU给其他进程。至于OS是如何判断一个时间片是否用完的、如何切换到另一个进程等等更深层的原理，了解的人似乎并不多。
+其实，基于时间片的调度只是众多CPU的调度算法的一类，本文将会从最基础的调度算法说起，逐个分析各种主流调度算法的原理，带大家一起探索CPU调度的奥秘。
+CPU的上下文切换 在探索CPU调度原理之前，我们先了解一下CPU的上下文切换，它是CPU调度的基础。
+如今的OS几乎都支持&amp;quot;同时&amp;quot;运行远大于CPU数量的任务，OS会将CPU轮流分配给它们使用。这就要求OS必须知道从哪里加载任务，以及加载后从哪里开始运行，而这些信息都保存在CPU的寄存器中，其中即将执行的下一条指令的地址被保存在程序计数器（PC）这一特殊寄存器上。我们将寄存器的这些信息称为CPU的上下文，也叫硬件上下文。
+OS在切换运行任务时，将上一任务的上下文保存下来，并将即将运行的任务的上下文加载到CPU寄存器上的这一动作，被称为CPU上下文切换。
+ CPU上下文属于进程上下文的一部分，我们常说的进程上下文由如下两部分组成：
+ 用户级上下文：包含进程的运行时堆栈、数据块、代码块等信息。 系统级上下文：包含进程标识信息、进程现场信息（CPU上下文）、进程控制信息等信息。   这涉及到两个问题：（1）上一任务的CPU上下文如何保存下来？（2）什么时候执行上下文切换？
+问题1: 上一任务的CPU上下文如何保存下来？
+CPU上下文会被保存在进程的内核空间（kernel space）上。OS在给每个进程分配虚拟内存空间时，会分配一个内核空间，这部分内存只能由内核代码访问。OS在切换CPU上下文前，会先将当前CPU的通用寄存器、PC等进程现场信息保存在进程的内核空间上，待下次切换时，再取出重新装载到CPU上，以恢复任务的运行。
+问题2: 什么时候执行上下文切换？
+OS要想进行任务上下文切换，必须占用CPU来执行切换逻辑。然而，用户程序运行的过程中，CPU已经被用户程序所占用，也即OS在此刻并未处于运行状态，自然也无法执行上下文切换。针对该问题，有两种解决策略，协作式策略与抢占式策略。
+协作式策略依赖用户程序主动让出CPU，比如执行系统调用（System Call）或者出现除零等异常。但该策略并不靠谱，如果用户程序没有主动让出CPU，甚至是恶意死循环，那么该程序将会一直占用CPU，唯一的恢复手段就是重启系统了。
+抢占式策略则依赖硬件的定时中断机制（Timer Interrupt），OS会在初始化时向硬件注册中断处理回调（Interrupt Handler）。当硬件产生中断时，硬件会将CPU的处理权交给来OS，OS就可以在中断回调上实现CPU上下文的切换。
+调度的衡量指标 对于一种CPU调度算法的好坏，一般都通过如下两个指标来进行衡量：
+ 周转时间（turnaround time），指从任务到达至任务完成之间的时间，即$T_{turnaround}=T_{completiong}-T_{arrival}$ 响应时间（response time），指从任务到达至任务首次被调度的时间，即$T_{response}=T_{firstrun}-T_{arrival}$  两个指标从某种程度上是对立的，要求高的平均周转时间，必然会降低平均响应时间。具体追求哪种指标与任务类型有关，比如程序编译类的任务，要求周转时间要小，尽可能快的完成编译；用户交互类的任务，则要求响应时间要小，避免影响用户体验。
+工作负载假设 OS上的工作负载（也即各类任务运行的状况）总是千变万化的，为了更好的理解各类CPU调度算法原理，我们先对工作负载进行来如下几种假设：
+ 假设1：所有任务都运行时长都相同。 假设2：所有任务的开始时间都是相同的 假设3：一旦任务开始，就会一直运行，直至任务完成。 假设4：所有任务只使用CPU资源（比如不产生I/O操作）。 假设5：预先知道所有任务的运行时长。  准备工作已经做好，下面我们开始进入CPU调度算法的奇妙世界。
+FIFO：先进先出 FIFO（First In First Out，先进先出）调度算法以原理简单，容易实现著称，它先调度首先到达的任务直至结束，然后再调度下一个任务，以此类推。如果有多个任务同时到达，则随机选一个。
+在我们假设的工作负载状况下，FIFO效率良好。比如有A、B、C三个任务满足上述所有负载假设，每个任务运行时长为10s，在t=0时刻到达，那么任务调度情况是这样的：
+根据FIFO的调度原理，A、B、C分别在10、20、30时刻完成任务，平均周转时间为20s（ $\frac {10+20+30}{3}$），效果很好。
+然而现实总是残酷的，如果假设1被打破，比如A的运行时间变成100s，B和C的还是10s，那么调度情况是这样的：
+根据FIFO的调度原理，由于A的运行时间过长，B和C长时间得不到调度，导致平均周转时间恶化为110（ $\frac {100+110+120}{3}$）。
+因此，FIFO调度策略在任务运行时间差异较大的场景下，容易出现任务饿死的问题！
+针对这个问题，如果运行时间较短的B和C先被调度，问题就可以解决了，这正是SJF调度算法的思想。
+SJF：最短任务优先 SJF（Shortest Job First，最短任务优先）从相同到达时间的多个任务中选取运行时长最短的一个任务进行调度，接着再调度第二短的任务，以此类推。
+针对上一节的工作负载，使用SJF进行调度的情况如下，周转时间变成了50s（ $\frac {10+20+120}{3}$），相比FIFO的110s，有了2倍多的提升。</description>
+    </item>
+    
+    <item>
+      <title>《认知觉醒》的读后感</title>
+      <link>https://www.yrunz.com/p/%E8%AE%A4%E7%9F%A5%E8%A7%89%E9%86%92%E7%9A%84%E8%AF%BB%E5%90%8E%E6%84%9F/</link>
+      <pubDate>Mon, 14 Jun 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E8%AE%A4%E7%9F%A5%E8%A7%89%E9%86%92%E7%9A%84%E8%AF%BB%E5%90%8E%E6%84%9F/</guid>
+      <description>《认知觉醒》是前些日子在微信读书上无意中点开，然后利用碎片时间读完的一本关于个人成长的书籍。作者周岭结合自己的成长经历，对现代年轻人普遍的成长困扰给出了自己的一些看法，并提出了能够帮助大家正确、高效地成长的一些实用方法。
+以前读过的关于个人成长的书籍还有李笑来的《财富自由之路》，《认知觉醒》的不同之处在于它更加的接地气。书中提到的很多高效成长的方法，在我看来，绝大部分人都可以做到。其中的一些方法，本人也一直在使用，效果确实很明显，这本书值得大家去翻一翻。
+关键是“专注” 在这个信息爆炸的年代，专注一件事情变得越来越困难。古人总说“一心不能二用”，但现在的人似乎总是在追求着“一心二用”。在跑步时听音乐、在吃饭时看视频、在走路时听书、在睡觉时思绪万千&amp;hellip; 我们追求时间利用率的最大化，却也导致了行为与感受的分离。
+”一心二用“这一习惯一旦养成，对个人成长必然会造成巨大的影响。个人的成长主要靠学习，科学的学习模式应该是极度的专注 + 适度的休息，如果我们没法专注，学习的效率急速下降，很多时候甚至是白忙活了。
+所以，要想更加正确、高效地成长，学会“专注”是关键。在跑步时，我们可以试着感受抬腿摆臂和迎面微风；在吃饭时，可以试着感受饭菜的酸甜苦辣；在睡觉时，可以试着感受身体的紧张与松弛&amp;hellip; 试着在生活的每一件小事情上养成“专注”的习惯。
+善于刻意练习与关联学习 人的天性就是避祸就福，我们总是习惯于待在舒适区，对舒适区之外的东西避而不谈。然而，成长就是不断扩大舒适区的过程。并不是说你在舒适区里待得足够够久了，它就会扩大；相反，你需要不断的走出舒适区。就好比你练习了1000遍的C和弦，却也照样学不会大横按。
+走出舒适区的一个关键点是刻意学习，找到我们的知识薄弱点，不断地进行补充，反复地练习。
+ 比如，当你发现操作系统的基础知识不够牢固，那么就去找一本经典的操作系统书籍，仔细地阅读，认真地对待书上的每一道习题，以此达到查漏补缺的效果。
+ 《认知觉醒》把成长区域分成了舒适区、拉伸区和困难区3部分，长期处于拉伸区才可以更快地进步。我们常犯的一个错误就是，从舒适区直接跳到了困难区，导致很容易受挫。
+ 比如你发现操作系统的基础知识不够牢固之后，马上就去阅读起了Linux的内核源码，如此一来，估计要不了几天，就坚持不下去了。
+ 除了刻意练习，学会关联学习也很重要，也就是我们常说的“举一反三”。关联学习除了可以加深对当前知识点的印象之外，更重要的是可以找到知识的本质原理。很多知识都是相通的，当你把一个知识的本质原理弄明白之后，就会达到所谓融会贯通的效果了。
+ 比如你学习七层网络模型之后，记住了在这个模型中，网络分成了物理层、数据链路层、网络层、传输层、会话层、表示层、应用层等七层，但这也就仅仅记住了而已。
+如果你学会了关联学习，就会开始联想在软件计算机领域还有哪些地方用到了类似的模型。接着，你很快就发现了Web应用中经典的三层架构；领域驱动设计中的领域层、应用层、接口层、基础设施层；还有前台、中台和后台的划分等等，这些其实都运用了同一个架构模式，分层架构。在分层架构中，每一层都只专注于自己的职责，也就是软件设计领域的一个重要原则：单一职责原则。
+如此一来，以前学到的各种知识点，一下子就都融会贯通了起来。
+ 学会反思 成长也是一个不断产生BUG，然后修复BUG的过程。现代的软件开发追求小步快跑、敏捷迭代，快速发现问题，然后解决问题。人的成长也一样需要敏捷迭代。我们每天都会犯一些错误（BUG），如果我们放任这些BUG不管，终有一天它们会酿成事故，在最关键的时刻，给你最致命的一击。
+所以，我们要学会每日反思，复盘产生BUG的原因，探讨解决BUG的措施。方法也很简单，找一个可以记录文字的本子或软件，比如OneNote，每天晚上睡前按照如下的模板进行反思：
+ 1、描述经历 —— 以便日后回顾时能想起当时的场景。
+2、分析原因 —— 多问几个为什么，直到有深度的启发。
+3、改进措施 —— 尽可能提炼出一个认知点或行动点。
+ 只有正视我们自身的问题，不害怕，不逃避，并纠正之，不重犯，我们才能更快速地成长。
+制定每日计划 制定每日计划很重要，它可以避免我们每天都像无头苍蝇一样迷失在茫茫的信息洪流之中。但计划有时候也会有副作用，当因为事情冲突而没完成当天计划时，可能会心生愧疚。久而久之，也就觉得没必要做计划了，因为做了也没法顺利完成。
+其实，我们完全可以把计划当成是一种提示工具，而不是必须完成的任务。计划的作用只是在完成一件事情之后，提示我们还有下一件事要做，而不至于无所事事。至于今天列出的计划，有多少完成了，有多少还未完成，这些都不是很重要。
+每日计划的模板不用很复杂，能够简单记录每天要做的事情即可，比如书中给出的模板就挺好。
+早冥读写跑，人生五件套 早起。早起可以让一天的时间更加的充实。如今，大部分的程序员晚上的时间基本都被工作填满，长期下去，个人成长速度也会放缓。而早起能够改变这一现状。曾国藩曾说过，“少睡多做，一人之生气”，每天早起2小时进行充电，一年下来就多了接近100个小时的时间，足以让一个人得到快速成长。
+冥想。冥想在最近几年变得流行起来，大家都在鼓吹冥想的好处，可以提升脑力，深度休息等等。在我看来，冥想最重要的是可以锻炼自己的专注力，磨练自己的耐心。当你能够沉住气在10分钟内什么也不想时，这份专注和耐心也足够强大了。
+读书。书是人类进步的阶梯，读书就是跟智者的一次面对面交流，它是获得知识的最廉价的方法。但前提是要学会辨别好书，豆瓣读书上的评分是一个很好的参考方式，挑那些经受过时间考验的经典书籍来读，克服英文阅读的障碍。
+写作。只读不写的学习很难把他人的知识转变成自己的知识，要学会使用自己的语言重新组织学到的知识。当你能够教授别人时，这份知识才真正成为你知识体系中的一部分。另外，不要把取悦读者作为写作的目的，要秉着自我提升的目的去写作，不断提升自己的知识总结能力，磨练自己的写作技巧。
+跑步。脑力锻炼的同时也不能忽视体力锻炼，适当的运动除了能够让身体更健康，还能让大脑得到放松，为接下来的工作学习做好准备。
+写在最后 《认知觉醒》这本书中有提到，评判一本书的好坏，关键点在于它有没有对你有所触动。对我来说，这本书做到了，其中的一些观点确实可以引发我的共鸣。书中提出了很多帮助个人成长的方法，但如果你仅仅是知道了这些知识点，而没有去行动落实，最终的结果终究还是“懂得很多大道理，却仍然过不好这一生”。所以，成长没有捷径，还得脚踏实地，一步一个脚印。</description>
+    </item>
+    
+    <item>
+      <title>人文社科类书籍</title>
+      <link>https://www.yrunz.com/p/%E4%BA%BA%E6%96%87%E7%A4%BE%E7%A7%91%E7%B1%BB%E4%B9%A6%E7%B1%8D/</link>
+      <pubDate>Sat, 05 Jun 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E4%BA%BA%E6%96%87%E7%A4%BE%E7%A7%91%E7%B1%BB%E4%B9%A6%E7%B1%8D/</guid>
+      <description>进行中 《打开：周濂的 100 堂西方哲学课》，70%，了解西方哲学史，学习大师的思考方式，从而认识你自己。
+《威尼斯日记》，30%，今年发现的，有“作家中的作家”之称的，阿城。文字简洁干练，非常值得学习。
+挂起中 《刘擎西方现代思想讲义》，50%，了解伟大的哲学家们的思想。
+已完成 《邓小平时代》，100%，读完本书，一方面被邓小平的坚韧、格局、领导力所屈服，另一方面也看到了我党一路走来也是在不断地犯错-反思-改正-进步。恰逢2021年是我党建党100周年，这一年里也看了很多关于党史的影视节目，对我党历史也有了更深刻的了解。从觉醒年代，到北伐战争，然后长征、抗日、大决战、抗美援朝、文革、改革开放，一路走来，我党在黑暗中不断摸索前行，磕磕碰碰，逐渐找到一条通往光明的道路。
+《吴军阅读与写作讲义》，100%，强调通识教育，特别是大语文的重要性​，教你如何更好地阅读和写作。但大多理论和方法都是点到为止，干货不多，但也有不少触动的地方。
+《认知觉醒》，100%，早冥读写跑，人生五件套；做每一件事情都要专注事情本身；坚持每日反思，每日计划。这些都是我对这本书最深刻的触动，正如作者所说，如果对一本书哪怕只有一点深刻的触动，那这本书就没白读了。
+《写给大家看的设计书》，100%，写给小白看的设计入门书籍，作者提出了设计的4大基本原则：亲密性、对齐、重复、对比，对于写PPT来说非常受用。
+《人生的智慧》，100%，只有健康的体魄，再加上平静的心境，才能让我们幸福的过完这一生。
+《艺术的故事》，100%，从史前时代开始讲起，介绍世界各地的各种艺术和艺术家们的故事。这本书一定要买实体书看，在微信读书上无法体会到艺术带给人的震撼。
+《非暴力沟通》，100%，记住书中介绍几种沟通技巧，观察、感受、需要、请求，并在与他人交流的时候提醒自己使用它们，有利于改善与他人的关系。
+《影响力》，100%，初看书名以为是管理学的书，读了才发现原来是一本社会心理学的书，通过很多实际的例子，讲述如何利用各种影响力来达成目标。
+《万历十五年》，100%，读完印象最深的是，万历皇帝一开始也是想励精图治，随之却被各种事情所打击，最后变成了无为而治。在怒其不争的同时，也深深体会到他身为人皇的不容易。
+《文心：不一样的国文课》，100%，跟着书中的王先生重新上了堂国文课，极大的提升了我对读书和写作的兴趣。
+《语言学的邀请》，100%，来自西方的语言学家的著作，作者知识面很广，在书中融入了大量其他领域的知识来介绍语言学，读完会发现，原来人类的语言竟是如此有趣。
+《朝花夕拾》，100%，读完《文心》，马上又找了鲁迅先生的这本散文集。鲁迅先生用平凡的语言描绘了他的少年往事，很温馨。读到有趣之处，不自觉也露出了笑容。
+《富兰克林自传》，100%，富兰克林是查理·芒格的偶像，从一个普通家庭的小孩，通过自学，逐渐成长为美国的开国元勋，而且还是一个科学家！读完这本书，像是经历了一遍他那传奇的一生。
+《大秦帝国：黑色裂变》，100%，描写了秦孝公和商鞅对秦国进行变法的那段历史，在作者的笔下，春秋战国变成了一个让人无比向往的时代。读完，让人有种想穿越回到那伟大的时代的冲动。
+《如果这是宋史》，100%，整个系列有5册，类似于《明朝那些事儿》的风格，但是文笔略逊一筹，可以当作了解宋朝历史的入门读物。
+《财富自由之路》，100%，刚开始以为是一本讲投资的书，读了之后发现原来是一本讲如何学习、如何提升自己的书。书中的一些观点和《穷查理宝典》中的很类似，获益良多。
+《原则》，对冲基金公司桥水创始人的人生经验之作，分成传记、生活原则、工作原则三部分。其中传记部分最为精彩，对于 “保持极度开放的头脑” 和 “保持极度求真” 这两个观点印象深刻。
+《曾国藩传》，100%，传奇的曾国藩的一生。
+《曾国藩家书》，100%，对我影响很大的一本书，对书中“少睡多做，一人之生气也”印象深刻。
+计划中 《Merriam-Webster&amp;rsquo;s Vocabulary Builder》
+《Word Power Made Easy : The Complete Handbook for Building a Superior Vocabulary》
+《老子道德经注》
+《周易大传今注》
+《心理学与生活》
+《与社会学同游》
+《乌合之众》
+《大问题：简明哲学导论》
+《乡土中国》
+《荷塘月色》
+《美的历程》
+《On Writing Well》
+《棋王》</description>
+    </item>
+    
+    <item>
+      <title>科普类书籍</title>
+      <link>https://www.yrunz.com/p/%E7%A7%91%E6%99%AE%E7%B1%BB%E4%B9%A6%E7%B1%8D/</link>
+      <pubDate>Sat, 05 Jun 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E7%A7%91%E6%99%AE%E7%B1%BB%E4%B9%A6%E7%B1%8D/</guid>
+      <description>进行中 已完成 《人体简史：你的身体30亿岁了》，100%，了解人类身体的结构，读到最后一章介绍人体死亡后的变化，不免感慨万分。人类真的很渺小，最后终究会是宇宙的一粒尘埃。
+《基因之河》，100%，从基因的角度讲述生命的进化。读完之后，并没有很深刻的印象，还是觉得前些年读的《基因组：人种自传23章》更加好。
+《万物发明指南》，100%，以一种独特的穿越视角来介绍人类文明历史上各种重要的发明，非常的有趣易读。
+《病者生存：疾病如何延续人类寿命》，100%，颠覆常识，刷新认知的一本书，原来人类的很多疾病也帮助人类在特定的时期渡过了一个又一个的难关。
+《消失的微生物》，100%，原来微生物也可以像基因一样在世代中遗传，只是现代人所追求的“无菌”让人体内微生物多样性逐渐缺失，也间接导致了很多现代疾病的盛行。看完这本书最大的感受就是，以后要好好善待我们身体里的这群小朋友了。
+《上帝掷骰子吗？》，100%，读完此书，在了解到神奇的量子世界的同时，也如同亲身经历了那个星光璀璨的伟大时代。科学史上的乌云和暴雨、追逐流星的辉光、重重的迷雾和险滩，感同身受。
+《极简宇宙史》，100%，极大地扩展了我的宇宙观，读完会让你觉得人类太过渺小，这个世界太过美妙，世间万物有太多值得我们去探索、去求真的规律。如果早些年读到，说不定就选择读物理专业了。
+《物种起源》，100%，整本书更像是一篇长长的论文，作者对物种起源的论证实在是太过严谨了，以至于读起来略显枯燥。
+《走进奇妙的元素周期表》，100%，高中时死记硬背的元素周期表，其中的元素性质早已忘光了。但在作者的笔下，元素竟变得如此的有趣，而且充满了规律，再次体会到了这世界的奇妙。
+《随机漫步的傻瓜》，100%，这个世界充满着随机性，就像书中所说 “你的成功不见得是因为比其他人高明，而很可能是运气的结果。”。这本书可以让你认识到身边的事情多多少少都有些随机成分，并需要对“黑天鹅”事件时刻保持警惕。
+《妙趣横生博弈论》，100%，这本书通过现实事例来阐述博弈论，看完虽说对博弈论还是一知半解，但明白了这世上很多现象原来是博弈的结果。
+《系统之美：决策者的系统思考》，100%，这本书读起来很有亲切感，因为几乎整本书都是在讲述“反馈”。对于学控制专业的人而言，这是再熟悉不过的概念了。反馈，真的是无处不在。
+《失控：全人类的最终命运和结局》，《科技想要什么》，《新经济、新规则》，100%，凯文·凯利的三部曲，对未来的预言。
+计划中 《万物简史》
+《星际航行概论》
+《暗淡蓝点：探寻人类的太空家园》
+《改变世界的方程：牛顿、爱因斯坦和相对论》
+《意识探秘：意识的神经生物学研究》
+《演化：跨越40亿年的生命记录》
+《超越时空：通过平行宇宙、时间卷曲和第十维度的科学之旅》
+《天体物理概率论》</description>
+    </item>
+    
+    <item>
+      <title>经济投资类书籍</title>
+      <link>https://www.yrunz.com/p/%E7%BB%8F%E6%B5%8E%E6%8A%95%E8%B5%84%E7%B1%BB%E4%B9%A6%E7%B1%8D/</link>
+      <pubDate>Sat, 05 Jun 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E7%BB%8F%E6%B5%8E%E6%8A%95%E8%B5%84%E7%B1%BB%E4%B9%A6%E7%B1%8D/</guid>
+      <description>进行中 《价值投资实战手册》，60%，唐朝对他的投资体系的回顾与总结。
+已完成 《穷查理宝典》，100%，查理·芒格的个人传记，被他那百科全书般的知识所折服，更深受其终身学习、时刻保持求知欲望的精神所影响。
+《世界上最简单的会计书》，100%，确实可以称得上世界上最简单的会计书，通过案例来解释会计学的种种概念，小白入门会计学的力荐之作。
+《富爸爸 穷爸爸》，100%，收获比想象中要多，有助于学会如何管理自己的财务。
+《手把手教你读财报》，100%，唐朝的力作，从财报中看一家公司的优秀与否。
+《聪明的投资者》，100%，学习投资理财的第一本书籍。
+《股票大作手回忆录》，100%，天才的回忆录。
+计划中 《彼得·林奇的成功投资》
+《巴芒演义》
+《投资最重要的事》</description>
+    </item>
+    
+    <item>
+      <title>计算机软件类书籍</title>
+      <link>https://www.yrunz.com/p/%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%BD%AF%E4%BB%B6%E7%B1%BB%E4%B9%A6%E7%B1%8D/</link>
+      <pubDate>Sat, 05 Jun 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E8%AE%A1%E7%AE%97%E6%9C%BA%E8%BD%AF%E4%BB%B6%E7%B1%BB%E4%B9%A6%E7%B1%8D/</guid>
+      <description>进行中 《Database System Concepts(7th Edition)》，10%，数据库必读书籍，相比第 6 版增加了很多新内容，结合 CMU 的公开课，很棒。
+《Spark SQL 内核剖析》，5%，作为阅读 Spark SQL 源码的引导还是不错的。
+挂起中 《Fundamentals of Software Architecture》，80%，架构师的入门指南，书中介绍各种常用的架构模式，教你如何设计一个好的软件系统，而且也会教你如何成为一个优秀的Tech Leader。
+《Designing Data-Intensive Applications》，90%，值得时常温习的一本后端技术大全，每读一章都醍醐灌顶。
+《The Programmer’s Brain》：20%， 从认知科学的角度教你如何更好地阅读代码、理解代码、编写代码，对于程序员新手来说值得一读。书中提到的很多学习程序的方法，感觉就是将有经验的程序员的一些学习方法，结合认知科学的理论更好地呈现了出来。
+《Operating Systems: Three Easy Pieces》，90%，巩固一下操作系统基础，这本书将操作系统的知识点讲得非常清晰易懂。
+《Database Internals：A deep-dive into how distributed data systems work》，5%，复习一下数据库知识。
+已完成 《大数据处理框架 Apache Spark 设计与实现》，100%，将 Spark 的一些核心流程介绍得很易懂，而且有很多图片示范，但是还不够深入，没有结合源码来介绍。
+《Trino - The Definitive Guide》，100%，入门 Presto / Trino 的不错书籍，对架构、核心流程介绍的比官方文档要详细些。但是也不够深入，主要面向的是框架用户，而不是框架内核开发。
+《凤凰架构》，100%，周志明老师的又一力作，从架构的视角介绍了如何构建大型分布式系统，全书的话题涉猎很广，基本把分布式系统所能涉及的知识点都讲解了，比如远程服务调用、事务、安全、一致性等。书中罗列了很多参考阅读材料，可作为进阶架构师的一本导航书，如果把其中提到的知识点都研究透，那么可以就成为专家了。
+《软件架构设计：大型网站技术架构与业务架构融合之道》，100%，可以作为架构设计的入门书籍，知识面很广，但是不够深入。
+《Microservices vs. Service-Oriented Architecture》，100%，比较微服务架构和面向服务架构的异同点。
+《Go: Design Patterns for Real-World Projects》，100%，主要通过TDD的流程来讲解如何使用Go实现经典的23种设计模式，其中也介绍了Go的一些基础知识。书的整体水准一般，但也算是开卷有益。</description>
+    </item>
+    
+    <item>
+      <title>教你写好技术文章</title>
+      <link>https://www.yrunz.com/p/%E6%95%99%E4%BD%A0%E5%86%99%E5%A5%BD%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/</link>
+      <pubDate>Sun, 02 May 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E6%95%99%E4%BD%A0%E5%86%99%E5%A5%BD%E6%8A%80%E6%9C%AF%E6%96%87%E7%AB%A0/</guid>
+      <description>前言 对于软件工程师来说，编码能力的重要性自不必说，技术写作的能力也相当重要。一篇好的设计文档能够指导需求的开发测试，提升软件质量；一篇好的用户文档能够帮助用户迅速熟悉软件的使用方法；一篇好的技术博文可以让人耳目一新，受益匪浅；一篇好的经验总结可以让新手们少走弯路。
+技术写作的目的是让读者能够顺利地使用一个软件或理解一项技术或弄懂业务流程。它与创作型写作的最大区别在于，技术写作并非为了取悦读者，而是追求以简洁和精确的文字去阐明事实。
+ 一篇好的技术文章应该能够让符合条件的读者，在良好的阅读体验下，理解甚至掌握文章所要传达的内容。
+ 技术写作是一项学问，很多同学或多或少都有写些技术文章的想法，但因为缺乏一些基本的写作技巧，常常无从下手。本文将给出一些技术写作的建议，力求让软件工程师们能够写好技术文章，爱上技术写作。
+为什么要技术写作 前言有提到，一篇好的技术文章能够给读者带来众多益处，其实，技术写作也同样能让作者本身收益颇丰。
+提升表达能力 如何组织文章，如何将复杂的技术原理通熟易懂地表达出来，这都非常考验人的表达能力。
+加强架构和逻辑思维 文章如同软件，也有架构和逻辑。博士们的架构和逻辑思维之所以普遍强大，一个很重要原因是他们都经过了严格的论文写作磨练。当我们把文章写好时，架构和逻辑思维会得到增强，软件设计和开发能力也能随之提高。
+加深对技术/业务的理解 想要写好技术文章，必须要熟悉写作的内容，自然地要求作者在写作前做足功课，如此一来也就加深了对相关技术/业务的理解。
+展示自我 通过技术文章来分享知识是一个很好的展示自我的途径，让大家知道你当前熟悉的领域，逐渐扩大自己的影响力，对后续的职业发展可以起到很大的帮助。
+心灵愉悦 在公开平台上发表技术文章，收获很多浏览量，被读者评论，得到读者点赞和收藏，这些都能够让人得到心灵上的愉悦。
+如何开始技术写作 所谓万事开头难，对习惯于与代码打交道的软件工程师来说，要开始与文字打交道的技术写作，很难。相信很多同学都遇到过憋了几个小时都没写出几个字，或者一直在纠结写什么内容的窘境。其实，只要找到一些方法，着手技术写作，并没那么难。
+从记录学习/工作内容开始 可以先从记录日常的学习/工作内容开始，慢慢习惯与文字打交道，此过程重在建立起写作的自信。
+文章长短不重要 不要一开始就想着写出惊骇世俗的文章，成为最出色的技术博主。也并非只有长篇大论才算得上好的技术文章，一些问题解决记录、经验总结的短文也能给读者很大的帮助。
+通过学习找到写作灵感 如果你还在为要写什么内容而焦头烂额，那么就去学习一项新的技术或者去阅读一本书吧。最好的写作时机就是刚学到知识的时候，因为这时你很清楚从零到一的过程，这也是你要传递给读者的东西。
+学会做笔记 笔记是很好的写作素材，在日常的工作和学习中多做些笔记，把自己的灵感记录下来，后面写作起来也会轻松许多。
+写作的三部曲 第一步：立下写作目标 写作的第一步是立下目标，明确要写哪一类的文章，并朝着目标去写作。比如，立下了介绍Java中HashMap数据类型的目标，就不要在文章上描述JVM的垃圾回收原理，这是混淆了写作目标。
+第二步：确定受众读者 写作的第二步是确定受众读者，只写这类读者可以接受的知识。比如，要写一篇题目是《从零开始学习Java语言》的文章，这明显是一篇针对Java初学者的文章，那么就不要在文章里剖析JVM内存管理的实现源码，这是混淆了文章受众。
+第三步：组织文章 组织文章就是根据中心旨意，把要表达的知识串联成一篇条理清晰的文章。很多新手都会面临“心中想法万千，却无从下笔”的困境，这就是缺乏文章组织导致的。《文心》一书中有提到：
+ 对于文章的组织，也不妨举出一个总方法来，那就是 ‘回问自己’ 四个大字。
+ 我们可以通过“回问自己”的方法来组织文章，以《教你写好代码注释》一文为例：
+&amp;ldquo;是为了要说些什么才写这篇文章的？&amp;rdquo;
+—— 为了总结些写好代码注释的方法。这样文章的中心意旨就明确了。
+&amp;ldquo;中心意旨在我们意念中间是怎么来的？&amp;rdquo;
+—— 读到《A Philosophy of Software Design》一书中关于代码注释的章节深有感触，想分享给大家。这样文章依据的材料范围也就确认了。
+“这个材料可以增加中心意旨的力量吗？”
+—— 书中关于high-level注释和low-level注释的例子可以很好地体现“什么是好的代码注释”这个旨意。这样就可以不断筛选出好的素材，文章的主要内容也就确认了。
+“还有更简练通顺的表达吗？”
+—— 这样写好像更通顺一些。这样经过不断的修正，一篇文章也就出来了。
+一些技术写作建议 1 熟悉写作内容 作为文章的作者，你需要比读者更熟悉写作内容。可以不是相关领域的专家，但至少能够将知识清晰表达出来，并且能够回答大部分读者的问题。这就要求在写作之前，花时间去阅读相关文章、书籍，甚至是请教专家。
+2 写作前先列大纲 文章不仅仅是把内容罗列出来，要注重知识的表达，因此需要一个清晰的文章架构。在写作前先列出大纲，能够帮你理清写作思路，确认内容是否符合逻辑，构建清晰的文章架构。多想想，哪个内容需要先阐述？段落的顺序要怎么排？哪些知识需要更多的解释？哪些点到为止即可？
+3 精简文字 技术写作不是剧本小说，不需要反转曲折的剧情，更不需要含沙射影的表达，它追求的是直接、实用、清晰明了的表达风格。没必要使用过于复杂的文字去描述技术原理，这只会让它们更加难以理解。使用简洁的文字，多用短句，能够让文章可读性更好。
+4 多举例子 避免通篇介绍技术原理的写作，这会让文章过于枯燥，内容也晦涩难懂。要多举例子，它不仅能让技术原理更易懂，也能让主题更加深刻。比如在《教你写好代码注释》中，通过举例正反面的代码注释，更能让读者对好的代码注释产生共鸣。</description>
+    </item>
+    
+    <item>
+      <title>从分层架构到微服务架构（四）之微内核架构</title>
+      <link>https://www.yrunz.com/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E5%9B%9B%E4%B9%8B%E5%BE%AE%E5%86%85%E6%A0%B8%E6%9E%B6%E6%9E%84/</link>
+      <pubDate>Fri, 23 Apr 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E5%9B%9B%E4%B9%8B%E5%BE%AE%E5%86%85%E6%A0%B8%E6%9E%B6%E6%9E%84/</guid>
+      <description>《从分层架构到微服务架构》是一系列介绍《Fundamentals of Software Architecture》中提到的8种架构模式的文章，这里不会事无巨细地介绍所有的细节，而是会挑选其中关键内容，更多详情请阅读原书。
+往期精彩：
+ 从分层架构到微服务架构（一） 从分层架构到微服务架构（二）之分层架构 从分层架构到微服务架构（三）之管道架构   前言 微内核架构（Microkernel Architecture），也被称为插件式架构（plug-in architecture），作为一个在几十年前就被创建出来的架构模式，它如今仍然被广泛应用在各个领域中。比如在Web浏览器领域，谷歌的Chrome浏览器之所以被认为功能强大，一个很重要的原因是它有着丰富的插件类型；在开发工具领域，微软的VS Code初始安装后还只是个简单的文本编辑器，但用户可以安装各种插件，从而让它摇身一变成为功能强大的IDE。
+Chrome和VS Code都是微内核架构的典型应用例子，它们提供一个具备最基础能力的核心系统，并定义好插件的开发接口。至于需要开发或安装哪种类型的插件，则完全由普通开发者和用户决定，这样的设计让系统具备了极强的可定制化和可扩展能力。
+架构视图 微内核架构由以下两部分组成：核心系统（core system）和插件（plug-in component），将应用系统的业务逻辑拆分成核心系统和插件，能够提供很好的可扩展性和灵活性，极大地方便了后续需求的新增和修改。
+核心系统 核心系统通常只需提供能够支撑整个系统正常运行的基本功能，比如前文所举的VS Code例子，用户初始安装的是VS Code的核心系统，它只是一个提供了打开文件、编辑文件内容和保存文件等基本功能的文本编辑器，其他的扩展功能（如语法检查）都是通过安装插件集成的。将复杂的业务逻辑从核心系统中剥离出来，并通过插件实现，能够提升系统的可扩展性和可维护性。同时，因为复杂的功能都成了互不干扰的插件，系统的可测性也得到了提高。
+考虑现在需要实现一个电子设备回收系统，在回收之前，每种型号的手机设备的回收流程都不一样，那么我们可以这样去实现：
+public void assessDevice(String deviceID) { if (deviceID.equals(&amp;#34;iPhone6s&amp;#34;)) { assessiPhone6s(); } else if (deviceID.equals(&amp;#34;iPad1&amp;#34;)) assessiPad1(); } else if (deviceID.equals(&amp;#34;Galaxy5&amp;#34;)) assessGalaxy5(); } else ... ... } } 如果我们把assessDevice看成是核心系统，那么后面每次新增一个型号的手机，都需要新增一个if分支，也即对核心系统进行了改动。这样的设计会导致核心系统非常地脆弱，正所谓改的越多，出问题的概率也越大。
+比起这种将所有的可定制业务逻辑放在核心系统上的设计，更好的应该是将它们实现为插件的形式，这样不仅每个设备回收逻辑都解耦了，还提供了强大的可扩展性：添加一个新的回收设备类型，只需新增一种插件即可，核心系统无需变动。
+public void assessDevice(String deviceID) { String plugin = pluginRegistry.get(deviceID); DevicePlugin devicePlugin = (DevicePlugin)constructor.newInstance(); DevicePlugin.assess(); } 微内核架构在实现时通常都结合了其他架构模式，这主要体现在核心系统的设计上，比如根据具体的业务特点，我们可以将核心系统设计成technically partitioned的分层架构，或者是domain partitioned的模块化架构。</description>
+    </item>
+    
+    <item>
+      <title>从分层架构到微服务架构（三）之管道架构</title>
+      <link>https://www.yrunz.com/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E4%B8%89%E4%B9%8B%E7%AE%A1%E9%81%93%E6%9E%B6%E6%9E%84/</link>
+      <pubDate>Mon, 05 Apr 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E4%B8%89%E4%B9%8B%E7%AE%A1%E9%81%93%E6%9E%B6%E6%9E%84/</guid>
+      <description>《从分层架构到微服务架构》是一系列介绍《Fundamentals of Software Architecture》中提到的8种架构模式的文章，这里不会事无巨细地介绍所有的细节，而是会挑选其中关键内容，更多详情请阅读原书。
+往期精彩：
+ 从分层架构到微服务架构（一） 从分层架构到微服务架构（二）之分层架构   前言 管道架构（Pipeline Architecture），通常也被称为管道-过滤器架构（Pipes and Filter Architecture），是最常用的架构模式之一。大部分软件工程师都是通过Unix终端初次接触到该架构模式，Unix终端的Shell语言，对管道-过滤器有着原生的支持。
+比如，现在需要实现这样的一个功能：读取一个文本文件的内容，找到使用频率最高的5个单词，并按照使用频率的大小顺序打印出单词及其使用频率。
+那么，使用Shell可以这样来实现：
+cat content.txt | # step1: 读取文件内容 tr -cs A-Za-z &amp;#39;\n&amp;#39; | # step2: 将单词按行输出 tr A-Z a-z | # step3: 将所有单词转换为 sort | # step4: 对单词进行排序 uniq -c | # step5: 计算出单词的频率 sort -rn | # step6: 按照频率对单词进行排序 head -n 5 # step7: 获取排序前5的单词 # 输出结果示例： 4 to 4 and 3 the 3 networks 3 linux 这段Shell代码就是一个简单的管道架构实现，其中|表示管道pipe，每一个step就相当于一个过滤器filter。每个filter都将上一个filter的输出结果作为输入数据，对数据进行处理后再将结果输出到管道中。</description>
+    </item>
+    
+    <item>
+      <title>从分层架构到微服务架构（二）之分层架构</title>
+      <link>https://www.yrunz.com/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E4%BA%8C%E4%B9%8B%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84/</link>
+      <pubDate>Sat, 30 Jan 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E4%BA%8C%E4%B9%8B%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84/</guid>
+      <description>《从分层架构到微服务架构》是一系列介绍《Fundamentals of Software Architecture》中提到的8种架构模式的文章，这里不会事无巨细地介绍所有的细节，而是会挑选其中关键内容，更多详情请阅读原书。
+往期精彩：
+ 从分层架构到微服务架构（一）   前言 软件刚出现的时候，还是大型计算机的年代，一个软件系统一般都只会运行在一台机器上。随着软硬件技术的革新，计算机体积和成本逐渐变小，此时工程师们发现一个软件系统只运行在单台机器上会存在各种瓶颈。如果将系统按照功能划分成前端和后端，分别部署在两台服务器上，问题得到了缓解，于是便有了Client/Server架构的出现。
+随后，个人电脑的兴起带动了众多富桌面应用（rich desktop application）的出现，它们基于操作系统上的user interface开发，数据则是存储在单独部署的database server上，通过标准的网络协议进行数据通信。这种Desktop + Database Server的架构和C/S架构一样，同属两层架构（two-tier architecture）。
+随着90年代互联网的迅速崛起，Browser + Web Server + Database Server的组合也渐渐风靡。Browser为表现层，提供用户交互界面；Web Server为业务层，处理具体的业务逻辑；Database Server为数据层，存储系统数据。三个层次各司其职，这也是大家最熟悉的三层架构（three-tier architecture）。
+上述的几种架构模式都属于分层架构（layered architecture）的范畴，分层架构并没有限定一定得有多少个层次，层次的数量可以根据应用场景灵活控制，因此也被称为n-tier architecture。它结构简单，基于此架构进行系统开发成本也很低（很多公司在组织结构上划分为前端工程师、后端工程师、DBA，根据康威定律，这天然就具备了分层架构开发的良好条件），因此它在业界备受欢迎。如果你的团队还不确定选择什么样的架构，又或者为了践行敏捷宣言中的“just starts coding“，那么分层架构会是一个不错的选择。
+架构视图 在分层架构中，组件根据功能被划分在不同的层次上，虽然层次的数量和类型并没有被限制，但大多数的分层架构都由以下4层组成：表现层（presentation）、业务层（business）、持久层（persistence）和数据层（database），如下图所示。在一些简单的系统中，持久层的逻辑（如SQL）被嵌入到业务层中，形成了经典的三层架构；而在一些复杂的系统中，也会根据具体的业务划分为五层甚至更多的层次。
+前文所述的表现层等4个层次都是逻辑的划分方法，在实际部署时，一般会有下图所示的几种部署形态。形态1中，表现层、业务层和持久层为一个部署单元，而数据层则单独部署，具体表现为一个独立部署的数据库或文件系统；形态2中，表现层被分离出单独部署，业务层和持久层组成一个部署单元，数据层依旧是单独部署的数据库或文件系统；形态3中，包括数据层在内的4层全都在同一个部署单元内，常见于业务简单的系统，它们往往使用的是嵌入式数据库或内存数据库。
+分层架构中的每一层都扮演着各自的角色，比如表现层负责处理所有的用户请求和浏览器交互，而业务层则负责执行每次请求下的特定业务逻辑；表现层无需担心从哪里获取用户数据，它只需要将数据以特定的格式在浏览器上显示即可。同样地，业务层也无需关心用户数据从何而来以及如何呈现，它只需从持久层中取出数据，执行特定的业务逻辑（比如聚合数据），然后将结果返回给表现层。
+每一层都是特定行为的抽象，这样的职责划分，使得组织能够快速高效地创建出责任模型，围绕各层打造开发团队。
+层间隔离 分层架构中的每一层可以是封闭的或者开放的，封闭意味着当一个请求自顶向下在层间传递时，它不能跳过任意的一层。比如，当表现层接收到请求之后，它必须先后经过业务层和持久层才能到达数据层，如下图所示。
+对于简单的数据获取类请求，如果让表现层能够直接访问数据层获取数据，无疑是最简单高效的。也即是让业务层和持久层变成开放状态，允许请求在层间传递时跳过此层。那么，究竟是封闭好，还是开放好呢？要解答这个问题，就要回到层间隔离的出发点上。
+所谓的层间隔离，旨在降低一个层次上的变化对其他层次的组件的影响，简单来说，就是每个层次对其他层次的功能知道的越少越好。为了达到层间隔离的目的，就需要将每个层次置为封闭的状态。假设表现层能够直接访问持久层，那么持久层的变化将会直接影响到业务层和表现层，这加剧了层间的耦合，导致系统变化的代价高昂。
+层间隔离可以降低层次变化对系统的影响，凡事没有绝对，在某些的场景，将特定的层次置为开放的状态也不失为一件好事。考虑以下例子，业务层中存在着一些共享组件承载着业务层公共的功能（比如日志类、审计类、日期和字符串工具类等）。现在有一项架构决策要求表现层不能直接访问这些共享组件，但矛盾的是，原则上表现层是可以直接访问业务层的，这种需要违反原则的决策将会很难落地。
+一种解决方法是，新增一个服务层，该层包含了业务层的这些共享组件。因为业务层是关闭的状态，故表现层也就不能访问到这些共享组件了。然而，新增的服务层必须置为开放状态，否则业务层将无法直接访问持久层。新增一个服务层并置为开放状态，这样既落地了架构决策，也不会影响到原有的功能，一举两得。
+注意事项 在使用分层架构时，需要注意以下两点：
+1、做好模块的划分
+为分层架构做好模块划分主要是为后续的架构演进做好准备，比如在业务复杂到一定程度后演进为微服务架构时，各个模块可以很自然地演进为微服务。为此，应该避免出现类的继承层次过深的现象，这会导致代码严重的耦合，不利于后续的架构演进。
+2、避免掉进sinkhole反模式的陷阱
+所谓sinkhole反模式指的是请求只是简单地路过各个层次，并没有做一些业务处理。
+比如，表现层接收到一个获取基本用户数据（姓名、地址等）的请求后将它传递到业务层；然而，业务层并没有做任何的业务处理，直接将请求传递到持久层；持久层也仅仅是构造了一个简单的SQL语句，向数据层查询用户数据；最后，数据按照原路返回到表现层，中途没有经过任何的数据汇聚、转换等操作。
+sinkhole反模式会导致很多不必要的对象实例化开销，从而增大了系统的内存消耗，并且影响了性能。
+然而，一个系统多多少少都会存在一些sinkhole反模式场景，要判断一个系统是否已经彻底掉进sinkhole反模式的陷阱，主要还是看这类业务请求所占的百分比。根据20-80法则，当系统中有超过80%的业务请求是sinkhole类请求时，表示系统已经掉进sinkhole反模式的陷阱，这从侧面也说明该系统已经不再适合分层架构，是时候考虑架构演进了。
+架构评分 从综合得分上看，分层架构的Overall cost和Simplicity得分很高，这很大程度上得益于分层架构本身是单体架构，少了很多分布式系统才有的复杂性。但这样导致Deployability得分很低，因为3行代码的改动就足以造成整个系统的重新部署。Testability得分不高也是这个原因，整系统的重新上线通常都需要将测试用例全部执行一遍，多了不少额外的工作量。
+Elasticity、Fault tolerance、Scalability这些都是单体架构天然的劣势，自然地，分层架构在这些方面得分都很低。另外，sinkhole反模式的存在也拉低了分层架构在Performance上的得分。
+总结 分层架构简单而高效，业界已经有很多成熟的应用，对那些项目刚刚起步，架构师们还没想好要采用哪种架构模式的系统而言，这是非常适合的。在实现分层架构时，我们需要合理地设置各个层次的封闭或开放状态，做好层间隔离，同时也要避免掉进sinkhole反模式陷阱。随着业务的不断扩张，分层架构在可维护性、可测试性、可扩展性等上的短板也会逐步被放大，此时就需要考虑往其他架构模式演进了。
+每种架构模式都有其合适的应用场景，只有熟悉常用的几种架构模式，才能设计出更好的软件系统。下一篇文章，我们将继续介绍管道架构。</description>
+    </item>
+    
+    <item>
+      <title>从分层架构到微服务架构（一）</title>
+      <link>https://www.yrunz.com/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E4%B8%80/</link>
+      <pubDate>Sat, 23 Jan 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E4%B8%80/</guid>
+      <description>《从分层架构到微服务架构》是一系列介绍《Fundamentals of Software Architecture》中提到的8种架构模式的文章，这里不会事无巨细地介绍所有的细节，而是会挑选其中关键内容，更多详情请阅读原书。
+ 前言 谈到软件系统设计的方法论，在代码层面，有我们熟悉的23种设计模式（design pattern），对应到架构层面，则有所谓的架构模式（architecture pattern）。它们分别从微观和宏观的角度指导着我们设计出良好的软件系统，因此，作为一个软件工程师，我们不仅要熟悉设计模式，对常见的架构模式也要熟稔于心。正如看到一个设计模式的名字脑里就能浮现出大致的结构图，当我们看到一个架构模式的名字时，也要马上想到对应的架构图及其基本特点。比如，当谈到分层架构时，我们就应该想起它的架构图是怎样的、有哪些出色的架构特征（architecture characteristics）、系统是如何部署的、数据存储的策略是哪种、等等。
+一般地，架构模式大致可以分成两类，单体架构（monolithic architecture）和分布式架构（distributed architecture）。本系列文章将会介绍以下8种常用的架构模式：
+单体架构
+ 分层架构（Layered architecture） 管道架构（Pipeline architecture） 微内核架构（Microkernel architecture）  分布式架构
+ 基于服务的架构（Service-based architecture） 事件驱动架构（Event-driven architecture） 基于空间的架构（Space-based architecture） 面向服务的架构（Service-oriented architecture） 微服务架构（Microservices architecture）  软件设计中的谬误 在介绍架构模式前，我们先谈谈软件设计中的谬误（fallacy）。所谓谬误，就是在设计软件系统，特别是分布式系统时，我们先入为主地假设它们是正确，但实际上并非如此的一些观念。这些观念都是我们在设计软件时考虑不周的体现。
+谬误1：网络是可靠的 很多软件工程师常常假设网络是可靠的，但实际并非如此。相比20年前，现在的网络会可靠很多，但是仍然具有很大的不确定性。如上图所述，Serivce B可能完全是正常运行的，但是因为网络的问题，Service A发出的请求无法到达Service B。一种更糟糕的场景是，Service B可以收到Service A的请求，并处理了相关的数据，但是网络问题导致了Service A无法收到Service B的响应，从而造成了数据不一致。网络的不可靠也是为什么系统中常常出现服务通信超时、服务熔断等的原因。
+总而言之，如果假设网络是可靠的，那么我们设计出来的软件系统将会是不可靠的。
+谬误2：时延是0 如上图所示，服务内组件间的函数/方法级别的调用，耗时是微妙，甚至是纳秒级别；但是服务间的远程调用（比如REST、消息队列、RPC），耗时会是微秒级别，甚至在异常场景会达到了秒级！在设计系统，特别是分布式系统时，时延是一个无法被忽视的因素，我们必须清楚系统的平均时延，否则设计出来的方案可能根本不可行。比如，假设系统中服务间通信时延为100ms，如果一个请求的调用链涉及到10个服务，那么该请求的时延将会是1000ms！这么高的平均时延对于一般系统来说是完全无法接受的。
+进行系统设计时，考虑平均时延还不够，更重要的是95th和99th百分点。一个系统的平均时延可能仅仅只有数十毫秒，但是95th百分点的时延却达到了数百毫秒，很多时候，这也恰恰成为了拖垮整系统性能的那块“短板”。
+谬误3：带宽是无限的 在单体架构中，业务流程都在单服务内闭环，消耗的带宽很少甚至为0，因此带宽并不是主要关注点。一旦将系统拆分成分布式架构，一个业务流程可能涉及多个服务间的通信，带宽就成了必须考虑的因素。带宽的不足，会导致网络变慢，从而影响系统的时延（谬误2：时延是0）和可靠性（谬误1：网络是可靠的）。
+如上图所示，假设在一个Web系统中，Service A负责处理前端请求，Service B负责管理用户信息（包括姓名、性别、年龄等45个属性）。Service A每处理一个请求都需要向Service B查询用户姓名（200 bytes），而在一次请求中，Service B却返回了用户的所有信息（500 kb）。如果系统每秒处理2000次请求，每次请求消耗500 kb带宽，那么每秒消耗的总带宽会是1 Gb！如果Service B仅仅返回必须的姓名，那么同等条件下，每秒消耗的总带宽仅仅是400 kb。
+此类问题就是所谓的stamp coupling，解决方法也很多，比如在请求中添加属性选择，使用GraphQL替代REST。相比于这些技术手段，更重要的是确定服务间通信所需的最小数据集，并在进行系统设计时将其作为一个重点关注的因素。
+谬误4：网络是安全的 VPN、防火墙等的广泛使用，使得很多工程师在设计系统时忽略了“网络是不安全的”这一重要原则。特别是从单体架构演进到分布式架构以后，系统被攻击的概率将会大大增加。因此，在分布式系统中，每个服务都必须是安全的endpoint，这样才能确保任何未知或恶意的请求都被拦截掉。当然，安全是有代价的，这也是像微服务架构这类细服务粒度的系统，一次业务请求中调用链过长后性能极速下降的重要原因。
+谬误5：网络拓扑一成不变 这里的网络拓扑指的是系统运行时所涉及到的网络设备，包括所有的路由器、防火墙、集线器、交换机等。很多工程师会假设网络拓扑是固定的，然而并非如此。</description>
+    </item>
+    
+    <item>
+      <title>如何高效编写Go单元测试（二）</title>
+      <link>https://www.yrunz.com/p/%E5%A6%82%E4%BD%95%E9%AB%98%E6%95%88%E7%BC%96%E5%86%99go%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E4%BA%8C/</link>
+      <pubDate>Sun, 10 Jan 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E5%A6%82%E4%BD%95%E9%AB%98%E6%95%88%E7%BC%96%E5%86%99go%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E4%BA%8C/</guid>
+      <description>前言 上一篇文章《如何高效编写Go单元测试（一）》主要介绍了如何使用第三方断言库来使Go单元测试的代码更加简洁和具备可读性，本文我们来聊聊单元测试中的“打桩”。
+// 判断一个字符串s是否是回文字符串 func IsPalindrome(s string) bool { for i := range s { if s[i] != s[len(s)-1-i] { return false } } return true } go test框架足以应对像上述IsPalindrome这种简单的方法的单元测试，但是对于一些较为复杂的方法和模块，go test多多少少会显得力不从心。比如当你需要对依赖了很多第三方库或者跟平台、环境强相关的模块进行单元测试时，仅仅使用go test往往不能使测试用例正常的执行结束，更别说达到代码验证的目的了。
+// 判断/opt/container/config.properties文件中是否包含str字符串 func isConfigFileContain(str string) bool { file, err := os.Open(&amp;#34;/opt/container/config.properties&amp;#34;) if err != nil { panic(err) } content, err := ioutil.ReadAll(file) if err != nil { panic(err) } return strings.Contains(string(content), str) } 假设想要对上述isConfigFileContain函数进行单元测试，因为函数本身依赖了程序实际运行环境才有的/opt/container/config.properties文件，所以如果对其进行如下的单元测试，运行结果肯定出错。
+func TestIsConfigFileContain(t *testing.T) { ast := assert.</description>
+    </item>
+    
+    <item>
+      <title>2020年的成长印记</title>
+      <link>https://www.yrunz.com/p/2020%E5%B9%B4%E7%9A%84%E6%88%90%E9%95%BF%E5%8D%B0%E8%AE%B0/</link>
+      <pubDate>Thu, 31 Dec 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/2020%E5%B9%B4%E7%9A%84%E6%88%90%E9%95%BF%E5%8D%B0%E8%AE%B0/</guid>
+      <description>前言 2020年是艰难的一年，对于中国和世界而言，是新冠疫情的卷席全人类；对于个人而言，是工作上的无比繁忙。
+以前一直会开这么一个玩笑，“在我们公司工作，那是一年工作，三年经验”。在工作的前两年，说出这句话更多的是一种自嘲，但在今年，它却是一个真实的写照。回顾2020年自己所做的事情，初略一想，除了工作，貌似也只剩下工作了。年初时定下的一些计划，大部分都因为工作繁忙的缘故而被搁置。在阅读和写作上，梳理了自己今年读过的书，数量还不及去年的三分之一；而写过的文章，更是寥寥无几。特别是在作为主业的软件技术方面，更是没有实质的进步，感觉还是停留在2019年的水平。在这个技术日新月异的行业，不进则退，貌似，今年是失败的一年？
+一直以来都坚信《钢之炼金术师》中等价交换这一原则，既然花了这么多时间在工作上，那必定会有所收获。仔细一想，今年收获最大的，莫过于对意志的磨练。
+身为一名软件工程师，相信大家对技术都有着执着的追求。特别是初入职场，肯定有过把所有相关的技术框架学个遍的想法，唯恐跟不上时代的潮流。如果在工作的第一年问我，“对于一名软件工程师而言，什么是最重要的？”，我会回答，技术；工作的第二年，在学习了一些软件方法论，特别是领域驱动设计之后，结合工作上的项目经验，这才慢慢认识到，软件技术万变不离其宗，业务才是软件的核心。如果还问我同样的问题，我会回答，业务和技术；工作的第三年，在经历了如此艰难的2020年之后，如果再问题同样的问题，我会回答，意志、业务和技术。
+意志 一直以来大概是没有经历过很考验意志的时刻，高中按部就班地学习，然后考上大学；大学也是平平淡淡地度过六年，然后步入职场。连挑灯夜战都没几次，更别说引锥刺股了。工作的前两年虽说也有过曲折，但对比2020年，那都是不值得一提。因为新项目的巨大挑战，从3月初开始，下班的时间点逐渐延后，并在4月份达到了高峰，甚至在4月的最后一周里连睡觉都成了一件奢侈的事情。在整个4月里，为了解决新项目的难题，拼的已经不再是软件技术，更多的是意志力。
+记得有一天晚上为了解决一个问题，已经通宵工作到凌晨6点，却还是连问题原因都没找出来。心情的低落，身体的疲惫，那一刻已经临近崩溃。这时想起《指环王》里面Sam对Frodo说的一番话：
+ Frodo: I can’t do this, Sam.
+Sam: I know. It’s all wrong. By rights, we shouldn’t even be here. But we are. It’s like in the great stories, Mr. Frodo. The ones that really mattered.
+Full of darkness and danger they were. And sometimes you didn’t want to know the end. Because how could the end be happy? How could the world go back to the way it was when so much bad had happened?</description>
+    </item>
+    
+    <item>
+      <title>如何高效编写Go单元测试（一）</title>
+      <link>https://www.yrunz.com/p/%E5%A6%82%E4%BD%95%E9%AB%98%E6%95%88%E7%BC%96%E5%86%99go%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E4%B8%80/</link>
+      <pubDate>Tue, 22 Dec 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E5%A6%82%E4%BD%95%E9%AB%98%E6%95%88%E7%BC%96%E5%86%99go%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E4%B8%80/</guid>
+      <description>前言 单元测试是用来对一个模块、一个函数或者一个类来进行正确性检验的测试工作。我们根据它来检验代码的行为是否和预期的一样，如果单元测试不通过，要么代码有bug，要么测试条件输入不正确，总之，需要修复使单元测试能够通过。单元测试一个最大的好处，就是确保一个程序模块的行为符合我们设计的预期，在将来对代码进行修改/重构时，还能最大限度地保证代码的行为仍然正确。
+Go对单元测试的支持已经相当友好了，原生的go test标准库就是专门用来进行单元测试的编写的。使用go test编写单元测试时需要遵循一些约定，比如所有测试代码都需要添加到_test.go结尾的测试文件中，这样在使用go build进行构建时，测试代码才会被排除在外。另外，每个测试函数都必须导入testing包，测试函数的名字必须以Test开头，且跟在Test后面的后缀名必须以大写开头，因此测试函数的声明应该是这样的：
+func TestSin(t *testing.T) { /* ... */ } func TestCos(t *testing.T) { /* ... */ } func TestLog(t *testing.T) { /* ... */ } _test.go测试文件通常和需要被测试的文件放在同一个包内，比如有如下的一段待测试的代码（在word包目录下的word.go文件）：
+package word // 判断一个字符串s是否时回文字符串 func IsPalindrome(s string) bool { for i := range s { if s[i] != s[len(s)-1-i] { return false } } return true } 那么在编写测试时，我们同样在word包目录下，创建一个word_test.go文件，单元测试的代码如下：
+package word import &amp;#34;testing&amp;#34; func TestPalindrome(t *testing.T) { // &amp;#34;detartrated&amp;#34;是一个回文字符串，因此IsPalindrome(&amp;#34;detartrated&amp;#34;)的返回值应该为true  // 如果返回false，则表示其实现有问题，需要使用t.</description>
+    </item>
+    
+    <item>
+      <title>家乡的中秋烧烤夜</title>
+      <link>https://www.yrunz.com/p/%E5%AE%B6%E4%B9%A1%E7%9A%84%E4%B8%AD%E7%A7%8B%E7%83%A7%E7%83%A4%E5%A4%9C/</link>
+      <pubDate>Fri, 02 Oct 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E5%AE%B6%E4%B9%A1%E7%9A%84%E4%B8%AD%E7%A7%8B%E7%83%A7%E7%83%A4%E5%A4%9C/</guid>
+      <description>家乡博贺是粤西的一个小渔港，三面环海的地理位置，天然的深水港口，让这里有着吃不完的海鲜。每个人的家乡都会或多或少有着独特的风俗习惯，博贺也不例外。小时候最喜欢的节日，除了春节以外，便是中秋节了。不是因为月饼，更不是因为“团圆”寓意，对于小孩子而言，真正能让我们期待的是自家的烧烤。
+小时候以为中秋节烧烤，那得是全国都有的习惯吧。等出来读大学之后才发现，这竟然是博贺独特的风俗。不同于现在满大街的烧烤店，二十年前，也只有春节的时候才能在街上看到大大小小的烧烤摊，更别说自家买食材开炉烧烤了。于是，中秋夜便成了家乡小孩子无比期待的一年一度的“烧烤庆典”。
+博贺的中秋夜有两个流程，先是赏月，然后才是烧烤。所谓赏月其实是对月亮的祭拜，在自家门前摆一个桌子，放上月饼、柚子、糖水等，倒几杯米酒，插上蜡烛和香，然后一家人坐在桌子前，一边赏着月亮，一边吃着月饼，一边扯着家常。对于小孩子而言，这当然是枯燥的，小时候对月饼无感，特别是叉烧伍仁馅，那简直就是黑暗料理之王。于是总追着妈妈问，“妈，几时赏完月啊？”，然而等到的回答永远都是，“等一阵，月公还未食完呢”。
+等赏完月，收拾好桌子，就可以准备开始烧烤了。整一条街，每家门口都摆上了烧烤炉，通街都是明亮的炉火，也别是一番风景。
+小时候的烧烤大多是鸡翅、鸡肾、鸡翅根、鲜牛肉等普通食材，但博贺烧烤的精华在于食材的腌制。食材通常在上午就已经准备好，加上自己调制的酱汁，要腌制个大半天。酱汁主料是生抽，还得配上新鲜的香葱、甜椒、大蒜和生姜，再加些许蚝油等调味，这些普通的调料混在一起，竟成了美味的自制烧烤汁。等到晚上把食材取出来烧烤时，酱汁的香味早已深深潜入到食材内部。
+火炭的高温能够把食材的风味发挥到极致，把腌制好的鸡翅放到炭炉上炙烤十几分钟，等鸡翅表面成了金黄色后，撒上白芝麻，再烤一会就能上口吃了。长时间的腌制使得鸡翅即使经过了高温的炙烤也依旧饱满，一口下去，焦脆的表皮下，是饱满多汁的鸡肉。外焦内嫩的口感，满口的香味，这样的鸡翅谁能不爱。这也使得烧鸡翅在我心中一直占据着烧烤之王的地位。
+长大些后，家庭条件好了些，海鲜也加入到烧烤食材的阵营里。不同于肉类的腌制，海鲜的烧烤则注重原汁原味。先把新鲜大虾的虾线挑出，用竹签串起，放到炭炉上烤至七成熟后，在表面上涂上一层生抽，然后烤至九成熟就可以起炉了。一口下去，鲜甜的虾肉再带上淡淡的酱香味，嗯，满分。
+一直觉得家乡的烧烤跟日料烧肉很像，腌制入味、酱汁饱满，以至于每次在外吃到干巴巴、满口孜然味的烧烤时，都会无比怀念家乡的自家烧烤。如今，小镇上早已开满了大大小小的烧烤店，吃烧烤也不再只属于节日的狂欢。但是家乡中秋夜烧烤的习俗还是很好的保留了下来，也许比起烧烤，大家更享受的是那份团圆的气氛吧。</description>
+    </item>
+    
+    <item>
+      <title>在成为架构师之前所需了解的一些知识</title>
+      <link>https://www.yrunz.com/p/%E5%9C%A8%E6%88%90%E4%B8%BA%E6%9E%B6%E6%9E%84%E5%B8%88%E4%B9%8B%E5%89%8D%E6%89%80%E9%9C%80%E4%BA%86%E8%A7%A3%E7%9A%84%E4%B8%80%E4%BA%9B%E7%9F%A5%E8%AF%86/</link>
+      <pubDate>Sun, 13 Sep 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E5%9C%A8%E6%88%90%E4%B8%BA%E6%9E%B6%E6%9E%84%E5%B8%88%E4%B9%8B%E5%89%8D%E6%89%80%E9%9C%80%E4%BA%86%E8%A7%A3%E7%9A%84%E4%B8%80%E4%BA%9B%E7%9F%A5%E8%AF%86/</guid>
+      <description>前言 当你点开一个招聘APP，筛选条件选择互联网技术，在列出来的一大堆职位上，往往有那么几个带有“架构师”三个字眼的高薪职位。当你被它的高薪所吸引而点击查看职位详情时，又会被它的高要求所劝退。它们往往要求工作年限在5年以上，需要求职者有过3年以上的系统设计经验，精通各种架构模式和系统框架，反观自己却一个条件都不满足。
+软件架构师就是这么一个让人向往，但又让人望洋兴叹的一个职位。就像建筑设计师总有成为总设计师的梦想，航天工作者总有成为总工程师的壮志，相信每一个软件工程师都有过成为软件架构师的想法。引用维基百科里的定义，软件架构师的职责就是在软件系统研发中，负责依据需求来确定主要的技术选择、设计系统的主体框架结构，并负责搭建实施。然而，架构师所需的技能远远不止于技术选择和系统设计。本文主要介绍软件架构的定义，以及要成为一个软件架构师所需具备的一些技能，让你对软件架构师这一职位有一个更深的了解。
+ 文中大部分的观点来自于《Fundamentals of Software Architecture》一书，想了解更多详情推荐阅读原书。
+ 软件架构的定义 对于软件架构（Software Architecture），我们通常将它看成是软件系统的蓝图（blueprint），但是如果要给出一个精确的定义，往往很难。维基百科里对软件架构的定义为，有关软件整体结构与组件的抽象描述，用于指导大型软件系统各个方面的设计。但是，这种定义也是片面的，软件架构并不仅仅是系统的整体结构和组件，光有这些还不足以指导设计出好的软件系统。
+Mark Richards和Neal Ford在书中，从四个维度上对软件架构进行了描述，分别是Structure、Architecture characteristics、Architecture decisions和Design principles。
+Structure Structure描述的是软件系统所使用的架构风格，比如最常见的分层架构（layered architecture）、事件驱动架构（event-driven architecture）、微核架构（microkernel architecture）、微服务架构（microservices architecture）等等。当你去问架构师一个软件系统使用什么架构时，如果他告诉你，“系统使用的是微服务架构”，那么也他仅仅阐明了系统的架构风格而已。若想了解整个系统的软件架构，对architecture characteristics、architecture decisions和design principles都要有深入的认识。
+Architecture characteristics Architecture characteristics也就是我们常说的非功能需求，比如有可用性（Availability）、可扩展性（Scalability）、可靠性（Reliability）等。Architecture characteristics往往容易被软件新手所忽略，但是它对于软件系统而言却是非常的重要。如果说功能需求决定了一个软件系统的下限，那么非功能需求则决定了它的上限。
+Architecture decisions Architecture decisions描述了开发软件系统时所必须遵循的规则，比如图中例子，对于一个分层架构风格的系统而言，开发工程师需要遵循以下规则：只有业务层才能直接访问服务层，表现层不能直接访问服务层。Architecture decisions更多的只是一种约束，违反了这种约束可能并不会对系统的功能造成影响，但是却是系统架构腐化的源头。
+Design principles Design principles指的是系统设计的原则，用于引导开发团队选择更符合系统特点的技术方案。Design principles只会给出一个方向，而不是具体的实现方案。比如图中例子给出的系统设计原则就是：微服务之间应该尽可能通过异步通信来提升系统的性能。至于开发团队通过REST或者RPC的方式进行异步通信实现，设计原则并未进行限制。
+成为架构师所需的技能 就像软件架构不仅仅是系统的整体结构和组件一样，要成为一个软件架构师，只会技术选型是远远不够的。一个合格的软件架构师应该具备以下的几种技能：
+进行架构决策  An architect is expected to define the architecture decisions and design principles used to guide technology decisions within the team, the department, or across the enterprise.</description>
+    </item>
+    
+    <item>
+      <title>使用Go实现GoF的23种设计模式（三）</title>
+      <link>https://www.yrunz.com/p/%E4%BD%BF%E7%94%A8go%E5%AE%9E%E7%8E%B0gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B8%89/</link>
+      <pubDate>Sun, 06 Sep 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E4%BD%BF%E7%94%A8go%E5%AE%9E%E7%8E%B0gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B8%89/</guid>
+      <description>前言 上一篇文章《使用Go实现GoF的23种设计模式（二）》中，我们介绍了结构型模式（Structural Pattern）中的组合模式、适配器模式和桥接模式。本文将会介绍完剩下的几种结构型模式，代理模式、装饰模式、外观模式和享元模式。本文将会继续采用消息处理系统作为例子，如果对该例子不清楚，请移步《使用Go实现GoF的23种设计模式（一）》和《使用Go实现GoF的23种设计模式（二）》对其相关的设计和实现进行了解。
+代理模式（Proxy Pattern） 简介 代理模式为一个对象提供一种代理以控制对该对象的访问，它是一个使用率非常高的设计模式，即使在现实生活中，也是很常见，比如演唱会门票黄牛。假设你需要看一场演唱会，但是官网上门票已经售罄，于是就当天到现场通过黄牛高价买了一张。在这个例子中，黄牛就相当于演唱会门票的代理，在正式渠道无法购买门票的情况下，你通过代理完成了该目标。
+从演唱会门票的例子我们也可以看出，使用代理模式的关键在于当Client不方便直接访问一个对象时，提供一个代理对象控制该对象的访问。Client实际上访问的是代理对象，代理对象会将Client的请求转给本体对象去处理。
+在程序设计中，代理模式也分为好几种：
+1、远程代理（remote proxy），远程代理适用于提供服务的对象处在远程的机器上，通过普通的函数调用无法使用服务，需要经过远程代理来完成。因为并不能直接访问本体对象，所有远程代理对象通常不会直接持有本体对象的引用，而是持有远端机器的地址，通过网络协议去访问本体对象。
+2、虚拟代理（virtual proxy），在程序设计中常常会有一些重量级的服务对象，如果一直持有该对象实例会非常消耗系统资源，这时可以通过虚拟代理来对该对象进行延迟初始化。
+3、保护代理（protection proxy），保护代理用于控制对本体对象的访问，常用于需要给Client的访问加上权限验证的场景。
+4、缓存代理（cache proxy），缓存代理主要在Client与本体对象之间加上一层缓存，用于加速本体对象的访问，常见于连接数据库的场景。
+5、智能引用（smart reference），智能引用为本体对象的访问提供了额外的动作，常见的实现为C++中的智能指针，为对象的访问提供了计数功能，当访问对象的计数为0时销毁该对象。
+这几种代理都是一样的实现原理，下面我们将介绍远程代理的Go语言实现。
+Go实现 考虑要将消息处理系统输出到数据存储到一个数据库中，数据库的接口如下：
+package db ... // Key-Value数据库接口 type KvDb interface { // 存储数据 	// 其中reply为操作结果，存储成功为true，否则为false 	// 当连接数据库失败时返回error，成功则返回nil 	Save(record Record, reply *bool) error // 根据key获取value，其中value通过函数参数中指针类型返回 	// 当连接数据库失败时返回error，成功则返回nil 	Get(key string, value *string) error } type Record struct { Key string Value string } 数据库是一个Key-Value数据库，使用map存储数据，下面为数据库的服务端实现，db.Server实现了db.KvDb接口：
+package db ... // 数据库服务端实现 type Server struct { // 采用map存储key-value数据 	data map[string]string } func (s *Server) Save(record Record, reply *bool) error { if s.</description>
+    </item>
+    
+    <item>
+      <title>使用Go实现GoF的23种设计模式（二）</title>
+      <link>https://www.yrunz.com/p/%E4%BD%BF%E7%94%A8go%E5%AE%9E%E7%8E%B0gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%BA%8C/</link>
+      <pubDate>Sun, 23 Aug 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E4%BD%BF%E7%94%A8go%E5%AE%9E%E7%8E%B0gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%BA%8C/</guid>
+      <description>前言 上一篇文章《使用Go实现GoF的23种设计模式（一）》介绍了23种设计模式中的创建型模式（Creational Pattern），创建型模式是处理对象创建的一类设计模式，主要思想是向对象的使用者隐藏对象创建的具体细节，从而达到解耦的目的。本文主要聚焦在结构型模式（Structural Pattern）上，其主要思想是将多个对象组装成较大的结构，并同时保持结构的灵活和高效，从程序的结构上解决模块之间的耦合问题。
+组合模式（Composite Pattern） 简述 在面向对象编程中，有两个常见的对象设计方法，组合和继承，两者都可以解决代码复用的问题，但是使用后者时容易出现继承层次过深，对象关系过于复杂的副作用，从而导致代码的可维护性变差。因此，一个经典的面向对象设计原则是：组合优于继承。
+我们都知道，组合所表示的语义为“has-a”，也就是部分和整体的关系，最经典的组合模式描述如下：
+ 将对象组合成树形结构以表示“部分-整体”的层次结构，使得用户对单个对象和组合对象的使用具有一致性。
+ Go语言天然就支持了组合模式，而且从它不支持继承关系的特点来看，Go也奉行了组合优于继承的原则，鼓励大家在进行程序设计时多采用组合的方法。Go实现组合模式的方式有两种，分别是直接组合（Direct Composition）和嵌入组合（Embedding Composition），下面我们一起探讨这两种不同的实现方法。
+Go实现 直接组合（Direct Composition）的实现方式类似于Java/C++，就是将一个对象作为另一个对象的成员属性。
+一个典型的实现如《使用Go实现GoF的23种设计模式（一）》中所举的例子，一个Message结构体，由Header和Body所组成。那么Message就是一个整体，而Header和Body则为消息的组成部分。
+type Message struct { Header *Header Body *Body } 现在，我们来看一个稍微复杂一点的例子，同样考虑上一篇文章中所描述的插件架构风格的消息处理系统。前面我们用抽象工厂模式解决了插件加载的问题，通常，每个插件都会有一个生命周期，常见的就是启动状态和停止状态，现在我们使用组合模式来解决插件的启动和停止问题。
+首先给Plugin接口添加几个生命周期相关的方法：
+package plugin ... // 插件运行状态 type Status uint8 const ( Stopped Status = iota Started ) type Plugin interface { // 启动插件 	Start() // 停止插件 	Stop() // 返回插件当前的运行状态 	Status() Status } // Input、Filter、Output三类插件接口的定义跟上一篇文章类似 // 这里使用Message结构体替代了原来的string，使得语义更清晰 type Input interface { Plugin Receive() *msg.</description>
+    </item>
+    
+    <item>
+      <title>使用Go实现GoF的23种设计模式（一）</title>
+      <link>https://www.yrunz.com/p/%E4%BD%BF%E7%94%A8go%E5%AE%9E%E7%8E%B0gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B8%80/</link>
+      <pubDate>Mon, 10 Aug 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E4%BD%BF%E7%94%A8go%E5%AE%9E%E7%8E%B0gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B8%80/</guid>
+      <description>前言 从1995年GoF提出23种设计模式到现在，25年过去了，设计模式依旧是软件领域的热门话题。在当下，如果你不会一点设计模式，都不好意思说自己是一个合格的程序员。设计模式通常被定义为：
+ 设计模式（Design Pattern）是一套被反复使用、多数人知晓的、经过分类编目的、代码设计经验的总结，使用设计模式是为了可重用代码、让代码更容易被他人理解并且保证代码可靠性。
+ 从定义上看，设计模式其实是一种经验的总结，是针对特定问题的简洁而优雅的解决方案。既然是经验总结，那么学习设计模式最直接的好处就在于可以站在巨人的肩膀上解决软件开发过程中的一些特定问题。然而，学习设计模式的最高境界是习得其中解决问题所用到的思想，当你把它们的本质思想吃透了，也就能做到即使已经忘掉某个设计模式的名称和结构，也能在解决特定问题时信手拈来。
+好的东西有人吹捧，当然也会招黑。设计模式被抨击主要因为以下两点：
+1、设计模式会增加代码量，把程序逻辑变得复杂。这一点是不可避免的，但是我们并不能仅仅只考虑开发阶段的成本。最简单的程序当然是一个函数从头写到尾，但是这样后期的维护成本会变得非常大；而设计模式虽然增加了一点开发成本，但是能让人们写出可复用、可维护性高的程序。引用《软件设计的哲学》里的概念，前者就是战术编程，后者就是战略编程，我们应该对战术编程Say No！（请移步《一步步降低软件复杂性》）
+2、滥用设计模式。这是初学者最容易犯的错误，当学到一个模式时，恨不得在所有的代码都用上，从而在不该使用模式的地方刻意地使用了模式，导致了程序变得异常复杂。其实每个设计模式都有几个关键要素：适用场景、解决方法、优缺点。模式并不是万能药，它只有在特定的问题上才能显现出效果。所以，在使用一个模式前，先问问自己，当前的这个场景适用这个模式吗？
+《设计模式》一书的副标题是“可复用面向对象软件的基础”，但并不意味着只有面向对象语言才能使用设计模式。模式只是一种解决特定问题的思想，跟语言无关。就像Go语言一样，它并非是像C++和Java一样的面向对象语言，但是设计模式同样适用。本系列文章将使用Go语言来实现GoF提出的23种设计模式，按照创建型模式（Creational Pattern）、结构型模式（Structural Pattern）和行为型模式（Behavioral Pattern）三种类别进行组织，文本主要介绍其中的创建型模式。
+单例模式（Singleton Pattern） 简述 单例模式算是23中设计模式里最简单的一个了，它主要用于保证一个类仅有一个实例，并提供一个访问它的全局访问点。
+在程序设计中，有一些对象通常我们只需要一个共享的实例，比如线程池、全局缓存、对象池等，这种场景下就适合使用单例模式。
+但是，并非所有全局唯一的场景都适合使用单例模式。比如，考虑需要统计一个API调用的情况，有两个指标，成功调用次数和失败调用次数。这两个指标都是全局唯一的，所以有人可能会将其建模成两个单例SuccessApiMetric和FailApiMetric。按照这个思路，随着指标数量的增多，你会发现代码里类的定义会越来越多，也越来越臃肿。这也是单例模式最常见的误用场景，更好的方法是将两个指标设计成一个对象ApiMetric下的两个实例ApiMetic success和ApiMetic fail。
+如何判断一个对象是否应该被建模成单例？
+通常，被建模成单例的对象都有“中心点”的含义，比如线程池就是管理所有线程的中心。所以，在判断一个对象是否适合单例模式时，先思考下，这个对象是一个中心点吗？
+Go实现 在对某个对象实现单例模式时，有两个点必须要注意：（1）限制调用者直接实例化该对象；（2）为该对象的单例提供一个全局唯一的访问方法。
+对于C++/Java而言，只需把类的构造函数设计成私有的，并提供一个static方法去访问该类点唯一实例即可。但对于Go语言来说，即没有构造函数的概念，也没有static方法，所以需要另寻出路。
+我们可以利用Go语言package的访问规则来实现，将单例结构体设计成首字母小写，就能限定其访问范围只在当前package下，模拟了C++/Java中的私有构造函数；再在当前package下实现一个首字母大写的访问函数，就相当于static方法的作用了。
+在实际开发中，我们经常会遇到需要频繁创建和销毁的对象。频繁的创建和销毁一则消耗CPU，二则内存的利用率也不高，通常我们都会使用对象池技术来进行优化。考虑我们需要实现一个消息对象池，因为是全局的中心点，管理所有的Message实例，所以将其实现成单例，实现代码如下：
+package msgpool ... // 消息池 type messagePool struct { pool *sync.Pool } // 消息池单例 var msgPool = &amp;amp;messagePool{ // 如果消息池里没有消息，则新建一个Count值为0的Message实例 	pool: &amp;amp;sync.Pool{New: func() interface{} { return &amp;amp;Message{Count: 0} }}, } // 访问消息池单例的唯一方法 func Instance() *messagePool { return msgPool } // 往消息池里添加消息 func (m *messagePool) AddMsg(msg *Message) { m.</description>
+    </item>
+    
+    <item>
+      <title>从Hash索引到LSM树（二）</title>
+      <link>https://www.yrunz.com/p/%E4%BB%8Ehash%E7%B4%A2%E5%BC%95%E5%88%B0lsm%E6%A0%91%E4%BA%8C/</link>
+      <pubDate>Tue, 28 Jul 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E4%BB%8Ehash%E7%B4%A2%E5%BC%95%E5%88%B0lsm%E6%A0%91%E4%BA%8C/</guid>
+      <description>前言 在上一篇文章《从Hash索引到LSM树（一）》中，我们通过append-only log的数据结构，实现了一个具备高写入性能的key-value数据库。append-only log之所以有很高的写入性能，主要得益于磁盘的顺序写入。这可能违反了我们对磁盘的认知，因为在我们的印象中，写磁盘总是很慢。其实不然，准确地说应该是随机写磁盘很慢，因为在写之前可能会进行多次寻址。如果只是顺序写磁盘，性能是非常的高，如下的一个ACM报告中显示，顺序写磁盘甚至比随机写内存的性能还要高！
+ 举个例子，Kafka是一个高性能的消息队列，它的厉害之处就在于极致地利用磁盘的顺序写入性能，如果生产者和消费者的速率相当，消息甚至可以在操作系统的Page Cache层面就完成了传递。所以，以后别再认为写磁盘很慢了！
+ append-only log大幅提升了数据写入性能，但是随之而来的是，非常低的数据读取性能。针对这一点，我们采用Hash索引进行了优化，优化的效果也非常的显著。然而，Hash索引有两个明显的限制：（1）当key的数量很多时，维护Hash索引会给内存带来很大的压力；（2）区间查询很低效。如何对这两个限制进行优化呢？这就轮到本文介绍的主角，LSM树，出场了。
+LSM树（Log-Structured Merge Tree）并不是一种数据结构，准确来说是一种存储模型，由MemTable、Immutable MemTable、SSTable等部分组成。它也是利用了append-only log的优势，大幅提升了写入性能。同时，因为key的存储有序性，所以具备了不错的读取性能，也克服了上文所述Hash索引的两个限制。下面，本文将一步步分析LSM树是如何做到这一点的。
+SSTable 在最简单的数据库例子中，因为数据是无序存储的，所以在读取某个key的值时，就需要遍历整个数据文件，算法复杂度是O(n)。为了提升读性能，我们不得不在内存中维护所有key的Hash索引。
+假如存储数据时，对记录按照key进行排序的会怎样？
+对于key有序存储这种情况，即使不用Hash索引，也能得到很好的查询效率，因为我们可以使用二分查找法（Binary Search）来快速找到key所在的位置，算法复杂度是O(logn)。LSM树正是采用key有序这种方式来组织数据存储的，并称之为SSTable。
+SSTable（Sorted String Table）是LSM树最基础的一个存储结构，存储在磁盘中，并且数据按照key进行排序的。数据保持key有序的好处是可以在O(logn)的时间下，快速找到一个key值，相比于纯粹的append-only log有了很大的提升。但是，如果所有的数据都存储在一个SSTable上，数据量一大，查询效率也会下降。因此，LSM树通常会将数据分散存储在多个SSTable中，并且记录每个SSTable的最大key和最小key，这样就能快速定位到一个key存储在哪个SSTable上了。
+// SSTable，数据保存到SSTable后只读不写 public class SSTable { ... // 数据存储路径  private final LogFile logFile; // 该SStable中存储的最小Key  private String minKey; // 该SStable中存储的最大Key  private String maxKey; // 使用二分查找法获取key值  public String get(String key) { // step1：先判断是否在SSTable的范围内  if (key.compareTo(minKey) &amp;lt; 0 || key.compareTo(maxKey) &amp;gt; 0) { return &amp;#34;&amp;#34;; } // step2：二分查找  long start = 0; long end = logFile.</description>
+    </item>
+    
+    <item>
+      <title>从Hash索引到LSM树（一）</title>
+      <link>https://www.yrunz.com/p/%E4%BB%8Ehash%E7%B4%A2%E5%BC%95%E5%88%B0lsm%E6%A0%91%E4%B8%80/</link>
+      <pubDate>Fri, 26 Jun 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E4%BB%8Ehash%E7%B4%A2%E5%BC%95%E5%88%B0lsm%E6%A0%91%E4%B8%80/</guid>
+      <description>前言 数据库算是软件应用系统中最常用的一类组件了，不管是一个庞大而复杂的电商系统，还是一个简单的个人博客，多多少少都会用到数据库，或是存储海量的数据，或是存储简单的状态信息。一般地，我们都喜欢将数据库划分为关系型数据库和非关系型数据库（又称NoSQL数据库），前者的典型代表是MySQL数据库，后者的典型代表是HBase数据库。不管是关系型，还是非关系型，数据库都离不开两个最基本的功能：（1）数据存储；（2）数据查询。简单来说就是，当你把数据丢给数据库时，它能够保持下来，并在稍后你想获取的时候，把数据返回给你。
+围绕着这两个基本功能，各类数据库都运用了很多技术手段对其进行了优化，其中最广为人知的当属数据库索引技术。索引是一种数据结构，它在牺牲少量数据存储（写）性能的情况下，可以大幅提升数据查询（读）性能。索引也有很多种类型，Hash索引算是最简单高效的一种了，但是由于它自身的限制，在数据库系统中并不被广泛使用。当今最常用的索引技术是B/B+树索引，被广泛地应用在关系型数据库中，主要应用于读多写少的场景。随着NoSQL数据库的兴起，LSM（Log-Structured Merged-Tree）树也逐渐流行，并被Google的BigTable论文所发扬光大。严格来说，LSM树并不算一种传统意义上的索引，它更像是一种设计思想，主要应用于写多读少的场景。
+本系列文章，将从实现最简单的Key-Value数据库讲起，然后针对实现过程中遇到的一些瓶颈，采用上述的索引技术，对数据库进行优化，以此达到对数据库的索引技术有一个较为深刻的理解。
+最简单的数据库 Martin Kleppmann在《Designing Data-Intensive Applications》一书中给出了一个最简单数据库的实现：
+#!/bin/bash db_set() { echo &amp;#34;$1,$2&amp;#34; &amp;gt;&amp;gt; database } db_get() { grep &amp;#34;^$1,&amp;#34; database | sed -e &amp;#34;s/^$1,//&amp;#34; | tail -n 1 } 这不到10行的shell代码实现了一个简单的Key-Value数据库。它一共有两个函数，db_set和db_get，前者对应数据存储功能，后者对应数据查询功能。该数据库采用简单的文本格式（database文件）进行数据存储，每条记录包含了一个键值对，key和value之间通过逗号（,）进行分隔。
+数据库的使用方法也很简单，通过调用db_set key value可以将key及其对应的value存储到数据库中；通过db_get key可以得到该key对应的value：
+$ db_set 123456 &amp;#39;{&amp;#34;name&amp;#34;:&amp;#34;London&amp;#34;,&amp;#34;attractions&amp;#34;:[&amp;#34;Big Ben&amp;#34;,&amp;#34;London Eye&amp;#34;]}&amp;#39; $ db_set 42 &amp;#39;{&amp;#34;name&amp;#34;:&amp;#34;San Francisco&amp;#34;,&amp;#34;attractions&amp;#34;:[&amp;#34;Golden Gate Bridge&amp;#34;]}&amp;#39; $ db_get 42 {&amp;#34;name&amp;#34;:&amp;#34;San Francisco&amp;#34;,&amp;#34;attractions&amp;#34;:[&amp;#34;Golden Gate Bridge&amp;#34;]} 透过db_set的实现我们发现，该数据库每次写都是直接往database文件中追加记录，鉴于文件系统顺序写的高效，因此该数据库的数据写入具有较高的性能。但是追加写也意味着，对同一个key进行更新时，其对应的旧的value并不会被覆盖，这也使得每次调用db_get获取某个key的value时，总是需要遍历所有记录，找到所有符合条件的value，并取其中最新的一个。因此，该数据库的读性能是非常低的。
+下面我们采用Java对这个最简单的数据库进行重写：
+/** * SimpleKvDb.java * 追加写 * 全文件扫描读 */ public class SimpleKvDb implements KvDb { .</description>
+    </item>
+    
+    <item>
+      <title>实践领域驱动设计（一）</title>
+      <link>https://www.yrunz.com/p/%E5%AE%9E%E8%B7%B5%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1%E4%B8%80/</link>
+      <pubDate>Sun, 08 Mar 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E5%AE%9E%E8%B7%B5%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1%E4%B8%80/</guid>
+      <description>最近几年，领域驱动设计（Domain-Driven Design，DDD）这个术语越来越多地出现在软件工程师的视野里。对DDD不熟悉的人可能会觉得它是软件领域里的一个新的概念，但是实际上，Eric Evans在十几年前就已经提出了这个概念。这个“古老”的概念在之所以能够重焕新生，很大程度上是因为遇上了“微服务”这个浪潮。如果把DDD里面的理念拿去和微服务架构做对比，你会发现它们有着高度的相似性——DDD里的限界上下文不正是微服务架构中的微服务吗？于是，各大公司纷纷运用DDD的方法论来构建自己的产品架构。有些团队成功地将DDD结合到了产品架构中，产生了许多优秀的实践；也有些团队反映DDD太过复杂，很难落地。那么DDD究竟是个什么样的理念？为什么大家都争先恐后地使用它，彷佛不加点DDD都不好意思说自己是微服务架构？然而又为什么那么多团队说DDD难以落地？本文将会结合简单的代码实现来谈谈笔者对DDD的理解。
+什么是领域驱动设计？ 软件的核心是其为用户解决领域相关的问题的能力。
+软件就是为了解决某一领域相关问题而存在的，比如一个普通的计算器软件，就是为了满足我们进行简单的加减乘除运算而存在。对于计算器这种小而简单的软件，一个普通的软件工程师可能花上几天就能过设计开发出来，而且基本不会出现Bug。但是对于一些大型而且复杂的系统，一个团队都得花上很长的时间去设计整个架构，然后经过n轮迭代才能开发出可用的版本，而且后面还有各种Bug要去处理。比如证券交易系统，里面就包括了用户系统、账户系统、订单系统、撮合系统等一系列的子系统，而且其中的调用关系和业务都非常复杂。像这样一个庞大的系统，怎样才能把它设计好呢？这正是DDD要回答的问题。
+领域驱动设计（DDD）是一种软件开发的方法论，旨在帮助我们设计出高质量的软件模型。
+在软件领域，解决复杂问题的方法不外乎是“分治”和“抽象”，DDD也是基于这两个理念建立起一套方法论。其中将一个系统划分成多个限界上下文，限界上下文中划分出多个子域，这是分治；然后在分别对各个子域进行领域建模，这是抽象。当你在设计一个业务复杂的系统却无从下手时，尝试一下DDD，说不定困难就会迎刃而解了。DDD中最核心的理念就是领域建模，可以说它提供的各种方法都是为了帮助我们设计出更能准确传达业务规则的领域模型。一个好的领域模型可以让一个系统更加健壮，可以让一个框架易用性更加好，可以让一段代码更加好维护。那么，什么样的模型才是好的领域模型？下面，我们通过一个例子来简单说明下。
+ 什么是领域模型？
+领域模型是关于某个特定业务领域的软件模型。通常，领域模型通过对象模型来实现，这些对象同时包含了数据和行为，并且表达了准确的业务含义。
+ 日期和时间领域模型 如何设计一个日期和时间API？
+首先需要对日期和时间的概念进行建模，从直觉上，我们可以将日期和时间抽象成一个对象Date。另外，时间和日期经常都需要进行格式化输出，因此我们还需要一个用于表示时间格式的对象DateFormat。为了更好地表示年月周日等概念，再抽象出一个表示日历的Calendar对象，以及表示时区的TimeZone对象。
+相信到这里大家都已经知道，这正是JDK 1.1版本的日期时间API，下面我们先回顾一下它的用法：
+public class TestOldDate { public static void main(String[] args) { // 获取表示当前时刻的Date对象  Date date1 = new Date(); // 通过Calendar等到指定日期时间的Date对象，采用当前的系统时区  Calendar calendar = Calendar.getInstance(TimeZone.getDefault()); calendar.set(2020, 2, 10, 0, 0, 0); Date date2 = calendar.getTime(); // 进行时间比较  System.out.println(&amp;#34;date1 is after date2: &amp;#34; + date1.after(date2)); // 进行时间的加减法，如获得昨天的这个时刻：  calendar.setTime(date1); calendar.set(Calendar.DAY_OF_MONTH, calendar.get(Calendar.DAY_OF_MONTH) - 1); Date date3 = calendar.</description>
+    </item>
+    
+    <item>
+      <title>Java的对象模型——Oop-Klass模型（二）</title>
+      <link>https://www.yrunz.com/p/java%E7%9A%84%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8Boop-klass%E6%A8%A1%E5%9E%8B%E4%BA%8C/</link>
+      <pubDate>Sun, 02 Feb 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/java%E7%9A%84%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8Boop-klass%E6%A8%A1%E5%9E%8B%E4%BA%8C/</guid>
+      <description>前言 在《Java对象表示——Oop-Klass模型（一）》一文的最后讲到，为了实现Java方法调用的动态绑定，HotSpot使用了与C++虚函数类似的机制，同时为了避免每个对象都维护一个虚函数表，于是就设计了Klass类。
+如下为HotSpot源码中对Klass的功能介绍：
+ A Klass provides:
+​ 1: language level class object (method dictionary etc.)
+​ 2: provide vm dispatch behavior for the object
+Both functions are combined into one C++ class.
+ 可见，Klass主要提供了两个功能：
+（1）用于表示Java类。Klass中保存了一个Java对象的类型信息，包括类名、限定符、常量池、方法字典等。一个class文件被JVM加载之后，就会被解析成一个Klass对象存储在内存中。
+（2）实现对象的虚分派（virtual dispatch）。所谓的虚分派，是JVM用来实现多态的一种机制。
+class A { void callMe() { System.out.println(&amp;#34;This is A.&amp;#34;); } } class B extends A { @Override public void callMe() { System.out.println(&amp;#34;This is B.&amp;#34;); } } class C extends A { @Override public void callMe() { System.</description>
+    </item>
+    
+    <item>
+      <title>Java的对象模型——Oop-Klass模型（一）</title>
+      <link>https://www.yrunz.com/p/java%E7%9A%84%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8Boop-klass%E6%A8%A1%E5%9E%8B%E4%B8%80/</link>
+      <pubDate>Fri, 31 Jan 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/java%E7%9A%84%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8Boop-klass%E6%A8%A1%E5%9E%8B%E4%B8%80/</guid>
+      <description>前言 谈起Java对象，笔者的第一反应是在：Java中的每一个对象（不包括基础类型）都继承于Object对象。相信这也是大多数程序员对Java对象的初次印象，Object可以表示所有的Java对象。但是，这种理解仅仅是停留在语言层面，至于更深的JVM层面，对象还是用Object来表示吗？显然不是。JVM通常使用非Java语言实现，是用来解析并运行Java程序的，它有自己的模型来表示Java语言的各种特性，包括Object。下面我们以HotSpot为例，一起来探讨Java对象在JVM层面的Java对象模型。
+ HotSpot采用C++语言实现，下文中的JVM如无特殊说明，指的都是HotSpot。
+ Java程序通过new操作符来创建一个对象，在深入探讨HotSpot的Java对象模型前，我们先看下new操作符的具体实现。
+// hotspot/src/share/vm/interpreter/interpreterRuntime.cpp ... // HotSpot中new操作符的实现函数 IRT_ENTRY(void, InterpreterRuntime::_new(JavaThread* thread, ConstantPool* pool, int index)) Klass* k_oop = pool-&amp;gt;klass_at(index, CHECK); instanceKlassHandle klass (THREAD, k_oop); // Make sure we are not instantiating an abstract klass  klass-&amp;gt;check_valid_for_instantiation(true, CHECK); // Make sure klass is initialized  klass-&amp;gt;initialize(CHECK); // At this point the class may not be fully initialized  // ...  oop obj = klass-&amp;gt;allocate_instance(CHECK); thread-&amp;gt;set_vm_result(obj); IRT_END ... 上述代码片段来自HotSpot源码中new操作符的实现函数，先不深入分析每一行的具体含义，这段代码给我们最直观的功能就是：先对klass对象进行初始化工作，然后再用它来创建出oop对象。到这里我们大致就能猜出，oop表示的就是一个Java对象。而这里的klass和Java中的Class之间似乎有着紧密的联系，一是两者的名字非常类似，另外也可通过第16行代码得到进一步的肯定。对Java的反射机制稍微有所了解的人，看着第16行代码一定很熟悉，因为它与使用Class.</description>
+    </item>
+    
+    <item>
+      <title>2019年的读书印记</title>
+      <link>https://www.yrunz.com/p/2019%E5%B9%B4%E7%9A%84%E8%AF%BB%E4%B9%A6%E5%8D%B0%E8%AE%B0/</link>
+      <pubDate>Tue, 31 Dec 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/2019%E5%B9%B4%E7%9A%84%E8%AF%BB%E4%B9%A6%E5%8D%B0%E8%AE%B0/</guid>
+      <description>前言 2019年最大的收获莫过于，静下心来，找到了读书和写作的乐趣。
+说起读书的习惯，那要追溯到研究生即将毕业的那一年，在一个盗版的kindle上读完了《曾国藩家书》。书中有一句话让我铭记至今，也让我震撼至今：“少睡多做，一人之生气”。于是便有了早起读书的习惯。研究生在读时，每天都有着充裕的时间，对早起的定义是8点之前，这倒也不算难事；工作之后，9点便要开始上班，对早起的定义也跟着提到7点以前。刚工作的几个月，早起着实是一件极其痛苦的事情，总有着延绵不断的困意，很多时候读着读着便又睡着了，有时甚至把困意带去了公司。多亏了那段时间的磨练，早上的困意逐渐消失，养成了如今早起的习惯。虽说是习惯，但更多的是逼着自己早起，也因此有几段时间以各种借口（最常用的便是工作太累）为由没能坚持这一习惯。很幸运的是，在2019年又重新拾得这一习惯。
+到目前为止，在读书习惯上的经历大致可以分成3个阶段。初读《曾国藩家书》时，便下决心要养成早起读书的习惯，这阶段读书的类别大多局限于史类、经济类和软件类；今年7月份读到《穷查理宝典》后，意识到多学科交叉的重要性，便开始刻意读一些各个领域的入门书籍。依旧记得读《穷查理宝典》时激动的心情，醍醐灌顶，读书的乐趣大概源至于此；当前所处的阶段，始于今年11月份读到《文心》。从前为了增加知识的广度（更多的是过于浮躁），喜欢快速把一本书读完，收得其中大概意思。读完《文心》，像是上了一堂不一样的国文课，“读书的目的，重在收得其内容意趣，否则只是文字的游戏而已。”，于是便学会了静下心来读完一本书。
+ 今年有幸在公司听了侯捷老师（《STL源码剖析》的作者）的讲座，他对知识追根究底的精神，深深地影响了我。每次阅读技术书籍读到晦涩难懂之处，想要跳过之时，便会想起侯捷老师的做法，于是就乖乖地重新回去把知识彻底弄懂。
+ 至于写作，对于我这么一个以写代码为业的工科生而言，那是很难想象的事情。从没想过写800字作文都得憋出内伤的我，会在2019年找到写作的乐趣。虽说工作以来，偶尔也会在公司平台写一些总结性的博客，但那都是记流水账似的，谈不上写作。搭建个人博客网站来写文章，那是很久之前的想法了，但一直都没有去落实。一是觉得搭建网站太浪费时间了；另外则认为写作更是浪费时间，还不如多读些书。
+今年双十一的时候，趁着优惠在腾讯云买了个云服务器，花上一天时间，搭建了个人博客网站。本着&amp;quot;一份时间出售多次&amp;ldquo;的原则，顺着把微信订阅号也注册了。尽管如此，对写作的热情还是没有明显地上升，依旧不情愿花超过一小时的时间去完成一篇文章。真正让我找到写作乐趣的，是《文心》。如今，写作不再是一件痛苦的事情，每个周末都舍得花上一天的时间去写完一篇文章。
+2019年读了不少书，有匆匆浏览的，也有仔细读完的。基本上做到了读完每本书都有所“触发”，不枉开卷。或是深刻地记住了其中的某句话，又或是学会了其中的一套方法。大体上，今年读过的书可以分成三类：软件类、人文社科类和科普类。
+软件类 道              今年对我影响最深的一本技术类书籍，对提升软件设计能力、写出优雅代码很有帮助。相比于Eric Evans的那本《领域驱动设计》，该书结合了大量的例子，让DDD中的各种概念更容易理解些。 领域驱动设计（DDD）的开山之作，内容比较偏理论。去年在学校图书馆偶然遇见，初读晦涩难懂，只依稀记得几个概念。今年读完《实现领域驱动设计》后，再回来重温这本书，里面的一些概念也就清晰多了。       主要介绍软件的复杂性以及降低复杂性的方法，书里用 “深” 和 “浅” 来表示一个模块的复杂性形容得非常形象。 《代码整洁之道》作者的又一力作，涵盖软件研发完整过程及所有核心架构模式。       目前流式计算框架五花八门，这本书以Apache Beam框架为例子，介绍了流式系统的一些通用概念。先了解Apache Beam，再来读这本书，里面的概念更容易理解些。 深入浅出地把微服务的架构设计、开发、测试和发布运维都介绍了一遍，而且提供了很多例子，有助于加深理解微服务的各种概念。       介绍阿里巴巴架构的演变过程，帮助了解时下热门的 “中台“ 概念的由来和含义。 与“架构”相关的概念居多，没有太多的干货，可以当成是睡前书来读。    术              《Java编程思想》的Java 8版本，全面而详细地介绍了Java 8的各种基础知识。即使已经使用Java两年了，读这本书的过程中的还是获益匪浅。 介绍了Java 8的各种新特性，新的日期API、Stream、Optional等都非常地好用，读完这本书，可以让你写出可读性更好的Java 8风格代码。       函数式编程范式逐渐成为各种语言的必备特性，这本书从理论出发，介绍了如何使用Java进行函数式编程。虽然Java不是函数式的语言，但是加点函数式的东西进去会很酷。 深入介绍了Docker的原理，去年初读时也是晦涩难懂。等到今年有了Docker实践之后，再回来读，对里面的概念和原理更有体会了。       今年公司提倡 重构 和 Clean Code，于是重新拿出来读了一遍。书中通过详细的例子介绍了一些常用的重构手法，真正做到了深入浅出。 介绍了HBase的架构原理和用法，适合入门，相对于《HBase权威指南》，这本书确实不容易让人睡觉。       《Effective C++》作者的又一力作，介绍改善C++ 11和C++ 14代码的一些方法和经验，对于写出现代C++风格代码很有帮助。 侯捷老师翻译的一本大作，详细介绍了C++标准库。虽然只是快速浏览了一遍，但是对里面STL的一些用法印象很是深刻。熟练使用STL可以帮助你写出更优雅的C++代码。       介绍使用C++进行API设计时的一些方法和技巧，对提升C++程序员的模块设计水平很有帮助。     人文社科类              今年读过的最好的人文社科类书籍，跟着书中的王先生重新上了堂国文课，极大的提升了我对读书和写作的兴趣。 来自西方的语言学家的著作，作者知识面很广，在书中融入了大量其他领域的知识来介绍语言学，读完会发现，原来人类的语言竟是如此有趣。       读完《文心》，马上又找了鲁迅先生的这本散文集。鲁迅先生用平凡的语言描绘了他的少年往事，很温馨。读到有趣之处，不自觉也露出了笑容。 同样也和语言有关，内容略显枯燥，读完最深刻的就是，对任何的言和事都要保持批判性的思考。       查理·芒格的个人传记，被他那百科全书般的知识所折服，更深受其终身学习、时刻保持求知欲望的精神所影响。 富兰克林是查理·芒格的偶像，从一个普通家庭的小孩，通过自学，逐渐成长为美国的开国元勋，而且还是一个科学家！读完这本书，像是经历了一遍他那传奇的一生。       描写了秦孝公和商鞅对秦国进行变法的那段历史，在作者的笔下，春秋战国变成了一个让人无比向往的时代。读完，让人有种想穿越回到那伟大的时代的冲动。 整个系列有5册，类似于《明朝那些事儿》的风格，但是文笔略逊一筹，可以当作了解宋朝历史的入门读物。       刚开始以为是一本讲投资的书，读了之后发现原来是一本讲如何学习、如何提升自己的书。书中的一些观点和《穷查理宝典》中的很类似，获益良多。 对冲基金公司桥水创始人的人生经验之作，分成传记、生活原则、工作原则三部分。其中传记部分最为精彩，对于 “保持极度开放的头脑” 和 “保持极度求真” 这两个观点印象深刻。       确实可以称得上世界上最简单的会计书，通过案例来解释会计学的种种概念，小白入门会计学的力荐之作。 很早以前就听过这本书了，直到今年才在微信读书上读完，收获比想象中要多，有助于学会如何管理自己的财务。    科普类              读完此书，在了解到神奇的量子世界的同时，也如同亲身经历了那个星光璀璨的伟大时代。科学史上的乌云和暴雨、追逐流星的辉光、重重的迷雾和险滩，感同身受。 这本书极大地扩展了我的宇宙观，读完会让你觉得人类太过渺小，这个世界太过美妙，世间万物有太多值得我们去探索、去求真的规律。如果早些年读到，说不定就选择读物理专业了。       整本书更像是一篇长长的论文，作者对物种起源的论证实在是太过严谨了，以至于读起来略显枯燥。 高中时死记硬背的元素周期表，其中的元素性质早已忘光了。但在作者的笔下，元素竟变得如此的有趣，而且充满了规律，再次体会到了这世界的奇妙。       这个世界充满着随机性，就像书中所说 “你的成功不见得是因为比其他人高明，而很可能是运气的结果。”。这本书可以让你认识到身边的事情多多少少都有些随机成分，并需要对“黑天鹅”事件时刻保持警惕。 这本书通过现实事例来阐述博弈论，看完虽说对博弈论还是一知半解，但明白了这世上很多现象原来是博弈的结果。       这本书读起来很有亲切感，因为几乎整本书都是在讲述“反馈”。对于学控制专业的人而言，这是再熟悉不过的概念了。反馈，真的是无处不在。     总结 王国维曾经说过，读书有三重境界。第一境界 “昨夜西风凋碧树，独上高楼，望尽天涯路“ 说的是博览群书，厚积薄发；第二境界 “衣带渐宽终不悔，为伊消得人憔悴” 说的是坚定不移，追根究底；第三境界 “众里寻她千百度，蓦然回首，那人却在，灯火阑珊处” 说的是融会贯通，知行合一。2019年末之际，有幸拾得读书乐趣，也算是踏进了读书的第一境界。</description>
+    </item>
+    
+    <item>
+      <title>彻底弄懂Java的移位操作符</title>
+      <link>https://www.yrunz.com/p/%E5%BD%BB%E5%BA%95%E5%BC%84%E6%87%82java%E7%9A%84%E7%A7%BB%E4%BD%8D%E6%93%8D%E4%BD%9C%E7%AC%A6/</link>
+      <pubDate>Sun, 22 Dec 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E5%BD%BB%E5%BA%95%E5%BC%84%E6%87%82java%E7%9A%84%E7%A7%BB%E4%BD%8D%E6%93%8D%E4%BD%9C%E7%AC%A6/</guid>
+      <description>前言 对于移位操作符，很多人既感到熟悉，又感到陌生。熟悉是因为移位操作符是最基本的操作符之一，几乎每种编程语言都包含这一操作符；陌生是因为除非是追求极致性能等罕见场景，否则也很难用得上它。打开JDK源码，你会发现移位操作符的身影极为常见，弄清楚它的用法，对阅读源码很有帮助。
+移位操作是把数据看作是二进制数，然后将其向左或向右移动若干位的运算。在Java编程语言中，移位操作符包含三种，分别是 &amp;lt;&amp;lt;（左移）、 &amp;gt;&amp;gt;（带符号右移）和 &amp;gt;&amp;gt;&amp;gt;（无符号右移），这三种操作符都只能作用于long、int、short、byte、char这四种基本的整型类型上。
+左移操作符 &amp;laquo; 左移操作符 &amp;lt;&amp;lt; 是将数据转换成二进制数后，向左移若干位，高位丢弃，低位补零。看如下例子：
+public static void main(String[] args) { int i = -1; System.out.println(&amp;#34;Before &amp;lt;&amp;lt; , i&amp;#39;s value is &amp;#34; + i); System.out.println(&amp;#34;i&amp;#39;s binary string is &amp;#34; + Integer.toBinaryString(i)); i &amp;lt;&amp;lt;= 10; System.out.println(&amp;#34;After &amp;lt;&amp;lt; , i&amp;#39;s value is &amp;#34; + i); System.out.println(&amp;#34;i&amp;#39;s binary string is &amp;#34; + Integer.toBinaryString(i)); } Java的int占32位，因此对i = -1转换成二进制数，然后左移10位，其结果是左边高10位丢弃，右边低10位补0，再转换为十进制，得到i = -1024的结果。
+因此，上述例子的输出结果为：
+Before &amp;lt;&amp;lt; , i&#39;s value is -1 i&#39;s binary string is 11111111111111111111111111111111 After &amp;lt;&amp;lt; , i&#39;s value is -1024 i&#39;s binary string is 11111111111111111111110000000000 带符号右移操作符 &amp;raquo; 众所周知，Java中整型表示负数时，最高位为符号位，正数为0，负数为1。&amp;gt;&amp;gt; 是带符号的右移操作符，将数据转换成二进制数后，向右移若干位，高位补符号位，低位丢弃。对于正数作右移操作时，具体体现为高位补0；负数则补1。看如下例子：</description>
+    </item>
+    
+    <item>
+      <title>不一样的国文课</title>
+      <link>https://www.yrunz.com/p/%E4%B8%8D%E4%B8%80%E6%A0%B7%E7%9A%84%E5%9B%BD%E6%96%87%E8%AF%BE/</link>
+      <pubDate>Sun, 15 Dec 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E4%B8%8D%E4%B8%80%E6%A0%B7%E7%9A%84%E5%9B%BD%E6%96%87%E8%AF%BE/</guid>
+      <description>起 读完《文心》，就像是重新上了一堂国文课一样，跟之前不太一样的国文课。
+国文课是民国时期的叫法，现在都改称为语文课了。从小学、初中、至高中，语文作为一门基础课程 —— 从平时喊“语文、数学、英语”就可得知 —— 在我们学生心里，一直都是最重要的科目。对我而言，语文更是到了让人敬畏的程度。“敬”是语文作为高考必考的科目，不得不认真对待；“畏”是对语文所考察的知识点感到无力，完成一道题，你很难确认自己是否做对了。
+ 不像数学有着固定的公式解法，语文的很多题目感觉就像是随机作答一般。就拿阅读理解中体会作者情感一题来说，就算这次猜对了，下一次给出另外一篇文章，难道就会解了吗？
+ 以至于高考完以后，心里莫名的愉快，因为从此再无语文课。直到最近读完叶圣陶和夏丐尊两位大师所著的《文心》，对 国文 算是有了重新的认识。书中以故事的形式介绍了国文的种种，阅读的过程，就像是跟着书中王先生重新上了堂国文课。
+国文的种类很广，散文、叙事文、诗、词、小说、戏剧等等都属于这一范畴。而国文课所教授的，概括起来，莫过于是 读 的功夫与 写 的功夫。
+读 “作者把经验或想象所得的具体的事物翻译成白纸上的黑字，我们读者却要倒翻过去，把白纸上的黑字再依旧翻译为具体的事物。”
+从前读描写景物的文章最多只是脑海里浮现出文中情景，读讲述故事的文章最多也只是弄清楚文中情节，至于作者的感情，那是读再多遍也无法体会出来。所以，读大师的文章却丝毫鉴赏不出大师的风采，不看作者，还以为只不过是个普通的作家写出的文章罢了。
+这其中原因，除了不善于挖掘作者在文章中所表达的事物之外，另一个很重要的就是不了解文章的背景。每篇文章都有一个背景，作者便是在此背景下，把当时经验、感情编织到文章里面。
+ 辛弃疾的那首起句“郁孤台下清江水”的《菩萨蛮》词，题目只作《题江西造口壁》，如果我们不知道宋室南渡的变乱及造口的位置，读去会有什么趣味呢？
+ 在读一篇文章之前，尝试着先去把背景弄清楚，这样也许就可以感受到当时作者的情感，读起来也会更有趣味些。
+“读书的目的，重在收得其内容意趣，否则只是文字的游戏而已。”
+从前为了增加知识的广度（更多的是过于浮躁），喜欢快速把一本书读完，收得其中大概意思。至于书中的一些细节知识点却不会去记住，甚至很多时候根本都没有留意到，想着用到时再回去查阅。这样下来，虽说看起来懂得挺多知识，但其中大部分都是些皮毛，被深入地一问，便回答不上了。
+ 最近公司需要进行软件认证，平时没少进行Java编码，之前《Java编程思想》也看过，而其中一些关于Java的基础知识很多却还是都不懂。直到最近静下心来细读《On Java 8》，才发现很多基础知识在书上都有介绍，只是以前没有关注罢了。
+ 如果很难集中注意对一本书进行细读，可以通过写读书笔记或博客来驱动。读书笔记不是读到好的文段便摘录下来的几句，而是读到这些文段时的感想。“读书要精细，才能写出读书笔记，反过来，试写读书笔记，也就是使读书不苟且的一种方法。”。另外，写博客也是一种好的驱动方法，在阅读时不断去想着如何去给别人讲述这些知识点，这样对知识的理解也会更深刻些。
+“读书贵有新得，作文贵有新味，最重要的是触发的功夫。”
+所谓触发，就是由一件事感悟到其他的事。比如，读《文心》读到作文追求简炼，便想到也有代码简洁一说，这就是一种触发。我们常常听别人说要多学科交叉，触发就是一种可以把各科知识点关联起来的好方法。在阅读的过程中，多联想些之前学得的知识，便通过触发来逐步构建自己的知识体系。
+写 “文字是心的表现，也可有三种分别，就是知的文、情的文与意的文。”
+我们心的作用，普通心理学家分为知、情、意三种，文字是心的表现，因此也可分为这三类。知是知识，情是感情，意是意欲。知的文最典型的就是科普文章，作者通过文字给大众传授一些普遍的科学规律；情的文最典型的就是抒情散文，作者借景物或事物来寄托当时的情感；意的文最典型的就是广告，作者通过文字来煽动大家对商品的购买欲望。
+写作的第一步就是要认清目标，确定要写哪一类的文章。比如写一篇技术文章，却往文章里添加了些个人感情的文字，这是混淆了写作的目标；第二步就是要认清读者，只写这类读者可以接受的知识。比如要给Java新手写一篇入门的技术文章，而文章里写的却是JDK的源码剖析，这是混淆了文章受众；第三步就是要组织文章，根据中心旨意把要表达的知识组织成一篇条理清晰的文章。
+“对于文章的组织，也不妨举出一个总方法来，那就是 ‘回问自己’ 四个大字。”
+在写作的三个步骤里，文章的组织是最难的一步，这是关于怎么写好文章的学问。对于写作新手，难免会遇到“心中想法万千，却无从下笔”的窘境。这时候，可以尝试通过回问自己来着手一篇文章写作，以上一篇文章《一步步降低软件复杂性》为例：
+&amp;ldquo;是为了要说些什么才写这篇文章的?&amp;rdquo; —— 为了总结些降低软件复杂性的方法。这样文章的中心意旨就明确了。
+&amp;ldquo;中心意旨在我们意念中间是怎么来的？&amp;rdquo; —— 读完《A Philosophy of Software Design》一书深有感触，想分享给大家。这样文章依据的材料范围也就确认了。
+“这个材料可以增加中心意旨的力量吗？” —— 书中关于深浅模块例子可以很好地比喻软件的复杂性。这样就可以不断筛选出好的素材，文章的主要内容也就确认了。
+“还有更简练通顺的表达吗？” —— 这样写好像更通顺一些。这样经过不断的修正，一篇文章也就出来了。
+“习作只是法则与手腕的练习，应用之作只是对付他人和事务的东西，创作才是发挥自己天分的真成绩。”
+文章写作活动可以分为三类，习作、应用和创作。这三者之中，最基本最重要的是习作。只有当习作到了相当的程度，才能谈得到应用，才能谈得到创作。最基本的往往坚持下来最困难。想起初中时的语文老师蔡先生让我们每天都写一篇随笔，但总是不愿花超过半个小时的时间去完成。有时实在憋不出东西来，就把一段话拆成多行，撑满一页纸后便当作一首新体诗交差了上去。想起来也是可笑至极。如果当时能认真对待些，写作水平也不至于到现在这么差了。
+结 《文心》算是今年读过的社科类书中最好的一本了，读完不敢说文章鉴赏和写作能力有多大的提升，但至少兴趣是上来了，舍得花上一天的时间去完成一篇文章了。
+所有的习惯和知识都可以通过锻炼习得，文章的读和写也一样，而且它们是可以相互促进的。多读，学习优秀文章的写法，写作水平也就提升了；多写，知道写作在哪方面有缺陷，就会主动去阅读同类优秀文章来学习了。
+说到底，最重要的还是坚持，每天坚持让自己进步一点，一年下来，就会发现自己成长了许多。</description>
+    </item>
+    
+    <item>
+      <title>一步步降低软件复杂度</title>
+      <link>https://www.yrunz.com/p/%E4%B8%80%E6%AD%A5%E6%AD%A5%E9%99%8D%E4%BD%8E%E8%BD%AF%E4%BB%B6%E5%A4%8D%E6%9D%82%E5%BA%A6/</link>
+      <pubDate>Sun, 08 Dec 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E4%B8%80%E6%AD%A5%E6%AD%A5%E9%99%8D%E4%BD%8E%E8%BD%AF%E4%BB%B6%E5%A4%8D%E6%9D%82%E5%BA%A6/</guid>
+      <description>前言 在进行软件开发时，我们常常会追求软件的高可维护性，高可维护性意味着当有新需求来时，系统易扩展；当出现bug时，开发人员易定位。而当我们说一个系统的可维护性太差时，往往指的是该系统太过复杂，导致给系统增加新功能时容易出现bug，而出现bug之后又难以定位。
+那么，软件的复杂性又是如何定义的呢？
+John Ousterhout给出的定义如下：
+ Complexity is anything related to the structure of a software system that makes it hard to understand and modify the system.
+ 可见，软件的复杂性是一个很泛的概念，任何使软件难以理解和难以修改的东西，都属于软件的复杂性。为此，John Ousterhout提出了一个公式来度量一个系统的复杂性： $$ C = \sum_{p}c_{p}t_{p} $$
+ 式中，$p$表示系统中的模块，$c_{p}$表示该模块的认知负担（Cognitive Load，即一个模块难以理解的程度），$t_{p}$表示在日常开发中在该模块花费的开发时间。
+ 从公式上看，一个软件的复杂性由它的各个模块的复杂性累加而成，而 模块复杂性 = 模块认知负担 * 模块开发时间，也就是模块的复杂性即和模块本身有关，也跟在该模块上花费的开发时间有关。需要注意的是，如果一个模块非常难以理解，但是后续开发过程中几乎没有涉及到它，那么它的复杂性也是很低的。
+导致软件复杂的原因 导致软件复杂的原因可以细分出很多种来，而概括起来莫过于两种：依赖（dependencies） 和 隐晦（obscurity）。前者会让修改起来很费劲而且容易出现bug，比如当修改模块1时，往往也涉及到模块2、模块3、... 的改动；后者会让软件难以理解，定位一个bug，甚至是仅仅读懂一段代码都需要花费大量的时间。
+软件的复杂性往往伴随着如下几种症状：
+霰弹式修改（Change amplification）。当只需要修改一个功能，但又不得不对许多模块作出改动时，我们称之为霰弹式修改。这通常是因为模块之间耦合过重，相互依赖太多导致的。 比如，有一组Web页面，每个页面都是一个HTML文件，每个HTML都有一个背景属性。由于各个HTML的背景属性都是分开定义的，因此如果需要把背景颜色从橙色修改为蓝色时，就需要改动所有的HTML文件。
+认知负担（Cognitive load）。当我们说一个模块隐晦、难以理解时，它就有过重的认知负担，这种情况下往往需要读者花费大量时间才能明白该模块的功能。比如，提供一个不带任何注释的calculate接口，它有2个int类型的入参和一个int类型的返回值。从该函数的签名上看，调用者根本无法得知函数的功能是什么，他只能通过花时间去阅读源码来确定函数功能后才敢去调用该函数。
+int calculate(int val1, int val2); 不确定性（Unknown unknowns）。相比于前两种症状，不确定性的破坏性更大，它通常指一些在开发需求时，你必须注意的，但是又无从得知的点。它常常是因为一些隐晦的依赖导致的，会让你在开发完一个需求之后感觉心里很没谱，隐约觉得自己的代码哪里有问题，但又不清楚问题在哪，只能祈祷在测试阶段能够暴露而不要漏洞商用阶段。
+如何降低软件的复杂性 对 “战术编程” Say No！ 很多程序员在进行特性开发或bug修复时，关注点往往是如何简单快速让程序跑起来，这就是典型的战术编程（Tactical programming）方法，它追求的是短期的效益——节省开发时间。战术编程最普遍的体现就是在编码之前没有进行模块设计，想到哪里就写到哪里。战术编程在系统前期可能会比较方便，一旦系统庞大起来、模块之间的耦合变重之后，添加或修改功能、修复bug都会变得寸步难行。随着系统变得越来越复杂，最后不得不对系统进行重构甚至重写。</description>
+    </item>
+    
+    <item>
+      <title>教你写好代码注释</title>
+      <link>https://www.yrunz.com/p/%E6%95%99%E4%BD%A0%E5%86%99%E5%A5%BD%E4%BB%A3%E7%A0%81%E6%B3%A8%E9%87%8A/</link>
+      <pubDate>Wed, 04 Dec 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E6%95%99%E4%BD%A0%E5%86%99%E5%A5%BD%E4%BB%A3%E7%A0%81%E6%B3%A8%E9%87%8A/</guid>
+      <description>前言 相信大家都会遇到这种情况：一周前自己写的代码，现在再拿出来看，发现读不懂了，“ 这代码是我写的？？？”。这时候，代码注释就可以发挥它的作用了——提高晦涩难懂的代码的可读性；注释可以起到隐藏代码复杂细节的作用，比如接口注释可以帮助开发者在没有阅读代码的情况下快速了解该接口的功能和用法；如果写的好，注释还可以改善系统的设计。
+既然注释这么多好处，为什么我们程序员还是不愿意写注释？
+“代码都写不完了，哪有时间写注释，以后再补吧“
+时间不够论。这是最常见的原因，在交付速度飞快的今天，“代码写不完”是一个再常见不过的情况了，但写注释真的会导致需求延迟吗？绝不！相对于写一个接口的实现，写接口注释的时间可能只需要花费前者的5%。但不写注释，后面使用接口的人必须要多花费**50%**的时间去读懂代码！而且对于大部分程序员而言，“以后再补“大概要到2910年才能落实。
+“好的代码就是最好的注释，我的代码可读性很好，没必要写注释”
+好代码胜过注释论。不少程序员认为，好的代码就是最好的注释，只要代码可读性好，注释就可以省去。然而一个软件系统很多信息是无法通过代码呈现出来的，比如系统的设计思路、函数执行的预置条件等等。此外，代码可读性也不是绝对的，对于一个没有使用过Java 8 的 Lambda表达式的开发者而言，通篇的箭头“-&amp;gt;“简直就是一场噩梦。
+”过期的注释容易误导人“
+过期注释论。不可否认，过期的注释很容易误导读者，但是这并不能成为否认注释的借口。除非是重大的重构或重写，对注释进行大改动的情况很少出现。通常，在更改代码之后，只需花费极少的时间去更新注释，就可以避免过期注释这种情况了。
+注释的分类 注释大致可以分成四类：接口注释、数据成员注释、实现注释和模块依赖注释。
+接口注释 平时我们所说的接口，通常指的是一个类（包括interface、class、enum）和方法。对类而言，接口注释主要描述该类提供的功能；对方法而言，除了描述方法功能之外，方法的入参和返回值都要进行说明。当然，使用类/方法的一些预置条件和副作用等信息都需要在接口注释中提到。
+/** * Returns the length of this string. * The length is equal to the number of &amp;lt;a href=&amp;#34;Character.html#unicode&amp;#34;&amp;gt;Unicode * code units&amp;lt;/a&amp;gt; in the string. * * @return the length of the sequence of characters represented by this * object. */ public int length() { return value.length; }  典型的接口注释（选自JDK 1.8中的String类）
+ 数据成员注释 数据成员注释和接口注释在大多数情况下都是必须的，这对于让读者快速读懂代码有很大的帮助。数据成员包括类的普通成员变量和静态成员变量，数据成员注释除了描述数据成员的本身用途之外，成员的默认值、副作用等信息都需要提及。</description>
+    </item>
+    
+  </channel>
+</rss>

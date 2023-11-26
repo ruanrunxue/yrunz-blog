@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>领域驱动设计 on 元闰子的邀请</title>
+    <link>https://www.yrunz.com/tags/%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/</link>
+    <description>Recent content in 领域驱动设计 on 元闰子的邀请</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 08 Mar 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://www.yrunz.com/tags/%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>实践领域驱动设计（一）</title>
+      <link>https://www.yrunz.com/p/%E5%AE%9E%E8%B7%B5%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1%E4%B8%80/</link>
+      <pubDate>Sun, 08 Mar 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E5%AE%9E%E8%B7%B5%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1%E4%B8%80/</guid>
+      <description>最近几年，领域驱动设计（Domain-Driven Design，DDD）这个术语越来越多地出现在软件工程师的视野里。对DDD不熟悉的人可能会觉得它是软件领域里的一个新的概念，但是实际上，Eric Evans在十几年前就已经提出了这个概念。这个“古老”的概念在之所以能够重焕新生，很大程度上是因为遇上了“微服务”这个浪潮。如果把DDD里面的理念拿去和微服务架构做对比，你会发现它们有着高度的相似性——DDD里的限界上下文不正是微服务架构中的微服务吗？于是，各大公司纷纷运用DDD的方法论来构建自己的产品架构。有些团队成功地将DDD结合到了产品架构中，产生了许多优秀的实践；也有些团队反映DDD太过复杂，很难落地。那么DDD究竟是个什么样的理念？为什么大家都争先恐后地使用它，彷佛不加点DDD都不好意思说自己是微服务架构？然而又为什么那么多团队说DDD难以落地？本文将会结合简单的代码实现来谈谈笔者对DDD的理解。
+什么是领域驱动设计？ 软件的核心是其为用户解决领域相关的问题的能力。
+软件就是为了解决某一领域相关问题而存在的，比如一个普通的计算器软件，就是为了满足我们进行简单的加减乘除运算而存在。对于计算器这种小而简单的软件，一个普通的软件工程师可能花上几天就能过设计开发出来，而且基本不会出现Bug。但是对于一些大型而且复杂的系统，一个团队都得花上很长的时间去设计整个架构，然后经过n轮迭代才能开发出可用的版本，而且后面还有各种Bug要去处理。比如证券交易系统，里面就包括了用户系统、账户系统、订单系统、撮合系统等一系列的子系统，而且其中的调用关系和业务都非常复杂。像这样一个庞大的系统，怎样才能把它设计好呢？这正是DDD要回答的问题。
+领域驱动设计（DDD）是一种软件开发的方法论，旨在帮助我们设计出高质量的软件模型。
+在软件领域，解决复杂问题的方法不外乎是“分治”和“抽象”，DDD也是基于这两个理念建立起一套方法论。其中将一个系统划分成多个限界上下文，限界上下文中划分出多个子域，这是分治；然后在分别对各个子域进行领域建模，这是抽象。当你在设计一个业务复杂的系统却无从下手时，尝试一下DDD，说不定困难就会迎刃而解了。DDD中最核心的理念就是领域建模，可以说它提供的各种方法都是为了帮助我们设计出更能准确传达业务规则的领域模型。一个好的领域模型可以让一个系统更加健壮，可以让一个框架易用性更加好，可以让一段代码更加好维护。那么，什么样的模型才是好的领域模型？下面，我们通过一个例子来简单说明下。
+ 什么是领域模型？
+领域模型是关于某个特定业务领域的软件模型。通常，领域模型通过对象模型来实现，这些对象同时包含了数据和行为，并且表达了准确的业务含义。
+ 日期和时间领域模型 如何设计一个日期和时间API？
+首先需要对日期和时间的概念进行建模，从直觉上，我们可以将日期和时间抽象成一个对象Date。另外，时间和日期经常都需要进行格式化输出，因此我们还需要一个用于表示时间格式的对象DateFormat。为了更好地表示年月周日等概念，再抽象出一个表示日历的Calendar对象，以及表示时区的TimeZone对象。
+相信到这里大家都已经知道，这正是JDK 1.1版本的日期时间API，下面我们先回顾一下它的用法：
+public class TestOldDate { public static void main(String[] args) { // 获取表示当前时刻的Date对象  Date date1 = new Date(); // 通过Calendar等到指定日期时间的Date对象，采用当前的系统时区  Calendar calendar = Calendar.getInstance(TimeZone.getDefault()); calendar.set(2020, 2, 10, 0, 0, 0); Date date2 = calendar.getTime(); // 进行时间比较  System.out.println(&amp;#34;date1 is after date2: &amp;#34; + date1.after(date2)); // 进行时间的加减法，如获得昨天的这个时刻：  calendar.setTime(date1); calendar.set(Calendar.DAY_OF_MONTH, calendar.get(Calendar.DAY_OF_MONTH) - 1); Date date3 = calendar.</description>
+    </item>
+    
+  </channel>
+</rss>

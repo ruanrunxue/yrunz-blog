@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>golang on 元闰子的邀请</title>
+    <link>https://www.yrunz.com/tags/golang/</link>
+    <description>Recent content in golang on 元闰子的邀请</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 10 Jan 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://www.yrunz.com/tags/golang/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>如何高效编写Go单元测试（二）</title>
+      <link>https://www.yrunz.com/p/%E5%A6%82%E4%BD%95%E9%AB%98%E6%95%88%E7%BC%96%E5%86%99go%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E4%BA%8C/</link>
+      <pubDate>Sun, 10 Jan 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E5%A6%82%E4%BD%95%E9%AB%98%E6%95%88%E7%BC%96%E5%86%99go%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E4%BA%8C/</guid>
+      <description>前言 上一篇文章《如何高效编写Go单元测试（一）》主要介绍了如何使用第三方断言库来使Go单元测试的代码更加简洁和具备可读性，本文我们来聊聊单元测试中的“打桩”。
+// 判断一个字符串s是否是回文字符串 func IsPalindrome(s string) bool { for i := range s { if s[i] != s[len(s)-1-i] { return false } } return true } go test框架足以应对像上述IsPalindrome这种简单的方法的单元测试，但是对于一些较为复杂的方法和模块，go test多多少少会显得力不从心。比如当你需要对依赖了很多第三方库或者跟平台、环境强相关的模块进行单元测试时，仅仅使用go test往往不能使测试用例正常的执行结束，更别说达到代码验证的目的了。
+// 判断/opt/container/config.properties文件中是否包含str字符串 func isConfigFileContain(str string) bool { file, err := os.Open(&amp;#34;/opt/container/config.properties&amp;#34;) if err != nil { panic(err) } content, err := ioutil.ReadAll(file) if err != nil { panic(err) } return strings.Contains(string(content), str) } 假设想要对上述isConfigFileContain函数进行单元测试，因为函数本身依赖了程序实际运行环境才有的/opt/container/config.properties文件，所以如果对其进行如下的单元测试，运行结果肯定出错。
+func TestIsConfigFileContain(t *testing.T) { ast := assert.</description>
+    </item>
+    
+    <item>
+      <title>如何高效编写Go单元测试（一）</title>
+      <link>https://www.yrunz.com/p/%E5%A6%82%E4%BD%95%E9%AB%98%E6%95%88%E7%BC%96%E5%86%99go%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E4%B8%80/</link>
+      <pubDate>Tue, 22 Dec 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E5%A6%82%E4%BD%95%E9%AB%98%E6%95%88%E7%BC%96%E5%86%99go%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E4%B8%80/</guid>
+      <description>前言 单元测试是用来对一个模块、一个函数或者一个类来进行正确性检验的测试工作。我们根据它来检验代码的行为是否和预期的一样，如果单元测试不通过，要么代码有bug，要么测试条件输入不正确，总之，需要修复使单元测试能够通过。单元测试一个最大的好处，就是确保一个程序模块的行为符合我们设计的预期，在将来对代码进行修改/重构时，还能最大限度地保证代码的行为仍然正确。
+Go对单元测试的支持已经相当友好了，原生的go test标准库就是专门用来进行单元测试的编写的。使用go test编写单元测试时需要遵循一些约定，比如所有测试代码都需要添加到_test.go结尾的测试文件中，这样在使用go build进行构建时，测试代码才会被排除在外。另外，每个测试函数都必须导入testing包，测试函数的名字必须以Test开头，且跟在Test后面的后缀名必须以大写开头，因此测试函数的声明应该是这样的：
+func TestSin(t *testing.T) { /* ... */ } func TestCos(t *testing.T) { /* ... */ } func TestLog(t *testing.T) { /* ... */ } _test.go测试文件通常和需要被测试的文件放在同一个包内，比如有如下的一段待测试的代码（在word包目录下的word.go文件）：
+package word // 判断一个字符串s是否时回文字符串 func IsPalindrome(s string) bool { for i := range s { if s[i] != s[len(s)-1-i] { return false } } return true } 那么在编写测试时，我们同样在word包目录下，创建一个word_test.go文件，单元测试的代码如下：
+package word import &amp;#34;testing&amp;#34; func TestPalindrome(t *testing.T) { // &amp;#34;detartrated&amp;#34;是一个回文字符串，因此IsPalindrome(&amp;#34;detartrated&amp;#34;)的返回值应该为true  // 如果返回false，则表示其实现有问题，需要使用t.</description>
+    </item>
+    
+    <item>
+      <title>使用Go实现GoF的23种设计模式（三）</title>
+      <link>https://www.yrunz.com/p/%E4%BD%BF%E7%94%A8go%E5%AE%9E%E7%8E%B0gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B8%89/</link>
+      <pubDate>Sun, 06 Sep 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E4%BD%BF%E7%94%A8go%E5%AE%9E%E7%8E%B0gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B8%89/</guid>
+      <description>前言 上一篇文章《使用Go实现GoF的23种设计模式（二）》中，我们介绍了结构型模式（Structural Pattern）中的组合模式、适配器模式和桥接模式。本文将会介绍完剩下的几种结构型模式，代理模式、装饰模式、外观模式和享元模式。本文将会继续采用消息处理系统作为例子，如果对该例子不清楚，请移步《使用Go实现GoF的23种设计模式（一）》和《使用Go实现GoF的23种设计模式（二）》对其相关的设计和实现进行了解。
+代理模式（Proxy Pattern） 简介 代理模式为一个对象提供一种代理以控制对该对象的访问，它是一个使用率非常高的设计模式，即使在现实生活中，也是很常见，比如演唱会门票黄牛。假设你需要看一场演唱会，但是官网上门票已经售罄，于是就当天到现场通过黄牛高价买了一张。在这个例子中，黄牛就相当于演唱会门票的代理，在正式渠道无法购买门票的情况下，你通过代理完成了该目标。
+从演唱会门票的例子我们也可以看出，使用代理模式的关键在于当Client不方便直接访问一个对象时，提供一个代理对象控制该对象的访问。Client实际上访问的是代理对象，代理对象会将Client的请求转给本体对象去处理。
+在程序设计中，代理模式也分为好几种：
+1、远程代理（remote proxy），远程代理适用于提供服务的对象处在远程的机器上，通过普通的函数调用无法使用服务，需要经过远程代理来完成。因为并不能直接访问本体对象，所有远程代理对象通常不会直接持有本体对象的引用，而是持有远端机器的地址，通过网络协议去访问本体对象。
+2、虚拟代理（virtual proxy），在程序设计中常常会有一些重量级的服务对象，如果一直持有该对象实例会非常消耗系统资源，这时可以通过虚拟代理来对该对象进行延迟初始化。
+3、保护代理（protection proxy），保护代理用于控制对本体对象的访问，常用于需要给Client的访问加上权限验证的场景。
+4、缓存代理（cache proxy），缓存代理主要在Client与本体对象之间加上一层缓存，用于加速本体对象的访问，常见于连接数据库的场景。
+5、智能引用（smart reference），智能引用为本体对象的访问提供了额外的动作，常见的实现为C++中的智能指针，为对象的访问提供了计数功能，当访问对象的计数为0时销毁该对象。
+这几种代理都是一样的实现原理，下面我们将介绍远程代理的Go语言实现。
+Go实现 考虑要将消息处理系统输出到数据存储到一个数据库中，数据库的接口如下：
+package db ... // Key-Value数据库接口 type KvDb interface { // 存储数据 	// 其中reply为操作结果，存储成功为true，否则为false 	// 当连接数据库失败时返回error，成功则返回nil 	Save(record Record, reply *bool) error // 根据key获取value，其中value通过函数参数中指针类型返回 	// 当连接数据库失败时返回error，成功则返回nil 	Get(key string, value *string) error } type Record struct { Key string Value string } 数据库是一个Key-Value数据库，使用map存储数据，下面为数据库的服务端实现，db.Server实现了db.KvDb接口：
+package db ... // 数据库服务端实现 type Server struct { // 采用map存储key-value数据 	data map[string]string } func (s *Server) Save(record Record, reply *bool) error { if s.</description>
+    </item>
+    
+    <item>
+      <title>使用Go实现GoF的23种设计模式（二）</title>
+      <link>https://www.yrunz.com/p/%E4%BD%BF%E7%94%A8go%E5%AE%9E%E7%8E%B0gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%BA%8C/</link>
+      <pubDate>Sun, 23 Aug 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E4%BD%BF%E7%94%A8go%E5%AE%9E%E7%8E%B0gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%BA%8C/</guid>
+      <description>前言 上一篇文章《使用Go实现GoF的23种设计模式（一）》介绍了23种设计模式中的创建型模式（Creational Pattern），创建型模式是处理对象创建的一类设计模式，主要思想是向对象的使用者隐藏对象创建的具体细节，从而达到解耦的目的。本文主要聚焦在结构型模式（Structural Pattern）上，其主要思想是将多个对象组装成较大的结构，并同时保持结构的灵活和高效，从程序的结构上解决模块之间的耦合问题。
+组合模式（Composite Pattern） 简述 在面向对象编程中，有两个常见的对象设计方法，组合和继承，两者都可以解决代码复用的问题，但是使用后者时容易出现继承层次过深，对象关系过于复杂的副作用，从而导致代码的可维护性变差。因此，一个经典的面向对象设计原则是：组合优于继承。
+我们都知道，组合所表示的语义为“has-a”，也就是部分和整体的关系，最经典的组合模式描述如下：
+ 将对象组合成树形结构以表示“部分-整体”的层次结构，使得用户对单个对象和组合对象的使用具有一致性。
+ Go语言天然就支持了组合模式，而且从它不支持继承关系的特点来看，Go也奉行了组合优于继承的原则，鼓励大家在进行程序设计时多采用组合的方法。Go实现组合模式的方式有两种，分别是直接组合（Direct Composition）和嵌入组合（Embedding Composition），下面我们一起探讨这两种不同的实现方法。
+Go实现 直接组合（Direct Composition）的实现方式类似于Java/C++，就是将一个对象作为另一个对象的成员属性。
+一个典型的实现如《使用Go实现GoF的23种设计模式（一）》中所举的例子，一个Message结构体，由Header和Body所组成。那么Message就是一个整体，而Header和Body则为消息的组成部分。
+type Message struct { Header *Header Body *Body } 现在，我们来看一个稍微复杂一点的例子，同样考虑上一篇文章中所描述的插件架构风格的消息处理系统。前面我们用抽象工厂模式解决了插件加载的问题，通常，每个插件都会有一个生命周期，常见的就是启动状态和停止状态，现在我们使用组合模式来解决插件的启动和停止问题。
+首先给Plugin接口添加几个生命周期相关的方法：
+package plugin ... // 插件运行状态 type Status uint8 const ( Stopped Status = iota Started ) type Plugin interface { // 启动插件 	Start() // 停止插件 	Stop() // 返回插件当前的运行状态 	Status() Status } // Input、Filter、Output三类插件接口的定义跟上一篇文章类似 // 这里使用Message结构体替代了原来的string，使得语义更清晰 type Input interface { Plugin Receive() *msg.</description>
+    </item>
+    
+    <item>
+      <title>使用Go实现GoF的23种设计模式（一）</title>
+      <link>https://www.yrunz.com/p/%E4%BD%BF%E7%94%A8go%E5%AE%9E%E7%8E%B0gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B8%80/</link>
+      <pubDate>Mon, 10 Aug 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E4%BD%BF%E7%94%A8go%E5%AE%9E%E7%8E%B0gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B8%80/</guid>
+      <description>前言 从1995年GoF提出23种设计模式到现在，25年过去了，设计模式依旧是软件领域的热门话题。在当下，如果你不会一点设计模式，都不好意思说自己是一个合格的程序员。设计模式通常被定义为：
+ 设计模式（Design Pattern）是一套被反复使用、多数人知晓的、经过分类编目的、代码设计经验的总结，使用设计模式是为了可重用代码、让代码更容易被他人理解并且保证代码可靠性。
+ 从定义上看，设计模式其实是一种经验的总结，是针对特定问题的简洁而优雅的解决方案。既然是经验总结，那么学习设计模式最直接的好处就在于可以站在巨人的肩膀上解决软件开发过程中的一些特定问题。然而，学习设计模式的最高境界是习得其中解决问题所用到的思想，当你把它们的本质思想吃透了，也就能做到即使已经忘掉某个设计模式的名称和结构，也能在解决特定问题时信手拈来。
+好的东西有人吹捧，当然也会招黑。设计模式被抨击主要因为以下两点：
+1、设计模式会增加代码量，把程序逻辑变得复杂。这一点是不可避免的，但是我们并不能仅仅只考虑开发阶段的成本。最简单的程序当然是一个函数从头写到尾，但是这样后期的维护成本会变得非常大；而设计模式虽然增加了一点开发成本，但是能让人们写出可复用、可维护性高的程序。引用《软件设计的哲学》里的概念，前者就是战术编程，后者就是战略编程，我们应该对战术编程Say No！（请移步《一步步降低软件复杂性》）
+2、滥用设计模式。这是初学者最容易犯的错误，当学到一个模式时，恨不得在所有的代码都用上，从而在不该使用模式的地方刻意地使用了模式，导致了程序变得异常复杂。其实每个设计模式都有几个关键要素：适用场景、解决方法、优缺点。模式并不是万能药，它只有在特定的问题上才能显现出效果。所以，在使用一个模式前，先问问自己，当前的这个场景适用这个模式吗？
+《设计模式》一书的副标题是“可复用面向对象软件的基础”，但并不意味着只有面向对象语言才能使用设计模式。模式只是一种解决特定问题的思想，跟语言无关。就像Go语言一样，它并非是像C++和Java一样的面向对象语言，但是设计模式同样适用。本系列文章将使用Go语言来实现GoF提出的23种设计模式，按照创建型模式（Creational Pattern）、结构型模式（Structural Pattern）和行为型模式（Behavioral Pattern）三种类别进行组织，文本主要介绍其中的创建型模式。
+单例模式（Singleton Pattern） 简述 单例模式算是23中设计模式里最简单的一个了，它主要用于保证一个类仅有一个实例，并提供一个访问它的全局访问点。
+在程序设计中，有一些对象通常我们只需要一个共享的实例，比如线程池、全局缓存、对象池等，这种场景下就适合使用单例模式。
+但是，并非所有全局唯一的场景都适合使用单例模式。比如，考虑需要统计一个API调用的情况，有两个指标，成功调用次数和失败调用次数。这两个指标都是全局唯一的，所以有人可能会将其建模成两个单例SuccessApiMetric和FailApiMetric。按照这个思路，随着指标数量的增多，你会发现代码里类的定义会越来越多，也越来越臃肿。这也是单例模式最常见的误用场景，更好的方法是将两个指标设计成一个对象ApiMetric下的两个实例ApiMetic success和ApiMetic fail。
+如何判断一个对象是否应该被建模成单例？
+通常，被建模成单例的对象都有“中心点”的含义，比如线程池就是管理所有线程的中心。所以，在判断一个对象是否适合单例模式时，先思考下，这个对象是一个中心点吗？
+Go实现 在对某个对象实现单例模式时，有两个点必须要注意：（1）限制调用者直接实例化该对象；（2）为该对象的单例提供一个全局唯一的访问方法。
+对于C++/Java而言，只需把类的构造函数设计成私有的，并提供一个static方法去访问该类点唯一实例即可。但对于Go语言来说，即没有构造函数的概念，也没有static方法，所以需要另寻出路。
+我们可以利用Go语言package的访问规则来实现，将单例结构体设计成首字母小写，就能限定其访问范围只在当前package下，模拟了C++/Java中的私有构造函数；再在当前package下实现一个首字母大写的访问函数，就相当于static方法的作用了。
+在实际开发中，我们经常会遇到需要频繁创建和销毁的对象。频繁的创建和销毁一则消耗CPU，二则内存的利用率也不高，通常我们都会使用对象池技术来进行优化。考虑我们需要实现一个消息对象池，因为是全局的中心点，管理所有的Message实例，所以将其实现成单例，实现代码如下：
+package msgpool ... // 消息池 type messagePool struct { pool *sync.Pool } // 消息池单例 var msgPool = &amp;amp;messagePool{ // 如果消息池里没有消息，则新建一个Count值为0的Message实例 	pool: &amp;amp;sync.Pool{New: func() interface{} { return &amp;amp;Message{Count: 0} }}, } // 访问消息池单例的唯一方法 func Instance() *messagePool { return msgPool } // 往消息池里添加消息 func (m *messagePool) AddMsg(msg *Message) { m.</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='《从分层架构到微服务架构》是一系列介绍《Fundamentals of Software Architecture》中提到的8种架构模式的文章，这里不会事无巨细地介绍所有的细节，而是会挑选其中关键内容，更多详情请阅读原书。
+往期精彩：
+ 从分层架构到微服务架构（一） 从分层架构到微服务架构（二）之分层架构   前言 管道架构（Pipeline Architecture），通常也被称为管道-过滤器架构（Pipes and Filter Architecture），是最常用的架构模式之一。大部分软件工程师都是通过Unix终端初次接触到该架构模式，Unix终端的Shell语言，对管道-过滤器有着原生的支持。
+比如，现在需要实现这样的一个功能：读取一个文本文件的内容，找到使用频率最高的5个单词，并按照使用频率的大小顺序打印出单词及其使用频率。
+那么，使用Shell可以这样来实现：
+cat content.txt | # step1: 读取文件内容 tr -cs A-Za-z &amp;#39;\n&amp;#39; | # step2: 将单词按行输出 tr A-Z a-z | # step3: 将所有单词转换为 sort | # step4: 对单词进行排序 uniq -c | # step5: 计算出单词的频率 sort -rn | # step6: 按照频率对单词进行排序 head -n 5 # step7: 获取排序前5的单词 # 输出结果示例： 4 to 4 and 3 the 3 networks 3 linux 这段Shell代码就是一个简单的管道架构实现，其中|表示管道pipe，每一个step就相当于一个过滤器filter。每个filter都将上一个filter的输出结果作为输入数据，对数据进行处理后再将结果输出到管道中。'><title>从分层架构到微服务架构（三）之管道架构</title>
+
+<link rel='canonical' href='https://www.yrunz.com/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E4%B8%89%E4%B9%8B%E7%AE%A1%E9%81%93%E6%9E%B6%E6%9E%84/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='从分层架构到微服务架构（三）之管道架构'>
+<meta property='og:description' content='《从分层架构到微服务架构》是一系列介绍《Fundamentals of Software Architecture》中提到的8种架构模式的文章，这里不会事无巨细地介绍所有的细节，而是会挑选其中关键内容，更多详情请阅读原书。
+往期精彩：
+ 从分层架构到微服务架构（一） 从分层架构到微服务架构（二）之分层架构   前言 管道架构（Pipeline Architecture），通常也被称为管道-过滤器架构（Pipes and Filter Architecture），是最常用的架构模式之一。大部分软件工程师都是通过Unix终端初次接触到该架构模式，Unix终端的Shell语言，对管道-过滤器有着原生的支持。
+比如，现在需要实现这样的一个功能：读取一个文本文件的内容，找到使用频率最高的5个单词，并按照使用频率的大小顺序打印出单词及其使用频率。
+那么，使用Shell可以这样来实现：
+cat content.txt | # step1: 读取文件内容 tr -cs A-Za-z &amp;#39;\n&amp;#39; | # step2: 将单词按行输出 tr A-Z a-z | # step3: 将所有单词转换为 sort | # step4: 对单词进行排序 uniq -c | # step5: 计算出单词的频率 sort -rn | # step6: 按照频率对单词进行排序 head -n 5 # step7: 获取排序前5的单词 # 输出结果示例： 4 to 4 and 3 the 3 networks 3 linux 这段Shell代码就是一个简单的管道架构实现，其中|表示管道pipe，每一个step就相当于一个过滤器filter。每个filter都将上一个filter的输出结果作为输入数据，对数据进行处理后再将结果输出到管道中。'>
+<meta property='og:url' content='https://www.yrunz.com/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E4%B8%89%E4%B9%8B%E7%AE%A1%E9%81%93%E6%9E%B6%E6%9E%84/'>
+<meta property='og:site_name' content='元闰子的邀请'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='架构' /><meta property='article:tag' content='读书笔记' /><meta property='article:tag' content='从分层架构到微服务架构' /><meta property='article:published_time' content='2021-04-05T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2021-04-05T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="从分层架构到微服务架构（三）之管道架构">
+<meta name="twitter:description" content="《从分层架构到微服务架构》是一系列介绍《Fundamentals of Software Architecture》中提到的8种架构模式的文章，这里不会事无巨细地介绍所有的细节，而是会挑选其中关键内容，更多详情请阅读原书。
+往期精彩：
+ 从分层架构到微服务架构（一） 从分层架构到微服务架构（二）之分层架构   前言 管道架构（Pipeline Architecture），通常也被称为管道-过滤器架构（Pipes and Filter Architecture），是最常用的架构模式之一。大部分软件工程师都是通过Unix终端初次接触到该架构模式，Unix终端的Shell语言，对管道-过滤器有着原生的支持。
+比如，现在需要实现这样的一个功能：读取一个文本文件的内容，找到使用频率最高的5个单词，并按照使用频率的大小顺序打印出单词及其使用频率。
+那么，使用Shell可以这样来实现：
+cat content.txt | # step1: 读取文件内容 tr -cs A-Za-z &amp;#39;\n&amp;#39; | # step2: 将单词按行输出 tr A-Z a-z | # step3: 将所有单词转换为 sort | # step4: 对单词进行排序 uniq -c | # step5: 计算出单词的频率 sort -rn | # step6: 按照频率对单词进行排序 head -n 5 # step7: 获取排序前5的单词 # 输出结果示例： 4 to 4 and 3 the 3 networks 3 linux 这段Shell代码就是一个简单的管道架构实现，其中|表示管道pipe，每一个step就相当于一个过滤器filter。每个filter都将上一个filter的输出结果作为输入数据，对数据进行处理后再将结果输出到管道中。">
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "light");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/yrz_hudc7c8721ecce4b724df5002339c76402_174377_300x0_resize_box_2.png" width="300"
+                            height="306" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://www.yrunz.com">元闰子的邀请</a></h1>
+        <h2 class="site-description">阅读、写作、生活（个人技术分享）</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>首页</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>博客</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%85%B3%E4%BA%8E%E5%85%83%E9%97%B0%E5%AD%90/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24"
+     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+     stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z"/>
+    <circle cx="12" cy="7" r="4"/>
+    <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/>
+</svg>
+
+                
+                <span>关于元闰子</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%8F%8B%E6%83%85%E9%93%BE%E6%8E%A5/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-friends" width="44" height="44"
+     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+    <circle cx="7" cy="5" r="2"/>
+    <path d="M5 22v-5l-1 -1v-4a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4l-1 1v5"/>
+    <circle cx="17" cy="5" r="2"/>
+    <path d="M15 22v-4h-2l2 -6a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1l2 6h-2v4"/>
+</svg>
+
+                
+                <span>友情链接</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>暗色模式</span>
+            </li>
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://www.yrunz.com" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E6%9E%B6%E6%9E%84/" >
+                架构
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E4%B8%89%E4%B9%8B%E7%AE%A1%E9%81%93%E6%9E%B6%E6%9E%84/">从分层架构到微服务架构（三）之管道架构</a>
+    </h2>
+
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Apr 05, 2021</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <blockquote>
+<p>《从分层架构到微服务架构》是一系列介绍<a class="link" href="https://learning.oreilly.com/library/view/fundamentals-of-software/9781492043447/"  target="_blank" rel="noopener"
+    >《Fundamentals of Software Architecture》</a>中提到的8种架构模式的文章，这里不会事无巨细地介绍所有的细节，而是会挑选其中关键内容，更多详情请阅读原书。</p>
+<p>往期精彩：</p>
+<ul>
+<li><a class="link" href="https://mp.weixin.qq.com/s/6BvsfzDKeVI7_DyNj5gPvA"  target="_blank" rel="noopener"
+    >从分层架构到微服务架构（一）</a></li>
+<li><a class="link" href="https://mp.weixin.qq.com/s/upSALrwyzE_qhtMZRDRLUg"  target="_blank" rel="noopener"
+    >从分层架构到微服务架构（二）之分层架构</a></li>
+</ul>
+</blockquote>
+<h2 id="前言">前言</h2>
+<p><strong>管道架构</strong>（Pipeline Architecture），通常也被称为<strong>管道-过滤器架构</strong>（Pipes and Filter Architecture），是最常用的架构模式之一。大部分软件工程师都是通过Unix终端初次接触到该架构模式，Unix终端的Shell语言，对管道-过滤器有着原生的支持。</p>
+<p>比如，现在需要实现这样的一个功能：<em>读取一个文本文件的内容，找到使用频率最高的5个单词，并按照使用频率的大小顺序打印出单词及其使用频率</em>。</p>
+<p>那么，使用Shell可以这样来实现：</p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">cat content.txt <span class="p">|</span>     <span class="c1"># step1: 读取文件内容</span>
+tr -cs A-Za-z <span class="s1">&#39;\n&#39;</span> <span class="p">|</span>  <span class="c1"># step2: 将单词按行输出</span>
+tr A-Z a-z <span class="p">|</span>          <span class="c1"># step3: 将所有单词转换为</span>
+sort <span class="p">|</span>                <span class="c1"># step4: 对单词进行排序</span>
+uniq -c <span class="p">|</span>             <span class="c1"># step5: 计算出单词的频率</span>
+sort -rn <span class="p">|</span>            <span class="c1"># step6: 按照频率对单词进行排序</span>
+head -n <span class="m">5</span>             <span class="c1"># step7: 获取排序前5的单词</span>
+<span class="c1"># 输出结果示例：</span>
+   <span class="m">4</span> to
+   <span class="m">4</span> and
+   <span class="m">3</span> the
+   <span class="m">3</span> networks
+   <span class="m">3</span> linux
+</code></pre></div><p>这段Shell代码就是一个简单的管道架构实现，其中<code>|</code>表示管道pipe，每一个step就相当于一个过滤器filter。每个filter都将上一个filter的输出结果作为输入数据，对数据进行处理后再将结果输出到管道中。</p>
+<p>除了Shell语言之外，MapReduce也是基于管道架构搭建，其中的<code>map</code>和<code>reduce</code>可以看成是过滤器，只是它们通信的管道为HDFS。</p>
+<p>Shell语言和MapReduce编程模型都可以看成是管道架构的low-level实现，当然，它也能应用于higher-level的系统应用上，下面我们来介绍管道架构模式的架构视图。</p>
+<h2 id="架构视图">架构视图</h2>
+<p>管道架构由管道pipe和过滤器filter组成：</p>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gp8otivwgyj31140c2jss.jpg" alt="管道架构架构视图"  /></p>
+<p><strong>pipe作为filter之间的数据传输通道，通常都是单向、点对点通信的</strong>，这样的设计不仅实现简单，在性能上也能取得较好的效果。另外，pipe上传输的数据并没有统一的格式，每个系统都可以根据自身的特点选择合适的数据结构。</p>
+<p><strong>filter作为数据处理的组件，通常是无状态的</strong>。每个filter都应当只完成一项工作，满足<strong>单一职责原则</strong>，复杂的工作流应该由多个filter组合而成。一般地，我们将filter分成以下几种类型：</p>
+<ul>
+<li><strong>Producer</strong>: 有时候也称为<strong>Source</strong>，是整个pipeline的start point，负责从数据源中接收数据，并将数据输出到pipe中。</li>
+<li><strong>Transformer</strong>: 从pipe中接收输入数据，然后对部分或全部数据进按照一定的规则行转换，并将结果输出到pipe中。在函数式编程里，该步骤通常被称为<code>map</code>。</li>
+<li><strong>Tester</strong>: 从pipe中接收数据，然后对数据进行一些条件判断，并根据判断结果选择是否将数据传递到下游的pipe中。需要注意的是，<strong>tester并未对数据进行任何修改</strong>。</li>
+<li><strong>Consumer</strong>: 是整个pipeline的end point，通常将从pipe中读取到的数据持久化到数据库或呈现到用户界面上。</li>
+</ul>
+<p>一个系统中可以有多个producer和consumer，比如我们可以同时通过Kafka和REST接口接收输入数据，经过系统的处理后，将结果数据存储到MySQL中，同时也传递一份到数据仓库上用作数据分析。总之，<strong>管道架构模式有着很大的灵活性</strong>。</p>
+<h2 id="应用例子">应用例子</h2>
+<p>管道架构模式被广泛应用在很多应用上，下面我们以一个ETL系统作为例子来理解该模式的运作方式。</p>
+<blockquote>
+<p><strong>ETL</strong>（<strong>E</strong>xtract, <strong>T</strong>ransform, <strong>L</strong>oad）是将业务系统的数据经过抽取、清洗转换之后加载到数据仓库的过程，目的是将企业中的分散、零乱、标准不统一的数据整合到一起，为企业的决策提供分析依据。</p>
+</blockquote>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gp95zce62jj313t0nhdiu.jpg" alt="管道架构模式应用例子"  /></p>
+<p>业务应用系统在运行过程中会产生各种各样的数据输出到kafka中，ETL系统会消费相关数据，并在经过处理后将结果存储到数据库上。在上图的ETL系统里，各个过滤器的作用如下所述：</p>
+<ul>
+<li><strong>Service Info Capture</strong>: 订阅kafka的topic，从中消费业务系统产生的数据，然后通过pipe传送到下游filter。</li>
+<li><strong>Duration Filter</strong>: 判断数据是否与计算<em>服务请求的处理时长</em>（duration）指标相关，是则将数据传递给Duration Calculator，否则传递给Uptime Filter。</li>
+<li><strong>Duration Calculator</strong>: 计算服务请求的处理时长，并将计算结果传递给Database Output。</li>
+<li><strong>Uptime Filter</strong>: 判断数据是否与计算<em>系统正常运行时长</em>（uptime）指标相关，是则将数据传递给Uptime Calculator，否则认为数据并非本ETL系统所关系，结束数据流程。</li>
+<li><strong>Uptime Calculator</strong>: 计算系统正常运行时长，并将结果传递给Database Output。</li>
+<li><strong>Database Output</strong>: 将数据持久化到MongoDB中。</li>
+</ul>
+<p>上述的ETL系统由1个producer filter，2个tester filter，2个transform filter和1个consumer filter组成，主要的数据处理逻辑是计算系统的遥测指标。系统在架构上具有很高的可扩展性，比如后续想要新增一个指标计算，我们可以在Uptime Filter之后加上新的tester和transform，系统原有的指标计算无需改动；又比如系统后续打算用HBase替换MongoDB，那么我们可以新开发一个HBase Output替换掉原有的Database Output，系统的其他流程同样无需改动。</p>
+<h2 id="架构评分">架构评分</h2>
+<p><img src="https://tva1.sinaimg.cn/large/008eGmZEgy1gp96nbcf1hj30u00xwdmm.jpg" alt="管道架构模式的架构评分"  /></p>
+<p>管道架构模式通常被实现为单体架构，同分层架构模式一样，因为单体架构本身的劣势，其在Elasticity、Fault tolerance、Scalability方面都具有很低的评分。Simplicity是管道架构模式的主要优点之一，filter和pipe实现简单，可以快速构建起一个基于管道架构风格的系统，因此也具有很高的Overall cost评分。</p>
+<p>另外，相比于分层架构模式，管道架构模式在Modularity、Evolutionary和Testability上都有着较高的评分，<strong>这得益于filter之间的松耦合，我们可以很容易扩展系统的filter，以及对单个filter进行测试</strong>。</p>
+<h2 id="总结">总结</h2>
+<p>本文主要介绍了管道架构模式，它由管道pipe和过滤器filter组成。根据具体的数据处理逻辑，它将filter划分为producer、transformer、tester和consumer四种类型，是一种典型的<strong>technical partition</strong>软件架构风格。管道架构模式因为其<strong>可扩展性很高</strong>的特点而被广泛应用，其中不乏有Shell语言这种low-level的实现，也有ETL系统这种high-level的实现。</p>
+<p>虽说该模式通常被实现为单体架构，但也有像MapReduce这种基于分布式系统的编程模式实现，总之，如果你需要为一个数据处理型的系统选型，那么可以认真地考虑是否采用管道架构模式。</p>
+<p><em>每种架构模式都有其合适的应用场景，只有熟悉常用的几种架构模式，才能设计出更好的软件系统。下一篇文章，我们将继续介绍<strong>微内核架构</strong>。</em></p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/%E6%9E%B6%E6%9E%84/">架构</a>
+        
+            <a href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">读书笔记</a>
+        
+            <a href="/tags/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84/">从分层架构到微服务架构</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>CC BY 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E4%BA%94%E4%B9%8B%E6%9C%8D%E5%8A%A1%E5%8C%96%E6%9E%B6%E6%9E%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">从分层架构到微服务架构（五）之服务化架构</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E5%9B%9B%E4%B9%8B%E5%BE%AE%E5%86%85%E6%A0%B8%E6%9E%B6%E6%9E%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">从分层架构到微服务架构（四）之微内核架构</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E4%BA%8C%E4%B9%8B%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">从分层架构到微服务架构（二）之分层架构</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E4%B8%80/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">从分层架构到微服务架构（一）</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E5%AE%9E%E7%8E%B0dci%E6%9E%B6%E6%9E%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">实现DCI架构</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+
+    
+        
+    <script src="https://utteranc.es/client.js" 
+        repo="ruanrunxue/yrunz-comments"
+        issue-term="pathname"
+        
+        label="yrunz"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
+
+<style>
+    .utterances {
+        max-width: unset;
+    }
+</style>
+
+<script>
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
+        }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+        setUtterancesTheme(document.body.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        setUtterancesTheme(e.detail)
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_SVG"></script>
+    <section class="copyright">
+        &copy;
+        
+            2019 -
+        
+        2023 元闰子的邀请
+    </section>
+
+    <section class="powerby">
+        
+
+        <a href="https://beian.miit.gov.cn/">粤ICP备19152659号 | </a>Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.3.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        <br />
+    </section>
+</footer>
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

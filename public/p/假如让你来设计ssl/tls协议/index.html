@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='假如让你来设计 SSL/TLS 协议，你会怎么设计呢？'><title>假如让你来设计SSL/TLS协议</title>
+
+<link rel='canonical' href='https://www.yrunz.com/p/%E5%81%87%E5%A6%82%E8%AE%A9%E4%BD%A0%E6%9D%A5%E8%AE%BE%E8%AE%A1ssl/tls%E5%8D%8F%E8%AE%AE/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='假如让你来设计SSL/TLS协议'>
+<meta property='og:description' content='假如让你来设计 SSL/TLS 协议，你会怎么设计呢？'>
+<meta property='og:url' content='https://www.yrunz.com/p/%E5%81%87%E5%A6%82%E8%AE%A9%E4%BD%A0%E6%9D%A5%E8%AE%BE%E8%AE%A1ssl/tls%E5%8D%8F%E8%AE%AE/'>
+<meta property='og:site_name' content='元闰子的邀请'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='操作系统' /><meta property='article:tag' content='安全' /><meta property='article:tag' content='网络' /><meta property='article:published_time' content='2022-03-05T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2022-03-05T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="假如让你来设计SSL/TLS协议">
+<meta name="twitter:description" content="假如让你来设计 SSL/TLS 协议，你会怎么设计呢？">
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "light");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/yrz_hudc7c8721ecce4b724df5002339c76402_174377_300x0_resize_box_2.png" width="300"
+                            height="306" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://www.yrunz.com">元闰子的邀请</a></h1>
+        <h2 class="site-description">阅读、写作、生活（个人技术分享）</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>首页</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>博客</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%85%B3%E4%BA%8E%E5%85%83%E9%97%B0%E5%AD%90/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24"
+     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+     stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z"/>
+    <circle cx="12" cy="7" r="4"/>
+    <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/>
+</svg>
+
+                
+                <span>关于元闰子</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%8F%8B%E6%83%85%E9%93%BE%E6%8E%A5/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-friends" width="44" height="44"
+     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+    <circle cx="7" cy="5" r="2"/>
+    <path d="M5 22v-5l-1 -1v-4a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4l-1 1v5"/>
+    <circle cx="17" cy="5" r="2"/>
+    <path d="M15 22v-4h-2l2 -6a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1l2 6h-2v4"/>
+</svg>
+
+                
+                <span>友情链接</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>暗色模式</span>
+            </li>
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://www.yrunz.com" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E5%9F%BA%E7%A1%80/" >
+                基础
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/%E5%81%87%E5%A6%82%E8%AE%A9%E4%BD%A0%E6%9D%A5%E8%AE%BE%E8%AE%A1ssl/tls%E5%8D%8F%E8%AE%AE/">假如让你来设计SSL/TLS协议</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        假如让你来设计 SSL/TLS 协议，你会怎么设计呢？
+    </h3>
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Mar 05, 2022</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <h2 id="前言">前言</h2>
+<p>说起网络通信协议，相信大家对 TCP 和 HTTP 都很熟悉，它们<strong>可以说是当今互联网通信的基石</strong>。但是，在网络安全方面，它们却是有着很大安全风险：</p>
+<ol>
+<li><strong>窃听风险</strong>。第三方攻击者可以随意窃听通信内容，比如获取支付账号密码。</li>
+<li><strong>冒充风险</strong>。第三方攻击者可以冒充他人身份与你通信，比如冒充银行网站以窃取银行账号密码。</li>
+<li><strong>篡改风险</strong>。第三方攻击者可以随意修改通信内容，比如在响应上加入钓鱼网址。</li>
+</ol>
+<p>为此，SSL/TLS 协议应运而生。SSL/TLS 是建立在传输层之上、应用层之下的安全通信协议，它主要的设计意图就是消除上述几种安全风险，保证网络通信安全。我们熟知的 HTTPS 就是 HTTP + SSL/TLS 构建的，<strong>可以说 SSL/TLS 是当今互联网安全通信的基石</strong>。</p>
+<p><em><strong>那么，现在假如让你来设计 SSL/TLS 协议，你会怎么设计呢？</strong></em></p>
+<blockquote>
+<p>本文将从设计者的视角介绍如何一步步设计出一个简易版的 SSL/TLS 的过程，在文章的最后，再简单介绍 TLS 1.2 版本的工作机制，以此帮助大家对 SSL/TLS 协议的基本原理有一个更深入的理解。</p>
+</blockquote>
+<h2 id="基于对称加密算法的数据加密">基于对称加密算法的数据加密</h2>
+<p><strong>窃听风险</strong>主要是因为通信双方在网络上明文传输数据，导致攻击者可以通过简单网络抓包就能获取到通信的内容。</p>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1gzvwsgmk4fj218a0osjwp.jpg" alt=""  /></p>
+<p>要解决窃听风险，就最好的方法就是对数据进行<strong>加密</strong>。也即客户端在把数据发送出去之前，先对数据进行加密；服务端收到密文之后，再进行解密还原数据。这样就能避免在网络上传播明文，从而可以<strong>防止第三方攻击者的窃听</strong>。</p>
+<p>提到加密算法，很多人首先会想到<strong>对称加密算法</strong>，它以简单和高效著称。<strong>对称加密指的是加密和解密都使用同一份密钥</strong>，常见的算法有 DES、AES 等。</p>
+<p>现在，我们试着使用对称加密算法来实现安全通信：</p>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1gzw04g9bxhj21eq0qgags.jpg" alt=""  /></p>
+<p>使用对称密钥加密的前提是，通信双方都<strong>必须用同一份密钥来对数据进行加密</strong>。主要有线下和线上密钥交换两种方案可以达到该目的：</p>
+<ol>
+<li><strong>线下密钥交换</strong>，也即通信双方线下约定好当面交换密钥（比如通过U盘作为媒介）。该方案可以保证密钥交换的安全性，但是很难推广使用。因为在绝大多数场景中，客户端和服务端都不可能碰面。</li>
+<li><strong>线上密钥交换</strong>，也即通过网络来传输密钥。但<strong>在网络明文传输密钥同样也会被攻击者拦截</strong>，这样的加密也没有意义了。</li>
+</ol>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1gzw03cux4aj21gw0sodno.jpg" alt=""  /></p>
+<p>因此，单纯的对称加密并不能满足通信安全的要求，我们还要继续优化&hellip;&hellip;</p>
+<h2 id="基于非对称加密算法的数据加密">基于非对称加密算法的数据加密</h2>
+<p><strong>非对称加密算法</strong>指的是加密和解密使用不同的密钥，这两个不同的密钥组成一个<strong>密钥对</strong>，也即公钥和私钥。公钥是公开的密钥，所有人都能获取到；私钥则是保密的。当我们使用公钥对数据进行加密后，只有对应的私钥才能完成解密。常见的非对称加密算法有 RSA、ECC 等。</p>
+<p>现在，我们试着使用非对称加密算法来实现安全通信：</p>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1gzw02gn3rwj21he0t4n5h.jpg" alt=""  /></p>
+<p>通过非对称加密算法，我们既能实现对数据的加密，又能解决密钥交换的问题，从而消除了窃听风险。但是，非对称加密算法最大的缺点，就是加解密速度很慢，相比于对称加密算法要慢1000多倍。因此，<strong>非对称加密算法通常只适用于对少量数据的加密</strong>。</p>
+<p>到目前为止，单纯地使用对称加密算法或非对称加密算法都无法满足要求，还需要继续优化&hellip;&hellip;</p>
+<h2 id="基于对称加密非对称加密算法的数据加密">基于对称加密+非对称加密算法的数据加密</h2>
+<p>既然对称加密算法加解密速度快，但存在密钥交换的问题；而非对称加密算法可以解决密钥交换问题，但加解密速度慢。那么我们可以把两种算法结合起来，也即<strong>通过对称加密算法进行数据加密</strong>，在交换对称密钥时，<strong>使用非对称加密算法来加密对称密钥</strong>，确保密钥在网络传输过程中不会被攻击者窃听。</p>
+<p>现在，我们试着使用对称加密+非对称加密算法来实现安全通信：</p>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1gzw09d1nb6j21i60towno.jpg" alt=""  /></p>
+<p>使用对称加密+非对称加密算法的方案，我们消除了窃听风险，也不会存在加解密性能问题，但是还是无法消除<strong>冒充风险</strong>。</p>
+<p>考虑如下场景：</p>
+<ol>
+<li>攻击者把服务端的公钥拦截，并保存下来。</li>
+<li>攻击者伪造成服务端，把自己的公钥发送给客户端。</li>
+<li>攻击者拦截使用非法公钥加密后的对称密钥，解密后得到对称密钥明文，并保存下来</li>
+<li>攻击者使用服务端公钥重新加密对称密钥，伪造成客户端发送给服务端。</li>
+</ol>
+<p>这番操作后，攻击者就能在客户端和服务端都不知情的情况下，得到了对称密钥。在这种场景下，攻击者从被动攻击的窃听，转为主动攻击的<strong>冒充</strong>，让客户端和服务端都误以为一直在跟对方通信。</p>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h24s079mjcj21iq0u0til.jpg" alt=""  /></p>
+<p>因此，我们需要找到一种方法，让客户端能够确保自己收到的公钥，一定是真实的服务端发送过来的，也即能够认证“服务端”的真实身份&hellip;&hellip;</p>
+<h2 id="基于ca证书的身份认证">基于CA证书的身份认证</h2>
+<h3 id="数字证书概述">数字证书概述</h3>
+<p>引用百度百科的定义：</p>
+<blockquote>
+<p>数字证书是指在互联网通讯中标志通讯各方身份信息的一个数字认证，人们可以在网上用它来识别对方的身份。</p>
+</blockquote>
+<p><strong>数字证书</strong>（Digital Certificate）就好比现实世界中的身份证，用于标识一个网络用户（人、公司、服务器等）的合法身份。就像身份证必须由公安局来颁发，可信的数字证书也必须由一个权威机构来颁发，该机构就是<strong>证书授权中心</strong>（<strong>C</strong>ertificate <strong>A</strong>uthority，<strong>CA</strong>），CA 颁发的数字证书我们通常称作 <strong>CA 证书</strong>。</p>
+<p>一个 CA 证书主要包含申请者的公钥、申请者的信息、签发机构 CA 的信息、有效时间、证书序列号等明文信息，同时也包含一个 CA 的<strong>数字签名</strong>，正是该签名的存在才证明了该证书的有效性。</p>
+<p>数字签名建立在非对称加密算法的基础上，CA 在颁发证书时，会先将证书的明文信息用指定的算法（比如 SHA256 算法）计算出一个数字摘要，再使用 CA 的私钥对摘要进行加密，形成签名。</p>
+<p>而证书的验证主要包含如下两部分：</p>
+<ol>
+<li>检查证书的明文信息是否有效，比如证书是否过期、域名是否一致等。</li>
+<li>用 CA 公布的公钥对证书签名进行解密，得到<code>数字摘要1</code>。再使用同样的算法对证书明文信息计算得出<code>数字摘要2</code>。对比<code>数字摘要1</code>和<code>数字摘要2</code>是否相等。</li>
+</ol>
+<blockquote>
+<p>颁发证书的机构并非只有一个，比如机构 A 可以用 CA 颁发的<strong>根证书</strong>去给机构 B 颁发二级证书；机构 B 又可以用二级证书去给机构 C 颁发三级证书，以此类推，也即所谓的<strong>证书链</strong>。</p>
+</blockquote>
+<h3 id="使用ca证书认证通信双方的身份">使用CA证书认证通信双方的身份</h3>
+<p>现在，我们加入 CA 证书来认证通信双方的身份：</p>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1gzy5ud1dcwj21is0ts482.jpg" alt=""  /></p>
+<p>引入 CA 证书之后，服务端的公钥就放在它提供的证书之中，当客户端验证服务端证书通过后，也就说明其中的公钥确实是来自服务端的合法公钥。这样，后续的通信流程就可以正常地进行了。</p>
+<p>然而，如果对称密钥一直不变的话，攻击者还是很有可能暴力破解出对称密钥。因此，我们还需要最好能够实现每次连接的对称密钥都是不同的&hellip;&hellip;</p>
+<h2 id="使用随机数来生成对称密钥">使用随机数来生成对称密钥</h2>
+<p>为了使每次连接的对称密钥都不同，我们可以引入随机数来生成对称密钥，保证它的随机性。但是，考虑到当前计算机生成的随机数都是伪随机数，为了进一步提升随机性，我们可以通过<strong>生成多个随机数</strong>来达到此目的。</p>
+<p>我们可以这么设计：</p>
+<ol>
+<li>客户端和服务端先各生成一个随机数（<code>随机数1</code>和<code>随机数2</code>），在 <code>ClientHello</code> 和 <code>ServerHello</code> 报文中完成交换。</li>
+<li>客户端在验证完服务端的身份后，再生成<code>随机数3</code>，通过服务端的公钥加密发给服务端。（此时，通信双方都拥有了 3 个一样随机数）</li>
+<li>客户端和服务端再根据这 3 个随机数，生成最终的对称密钥。</li>
+</ol>
+<p>这样通过 3 个随机数来生成的密钥，就能较好地保证了密钥的随机性，降低被攻击者破解的可能。</p>
+<blockquote>
+<p>虽然<code>随机数1</code>和<code>随机数2</code>是明文传输，但<code>随机数3</code>是密传输，也就能够保证攻击者很难破解到密钥。</p>
+</blockquote>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1gzy64tp76qj21j20tydpu.jpg" alt=""  /></p>
+<p>到目前为止，我们已经通过多种手段成功阻止了攻击者窃听客户端和服务端之间的通信内容。但是，如果攻击者并不以窃听通信内容为目的，而是单纯地想搞破坏。比如，攻击者拦截了 <code>ClientHello</code> 报文，把其中的<code>随机数1</code>改成了<code>随机数4</code>，这样就会导致客户端和服务端生成的密钥不一致。在此场景下，虽然连接已经建立起来了，但是客户端和服务端还是无法正常地通信：</p>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1gzy6bhpj5tj21jm0tqak4.jpg" alt=""  /></p>
+<p>为此，我们需要一种机制，校验连接建立阶段（握手阶段）所有消息的正确性，防止建立错误的连接&hellip;&hellip;</p>
+<h2 id="校验握手消息的正确性">校验握手消息的正确性</h2>
+<p>我们可以利用<strong>数字摘要</strong>来校验所有握手消息的正确性，也即，在握手阶段的最后，通信双方都通过 Hash 算法（比如 SHA256）对自己收到的和发送的所有消息计算出<code>数字摘要</code>，然后使用前面协商好的对称密钥对该<code>数字摘要</code>进行加密，发送给对方。</p>
+<p>当收到对方发过来的<code>数字摘要</code>密文后，先用对称密钥对其进行解密，如果解密成功，<strong>说明密钥生成没问题</strong>；接着对比双方的<code>数字摘要</code>是否一致，如果一致，<strong>说明握手阶段的消息没有被篡改过</strong>，也即可以建立起正确的连接了。</p>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1gzy6ho16l7j21iw0u0131.jpg" alt=""  /></p>
+<p>到现在，我们基本上已经消除了窃听风险（通过数据加密）、冒充风险（通过证书认证）和篡改风险（通过数字摘要）。但是，为了建立起安全通信通道，我们需要经历多次消息交互、加解密、身份认证等步骤，对性能有一定的损耗。</p>
+<p>因为经历过一次握手之后，密钥已经协商好，并且双方都保存了下来。下次连接建立时，完全可以沿用上次握手协商好的密钥，从而避免了重新协商密钥，提升了性能。我们需要一种重用会话的机制来提升协议的性能&hellip;&hellip;</p>
+<h2 id="重用会话来提升性能">重用会话来提升性能</h2>
+<p>为了达到沿用上次协商好的密钥的目的，我们为每次连接都分配一个会话 ID。</p>
+<ol>
+<li>在初次创建连接时，由服务端生成，并通过 <code>ServerHello</code> 返回给客户端。</li>
+<li>在下一次创建连接时，客户端通过 <code>ClientHello</code> 把该会话 ID 发给服务端，表示希望重用该会话。</li>
+<li>服务端在收到该会话 ID 后，就可以发送 <code>Finished</code> 消息，表示同意了会话重用，也即可以沿用上次会话协商好的密钥进行安全通信了。</li>
+</ol>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1gzy6xf5ebqj21iy0u0aj8.jpg" alt=""  /></p>
+<p>到这里，我们已经完成了一个简易版的 SSL/TLS 协议的设计，真实的 SSL/TLS 协议当然没这么简单，但是里面的核心思想和基本原理都是类似的。只是 SSL/TLS 为了更好的安全性、扩展性和易用性等增加了一些机制，比如支持多种加密算法、使用 MAC 替代普通的数字摘要完成完整性校验。</p>
+<p>下面，我们将简单介绍真实的 SSL/TLS 协议的工作机制。</p>
+<h2 id="ssltls协议机制概述">SSL/TLS协议机制概述</h2>
+<p>SSL 协议（Secure Sockets Layer）是 TLS（Transport Layer Security）协议的前身，它们的版本演进如下，当前最新的版本为 TLS 1.3 版本。本节，我们将以当前使用最广泛的 TLS 1.2 版本作为分析对象，介绍 SSL/TLS 的基本工作机制。</p>
+<blockquote>
+<p>SSL 1.0版本 -&gt; SSL 2.0版本 -&gt; SSL 3.0版本 -&gt; TLS 1.0版本  -&gt; TLS 1.1版本  -&gt; TLS 1.2版本 -&gt; TLS 1.3版本</p>
+</blockquote>
+<h3 id="ssltls协议总览">SSL/TLS协议总览</h3>
+<p>SSL/TLS 协议位于网络协议栈中传输层和应用层之间，它内部又可以分为 2 层，总共 5 种子协议：</p>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1gzy79aiz5mj216m0mmdjw.jpg" alt=""  /></p>
+<h4 id="record协议">Record协议</h4>
+<p>最底层的 <strong>Record 协议</strong>负责对上层子协议的封装，提供安全通信的能力：</p>
+<ol>
+<li><strong>私密连接</strong>。使用对称加密算法（比如 AES、RC4 等）来加密数据，而且在每次连接中，通信双方协商出来的加密密钥都是不同的，以此达到更好的安全性。另外，Record 协议也可以提供不加密的封装，比如在握手阶段的 Hello 报文。</li>
+<li><strong>可靠连接</strong>。使用 MAC（<strong>M</strong>essage <strong>A</strong>uthentication <strong>C</strong>ode，消息验证码，TLS 目前使用的 HMAC 也属于 MAC 的一种）为数据提供完整性校验。同样，在握手阶段也可以不使用该功能。</li>
+</ol>
+<h4 id="handshake-协议">Handshake 协议</h4>
+<p>上层的 <strong>Handshake 协议</strong>用在握手阶段，为通信双方提供身份认证、加密算法和密钥协商的能力：</p>
+<ol>
+<li><strong>身份认证</strong>。基于 CA 证书完成对端的身份认证，其中用到了非对称加密技术（比如 RSA、DES 等）。该功能是可选的，但通常的做法是至少进行单向认证。</li>
+<li><strong>安全参数的协商</strong>。完成用于安全参数的协商（比如加密算法、哈希算法、密钥等），并且能够保证在协商过程中，攻击者无法获取密钥。</li>
+<li><strong>可靠协商</strong>。确保在安全参数等协商过程中，攻击者无法对报文实施篡改。</li>
+</ol>
+<p>Handshake 协议包含了如下几种报文类型：<code>ClientHello</code>、<code>SeverHello</code>、<code>Certificate</code>、<code>ServerKeyExchange</code>、<code>CertificateRequest</code>、<code>ServerHelloDone</code>、<code>ClientKeyExchange</code>、<code>CertificateVerify</code>、<code>ChangeCipherSpec</code>、<code>Finished</code>。</p>
+<h4 id="change-cipher-spec协议">Change Cipher Spec协议</h4>
+<p><strong>Change Cipher Spec 协议</strong>也用在握手阶段，当通信的一方发出Change Cipher Spec 报文时，就表示密钥已经协商好，从下一条消息开始，使用该密钥来进行加密传输。</p>
+<h4 id="alert-协议">Alert 协议</h4>
+<p><strong>Alert 协议</strong>只有在连接异常时才会用上，当前协议定义的 Alert 消息类型如下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">close_notify: 表示发送方不会再发送任何消息，用于正常关闭连接，类似于TCP中的FIN报文
+unexpected_message: 收到不在预期之内的消息
+bad_record_mac: 收到的消息中MAC不正确，表示消息已经被篡改过
+decryption_failed_RESERVED: 解密失败，用于TLS的早期版本
+record_overflow: 消息长度溢出，密文长度不超过2^14+2048字节；压缩后的明文不超过2^14+1024字节
+decompression_failure: 使用压缩功能时，解压失败
+handshake_failure: 握手阶段无法协商出正确的安全参数
+no_certificate_RESERVED: 为了兼容SSL 3.0版本，TLS不再使用
+bad_certificate: 证书签名认证失败
+unsupported_certificate: 收到不支持的证书类型
+certificate_revoked: 收到被废弃的证书
+certificate_expired: 收到过期的证书
+certificate_unknown: 除上述4种情况外，其他证书异常场景
+illegal_parameter: 握手阶段报文的参数非法，比如范围溢出等
+unknown_ca: 不可信任的CA颁发的证书
+access_denied: 证书校验通过，但发送方却拒绝继续握手
+decode_error: 消息解码失败
+decrypt_error: 握手阶段安全相关的步骤失败，比如签名校验失败、Finished消息校验失败等
+export_restriction_RESERVED: 早期的TLS版本使用
+protocol_version: 协议版本不支持
+insufficient_security: 服务端要求的安全算法，客户端无法满足
+internal_error: 协议内部错误
+user_canceled: 用户非正常主动关闭连接
+no_renegotiation: 拒绝重新握手
+unsupported_extension: 不支持的扩展
+</code></pre></div><h4 id="application-data-协议">Application Data 协议</h4>
+<p><strong>Application Data 协议</strong>用在通信阶段，封装了应用层的数据，经由 Record 协议封装之后，通过 TCP 协议转发出去。</p>
+<h3 id="ssltls-协议的握手过程">SSL/TLS 协议的握手过程</h3>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1gzyb7r2mb7j21ho0tw7cs.jpg" alt=""  /></p>
+<h4 id="第一次握手">第一次握手</h4>
+<ol>
+<li>客户端向服务端发送 <code>ClientHello</code> 报文发起连接建立，其中携带了如下内容：
+<ul>
+<li>Version: 客户端支持的TLS协议版本</li>
+<li>Random: 客户端生成的随机数，随后用于生成 master secret</li>
+<li>SessionID: 会话 ID，如果不为空，表示客户端想重用该会话</li>
+<li>CipherSuites: 客户端支持的加密套件列表，在 SessionID 为空时必须携带</li>
+<li>CompressionMethods: 客户端支持的压缩算法列表</li>
+<li>Extensions: 扩展内容</li>
+</ul>
+</li>
+</ol>
+<h4 id="第二次握手">第二次握手</h4>
+<ol>
+<li>
+<p>服务端向客户端发送 <code>ServerHello</code> 报文，其中携带了如下内容：</p>
+<ul>
+<li>Version: 选定的 TLS 版本，选择通信双方都支持的最高版本</li>
+<li>Random: 服务端生成的随机数，随后用于生成 master secret</li>
+<li>SessionID: 会话 ID，如果为空，表示服务端开启新的会话，并且不希望被重用；如果与客户端带过来的 SessionID 一样，表示重用该会话；否则，开启一个新的会话，并且在未来可能会被重用</li>
+<li>CipherSuite: 选定的加密套件</li>
+<li>CompressionMethod: 选定的压缩算法</li>
+<li>Extensions: 扩展内容</li>
+</ul>
+</li>
+<li>
+<p>服务端向客户端发送 <code>Certificate</code> 报文，其中携带了服务端的证书，证书必须是 x.509 标准格式，包含服务端公钥、服务端域名、签发方信息、有效期等信息。</p>
+<blockquote>
+<p>可选，客户端需要通过证书来认证服务端身份时发送</p>
+</blockquote>
+</li>
+<li>
+<p>服务端向客户端发送 <code>Server Key Exchange</code> 报文，其中携带了客户端用于生成 premaster secret 的安全参数。</p>
+<blockquote>
+<p>可选，当 <code>Certificate</code> 报文中携带的信息无法支撑客户端生成 premaster secret 时发送</p>
+</blockquote>
+</li>
+<li>
+<p>服务端向客户端发送 <code>CertificateRequest</code> 报文，索求客户端证书，其中包含了期望的证书类型、签名算法和CA列表。</p>
+<blockquote>
+<p>可选，开启双向认证时发送</p>
+</blockquote>
+</li>
+<li>
+<p>服务端向客户端发送 <code>ServerHelloDone</code> 报文，表示当前服务端已经把所有与密钥交换相关的内容都发送完毕。</p>
+</li>
+</ol>
+<h4 id="第三次握手">第三次握手</h4>
+<ol>
+<li>
+<p>客户端向服务端发送 <code>Certificate</code> 报文，其中携带了客户端证书。</p>
+<blockquote>
+<p>可选，收到服务端的 <code>CertificateRequest</code> 报文时发送</p>
+</blockquote>
+</li>
+<li>
+<p>客户端向服务端发送 <code>ClientKeyExchange</code> 报文，其中包含了使用服务端公钥加密后的 premaster secret （随机数），随后用于生成master secret。</p>
+</li>
+<li>
+<p>客户端向服务端发送 <code>CertificateVerify</code> 报文，其中包含了对通信双方到目前为止所有握手报文的数字签名，用于证明自己拥有的私钥与之前发送的证书中的公钥相对应。</p>
+<blockquote>
+<p>可选，给服务端发送 <code>Certificate</code> 报文时发送</p>
+</blockquote>
+</li>
+<li>
+<p>客户端向服务端发送 <code>ChangeCipherSpec</code> 报文，表示从下条消息开始进行加密传输。</p>
+</li>
+<li>
+<p>客户端向服务端发送 <code>Finished</code> 报文，加密传输，其中包含了所有握手消息的数字摘要，用于防篡改。</p>
+</li>
+</ol>
+<h4 id="第四次握手">第四次握手</h4>
+<ol>
+<li>服务端向客户端发送 <code>ChangeCipherSpec</code> 报文，表示从下条消息开始进行加密传输。</li>
+<li>服务端向客户端发送 <code>Finished</code> 报文，加密传输，其中包含了所有握手消息的数字摘要，用于防篡改。</li>
+</ol>
+<h2 id="最后">最后</h2>
+<p>SSL/TLS 协议也并非绝对安全，它也有许多漏洞被黑客们不断地挖掘出来，当然，SSL/TLS 协议也在不断地完善。2018 年发布的 TLS 1.3 版本就在 TLS 1.2 版本的基础上做了许多增强。比如，在性能上，握手阶段从 2-RTT 缩减为 1-RTT，并支持 0-RTT 模式；在安全上，<code>ServerHello</code> 报文之后就开始加密传输、一些不安全的加密套件也不再支持（比如静态 RSA、Diffie-Hellman 等）。</p>
+<p>虽然 TLS 1.3 版本机制上改变了很多，但是基本原理还是一样的。因此，把 SSL/TLS 协议原理理解透了，后续不管版本再怎么演进，我们都能快速完成协议机制的学习。</p>
+<blockquote>
+<p><strong>参考</strong></p>
+<p><a class="link" href="https://datatracker.ietf.org/doc/html/rfc5246"  target="_blank" rel="noopener"
+    >The Transport Layer Security (TLS) Protocol Version 1.2</a>，RFC 5246</p>
+<p><a class="link" href="https://datatracker.ietf.org/doc/html/rfc8446"  target="_blank" rel="noopener"
+    >The Transport Layer Security (TLS) Protocol Version 1.3</a>，RFC 8446</p>
+<p><a class="link" href="https://www.ruanyifeng.com/blog/2014/02/ssl_tls.html"  target="_blank" rel="noopener"
+    >SSL/TLS 协议运行机制的概述</a>，阮一峰</p>
+<p><a class="link" href="https://docs.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2003/cc781476%28v=ws.10%29"  target="_blank" rel="noopener"
+    >Overview of SSL/TLS Encryption</a>， MicroSoft Document</p>
+<p><a class="link" href="http://www.moserware.com/2009/06/first-few-milliseconds-of-https.html"  target="_blank" rel="noopener"
+    >The First Few Milliseconds of an HTTPS Connection</a>，Jeff Moser</p>
+<p><a class="link" href="https://draveness.me/whys-the-design-https-latency/"  target="_blank" rel="noopener"
+    >为什么 HTTPS 需要 7 次握手以及 9 倍时延</a>，面向信仰编程</p>
+<p><a class="link" href="https://book.douban.com/subject/26869219/"  target="_blank" rel="noopener"
+    >HTTPS权威指南</a>，杨洋、李振宇等</p>
+<p><a class="link" href="https://baike.baidu.com/item/%e6%95%b0%e5%ad%97%e8%af%81%e4%b9%a6/326874"  target="_blank" rel="noopener"
+    >数字证书</a>, 百度百科</p>
+<p>更多文章请关注微信公众号：<strong>元闰子的邀请</strong></p>
+</blockquote>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">操作系统</a>
+        
+            <a href="/tags/%E5%AE%89%E5%85%A8/">安全</a>
+        
+            <a href="/tags/%E7%BD%91%E7%BB%9C/">网络</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>CC BY 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/%E6%8E%A2%E7%B4%A2os%E7%9A%84%E5%86%85%E5%AD%98%E5%8E%9F%E7%90%86/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">探索OS的内存原理</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E6%8E%A2%E7%B4%A2cpu%E7%9A%84%E8%B0%83%E5%BA%A6%E5%8E%9F%E7%90%86/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">探索CPU的调度原理</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E7%9A%84%E6%95%B0%E5%80%BC%E7%B1%BB%E5%9E%8B/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">深入理解计算机系统的数值类型</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3-sql-%E4%B8%AD%E7%9A%84-grouping-sets-%E8%AF%AD%E5%8F%A5/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">深入理解 SQL 中的 Grouping Sets 语句</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+
+    
+        
+    <script src="https://utteranc.es/client.js" 
+        repo="ruanrunxue/yrunz-comments"
+        issue-term="pathname"
+        
+        label="yrunz"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
+
+<style>
+    .utterances {
+        max-width: unset;
+    }
+</style>
+
+<script>
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
+        }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+        setUtterancesTheme(document.body.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        setUtterancesTheme(e.detail)
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_SVG"></script>
+    <section class="copyright">
+        &copy;
+        
+            2019 -
+        
+        2023 元闰子的邀请
+    </section>
+
+    <section class="powerby">
+        
+
+        <a href="https://beian.miit.gov.cn/">粤ICP备19152659号 | </a>Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.3.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        <br />
+    </section>
+</footer>
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

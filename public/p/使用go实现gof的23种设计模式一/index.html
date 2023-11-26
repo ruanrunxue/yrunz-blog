@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='前言 从1995年GoF提出23种设计模式到现在，25年过去了，设计模式依旧是软件领域的热门话题。在当下，如果你不会一点设计模式，都不好意思说自己是一个合格的程序员。设计模式通常被定义为：
+ 设计模式（Design Pattern）是一套被反复使用、多数人知晓的、经过分类编目的、代码设计经验的总结，使用设计模式是为了可重用代码、让代码更容易被他人理解并且保证代码可靠性。
+ 从定义上看，设计模式其实是一种经验的总结，是针对特定问题的简洁而优雅的解决方案。既然是经验总结，那么学习设计模式最直接的好处就在于可以站在巨人的肩膀上解决软件开发过程中的一些特定问题。然而，学习设计模式的最高境界是习得其中解决问题所用到的思想，当你把它们的本质思想吃透了，也就能做到即使已经忘掉某个设计模式的名称和结构，也能在解决特定问题时信手拈来。
+好的东西有人吹捧，当然也会招黑。设计模式被抨击主要因为以下两点：
+1、设计模式会增加代码量，把程序逻辑变得复杂。这一点是不可避免的，但是我们并不能仅仅只考虑开发阶段的成本。最简单的程序当然是一个函数从头写到尾，但是这样后期的维护成本会变得非常大；而设计模式虽然增加了一点开发成本，但是能让人们写出可复用、可维护性高的程序。引用《软件设计的哲学》里的概念，前者就是战术编程，后者就是战略编程，我们应该对战术编程Say No！（请移步《一步步降低软件复杂性》）
+2、滥用设计模式。这是初学者最容易犯的错误，当学到一个模式时，恨不得在所有的代码都用上，从而在不该使用模式的地方刻意地使用了模式，导致了程序变得异常复杂。其实每个设计模式都有几个关键要素：适用场景、解决方法、优缺点。模式并不是万能药，它只有在特定的问题上才能显现出效果。所以，在使用一个模式前，先问问自己，当前的这个场景适用这个模式吗？
+《设计模式》一书的副标题是“可复用面向对象软件的基础”，但并不意味着只有面向对象语言才能使用设计模式。模式只是一种解决特定问题的思想，跟语言无关。就像Go语言一样，它并非是像C&#43;&#43;和Java一样的面向对象语言，但是设计模式同样适用。本系列文章将使用Go语言来实现GoF提出的23种设计模式，按照创建型模式（Creational Pattern）、结构型模式（Structural Pattern）和行为型模式（Behavioral Pattern）三种类别进行组织，文本主要介绍其中的创建型模式。
+单例模式（Singleton Pattern） 简述 单例模式算是23中设计模式里最简单的一个了，它主要用于保证一个类仅有一个实例，并提供一个访问它的全局访问点。
+在程序设计中，有一些对象通常我们只需要一个共享的实例，比如线程池、全局缓存、对象池等，这种场景下就适合使用单例模式。
+但是，并非所有全局唯一的场景都适合使用单例模式。比如，考虑需要统计一个API调用的情况，有两个指标，成功调用次数和失败调用次数。这两个指标都是全局唯一的，所以有人可能会将其建模成两个单例SuccessApiMetric和FailApiMetric。按照这个思路，随着指标数量的增多，你会发现代码里类的定义会越来越多，也越来越臃肿。这也是单例模式最常见的误用场景，更好的方法是将两个指标设计成一个对象ApiMetric下的两个实例ApiMetic success和ApiMetic fail。
+如何判断一个对象是否应该被建模成单例？
+通常，被建模成单例的对象都有“中心点”的含义，比如线程池就是管理所有线程的中心。所以，在判断一个对象是否适合单例模式时，先思考下，这个对象是一个中心点吗？
+Go实现 在对某个对象实现单例模式时，有两个点必须要注意：（1）限制调用者直接实例化该对象；（2）为该对象的单例提供一个全局唯一的访问方法。
+对于C&#43;&#43;/Java而言，只需把类的构造函数设计成私有的，并提供一个static方法去访问该类点唯一实例即可。但对于Go语言来说，即没有构造函数的概念，也没有static方法，所以需要另寻出路。
+我们可以利用Go语言package的访问规则来实现，将单例结构体设计成首字母小写，就能限定其访问范围只在当前package下，模拟了C&#43;&#43;/Java中的私有构造函数；再在当前package下实现一个首字母大写的访问函数，就相当于static方法的作用了。
+在实际开发中，我们经常会遇到需要频繁创建和销毁的对象。频繁的创建和销毁一则消耗CPU，二则内存的利用率也不高，通常我们都会使用对象池技术来进行优化。考虑我们需要实现一个消息对象池，因为是全局的中心点，管理所有的Message实例，所以将其实现成单例，实现代码如下：
+package msgpool ... // 消息池 type messagePool struct { pool *sync.Pool } // 消息池单例 var msgPool = &amp;amp;messagePool{ // 如果消息池里没有消息，则新建一个Count值为0的Message实例 	pool: &amp;amp;sync.Pool{New: func() interface{} { return &amp;amp;Message{Count: 0} }}, } // 访问消息池单例的唯一方法 func Instance() *messagePool { return msgPool } // 往消息池里添加消息 func (m *messagePool) AddMsg(msg *Message) { m.'><title>使用Go实现GoF的23种设计模式（一）</title>
+
+<link rel='canonical' href='https://www.yrunz.com/p/%E4%BD%BF%E7%94%A8go%E5%AE%9E%E7%8E%B0gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B8%80/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='使用Go实现GoF的23种设计模式（一）'>
+<meta property='og:description' content='前言 从1995年GoF提出23种设计模式到现在，25年过去了，设计模式依旧是软件领域的热门话题。在当下，如果你不会一点设计模式，都不好意思说自己是一个合格的程序员。设计模式通常被定义为：
+ 设计模式（Design Pattern）是一套被反复使用、多数人知晓的、经过分类编目的、代码设计经验的总结，使用设计模式是为了可重用代码、让代码更容易被他人理解并且保证代码可靠性。
+ 从定义上看，设计模式其实是一种经验的总结，是针对特定问题的简洁而优雅的解决方案。既然是经验总结，那么学习设计模式最直接的好处就在于可以站在巨人的肩膀上解决软件开发过程中的一些特定问题。然而，学习设计模式的最高境界是习得其中解决问题所用到的思想，当你把它们的本质思想吃透了，也就能做到即使已经忘掉某个设计模式的名称和结构，也能在解决特定问题时信手拈来。
+好的东西有人吹捧，当然也会招黑。设计模式被抨击主要因为以下两点：
+1、设计模式会增加代码量，把程序逻辑变得复杂。这一点是不可避免的，但是我们并不能仅仅只考虑开发阶段的成本。最简单的程序当然是一个函数从头写到尾，但是这样后期的维护成本会变得非常大；而设计模式虽然增加了一点开发成本，但是能让人们写出可复用、可维护性高的程序。引用《软件设计的哲学》里的概念，前者就是战术编程，后者就是战略编程，我们应该对战术编程Say No！（请移步《一步步降低软件复杂性》）
+2、滥用设计模式。这是初学者最容易犯的错误，当学到一个模式时，恨不得在所有的代码都用上，从而在不该使用模式的地方刻意地使用了模式，导致了程序变得异常复杂。其实每个设计模式都有几个关键要素：适用场景、解决方法、优缺点。模式并不是万能药，它只有在特定的问题上才能显现出效果。所以，在使用一个模式前，先问问自己，当前的这个场景适用这个模式吗？
+《设计模式》一书的副标题是“可复用面向对象软件的基础”，但并不意味着只有面向对象语言才能使用设计模式。模式只是一种解决特定问题的思想，跟语言无关。就像Go语言一样，它并非是像C&#43;&#43;和Java一样的面向对象语言，但是设计模式同样适用。本系列文章将使用Go语言来实现GoF提出的23种设计模式，按照创建型模式（Creational Pattern）、结构型模式（Structural Pattern）和行为型模式（Behavioral Pattern）三种类别进行组织，文本主要介绍其中的创建型模式。
+单例模式（Singleton Pattern） 简述 单例模式算是23中设计模式里最简单的一个了，它主要用于保证一个类仅有一个实例，并提供一个访问它的全局访问点。
+在程序设计中，有一些对象通常我们只需要一个共享的实例，比如线程池、全局缓存、对象池等，这种场景下就适合使用单例模式。
+但是，并非所有全局唯一的场景都适合使用单例模式。比如，考虑需要统计一个API调用的情况，有两个指标，成功调用次数和失败调用次数。这两个指标都是全局唯一的，所以有人可能会将其建模成两个单例SuccessApiMetric和FailApiMetric。按照这个思路，随着指标数量的增多，你会发现代码里类的定义会越来越多，也越来越臃肿。这也是单例模式最常见的误用场景，更好的方法是将两个指标设计成一个对象ApiMetric下的两个实例ApiMetic success和ApiMetic fail。
+如何判断一个对象是否应该被建模成单例？
+通常，被建模成单例的对象都有“中心点”的含义，比如线程池就是管理所有线程的中心。所以，在判断一个对象是否适合单例模式时，先思考下，这个对象是一个中心点吗？
+Go实现 在对某个对象实现单例模式时，有两个点必须要注意：（1）限制调用者直接实例化该对象；（2）为该对象的单例提供一个全局唯一的访问方法。
+对于C&#43;&#43;/Java而言，只需把类的构造函数设计成私有的，并提供一个static方法去访问该类点唯一实例即可。但对于Go语言来说，即没有构造函数的概念，也没有static方法，所以需要另寻出路。
+我们可以利用Go语言package的访问规则来实现，将单例结构体设计成首字母小写，就能限定其访问范围只在当前package下，模拟了C&#43;&#43;/Java中的私有构造函数；再在当前package下实现一个首字母大写的访问函数，就相当于static方法的作用了。
+在实际开发中，我们经常会遇到需要频繁创建和销毁的对象。频繁的创建和销毁一则消耗CPU，二则内存的利用率也不高，通常我们都会使用对象池技术来进行优化。考虑我们需要实现一个消息对象池，因为是全局的中心点，管理所有的Message实例，所以将其实现成单例，实现代码如下：
+package msgpool ... // 消息池 type messagePool struct { pool *sync.Pool } // 消息池单例 var msgPool = &amp;amp;messagePool{ // 如果消息池里没有消息，则新建一个Count值为0的Message实例 	pool: &amp;amp;sync.Pool{New: func() interface{} { return &amp;amp;Message{Count: 0} }}, } // 访问消息池单例的唯一方法 func Instance() *messagePool { return msgPool } // 往消息池里添加消息 func (m *messagePool) AddMsg(msg *Message) { m.'>
+<meta property='og:url' content='https://www.yrunz.com/p/%E4%BD%BF%E7%94%A8go%E5%AE%9E%E7%8E%B0gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B8%80/'>
+<meta property='og:site_name' content='元闰子的邀请'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='golang' /><meta property='article:tag' content='设计模式' /><meta property='article:published_time' content='2020-08-10T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2020-08-10T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="使用Go实现GoF的23种设计模式（一）">
+<meta name="twitter:description" content="前言 从1995年GoF提出23种设计模式到现在，25年过去了，设计模式依旧是软件领域的热门话题。在当下，如果你不会一点设计模式，都不好意思说自己是一个合格的程序员。设计模式通常被定义为：
+ 设计模式（Design Pattern）是一套被反复使用、多数人知晓的、经过分类编目的、代码设计经验的总结，使用设计模式是为了可重用代码、让代码更容易被他人理解并且保证代码可靠性。
+ 从定义上看，设计模式其实是一种经验的总结，是针对特定问题的简洁而优雅的解决方案。既然是经验总结，那么学习设计模式最直接的好处就在于可以站在巨人的肩膀上解决软件开发过程中的一些特定问题。然而，学习设计模式的最高境界是习得其中解决问题所用到的思想，当你把它们的本质思想吃透了，也就能做到即使已经忘掉某个设计模式的名称和结构，也能在解决特定问题时信手拈来。
+好的东西有人吹捧，当然也会招黑。设计模式被抨击主要因为以下两点：
+1、设计模式会增加代码量，把程序逻辑变得复杂。这一点是不可避免的，但是我们并不能仅仅只考虑开发阶段的成本。最简单的程序当然是一个函数从头写到尾，但是这样后期的维护成本会变得非常大；而设计模式虽然增加了一点开发成本，但是能让人们写出可复用、可维护性高的程序。引用《软件设计的哲学》里的概念，前者就是战术编程，后者就是战略编程，我们应该对战术编程Say No！（请移步《一步步降低软件复杂性》）
+2、滥用设计模式。这是初学者最容易犯的错误，当学到一个模式时，恨不得在所有的代码都用上，从而在不该使用模式的地方刻意地使用了模式，导致了程序变得异常复杂。其实每个设计模式都有几个关键要素：适用场景、解决方法、优缺点。模式并不是万能药，它只有在特定的问题上才能显现出效果。所以，在使用一个模式前，先问问自己，当前的这个场景适用这个模式吗？
+《设计模式》一书的副标题是“可复用面向对象软件的基础”，但并不意味着只有面向对象语言才能使用设计模式。模式只是一种解决特定问题的思想，跟语言无关。就像Go语言一样，它并非是像C&#43;&#43;和Java一样的面向对象语言，但是设计模式同样适用。本系列文章将使用Go语言来实现GoF提出的23种设计模式，按照创建型模式（Creational Pattern）、结构型模式（Structural Pattern）和行为型模式（Behavioral Pattern）三种类别进行组织，文本主要介绍其中的创建型模式。
+单例模式（Singleton Pattern） 简述 单例模式算是23中设计模式里最简单的一个了，它主要用于保证一个类仅有一个实例，并提供一个访问它的全局访问点。
+在程序设计中，有一些对象通常我们只需要一个共享的实例，比如线程池、全局缓存、对象池等，这种场景下就适合使用单例模式。
+但是，并非所有全局唯一的场景都适合使用单例模式。比如，考虑需要统计一个API调用的情况，有两个指标，成功调用次数和失败调用次数。这两个指标都是全局唯一的，所以有人可能会将其建模成两个单例SuccessApiMetric和FailApiMetric。按照这个思路，随着指标数量的增多，你会发现代码里类的定义会越来越多，也越来越臃肿。这也是单例模式最常见的误用场景，更好的方法是将两个指标设计成一个对象ApiMetric下的两个实例ApiMetic success和ApiMetic fail。
+如何判断一个对象是否应该被建模成单例？
+通常，被建模成单例的对象都有“中心点”的含义，比如线程池就是管理所有线程的中心。所以，在判断一个对象是否适合单例模式时，先思考下，这个对象是一个中心点吗？
+Go实现 在对某个对象实现单例模式时，有两个点必须要注意：（1）限制调用者直接实例化该对象；（2）为该对象的单例提供一个全局唯一的访问方法。
+对于C&#43;&#43;/Java而言，只需把类的构造函数设计成私有的，并提供一个static方法去访问该类点唯一实例即可。但对于Go语言来说，即没有构造函数的概念，也没有static方法，所以需要另寻出路。
+我们可以利用Go语言package的访问规则来实现，将单例结构体设计成首字母小写，就能限定其访问范围只在当前package下，模拟了C&#43;&#43;/Java中的私有构造函数；再在当前package下实现一个首字母大写的访问函数，就相当于static方法的作用了。
+在实际开发中，我们经常会遇到需要频繁创建和销毁的对象。频繁的创建和销毁一则消耗CPU，二则内存的利用率也不高，通常我们都会使用对象池技术来进行优化。考虑我们需要实现一个消息对象池，因为是全局的中心点，管理所有的Message实例，所以将其实现成单例，实现代码如下：
+package msgpool ... // 消息池 type messagePool struct { pool *sync.Pool } // 消息池单例 var msgPool = &amp;amp;messagePool{ // 如果消息池里没有消息，则新建一个Count值为0的Message实例 	pool: &amp;amp;sync.Pool{New: func() interface{} { return &amp;amp;Message{Count: 0} }}, } // 访问消息池单例的唯一方法 func Instance() *messagePool { return msgPool } // 往消息池里添加消息 func (m *messagePool) AddMsg(msg *Message) { m.">
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "light");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/yrz_hudc7c8721ecce4b724df5002339c76402_174377_300x0_resize_box_2.png" width="300"
+                            height="306" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://www.yrunz.com">元闰子的邀请</a></h1>
+        <h2 class="site-description">阅读、写作、生活（个人技术分享）</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>首页</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>博客</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%85%B3%E4%BA%8E%E5%85%83%E9%97%B0%E5%AD%90/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24"
+     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+     stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z"/>
+    <circle cx="12" cy="7" r="4"/>
+    <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/>
+</svg>
+
+                
+                <span>关于元闰子</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%8F%8B%E6%83%85%E9%93%BE%E6%8E%A5/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-friends" width="44" height="44"
+     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+    <circle cx="7" cy="5" r="2"/>
+    <path d="M5 22v-5l-1 -1v-4a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4l-1 1v5"/>
+    <circle cx="17" cy="5" r="2"/>
+    <path d="M15 22v-4h-2l2 -6a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1l2 6h-2v4"/>
+</svg>
+
+                
+                <span>友情链接</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>暗色模式</span>
+            </li>
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://www.yrunz.com" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/golang/" >
+                Golang
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/%E4%BD%BF%E7%94%A8go%E5%AE%9E%E7%8E%B0gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B8%80/">使用Go实现GoF的23种设计模式（一）</a>
+    </h2>
+
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Aug 10, 2020</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <h2 id="前言">前言</h2>
+<p>从1995年GoF提出23种<strong>设计模式</strong>到现在，25年过去了，设计模式依旧是软件领域的热门话题。在当下，如果你不会一点设计模式，都不好意思说自己是一个合格的程序员。设计模式通常被定义为：</p>
+<blockquote>
+<p>设计模式（Design Pattern）是一套被反复使用、多数人知晓的、经过分类编目的、代码设计经验的总结，使用设计模式是为了可重用代码、让代码更容易被他人理解并且保证代码可靠性。</p>
+</blockquote>
+<p>从定义上看，<strong>设计模式其实是一种经验的总结，是针对特定问题的简洁而优雅的解决方案</strong>。既然是经验总结，那么学习设计模式最直接的好处就在于可以站在巨人的肩膀上解决软件开发过程中的一些特定问题。然而，学习设计模式的最高境界是习得其中解决问题所用到的思想，当你把它们的本质思想吃透了，也就能做到<strong>即使已经忘掉某个设计模式的名称和结构，也能在解决特定问题时信手拈来</strong>。</p>
+<p>好的东西有人吹捧，当然也会招黑。设计模式被抨击主要因为以下两点：</p>
+<p>1、<em>设计模式会增加代码量，把程序逻辑变得复杂</em>。这一点是不可避免的，但是我们并不能仅仅只考虑开发阶段的成本。最简单的程序当然是一个函数从头写到尾，但是这样后期的维护成本会变得非常大；而设计模式虽然增加了一点开发成本，但是能让人们写出可复用、可维护性高的程序。引用《软件设计的哲学》里的概念，前者就是<strong>战术编程</strong>，后者就是<strong>战略编程</strong>，我们应该<strong>对战术编程Say No</strong>！（请移步<a class="link" href="https://www.yrunz.com/archives/%e4%b8%80%e6%ad%a5%e6%ad%a5%e9%99%8d%e4%bd%8e%e8%bd%af%e4%bb%b6%e5%a4%8d%e6%9d%82%e6%80%a7"  target="_blank" rel="noopener"
+    >《一步步降低软件复杂性》</a>）</p>
+<p>2、<em>滥用设计模式</em>。这是初学者最容易犯的错误，当学到一个模式时，恨不得在所有的代码都用上，从而在不该使用模式的地方刻意地使用了模式，导致了程序变得异常复杂。其实每个设计模式都有几个关键要素：<strong>适用场景</strong>、<strong>解决方法</strong>、<strong>优缺点</strong>。模式并不是万能药，它只有在特定的问题上才能显现出效果。所以，在使用一个模式前，先问问自己，当前的这个场景适用这个模式吗？</p>
+<p>《设计模式》一书的副标题是“可复用面向对象软件的基础”，但并不意味着只有面向对象语言才能使用设计模式。模式只是一种解决特定问题的思想，跟语言无关。就像Go语言一样，它并非是像C++和Java一样的面向对象语言，但是设计模式同样适用。本系列文章将使用Go语言来实现GoF提出的23种设计模式，按照<strong>创建型模式</strong>（Creational Pattern）、<strong>结构型模式</strong>（Structural Pattern）和<strong>行为型模式</strong>（Behavioral Pattern）三种类别进行组织，文本主要介绍其中的创建型模式。</p>
+<h2 id="单例模式singleton-pattern">单例模式（Singleton Pattern）</h2>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1ghky3yanabj318q0iwnpd.jpg" alt="单例模式结构"  /></p>
+<h3 id="简述">简述</h3>
+<p>单例模式算是23中设计模式里最简单的一个了，它主要用于<strong>保证一个类仅有一个实例，并提供一个访问它的全局访问点</strong>。</p>
+<p>在程序设计中，有一些对象通常我们只需要一个共享的实例，比如线程池、全局缓存、对象池等，这种场景下就适合使用单例模式。</p>
+<p>但是，并非所有全局唯一的场景都适合使用单例模式。比如，考虑需要统计一个API调用的情况，有两个指标，成功调用次数和失败调用次数。这两个指标都是全局唯一的，所以有人可能会将其建模成两个单例<code>SuccessApiMetric</code>和<code>FailApiMetric</code>。按照这个思路，随着指标数量的增多，你会发现代码里类的定义会越来越多，也越来越臃肿。这也是单例模式最常见的误用场景，更好的方法是将两个指标设计成一个对象<code>ApiMetric</code>下的两个实例<code>ApiMetic success</code>和<code>ApiMetic fail</code>。</p>
+<p><em>如何判断一个对象是否应该被建模成单例？</em></p>
+<p>通常，被建模成单例的对象都有“<strong>中心点</strong>”的含义，比如线程池就是管理所有线程的中心。所以，在判断一个对象是否适合单例模式时，先思考下，这个对象是一个中心点吗？</p>
+<h3 id="go实现">Go实现</h3>
+<p>在对某个对象实现单例模式时，有两个点必须要注意：（1）<strong>限制调用者直接实例化该对象</strong>；（2）<strong>为该对象的单例提供一个全局唯一的访问方法</strong>。</p>
+<p>对于C++/Java而言，只需把类的构造函数设计成私有的，并提供一个<code>static</code>方法去访问该类点唯一实例即可。但对于Go语言来说，即没有构造函数的概念，也没有<code>static</code>方法，所以需要另寻出路。</p>
+<p>我们可以利用Go语言<code>package</code>的访问规则来实现，将单例结构体设计成首字母小写，就能限定其访问范围只在当前package下，模拟了C++/Java中的私有构造函数；再在当前<code>package</code>下实现一个首字母大写的访问函数，就相当于<code>static</code>方法的作用了。</p>
+<p>在实际开发中，我们经常会遇到需要频繁创建和销毁的对象。频繁的创建和销毁一则消耗CPU，二则内存的利用率也不高，通常我们都会使用对象池技术来进行优化。考虑我们需要实现一个消息对象池，因为是全局的中心点，管理所有的Message实例，所以将其实现成单例，实现代码如下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">msgpool</span>
+<span class="o">...</span>
+<span class="c1">// 消息池
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">messagePool</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">pool</span> <span class="o">*</span><span class="nx">sync</span><span class="p">.</span><span class="nx">Pool</span>
+<span class="p">}</span>
+<span class="c1">// 消息池单例
+</span><span class="c1"></span><span class="kd">var</span> <span class="nx">msgPool</span> <span class="p">=</span> <span class="o">&amp;</span><span class="nx">messagePool</span><span class="p">{</span>
+	<span class="c1">// 如果消息池里没有消息，则新建一个Count值为0的Message实例
+</span><span class="c1"></span>	<span class="nx">pool</span><span class="p">:</span> <span class="o">&amp;</span><span class="nx">sync</span><span class="p">.</span><span class="nx">Pool</span><span class="p">{</span><span class="nx">New</span><span class="p">:</span> <span class="kd">func</span><span class="p">()</span> <span class="kd">interface</span><span class="p">{}</span> <span class="p">{</span> <span class="k">return</span> <span class="o">&amp;</span><span class="nx">Message</span><span class="p">{</span><span class="nx">Count</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span> <span class="p">}},</span>
+<span class="p">}</span>
+<span class="c1">// 访问消息池单例的唯一方法
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">Instance</span><span class="p">()</span> <span class="o">*</span><span class="nx">messagePool</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="nx">msgPool</span>
+<span class="p">}</span>
+<span class="c1">// 往消息池里添加消息
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">m</span> <span class="o">*</span><span class="nx">messagePool</span><span class="p">)</span> <span class="nf">AddMsg</span><span class="p">(</span><span class="nx">msg</span> <span class="o">*</span><span class="nx">Message</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">m</span><span class="p">.</span><span class="nx">pool</span><span class="p">.</span><span class="nf">Put</span><span class="p">(</span><span class="nx">msg</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="c1">// 从消息池里获取消息
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">m</span> <span class="o">*</span><span class="nx">messagePool</span><span class="p">)</span> <span class="nf">GetMsg</span><span class="p">()</span> <span class="o">*</span><span class="nx">Message</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="nx">m</span><span class="p">.</span><span class="nx">pool</span><span class="p">.</span><span class="nf">Get</span><span class="p">().(</span><span class="o">*</span><span class="nx">Message</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="o">...</span>
+</code></pre></div><p>测试代码如下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">test</span>
+<span class="o">...</span>
+<span class="kd">func</span> <span class="nf">TestMessagePool</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">msg0</span> <span class="o">:=</span> <span class="nx">msgpool</span><span class="p">.</span><span class="nf">Instance</span><span class="p">().</span><span class="nf">GetMsg</span><span class="p">()</span>
+	<span class="k">if</span> <span class="nx">msg0</span><span class="p">.</span><span class="nx">Count</span> <span class="o">!=</span> <span class="mi">0</span> <span class="p">{</span>
+		<span class="nx">t</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;expect msg count %d, but actual %d.&#34;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nx">msg0</span><span class="p">.</span><span class="nx">Count</span><span class="p">)</span>
+	<span class="p">}</span>
+	<span class="nx">msg0</span><span class="p">.</span><span class="nx">Count</span> <span class="p">=</span> <span class="mi">1</span>
+	<span class="nx">msgpool</span><span class="p">.</span><span class="nf">Instance</span><span class="p">().</span><span class="nf">AddMsg</span><span class="p">(</span><span class="nx">msg0</span><span class="p">)</span>
+	<span class="nx">msg1</span> <span class="o">:=</span> <span class="nx">msgpool</span><span class="p">.</span><span class="nf">Instance</span><span class="p">().</span><span class="nf">GetMsg</span><span class="p">()</span>
+	<span class="k">if</span> <span class="nx">msg1</span><span class="p">.</span><span class="nx">Count</span> <span class="o">!=</span> <span class="mi">1</span> <span class="p">{</span>
+		<span class="nx">t</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;expect msg count %d, but actual %d.&#34;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nx">msg1</span><span class="p">.</span><span class="nx">Count</span><span class="p">)</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+<span class="c1">// 运行结果
+</span><span class="c1"></span><span class="o">==</span><span class="p">=</span> <span class="nx">RUN</span>   <span class="nx">TestMessagePool</span>
+<span class="o">---</span> <span class="nx">PASS</span><span class="p">:</span> <span class="nf">TestMessagePool</span> <span class="p">(</span><span class="mf">0.00</span><span class="nx">s</span><span class="p">)</span>
+<span class="nx">PASS</span>
+</code></pre></div><p>以上的单例模式就是典型的“<strong>饿汉模式</strong>”，实例在系统加载的时候就已经完成了初始化。对应地，还有一种“<strong>懒汉模式</strong>”，只有等到对象被使用的时候，才会去初始化它，从而一定程度上节省了内存。众所周知，“懒汉模式”会带来线程安全问题，可以通过<strong>普通加锁</strong>，或者更高效的<strong>双重检验锁</strong>来优化。对于“懒汉模式”，Go语言有一个更优雅的实现方式，那就是利用<code>sync.Once</code>，它有一个<code>Do</code>方法，其入参是一个方法，Go语言会保证仅仅只调用一次该方法。</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// 单例模式的“懒汉模式”实现
+</span><span class="c1"></span><span class="kn">package</span> <span class="nx">msgpool</span>
+<span class="o">...</span>
+<span class="kd">var</span> <span class="nx">once</span> <span class="p">=</span> <span class="o">&amp;</span><span class="nx">sync</span><span class="p">.</span><span class="nx">Once</span><span class="p">{}</span>
+<span class="c1">// 消息池单例，在首次调用时初始化
+</span><span class="c1"></span><span class="kd">var</span> <span class="nx">msgPool</span> <span class="o">*</span><span class="nx">messagePool</span>
+<span class="c1">// 全局唯一获取消息池pool到方法
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">Instance</span><span class="p">()</span> <span class="o">*</span><span class="nx">messagePool</span> <span class="p">{</span>
+	<span class="c1">// 在匿名函数中实现初始化逻辑，Go语言保证只会调用一次
+</span><span class="c1"></span>	<span class="nx">once</span><span class="p">.</span><span class="nf">Do</span><span class="p">(</span><span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+		<span class="nx">msgPool</span> <span class="p">=</span> <span class="o">&amp;</span><span class="nx">messagePool</span><span class="p">{</span>
+			<span class="c1">// 如果消息池里没有消息，则新建一个Count值为0的Message实例
+</span><span class="c1"></span>			<span class="nx">pool</span><span class="p">:</span> <span class="o">&amp;</span><span class="nx">sync</span><span class="p">.</span><span class="nx">Pool</span><span class="p">{</span><span class="nx">New</span><span class="p">:</span> <span class="kd">func</span><span class="p">()</span> <span class="kd">interface</span><span class="p">{}</span> <span class="p">{</span> <span class="k">return</span> <span class="o">&amp;</span><span class="nx">Message</span><span class="p">{</span><span class="nx">Count</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span> <span class="p">}},</span>
+		<span class="p">}</span>
+	<span class="p">})</span>
+	<span class="k">return</span> <span class="nx">msgPool</span>
+<span class="p">}</span>
+<span class="o">...</span>
+</code></pre></div><h2 id="建造者模式builder-pattern">建造者模式（Builder Pattern）</h2>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1ghky4kprezj319e0kuu0x.jpg" alt="建造者模式结构"  /></p>
+<h3 id="简述-1">简述</h3>
+<p>在程序设计中，我们会经常遇到一些复杂的对象，其中有很多成员属性，甚至嵌套着多个复杂的对象。这种情况下，创建这个复杂对象就会变得很繁琐。对于C++/Java而言，最常见的表现就是构造函数有着长长的参数列表：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="n">MyObject</span> <span class="n">obj</span> <span class="o">=</span> <span class="k">new</span> <span class="n">MyObject</span><span class="o">(</span><span class="n">param1</span><span class="o">,</span> <span class="n">param2</span><span class="o">,</span> <span class="n">param3</span><span class="o">,</span> <span class="n">param4</span><span class="o">,</span> <span class="n">param5</span><span class="o">,</span> <span class="n">param6</span><span class="o">,</span> <span class="o">...)</span>
+</code></pre></div><p>而对于Go语言来说，最常见的表现就是多层的嵌套实例化：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">obj</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">MyObject</span><span class="p">{</span>
+  <span class="nx">Field1</span><span class="p">:</span> <span class="o">&amp;</span><span class="nx">Field1</span> <span class="p">{</span>
+    <span class="nx">Param1</span><span class="p">:</span> <span class="o">&amp;</span><span class="nx">Param1</span> <span class="p">{</span>
+      <span class="nx">Val</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="nx">Param2</span><span class="p">:</span> <span class="o">&amp;</span><span class="nx">Param2</span> <span class="p">{</span>
+      <span class="nx">Val</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="o">...</span>
+  <span class="p">},</span>
+  <span class="nx">Field2</span><span class="p">:</span> <span class="o">&amp;</span><span class="nx">Field2</span> <span class="p">{</span>
+    <span class="nx">Param3</span><span class="p">:</span> <span class="o">&amp;</span><span class="nx">Param3</span> <span class="p">{</span>
+      <span class="nx">Val</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="o">...</span>
+  <span class="p">},</span>
+  <span class="o">...</span>
+<span class="p">}</span>
+</code></pre></div><p>上述的对象创建方法有两个明显的缺点：（1）<strong>对对象使用者不友好</strong>，使用者在创建对象时需要知道的细节太多；（2）<strong>代码可读性很差</strong>。</p>
+<p><em>针对这种对象成员较多，创建对象逻辑较为繁琐的场景，就适合使用建造者模式来进行优化。</em></p>
+<p>建造者模式的作用有如下几个：</p>
+<p>1、封装复杂对象的创建过程，使对象使用者不感知复杂的创建逻辑。</p>
+<p>2、可以一步步按照顺序对成员进行赋值，或者创建嵌套对象，并最终完成目标对象的创建。</p>
+<p>3、对多个对象复用同样的对象创建逻辑。</p>
+<p>其中，第1和第2点比较常用，下面对建造者模式的实现也主要是针对这两点进行示例。</p>
+<h3 id="go实现-1">Go实现</h3>
+<p>考虑如下的一个<code>Message</code>结构体，其主要有<code>Header</code>和<code>Body</code>组成：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">msg</span>
+<span class="o">...</span>
+<span class="kd">type</span> <span class="nx">Message</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">Header</span> <span class="o">*</span><span class="nx">Header</span>
+	<span class="nx">Body</span>   <span class="o">*</span><span class="nx">Body</span>
+<span class="p">}</span>
+<span class="kd">type</span> <span class="nx">Header</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">SrcAddr</span>  <span class="kt">string</span>
+	<span class="nx">SrcPort</span>  <span class="kt">uint64</span>
+	<span class="nx">DestAddr</span> <span class="kt">string</span>
+	<span class="nx">DestPort</span> <span class="kt">uint64</span>
+	<span class="nx">Items</span>    <span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span>
+<span class="p">}</span>
+<span class="kd">type</span> <span class="nx">Body</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">Items</span> <span class="p">[]</span><span class="kt">string</span>
+<span class="p">}</span>
+<span class="o">...</span>
+</code></pre></div><p>如果按照直接的对象创建方式，创建逻辑应该是这样的：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// 多层的嵌套实例化
+</span><span class="c1"></span><span class="nx">message</span> <span class="o">:=</span> <span class="nx">msg</span><span class="p">.</span><span class="nx">Message</span><span class="p">{</span>
+	<span class="nx">Header</span><span class="p">:</span> <span class="o">&amp;</span><span class="nx">msg</span><span class="p">.</span><span class="nx">Header</span><span class="p">{</span>
+		<span class="nx">SrcAddr</span><span class="p">:</span>  <span class="s">&#34;192.168.0.1&#34;</span><span class="p">,</span>
+		<span class="nx">SrcPort</span><span class="p">:</span>  <span class="mi">1234</span><span class="p">,</span>
+		<span class="nx">DestAddr</span><span class="p">:</span> <span class="s">&#34;192.168.0.2&#34;</span><span class="p">,</span>
+		<span class="nx">DestPort</span><span class="p">:</span> <span class="mi">8080</span><span class="p">,</span>
+		<span class="nx">Items</span><span class="p">:</span>    <span class="nb">make</span><span class="p">(</span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span><span class="p">),</span>
+	<span class="p">},</span>
+	<span class="nx">Body</span><span class="p">:</span>   <span class="o">&amp;</span><span class="nx">msg</span><span class="p">.</span><span class="nx">Body</span><span class="p">{</span>
+		<span class="nx">Items</span><span class="p">:</span> <span class="nb">make</span><span class="p">([]</span><span class="kt">string</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+	<span class="p">},</span>
+<span class="p">}</span>
+<span class="c1">// 需要知道对象的实现细节
+</span><span class="c1"></span><span class="nx">message</span><span class="p">.</span><span class="nx">Header</span><span class="p">.</span><span class="nx">Items</span><span class="p">[</span><span class="s">&#34;contents&#34;</span><span class="p">]</span> <span class="p">=</span> <span class="s">&#34;application/json&#34;</span>
+<span class="nx">message</span><span class="p">.</span><span class="nx">Body</span><span class="p">.</span><span class="nx">Items</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">message</span><span class="p">.</span><span class="nx">Body</span><span class="p">.</span><span class="nx">Items</span><span class="p">,</span> <span class="s">&#34;record1&#34;</span><span class="p">)</span>
+<span class="nx">message</span><span class="p">.</span><span class="nx">Body</span><span class="p">.</span><span class="nx">Items</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">message</span><span class="p">.</span><span class="nx">Body</span><span class="p">.</span><span class="nx">Items</span><span class="p">,</span> <span class="s">&#34;record2&#34;</span><span class="p">)</span>
+</code></pre></div><p>虽然<code>Message</code>结构体嵌套的层次不多，但是从其创建的代码来看，确实存在<strong>对对象使用者不友好</strong>和<strong>代码可读性差</strong>的缺点。下面我们引入建造者模式对代码进行重构：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">msg</span>
+<span class="o">...</span>
+<span class="c1">// Message对象的Builder对象
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">builder</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">once</span> <span class="o">*</span><span class="nx">sync</span><span class="p">.</span><span class="nx">Once</span>
+	<span class="nx">msg</span> <span class="o">*</span><span class="nx">Message</span>
+<span class="p">}</span>
+<span class="c1">// 返回Builder对象
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">Builder</span><span class="p">()</span> <span class="o">*</span><span class="nx">builder</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="o">&amp;</span><span class="nx">builder</span><span class="p">{</span>
+		<span class="nx">once</span><span class="p">:</span> <span class="o">&amp;</span><span class="nx">sync</span><span class="p">.</span><span class="nx">Once</span><span class="p">{},</span>
+		<span class="nx">msg</span><span class="p">:</span> <span class="o">&amp;</span><span class="nx">Message</span><span class="p">{</span><span class="nx">Header</span><span class="p">:</span> <span class="o">&amp;</span><span class="nx">Header</span><span class="p">{},</span> <span class="nx">Body</span><span class="p">:</span> <span class="o">&amp;</span><span class="nx">Body</span><span class="p">{}},</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+<span class="c1">// 以下是对Message成员对构建方法
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">builder</span><span class="p">)</span> <span class="nf">WithSrcAddr</span><span class="p">(</span><span class="nx">srcAddr</span> <span class="kt">string</span><span class="p">)</span> <span class="o">*</span><span class="nx">builder</span> <span class="p">{</span>
+	<span class="nx">b</span><span class="p">.</span><span class="nx">msg</span><span class="p">.</span><span class="nx">Header</span><span class="p">.</span><span class="nx">SrcAddr</span> <span class="p">=</span> <span class="nx">srcAddr</span>
+	<span class="k">return</span> <span class="nx">b</span>
+<span class="p">}</span>
+<span class="kd">func</span> <span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">builder</span><span class="p">)</span> <span class="nf">WithSrcPort</span><span class="p">(</span><span class="nx">srcPort</span> <span class="kt">uint64</span><span class="p">)</span> <span class="o">*</span><span class="nx">builder</span> <span class="p">{</span>
+	<span class="nx">b</span><span class="p">.</span><span class="nx">msg</span><span class="p">.</span><span class="nx">Header</span><span class="p">.</span><span class="nx">SrcPort</span> <span class="p">=</span> <span class="nx">srcPort</span>
+	<span class="k">return</span> <span class="nx">b</span>
+<span class="p">}</span>
+<span class="kd">func</span> <span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">builder</span><span class="p">)</span> <span class="nf">WithDestAddr</span><span class="p">(</span><span class="nx">destAddr</span> <span class="kt">string</span><span class="p">)</span> <span class="o">*</span><span class="nx">builder</span> <span class="p">{</span>
+	<span class="nx">b</span><span class="p">.</span><span class="nx">msg</span><span class="p">.</span><span class="nx">Header</span><span class="p">.</span><span class="nx">DestAddr</span> <span class="p">=</span> <span class="nx">destAddr</span>
+	<span class="k">return</span> <span class="nx">b</span>
+<span class="p">}</span>
+<span class="kd">func</span> <span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">builder</span><span class="p">)</span> <span class="nf">WithDestPort</span><span class="p">(</span><span class="nx">destPort</span> <span class="kt">uint64</span><span class="p">)</span> <span class="o">*</span><span class="nx">builder</span> <span class="p">{</span>
+	<span class="nx">b</span><span class="p">.</span><span class="nx">msg</span><span class="p">.</span><span class="nx">Header</span><span class="p">.</span><span class="nx">DestPort</span> <span class="p">=</span> <span class="nx">destPort</span>
+	<span class="k">return</span> <span class="nx">b</span>
+<span class="p">}</span>
+<span class="kd">func</span> <span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">builder</span><span class="p">)</span> <span class="nf">WithHeaderItem</span><span class="p">(</span><span class="nx">key</span><span class="p">,</span> <span class="nx">value</span> <span class="kt">string</span><span class="p">)</span> <span class="o">*</span><span class="nx">builder</span> <span class="p">{</span>
+  <span class="c1">// 保证map只初始化一次
+</span><span class="c1"></span>	<span class="nx">b</span><span class="p">.</span><span class="nx">once</span><span class="p">.</span><span class="nf">Do</span><span class="p">(</span><span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+		<span class="nx">b</span><span class="p">.</span><span class="nx">msg</span><span class="p">.</span><span class="nx">Header</span><span class="p">.</span><span class="nx">Items</span> <span class="p">=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span><span class="p">)</span>
+	<span class="p">})</span>
+	<span class="nx">b</span><span class="p">.</span><span class="nx">msg</span><span class="p">.</span><span class="nx">Header</span><span class="p">.</span><span class="nx">Items</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span> <span class="p">=</span> <span class="nx">value</span>
+	<span class="k">return</span> <span class="nx">b</span>
+<span class="p">}</span>
+<span class="kd">func</span> <span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">builder</span><span class="p">)</span> <span class="nf">WithBodyItem</span><span class="p">(</span><span class="nx">record</span> <span class="kt">string</span><span class="p">)</span> <span class="o">*</span><span class="nx">builder</span> <span class="p">{</span>
+	<span class="nx">b</span><span class="p">.</span><span class="nx">msg</span><span class="p">.</span><span class="nx">Body</span><span class="p">.</span><span class="nx">Items</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">b</span><span class="p">.</span><span class="nx">msg</span><span class="p">.</span><span class="nx">Body</span><span class="p">.</span><span class="nx">Items</span><span class="p">,</span> <span class="nx">record</span><span class="p">)</span>
+	<span class="k">return</span> <span class="nx">b</span>
+<span class="p">}</span>
+<span class="c1">// 创建Message对象，在最后一步调用
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">builder</span><span class="p">)</span> <span class="nf">Build</span><span class="p">()</span> <span class="o">*</span><span class="nx">Message</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="nx">b</span><span class="p">.</span><span class="nx">msg</span>
+<span class="p">}</span>
+</code></pre></div><p>测试代码如下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">test</span>
+<span class="o">...</span>
+<span class="kd">func</span> <span class="nf">TestMessageBuilder</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// 使用消息建造者进行对象创建
+</span><span class="c1"></span>	<span class="nx">message</span> <span class="o">:=</span> <span class="nx">msg</span><span class="p">.</span><span class="nf">Builder</span><span class="p">().</span>
+		<span class="nf">WithSrcAddr</span><span class="p">(</span><span class="s">&#34;192.168.0.1&#34;</span><span class="p">).</span>
+		<span class="nf">WithSrcPort</span><span class="p">(</span><span class="mi">1234</span><span class="p">).</span>
+		<span class="nf">WithDestAddr</span><span class="p">(</span><span class="s">&#34;192.168.0.2&#34;</span><span class="p">).</span>
+		<span class="nf">WithDestPort</span><span class="p">(</span><span class="mi">8080</span><span class="p">).</span>
+		<span class="nf">WithHeaderItem</span><span class="p">(</span><span class="s">&#34;contents&#34;</span><span class="p">,</span> <span class="s">&#34;application/json&#34;</span><span class="p">).</span>
+		<span class="nf">WithBodyItem</span><span class="p">(</span><span class="s">&#34;record1&#34;</span><span class="p">).</span>
+		<span class="nf">WithBodyItem</span><span class="p">(</span><span class="s">&#34;record2&#34;</span><span class="p">).</span>
+		<span class="nf">Build</span><span class="p">()</span>
+	<span class="k">if</span> <span class="nx">message</span><span class="p">.</span><span class="nx">Header</span><span class="p">.</span><span class="nx">SrcAddr</span> <span class="o">!=</span> <span class="s">&#34;192.168.0.1&#34;</span> <span class="p">{</span>
+		<span class="nx">t</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;expect src address 192.168.0.1, but actual %s.&#34;</span><span class="p">,</span> <span class="nx">message</span><span class="p">.</span><span class="nx">Header</span><span class="p">.</span><span class="nx">SrcAddr</span><span class="p">)</span>
+	<span class="p">}</span>
+	<span class="k">if</span> <span class="nx">message</span><span class="p">.</span><span class="nx">Body</span><span class="p">.</span><span class="nx">Items</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&#34;record1&#34;</span> <span class="p">{</span>
+		<span class="nx">t</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;expect body item0 record1, but actual %s.&#34;</span><span class="p">,</span> <span class="nx">message</span><span class="p">.</span><span class="nx">Body</span><span class="p">.</span><span class="nx">Items</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+<span class="c1">// 运行结果
+</span><span class="c1"></span><span class="o">==</span><span class="p">=</span> <span class="nx">RUN</span>   <span class="nx">TestMessageBuilder</span>
+<span class="o">---</span> <span class="nx">PASS</span><span class="p">:</span> <span class="nf">TestMessageBuilder</span> <span class="p">(</span><span class="mf">0.00</span><span class="nx">s</span><span class="p">)</span>
+<span class="nx">PASS</span>
+</code></pre></div><p>从测试代码可知，使用建造者模式来进行对象创建，使用者不再需要知道对象具体的实现细节，代码可读性也更好。</p>
+<h2 id="工厂方法模式factory-method-pattern">工厂方法模式（Factory Method Pattern）</h2>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1ghkpq8hayrj31cm0sskjm.jpg" alt="工厂方法模式结构"  /></p>
+<h3 id="简述-2">简述</h3>
+<p>工厂方法模式跟上一节讨论的建造者模式类似，都是<strong>将对象创建的逻辑封装起来，为使用者提供一个简单易用的对象创建接口</strong>。两者在应用场景上稍有区别，建造者模式更常用于需要传递多个参数来进行实例化的场景。</p>
+<p>使用工厂方法来创建对象主要有两个好处：</p>
+<p>1、<strong>代码可读性更好</strong>。相比于使用C++/Java中的构造函数，或者Go中的<code>{}</code>来创建对象，工厂方法因为可以通过函数名来表达代码含义，从而具备更好的可读性。比如，使用工厂方法<code>productA := CreateProductA()</code>创建一个<code>ProductA</code>对象，比直接使用<code>productA := ProductA{}</code>的可读性要好。</p>
+<p>2、<strong>与使用者代码解耦</strong>。很多情况下，对象的创建往往是一个容易变化的点，通过工厂方法来封装对象的创建过程，可以在创建逻辑变更时，避免<strong>霰弹式修改</strong>。</p>
+<p>工厂方法模式也有两种实现方式：（1）提供一个工厂对象，通过调用工厂对象的工厂方法来创建产品对象；（2）将工厂方法集成到产品对象中（C++/Java中对象的<code>static</code>方法，Go中同一<code>package</code>下的函数）</p>
+<h3 id="go实现-2">Go实现</h3>
+<p>考虑有一个事件对象<code>Event</code>，分别有两种有效的时间类型<code>Start</code>和<code>End</code>：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">event</span>
+<span class="o">...</span>
+<span class="kd">type</span> <span class="nx">Type</span> <span class="kt">uint8</span>
+<span class="c1">// 事件类型定义
+</span><span class="c1"></span><span class="kd">const</span> <span class="p">(</span>
+	<span class="nx">Start</span> <span class="nx">Type</span> <span class="p">=</span> <span class="kc">iota</span>
+	<span class="nx">End</span>
+<span class="p">)</span>
+<span class="c1">// 事件抽象接口
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Event</span> <span class="kd">interface</span> <span class="p">{</span>
+	<span class="nf">EventType</span><span class="p">()</span> <span class="nx">Type</span>
+	<span class="nf">Content</span><span class="p">()</span> <span class="kt">string</span>
+<span class="p">}</span>
+<span class="c1">// 开始事件，实现了Event接口
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">StartEvent</span> <span class="kd">struct</span><span class="p">{</span>
+	<span class="nx">content</span> <span class="kt">string</span>
+<span class="p">}</span>
+<span class="o">...</span>
+<span class="c1">// 结束事件，实现了Event接口
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">EndEvent</span> <span class="kd">struct</span><span class="p">{</span>
+	<span class="nx">content</span> <span class="kt">string</span>
+<span class="p">}</span>
+<span class="o">...</span>
+</code></pre></div><p>1、按照第一种实现方式，为<code>Event</code>提供一个工厂对象，具体代码如下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">event</span>
+<span class="o">...</span>
+<span class="c1">// 事件工厂对象
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Factory</span> <span class="kd">struct</span><span class="p">{}</span>
+<span class="c1">// 更具事件类型创建具体事件
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">e</span> <span class="o">*</span><span class="nx">Factory</span><span class="p">)</span> <span class="nf">Create</span><span class="p">(</span><span class="nx">etype</span> <span class="nx">Type</span><span class="p">)</span> <span class="nx">Event</span> <span class="p">{</span>
+	<span class="k">switch</span> <span class="nx">etype</span> <span class="p">{</span>
+	<span class="k">case</span> <span class="nx">Start</span><span class="p">:</span>
+		<span class="k">return</span> <span class="o">&amp;</span><span class="nx">StartEvent</span><span class="p">{</span>
+			<span class="nx">content</span><span class="p">:</span> <span class="s">&#34;this is start event&#34;</span><span class="p">,</span>
+		<span class="p">}</span>
+	<span class="k">case</span> <span class="nx">End</span><span class="p">:</span>
+		<span class="k">return</span> <span class="o">&amp;</span><span class="nx">EndEvent</span><span class="p">{</span>
+			<span class="nx">content</span><span class="p">:</span> <span class="s">&#34;this is end event&#34;</span><span class="p">,</span>
+		<span class="p">}</span>
+	<span class="k">default</span><span class="p">:</span>
+		<span class="k">return</span> <span class="kc">nil</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div><p>测试代码如下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">test</span>
+<span class="o">...</span>
+<span class="kd">func</span> <span class="nf">TestEventFactory</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">factory</span> <span class="o">:=</span> <span class="nx">event</span><span class="p">.</span><span class="nx">Factory</span><span class="p">{}</span>
+	<span class="nx">e</span> <span class="o">:=</span> <span class="nx">factory</span><span class="p">.</span><span class="nf">Create</span><span class="p">(</span><span class="nx">event</span><span class="p">.</span><span class="nx">Start</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nx">e</span><span class="p">.</span><span class="nf">EventType</span><span class="p">()</span> <span class="o">!=</span> <span class="nx">event</span><span class="p">.</span><span class="nx">Start</span> <span class="p">{</span>
+		<span class="nx">t</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;expect event.Start, but actual %v.&#34;</span><span class="p">,</span> <span class="nx">e</span><span class="p">.</span><span class="nf">EventType</span><span class="p">())</span>
+	<span class="p">}</span>
+	<span class="nx">e</span> <span class="p">=</span> <span class="nx">factory</span><span class="p">.</span><span class="nf">Create</span><span class="p">(</span><span class="nx">event</span><span class="p">.</span><span class="nx">End</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nx">e</span><span class="p">.</span><span class="nf">EventType</span><span class="p">()</span> <span class="o">!=</span> <span class="nx">event</span><span class="p">.</span><span class="nx">End</span> <span class="p">{</span>
+		<span class="nx">t</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;expect event.End, but actual %v.&#34;</span><span class="p">,</span> <span class="nx">e</span><span class="p">.</span><span class="nf">EventType</span><span class="p">())</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+<span class="c1">// 运行结果
+</span><span class="c1"></span><span class="o">==</span><span class="p">=</span> <span class="nx">RUN</span>   <span class="nx">TestEventFactory</span>
+<span class="o">---</span> <span class="nx">PASS</span><span class="p">:</span> <span class="nf">TestEventFactory</span> <span class="p">(</span><span class="mf">0.00</span><span class="nx">s</span><span class="p">)</span>
+<span class="nx">PASS</span>
+</code></pre></div><p>2、按照第二种实现方式，分别给<code>Start</code>和<code>End</code>类型的<code>Event</code>单独提供一个工厂方法，代码如下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">event</span>
+<span class="o">...</span>
+<span class="c1">// Start类型Event的工厂方法
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">OfStart</span><span class="p">()</span> <span class="nx">Event</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="o">&amp;</span><span class="nx">StartEvent</span><span class="p">{</span>
+		<span class="nx">content</span><span class="p">:</span> <span class="s">&#34;this is start event&#34;</span><span class="p">,</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+<span class="c1">// End类型Event的工厂方法
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">OfEnd</span><span class="p">()</span> <span class="nx">Event</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="o">&amp;</span><span class="nx">EndEvent</span><span class="p">{</span>
+		<span class="nx">content</span><span class="p">:</span> <span class="s">&#34;this is end event&#34;</span><span class="p">,</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div><p>测试代码如下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">event</span>
+<span class="o">...</span>
+<span class="kd">func</span> <span class="nf">TestEvent</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">e</span> <span class="o">:=</span> <span class="nx">event</span><span class="p">.</span><span class="nf">OfStart</span><span class="p">()</span>
+	<span class="k">if</span> <span class="nx">e</span><span class="p">.</span><span class="nf">EventType</span><span class="p">()</span> <span class="o">!=</span> <span class="nx">event</span><span class="p">.</span><span class="nx">Start</span> <span class="p">{</span>
+		<span class="nx">t</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;expect event.Start, but actual %v.&#34;</span><span class="p">,</span> <span class="nx">e</span><span class="p">.</span><span class="nf">EventType</span><span class="p">())</span>
+	<span class="p">}</span>
+	<span class="nx">e</span> <span class="p">=</span> <span class="nx">event</span><span class="p">.</span><span class="nf">OfEnd</span><span class="p">()</span>
+	<span class="k">if</span> <span class="nx">e</span><span class="p">.</span><span class="nf">EventType</span><span class="p">()</span> <span class="o">!=</span> <span class="nx">event</span><span class="p">.</span><span class="nx">End</span> <span class="p">{</span>
+		<span class="nx">t</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;expect event.End, but actual %v.&#34;</span><span class="p">,</span> <span class="nx">e</span><span class="p">.</span><span class="nf">EventType</span><span class="p">())</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+<span class="c1">// 运行结果
+</span><span class="c1"></span><span class="o">==</span><span class="p">=</span> <span class="nx">RUN</span>   <span class="nx">TestEvent</span>
+<span class="o">---</span> <span class="nx">PASS</span><span class="p">:</span> <span class="nf">TestEvent</span> <span class="p">(</span><span class="mf">0.00</span><span class="nx">s</span><span class="p">)</span>
+<span class="nx">PASS</span>
+</code></pre></div><h2 id="抽象工厂模式abstract-factory-pattern">抽象工厂模式（Abstract Factory Pattern）</h2>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1ghkxo5tf5ij31ak0om4qq.jpg" alt="抽象工厂模式结构"  /></p>
+<h3 id="简述-3">简述</h3>
+<p>在工厂方法模式中，我们通过一个工厂对象来创建一个产品族，具体创建哪个产品，则通过<code>swtich-case</code>的方式去判断。这也意味着该产品组上，每新增一类产品对象，都必须修改原来工厂对象的代码；而且随着产品的不断增多，工厂对象的职责也越来越重，违反了<strong>单一职责原则</strong>。</p>
+<p>抽象工厂模式通过给工厂类新增一个抽象层解决了该问题，如上图所示，<code>FactoryA</code>和<code>FactoryB</code>都实现·抽象工厂接口，分别用于创建<code>ProductA</code>和<code>ProductB</code>。如果后续新增了<code>ProductC</code>，只需新增一个<code>FactoryC</code>即可，无需修改原有的代码；因为每个工厂只负责创建一个产品，因此也遵循了<strong>单一职责原则</strong>。</p>
+<h3 id="go实现-3">Go实现</h3>
+<p>考虑需要如下一个插件架构风格的消息处理系统，<code>pipeline</code>是消息处理的管道，其中包含了<code>input</code>、<code>filter</code>和<code>output</code>三个插件。我们需要实现根据配置来创建<code>pipeline</code> ，加载插件过程的实现非常适合使用工厂模式，其中<code>input</code>、<code>filter</code>和<code>output</code>三类插件的创建使用抽象工厂模式，而<code>pipeline</code>的创建则使用工厂方法模式。</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1ghkw23e4r3j31bs0nge82.jpg" alt="插件化风格的消息处理系统"  /></p>
+<p>各类插件和<code>pipeline</code>的接口定义如下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">plugin</span>
+<span class="o">...</span>
+<span class="c1">// 插件抽象接口定义
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Plugin</span> <span class="kd">interface</span> <span class="p">{}</span>
+<span class="c1">// 输入插件，用于接收消息
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Input</span> <span class="kd">interface</span> <span class="p">{</span>
+	<span class="nx">Plugin</span>
+	<span class="nf">Receive</span><span class="p">()</span> <span class="kt">string</span>
+<span class="p">}</span>
+<span class="c1">// 过滤插件，用于处理消息
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Filter</span> <span class="kd">interface</span> <span class="p">{</span>
+	<span class="nx">Plugin</span>
+	<span class="nf">Process</span><span class="p">(</span><span class="nx">msg</span> <span class="kt">string</span><span class="p">)</span> <span class="kt">string</span>
+<span class="p">}</span>
+<span class="c1">// 输出插件，用于发送消息
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Output</span> <span class="kd">interface</span> <span class="p">{</span>
+	<span class="nx">Plugin</span>
+	<span class="nf">Send</span><span class="p">(</span><span class="nx">msg</span> <span class="kt">string</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div><div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">pipeline</span>
+<span class="o">...</span>
+<span class="c1">// 消息管道的定义
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Pipeline</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">input</span>  <span class="nx">plugin</span><span class="p">.</span><span class="nx">Input</span>
+	<span class="nx">filter</span> <span class="nx">plugin</span><span class="p">.</span><span class="nx">Filter</span>
+	<span class="nx">output</span> <span class="nx">plugin</span><span class="p">.</span><span class="nx">Output</span>
+<span class="p">}</span>
+<span class="c1">// 一个消息的处理流程为 input -&gt; filter -&gt; output
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">p</span> <span class="o">*</span><span class="nx">Pipeline</span><span class="p">)</span> <span class="nf">Exec</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">msg</span> <span class="o">:=</span> <span class="nx">p</span><span class="p">.</span><span class="nx">input</span><span class="p">.</span><span class="nf">Receive</span><span class="p">()</span>
+	<span class="nx">msg</span> <span class="p">=</span> <span class="nx">p</span><span class="p">.</span><span class="nx">filter</span><span class="p">.</span><span class="nf">Process</span><span class="p">(</span><span class="nx">msg</span><span class="p">)</span>
+	<span class="nx">p</span><span class="p">.</span><span class="nx">output</span><span class="p">.</span><span class="nf">Send</span><span class="p">(</span><span class="nx">msg</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div><p>接着，我们定义<code>input</code>、<code>filter</code>、<code>output</code>三类插件接口的具体实现：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">plugin</span>
+<span class="o">...</span>
+<span class="c1">// input插件名称与类型的映射关系，主要用于通过反射创建input对象
+</span><span class="c1"></span><span class="kd">var</span> <span class="nx">inputNames</span> <span class="p">=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="nx">reflect</span><span class="p">.</span><span class="nx">Type</span><span class="p">)</span>
+<span class="c1">// Hello input插件，接收“Hello World”消息
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">HelloInput</span> <span class="kd">struct</span> <span class="p">{}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">h</span> <span class="o">*</span><span class="nx">HelloInput</span><span class="p">)</span> <span class="nf">Receive</span><span class="p">()</span> <span class="kt">string</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="s">&#34;Hello World&#34;</span>
+<span class="p">}</span>
+<span class="c1">// 初始化input插件映射关系表
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">init</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">inputNames</span><span class="p">[</span><span class="s">&#34;hello&#34;</span><span class="p">]</span> <span class="p">=</span> <span class="nx">reflect</span><span class="p">.</span><span class="nf">TypeOf</span><span class="p">(</span><span class="nx">HelloInput</span><span class="p">{})</span>
+<span class="p">}</span>
+</code></pre></div><div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">plugin</span>
+<span class="o">...</span>
+<span class="c1">// filter插件名称与类型的映射关系，主要用于通过反射创建filter对象
+</span><span class="c1"></span><span class="kd">var</span> <span class="nx">filterNames</span> <span class="p">=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="nx">reflect</span><span class="p">.</span><span class="nx">Type</span><span class="p">)</span>
+<span class="c1">// Upper filter插件，将消息全部字母转成大写
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">UpperFilter</span> <span class="kd">struct</span> <span class="p">{}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">u</span> <span class="o">*</span><span class="nx">UpperFilter</span><span class="p">)</span> <span class="nf">Process</span><span class="p">(</span><span class="nx">msg</span> <span class="kt">string</span><span class="p">)</span> <span class="kt">string</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="nx">strings</span><span class="p">.</span><span class="nf">ToUpper</span><span class="p">(</span><span class="nx">msg</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="c1">// 初始化filter插件映射关系表
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">init</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">filterNames</span><span class="p">[</span><span class="s">&#34;upper&#34;</span><span class="p">]</span> <span class="p">=</span> <span class="nx">reflect</span><span class="p">.</span><span class="nf">TypeOf</span><span class="p">(</span><span class="nx">UpperFilter</span><span class="p">{})</span>
+<span class="p">}</span>
+</code></pre></div><div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">plugin</span>
+<span class="o">...</span>
+<span class="c1">// output插件名称与类型的映射关系，主要用于通过反射创建output对象
+</span><span class="c1"></span><span class="kd">var</span> <span class="nx">outputNames</span> <span class="p">=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="nx">reflect</span><span class="p">.</span><span class="nx">Type</span><span class="p">)</span>
+<span class="c1">// Console output插件，将消息输出到控制台上
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">ConsoleOutput</span> <span class="kd">struct</span> <span class="p">{}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">c</span> <span class="o">*</span><span class="nx">ConsoleOutput</span><span class="p">)</span> <span class="nf">Send</span><span class="p">(</span><span class="nx">msg</span> <span class="kt">string</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">msg</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="c1">// 初始化output插件映射关系表
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">init</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">outputNames</span><span class="p">[</span><span class="s">&#34;console&#34;</span><span class="p">]</span> <span class="p">=</span> <span class="nx">reflect</span><span class="p">.</span><span class="nf">TypeOf</span><span class="p">(</span><span class="nx">ConsoleOutput</span><span class="p">{})</span>
+<span class="p">}</span>
+</code></pre></div><p>然后，我们定义插件抽象工厂接口，以及对应插件的工厂实现：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">plugin</span>
+<span class="o">...</span>
+<span class="c1">// 插件抽象工厂接口
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Factory</span> <span class="kd">interface</span> <span class="p">{</span>
+	<span class="nf">Create</span><span class="p">(</span><span class="nx">conf</span> <span class="nx">Config</span><span class="p">)</span> <span class="nx">Plugin</span>
+<span class="p">}</span>
+<span class="c1">// input插件工厂对象，实现Factory接口
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">InputFactory</span> <span class="kd">struct</span><span class="p">{}</span>
+<span class="c1">// 读取配置，通过反射机制进行对象实例化
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">i</span> <span class="o">*</span><span class="nx">InputFactory</span><span class="p">)</span> <span class="nf">Create</span><span class="p">(</span><span class="nx">conf</span> <span class="nx">Config</span><span class="p">)</span> <span class="nx">Plugin</span> <span class="p">{</span>
+	<span class="nx">t</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">inputNames</span><span class="p">[</span><span class="nx">conf</span><span class="p">.</span><span class="nx">Name</span><span class="p">]</span>
+	<span class="k">return</span> <span class="nx">reflect</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="nx">t</span><span class="p">).</span><span class="nf">Interface</span><span class="p">().(</span><span class="nx">Plugin</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="c1">// filter和output插件工厂实现类似
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">FilterFactory</span> <span class="kd">struct</span><span class="p">{}</span>
+<span class="kd">func</span> <span class="p">(</span><span class="nx">f</span> <span class="o">*</span><span class="nx">FilterFactory</span><span class="p">)</span> <span class="nf">Create</span><span class="p">(</span><span class="nx">conf</span> <span class="nx">Config</span><span class="p">)</span> <span class="nx">Plugin</span> <span class="p">{</span>
+	<span class="nx">t</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">filterNames</span><span class="p">[</span><span class="nx">conf</span><span class="p">.</span><span class="nx">Name</span><span class="p">]</span>
+	<span class="k">return</span> <span class="nx">reflect</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="nx">t</span><span class="p">).</span><span class="nf">Interface</span><span class="p">().(</span><span class="nx">Plugin</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="kd">type</span> <span class="nx">OutputFactory</span> <span class="kd">struct</span><span class="p">{}</span>
+<span class="kd">func</span> <span class="p">(</span><span class="nx">o</span> <span class="o">*</span><span class="nx">OutputFactory</span><span class="p">)</span> <span class="nf">Create</span><span class="p">(</span><span class="nx">conf</span> <span class="nx">Config</span><span class="p">)</span> <span class="nx">Plugin</span> <span class="p">{</span>
+	<span class="nx">t</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">outputNames</span><span class="p">[</span><span class="nx">conf</span><span class="p">.</span><span class="nx">Name</span><span class="p">]</span>
+	<span class="k">return</span> <span class="nx">reflect</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="nx">t</span><span class="p">).</span><span class="nf">Interface</span><span class="p">().(</span><span class="nx">Plugin</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div><p>最后定义<code>pipeline</code>的工厂方法，调用<code>plugin.Factory</code>抽象工厂完成pipelien对象的实例化：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">pipeline</span>
+<span class="o">...</span>
+<span class="c1">// 保存用于创建Plugin的工厂实例，其中map的key为插件类型，value为抽象工厂接口
+</span><span class="c1"></span><span class="kd">var</span> <span class="nx">pluginFactories</span> <span class="p">=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">map</span><span class="p">[</span><span class="nx">plugin</span><span class="p">.</span><span class="nx">Type</span><span class="p">]</span><span class="nx">plugin</span><span class="p">.</span><span class="nx">Factory</span><span class="p">)</span>
+<span class="c1">// 根据plugin.Type返回对应Plugin类型的工厂实例
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">factoryOf</span><span class="p">(</span><span class="nx">t</span> <span class="nx">plugin</span><span class="p">.</span><span class="nx">Type</span><span class="p">)</span> <span class="nx">plugin</span><span class="p">.</span><span class="nx">Factory</span> <span class="p">{</span>
+	<span class="nx">factory</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">pluginFactories</span><span class="p">[</span><span class="nx">t</span><span class="p">]</span>
+	<span class="k">return</span> <span class="nx">factory</span>
+<span class="p">}</span>
+<span class="c1">// pipeline工厂方法，根据配置创建一个Pipeline实例
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">Of</span><span class="p">(</span><span class="nx">conf</span> <span class="nx">Config</span><span class="p">)</span> <span class="o">*</span><span class="nx">Pipeline</span> <span class="p">{</span>
+	<span class="nx">p</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">Pipeline</span><span class="p">{}</span>
+	<span class="nx">p</span><span class="p">.</span><span class="nx">input</span> <span class="p">=</span> <span class="nf">factoryOf</span><span class="p">(</span><span class="nx">plugin</span><span class="p">.</span><span class="nx">InputType</span><span class="p">).</span><span class="nf">Create</span><span class="p">(</span><span class="nx">conf</span><span class="p">.</span><span class="nx">Input</span><span class="p">).(</span><span class="nx">plugin</span><span class="p">.</span><span class="nx">Input</span><span class="p">)</span>
+	<span class="nx">p</span><span class="p">.</span><span class="nx">filter</span> <span class="p">=</span> <span class="nf">factoryOf</span><span class="p">(</span><span class="nx">plugin</span><span class="p">.</span><span class="nx">FilterType</span><span class="p">).</span><span class="nf">Create</span><span class="p">(</span><span class="nx">conf</span><span class="p">.</span><span class="nx">Filter</span><span class="p">).(</span><span class="nx">plugin</span><span class="p">.</span><span class="nx">Filter</span><span class="p">)</span>
+	<span class="nx">p</span><span class="p">.</span><span class="nx">output</span> <span class="p">=</span> <span class="nf">factoryOf</span><span class="p">(</span><span class="nx">plugin</span><span class="p">.</span><span class="nx">OutputType</span><span class="p">).</span><span class="nf">Create</span><span class="p">(</span><span class="nx">conf</span><span class="p">.</span><span class="nx">Output</span><span class="p">).(</span><span class="nx">plugin</span><span class="p">.</span><span class="nx">Output</span><span class="p">)</span>
+	<span class="k">return</span> <span class="nx">p</span>
+<span class="p">}</span>
+<span class="c1">// 初始化插件工厂对象
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">init</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">pluginFactories</span><span class="p">[</span><span class="nx">plugin</span><span class="p">.</span><span class="nx">InputType</span><span class="p">]</span> <span class="p">=</span> <span class="o">&amp;</span><span class="nx">plugin</span><span class="p">.</span><span class="nx">InputFactory</span><span class="p">{}</span>
+	<span class="nx">pluginFactories</span><span class="p">[</span><span class="nx">plugin</span><span class="p">.</span><span class="nx">FilterType</span><span class="p">]</span> <span class="p">=</span> <span class="o">&amp;</span><span class="nx">plugin</span><span class="p">.</span><span class="nx">FilterFactory</span><span class="p">{}</span>
+	<span class="nx">pluginFactories</span><span class="p">[</span><span class="nx">plugin</span><span class="p">.</span><span class="nx">OutputType</span><span class="p">]</span> <span class="p">=</span> <span class="o">&amp;</span><span class="nx">plugin</span><span class="p">.</span><span class="nx">OutputFactory</span><span class="p">{}</span>
+<span class="p">}</span>
+</code></pre></div><p>测试代码如下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">test</span>
+<span class="o">...</span>
+<span class="kd">func</span> <span class="nf">TestPipeline</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// 其中pipeline.DefaultConfig()的配置内容见【抽象工厂模式示例图】
+</span><span class="c1"></span>  <span class="c1">// 消息处理流程为 HelloInput -&gt; UpperFilter -&gt; ConsoleOutput
+</span><span class="c1"></span>	<span class="nx">p</span> <span class="o">:=</span> <span class="nx">pipeline</span><span class="p">.</span><span class="nf">Of</span><span class="p">(</span><span class="nx">pipeline</span><span class="p">.</span><span class="nf">DefaultConfig</span><span class="p">())</span>
+	<span class="nx">p</span><span class="p">.</span><span class="nf">Exec</span><span class="p">()</span>
+<span class="p">}</span>
+<span class="c1">// 运行结果
+</span><span class="c1"></span><span class="o">==</span><span class="p">=</span> <span class="nx">RUN</span>   <span class="nx">TestPipeline</span>
+<span class="nx">HELLO</span> <span class="nx">WORLD</span>
+<span class="o">---</span> <span class="nx">PASS</span><span class="p">:</span> <span class="nf">TestPipeline</span> <span class="p">(</span><span class="mf">0.00</span><span class="nx">s</span><span class="p">)</span>
+<span class="nx">PASS</span>
+</code></pre></div><h2 id="原型模式prototype-pattern">原型模式（Prototype Pattern）</h2>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1ghky39ichjj319u0gqhdt.jpg" alt="原型模式结构"  /></p>
+<h3 id="简述-4">简述</h3>
+<p>原型模式主要解决对象复制的问题，它的核心就是<code>clone()</code>方法，返回<code>Prototype</code>对象的复制品。在程序设计过程中，往往会遇到有一些场景需要大量相同的对象，如果不使用原型模式，那么我们可能会这样进行对象的创建：<em>新创建一个相同对象的实例，然后遍历原始对象的所有成员变量， 并将成员变量值复制到新对象中</em>。这种方法的缺点很明显，那就是使用者必须知道对象的实现细节，导致代码之间的耦合。另外，对象很有可能存在除了对象本身以外不可见的变量，这种情况下该方法就行不通了。</p>
+<p>对于这种情况，更好的方法就是使用原型模式，将复制逻辑委托给对象本身，这样，上述两个问题也都迎刃而解了。</p>
+<h3 id="go实现-4">Go实现</h3>
+<p>还是以建造者模式一节中的<code>Message</code>作为例子，现在设计一个<code>Prototype</code>抽象接口：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">prototype</span>
+<span class="o">...</span>
+<span class="c1">// 原型复制抽象接口
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Prototype</span> <span class="kd">interface</span> <span class="p">{</span>
+	<span class="nf">clone</span><span class="p">()</span> <span class="nx">Prototype</span>
+<span class="p">}</span>
+
+<span class="kd">type</span> <span class="nx">Message</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">Header</span> <span class="o">*</span><span class="nx">Header</span>
+	<span class="nx">Body</span>   <span class="o">*</span><span class="nx">Body</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">m</span> <span class="o">*</span><span class="nx">Message</span><span class="p">)</span> <span class="nf">clone</span><span class="p">()</span> <span class="nx">Prototype</span> <span class="p">{</span>
+	<span class="nx">msg</span> <span class="o">:=</span> <span class="o">*</span><span class="nx">m</span>
+	<span class="k">return</span> <span class="o">&amp;</span><span class="nx">msg</span>
+<span class="p">}</span>
+</code></pre></div><p>测试代码如下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">test</span>
+<span class="o">...</span>
+<span class="kd">func</span> <span class="nf">TestPrototype</span><span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">message</span> <span class="o">:=</span> <span class="nx">msg</span><span class="p">.</span><span class="nf">Builder</span><span class="p">().</span>
+		<span class="nf">WithSrcAddr</span><span class="p">(</span><span class="s">&#34;192.168.0.1&#34;</span><span class="p">).</span>
+		<span class="nf">WithSrcPort</span><span class="p">(</span><span class="mi">1234</span><span class="p">).</span>
+		<span class="nf">WithDestAddr</span><span class="p">(</span><span class="s">&#34;192.168.0.2&#34;</span><span class="p">).</span>
+		<span class="nf">WithDestPort</span><span class="p">(</span><span class="mi">8080</span><span class="p">).</span>
+		<span class="nf">WithHeaderItem</span><span class="p">(</span><span class="s">&#34;contents&#34;</span><span class="p">,</span> <span class="s">&#34;application/json&#34;</span><span class="p">).</span>
+		<span class="nf">WithBodyItem</span><span class="p">(</span><span class="s">&#34;record1&#34;</span><span class="p">).</span>
+		<span class="nf">WithBodyItem</span><span class="p">(</span><span class="s">&#34;record2&#34;</span><span class="p">).</span>
+		<span class="nf">Build</span><span class="p">()</span>
+  <span class="c1">// 复制一份消息
+</span><span class="c1"></span>	<span class="nx">newMessage</span> <span class="o">:=</span> <span class="nx">message</span><span class="p">.</span><span class="nf">Clone</span><span class="p">().(</span><span class="o">*</span><span class="nx">msg</span><span class="p">.</span><span class="nx">Message</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nx">newMessage</span><span class="p">.</span><span class="nx">Header</span><span class="p">.</span><span class="nx">SrcAddr</span> <span class="o">!=</span> <span class="nx">message</span><span class="p">.</span><span class="nx">Header</span><span class="p">.</span><span class="nx">SrcAddr</span> <span class="p">{</span>
+		<span class="nx">t</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;Clone Message failed.&#34;</span><span class="p">)</span>
+	<span class="p">}</span>
+	<span class="k">if</span> <span class="nx">newMessage</span><span class="p">.</span><span class="nx">Body</span><span class="p">.</span><span class="nx">Items</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="nx">message</span><span class="p">.</span><span class="nx">Body</span><span class="p">.</span><span class="nx">Items</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">{</span>
+		<span class="nx">t</span><span class="p">.</span><span class="nf">Errorf</span><span class="p">(</span><span class="s">&#34;Clone Message failed.&#34;</span><span class="p">)</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+<span class="c1">// 运行结果
+</span><span class="c1"></span><span class="o">==</span><span class="p">=</span> <span class="nx">RUN</span>   <span class="nx">TestPrototype</span>
+<span class="o">---</span> <span class="nx">PASS</span><span class="p">:</span> <span class="nf">TestPrototype</span> <span class="p">(</span><span class="mf">0.00</span><span class="nx">s</span><span class="p">)</span>
+<span class="nx">PASS</span>
+</code></pre></div><h2 id="总结">总结</h2>
+<p>本文主要介绍了GoF的23种设计模式中的5种创建型模式，创建型模式的目的都是<strong>提供一个简单的接口，让对象的创建过程与使用者解耦</strong>。其中，<strong>单例模式</strong>主要用于保证一个类仅有一个实例，并提供一个访问它的全局访问点；<strong>建造者模式</strong>主要解决需要创建对象时需要传入多个参数，或者对初始化顺序有要求的场景；<strong>工厂方法模式</strong>通过提供一个工厂对象或者工厂方法，为使用者隐藏了对象创建的细节；<strong>抽象工厂模式</strong>是对工厂方法模式的优化，通过为工厂对象新增一个抽象层，让工厂对象遵循单一职责原则，也避免了霰弹式修改；<strong>原型模式</strong>则让对象复制更加简单。</p>
+<p>下一篇文章，将介绍23种设计模式中的7种<strong>结构型模式</strong>（Structural Pattern），及其Go语言的实现。</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/golang/">golang</a>
+        
+            <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">设计模式</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>CC BY 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/%E4%BD%BF%E7%94%A8go%E5%AE%9E%E7%8E%B0gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%B8%89/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">使用Go实现GoF的23种设计模式（三）</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E4%BD%BF%E7%94%A8go%E5%AE%9E%E7%8E%B0gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%BA%8C/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">使用Go实现GoF的23种设计模式（二）</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E5%A6%82%E4%BD%95%E9%AB%98%E6%95%88%E7%BC%96%E5%86%99go%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E4%BA%8C/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">如何高效编写Go单元测试（二）</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E5%A6%82%E4%BD%95%E9%AB%98%E6%95%88%E7%BC%96%E5%86%99go%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E4%B8%80/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">如何高效编写Go单元测试（一）</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+
+    
+        
+    <script src="https://utteranc.es/client.js" 
+        repo="ruanrunxue/yrunz-comments"
+        issue-term="pathname"
+        
+        label="yrunz"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
+
+<style>
+    .utterances {
+        max-width: unset;
+    }
+</style>
+
+<script>
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
+        }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+        setUtterancesTheme(document.body.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        setUtterancesTheme(e.detail)
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_SVG"></script>
+    <section class="copyright">
+        &copy;
+        
+            2019 -
+        
+        2023 元闰子的邀请
+    </section>
+
+    <section class="powerby">
+        
+
+        <a href="https://beian.miit.gov.cn/">粤ICP备19152659号 | </a>Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.3.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        <br />
+    </section>
+</footer>
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

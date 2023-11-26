@@ -1,0 +1,1859 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='数值类型是计算机编程的基础，用的很多，也很重要，理解它的底层原理，有助于写出正确的代码，避免一些意料之外的错误。'><title>深入理解计算机系统的数值类型</title>
+
+<link rel='canonical' href='https://www.yrunz.com/p/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E7%9A%84%E6%95%B0%E5%80%BC%E7%B1%BB%E5%9E%8B/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='深入理解计算机系统的数值类型'>
+<meta property='og:description' content='数值类型是计算机编程的基础，用的很多，也很重要，理解它的底层原理，有助于写出正确的代码，避免一些意料之外的错误。'>
+<meta property='og:url' content='https://www.yrunz.com/p/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E7%9A%84%E6%95%B0%E5%80%BC%E7%B1%BB%E5%9E%8B/'>
+<meta property='og:site_name' content='元闰子的邀请'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='计算机基础' /><meta property='article:tag' content='CSAPP' /><meta property='article:published_time' content='2022-08-18T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2022-08-18T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="深入理解计算机系统的数值类型">
+<meta name="twitter:description" content="数值类型是计算机编程的基础，用的很多，也很重要，理解它的底层原理，有助于写出正确的代码，避免一些意料之外的错误。">
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "light");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/yrz_hudc7c8721ecce4b724df5002339c76402_174377_300x0_resize_box_2.png" width="300"
+                            height="306" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://www.yrunz.com">元闰子的邀请</a></h1>
+        <h2 class="site-description">阅读、写作、生活（个人技术分享）</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>首页</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>博客</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%85%B3%E4%BA%8E%E5%85%83%E9%97%B0%E5%AD%90/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24"
+     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+     stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z"/>
+    <circle cx="12" cy="7" r="4"/>
+    <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/>
+</svg>
+
+                
+                <span>关于元闰子</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%8F%8B%E6%83%85%E9%93%BE%E6%8E%A5/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-friends" width="44" height="44"
+     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+    <circle cx="7" cy="5" r="2"/>
+    <path d="M5 22v-5l-1 -1v-4a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4l-1 1v5"/>
+    <circle cx="17" cy="5" r="2"/>
+    <path d="M15 22v-4h-2l2 -6a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1l2 6h-2v4"/>
+</svg>
+
+                
+                <span>友情链接</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>暗色模式</span>
+            </li>
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://www.yrunz.com" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E5%9F%BA%E7%A1%80/" >
+                基础
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E7%9A%84%E6%95%B0%E5%80%BC%E7%B1%BB%E5%9E%8B/">深入理解计算机系统的数值类型</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        数值类型是计算机编程的基础，用的很多，也很重要，理解它的底层原理，有助于写出正确的代码，避免一些意料之外的错误。
+    </h3>
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Aug 18, 2022</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <h2 id="前言">前言</h2>
+<p>在日常编程中，<strong>数值类型</strong>（<strong>numeric types</strong>）是我们打交道最多的类型，可能没有之一。除了最熟悉的 <code>int</code>，还有 <code>long</code>、<code>float</code>、<code>double</code> 等。正因太熟悉，我们往往不会深究它们的底层原理。因为平时的工作中，知道个大概，也够用了。</p>
+<p>但，在某些业务场景下，比如金融业务，数值运算不准确会带来灾难性的后果。这时，你就必须清楚数值类型的二进制表示、截断、转型等原理，否则很难保证运算结果的正确性。</p>
+<p>另外，数值类型也是一个容易被黑客攻击的点，考虑如下一段代码：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// C++
+</span><span class="c1"></span><span class="cm">/* Declaration of library function memcpy */</span>
+<span class="nx">void</span> <span class="o">*</span><span class="nf">memcpy</span><span class="p">(</span><span class="nx">void</span> <span class="o">*</span><span class="nx">dest</span><span class="p">,</span> <span class="nx">void</span> <span class="o">*</span><span class="nx">src</span><span class="p">,</span> <span class="nx">size_t</span> <span class="nx">n</span><span class="p">);</span>
+<span class="cm">/* Kernel memory region holding user-accessible data */</span>
+<span class="err">#</span><span class="nx">define</span> <span class="nx">KSIZE</span> <span class="mi">1024</span>
+<span class="nx">char</span> <span class="nx">kbuf</span><span class="p">[</span><span class="nx">KSIZE</span><span class="p">];</span>
+<span class="cm">/* Copy at most maxlen bytes from kernel region to user buffer */</span>
+<span class="kt">int</span> <span class="nf">copy_from_kernel</span><span class="p">(</span><span class="nx">void</span> <span class="o">*</span><span class="nx">user_dest</span><span class="p">,</span> <span class="kt">int</span> <span class="nx">maxlen</span><span class="p">)</span> <span class="p">{</span>
+    <span class="cm">/* Byte count len is minimum of buffer size and maxlen */</span>
+    <span class="kt">int</span> <span class="nx">len</span> <span class="p">=</span> <span class="nx">KSIZE</span> <span class="p">&lt;</span> <span class="nx">maxlen</span> <span class="err">?</span> <span class="nx">KSIZE</span> <span class="p">:</span> <span class="nx">maxlen</span><span class="p">;</span>
+    <span class="nf">memcpy</span><span class="p">(</span><span class="nx">user_dest</span><span class="p">,</span> <span class="nx">kbuf</span><span class="p">,</span> <span class="nx">len</span><span class="p">);</span>
+    <span class="k">return</span> <span class="nx">len</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div><p>如果你熟悉数值类型的原理，一定会敏锐察觉出第 10 行存在 <code>int</code> 到 <code>size_t</code> 的类型转换。在 64 位系统中，<code>size_t</code> 通常被定义为 <code>unsigned long</code> 类型，如果攻击者在调用 <code>copy_from_kernel</code> 时，特意传入一个负数的 <code>maxlen</code>，转型到 <code>memcpy</code>  中的 <code>n</code> 将会是一个很大的正数，从而导致了内存拷贝的越界！</p>
+<p><strong>数值类型是计算机编程的基础，用的很多，也很重要，理解它的底层原理，有助于写出正确的代码，避免一些意料之外的错误</strong>。</p>
+<blockquote>
+<p>每个计算机系统都有固定的 <strong>word size</strong>，也即常说的 xx 位，它也是指针的大小，跟 <a class="link" href="https://mp.weixin.qq.com/s/54UB2hgi_SAI3uBs6sB9Sw"  target="_blank" rel="noopener"
+    >虚拟内存</a> 相关，比如一个 w 位系统上的应用程序，最多能够访问 $2^{w}$ byte 大小的虚拟内存。</p>
+<p>最常用的是 32 位 和 64 位 系统，某些数值类型在它们之上会有些差异，比如 long 类型 在 32 位系统上是 32 bit 大小，在 64 位系统上是 64 bit 大小。<strong>考虑如今 64 位系统逐渐成为主流，本文会以它作为基础，进行数值类型的介绍</strong>。</p>
+</blockquote>
+<h2 id="整数">整数</h2>
+<p>在计算机系统中，整数可以分成 <strong>无符号</strong>（<strong>unsigned</strong>）整数 和 <strong>有符号</strong>（<strong>signed</strong>）整数 两大类，这之下，按照类型表示的 bit 位大小，又可细分成 8 位的 <code>char/byte/int8</code> 、16 位的 <code>short/innt16</code>、32 位的 <code>int/int32</code> 和 64 位的 <code>long/int64</code>，它们的取值范围如下：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">类型</th>
+<th style="text-align:right">最小值</th>
+<th style="text-align:right">最大值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>[signed] char</code></td>
+<td style="text-align:right">-128</td>
+<td style="text-align:right">127</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>unsigned char</code></td>
+<td style="text-align:right">0</td>
+<td style="text-align:right">255</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>short</code></td>
+<td style="text-align:right">-32,768</td>
+<td style="text-align:right">32,767</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>unsigned short</code></td>
+<td style="text-align:right">0</td>
+<td style="text-align:right">65,535</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>int</code></td>
+<td style="text-align:right">−2,147,483,648</td>
+<td style="text-align:right">2,147,483,647</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>unsigned int</code></td>
+<td style="text-align:right">0</td>
+<td style="text-align:right">4,294,967,295</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>long</code></td>
+<td style="text-align:right">−9,223,372,036,854,775,808</td>
+<td style="text-align:right">−9,223,372,036,854,775,807</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>unsigned long</code></td>
+<td style="text-align:right">0</td>
+<td style="text-align:right">18,446,744,073,709,551,615</td>
+</tr>
+</tbody>
+</table>
+<p>死记这个表不容易，下面我们将试图从<strong>二进制编码</strong>层面去理解它。</p>
+<h3 id="二进制编码">二进制编码</h3>
+<p>整数在计算机系统上都是以二进制存储的，对于一个 w 位的整数 $x$，它的二进制表示写成这样：
+$$
+[x_{w-1}, x_{w-2}, &hellip;, x_0]_b
+$$
+其中，$x_i$ 取值 $0$ 或 $1$。</p>
+<h4 id="无符号编码unsigned-encodings">无符号编码（Unsigned Encodings）</h4>
+<p>在二进制表示的基础上，<strong>无符号编码</strong> 是这样：
+$$
+x = \sum_{i=0}^{w-1}x_i \cdot 2^i
+$$
+比如，w = 4 场景下的一些例子：
+$$
+[0001]_b=0\cdot2^3+0\cdot2^2+0\cdot2^1+1\cdot2^0=0+0+0+1=1
+$$
+$$
+[0101]_b=0\cdot2^3+1\cdot2^2+0\cdot2^1+1\cdot2^0=0+4+0+1=5
+$$</p>
+<p>$$
+[1011]_b=1\cdot2^3+0\cdot2^2+1\cdot2^1+1\cdot2^0=8+0+2+1=11
+$$</p>
+<p>$$
+[1111]_b=1\cdot2^3+1\cdot2^2+1\cdot2^1+1\cdot2^0=8+4+2+1=15
+$$</p>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h4xa9d9ry9j218y0nyaf1.jpg" alt=""  /></p>
+<p>由上述可知，<strong>无符号编码无法表示负数，因此只能表示无符号整数</strong>。为了表示有符号整数，还要探寻另一种编码方式。</p>
+<h4 id="原码编码true-form-encodings">原码编码（True Form Encodings）</h4>
+<p>为了区分正数和负数，很容易想到使用一个 bit 位作为<strong>符号位</strong>，$0$ 表示正数，$1$ 表示负数。在无符号编码的基础上，使用最高位作为符号位，其他位含义不变，得出 <strong>原码编码</strong> 形式：
+$$
+x = (-1)^{x_{w-1}} \cdot \sum_{i=0}^{w-2}x_i2^i
+$$
+比如，w = 4 场景下的一些例子：
+$$
+[0001]_b=(-1)^0\cdot(0\cdot2^2+0\cdot2^1+1\cdot2^0)=1\cdot(0+0+1)=1
+$$
+$$
+[0101]_b=(-1)^0\cdot(1\cdot2^2+0\cdot2^1+1\cdot2^0)=1\cdot(4+0+1)=5
+$$</p>
+<p>$$
+[1011]_b=(-1)^1\cdot(0\cdot2^2+1\cdot2^1+1\cdot2^0)=-1\cdot(0+2+1)=-3
+$$</p>
+<p>$$
+[1111]_b=(-1)^1\cdot(1\cdot2^2+1\cdot2^1+1\cdot2^0)=-1\cdot(4+2+1)=-7
+$$</p>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h4xbbrcj4jj21820ny43g.jpg" alt=""  /></p>
+<p>虽然原码编码方式简单直观，但它还存在两个问题：</p>
+<p><strong>（1）$0$ 存在两种编码形式</strong></p>
+<p>原码编码方式下，$0$ 存在两种编码形式，$[0,0,&hellip;,0]_b$ 和 $[1,0,&hellip;,0]_b$。同一个整数值，却有两种编码，这对计算机系统来说没什么意义，反而是一种浪费。</p>
+<p><strong>（2）带负数的加法运算不正确</strong></p>
+<p>原码编码方式下，两个正数的加法没问题，一旦带上负数，结果就出错了：</p>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h4xj7qoph6j21df0u07bp.jpg" alt=""  /></p>
+<p>所以，原码编码方式，注定不会被使用。</p>
+<h4 id="补码编码twos-complement-encodings">补码编码（Two&rsquo;s-complement Encodings）</h4>
+<p>于是，<strong>补码编码</strong> 被发明，它也是建立在无符号编码的基础上，仍然取最高位为符号位，编码方式是这样：
+$$
+x = -x_{w-1} \cdot 2^{w-1} +  \sum_{i=0}^{w-2}x_i2^i
+$$
+**它与无符号编码的唯一区别是，最高位的取值从** $x_{w-1} \cdot 2^{w-1}$ **变成了** $-x_{w-1} \cdot 2^{w-1}$。</p>
+<p>比如，w = 4 场景下的一些例子：
+$$
+[0001]_b=-0\cdot2^3 +0\cdot2^2+0\cdot2^1+1\cdot2^0)=0+0+0+1=1
+$$
+$$
+[0101]_b=-0\cdot2^3+1\cdot2^2+0\cdot2^1+1\cdot2^0=0+4+0+1)=5
+$$</p>
+<p>$$
+[1011]_b=-1\cdot2^3+0\cdot2^2+1\cdot2^1+1\cdot2^0=-8+0+2+1=-5
+$$</p>
+<p>$$
+[1111]_b=-1\cdot2^3+1\cdot2^2+1\cdot2^1+1\cdot2^0=-8+4+2+1=-1
+$$</p>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h4xj4k404ij21440lm0wp.jpg" alt=""  /></p>
+<p>补码编码很巧妙地解决了原码编码的两个问题：</p>
+<p>首先，0 在补码编码下只有一种编码形式，$[0,0,&hellip;,0]_b$ 。</p>
+<p>此外，带负数的加法运算，也正确了。</p>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h4xjbk1nq1j21ez0u07by.jpg" alt=""  /></p>
+<p><strong>因为补码编码的简单和正确性，目前，几乎所有的计算机系统，都采用补码编码来表示有符号整数</strong>。</p>
+<h3 id="位运算">位运算</h3>
+<p>位运算主要包含 <strong>取反</strong>、<strong>与</strong>、<strong>或</strong>、<strong>异或</strong>、<strong>移位</strong> 等几种，我们在业务开发时用得比较少，但如果你有阅读开源代码的习惯，就会经常发现它们的踪迹。如果碰巧对位运算不熟悉，那么阅读这些代码，就同读天书一般。</p>
+<p>取反（~）、与（&amp;）、或（|）、异或（^）的规则比较简单：</p>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h4xx7pzk61j21eg0p0dm6.jpg" alt=""  /></p>
+<p>移位运算，可以分成 <strong>左移</strong> 和 <strong>右移</strong> 两种，其中，右移又可分为 <strong>逻辑右移</strong> 和 <strong>算术右移</strong>。</p>
+<p><strong>左移（&laquo;）运算，是对二进制整数，向左移若干位，高位丢弃，低位补零</strong>。也即，对 $[x_{w-1}, x_{w-2}, &hellip;, x_0]_b$ 左移 $k$ 位，得到 $[x_{w-k-1}, x_{w-k-2}, &hellip;, x_0, 0, &hellip;, 0]_b$。</p>
+<p>比如，对 <code>int i = -1</code> 左移 10 位，会得到 <code>i = -1024</code> 的结果：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">// Java语言
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="o">-</span><span class="n">1</span><span class="o">;</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;Before &lt;&lt; , i&#39;s value is &#34;</span> <span class="o">+</span> <span class="n">i</span><span class="o">);</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;i&#39;s binary string is &#34;</span> <span class="o">+</span> <span class="n">Integer</span><span class="o">.</span><span class="na">toBinaryString</span><span class="o">(</span><span class="n">i</span><span class="o">));</span>
+    <span class="n">i</span> <span class="o">&lt;&lt;=</span> <span class="n">10</span><span class="o">;</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;After &lt;&lt; , i&#39;s value is &#34;</span> <span class="o">+</span> <span class="n">i</span><span class="o">);</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;i&#39;s binary string is &#34;</span> <span class="o">+</span> <span class="n">Integer</span><span class="o">.</span><span class="na">toBinaryString</span><span class="o">(</span><span class="n">i</span><span class="o">));</span>
+<span class="o">}</span>
+<span class="c1">// 输出结果：
+</span><span class="c1"></span><span class="n">Before</span> <span class="o">&lt;&lt;</span> <span class="o">,</span> <span class="n">i</span><span class="err">&#39;</span><span class="n">s</span> <span class="n">value</span> <span class="n">is</span> <span class="o">-</span><span class="n">1</span>
+<span class="n">i</span><span class="err">&#39;</span><span class="n">s</span> <span class="n">binary</span> <span class="n">string</span> <span class="n">is</span> <span class="n">11111111111111111111111111111111</span>
+<span class="n">After</span> <span class="o">&lt;&lt;</span> <span class="o">,</span> <span class="n">i</span><span class="err">&#39;</span><span class="n">s</span> <span class="n">value</span> <span class="n">is</span> <span class="o">-</span><span class="n">1024</span>
+<span class="n">i</span><span class="err">&#39;</span><span class="n">s</span> <span class="n">binary</span> <span class="n">string</span> <span class="n">is</span> <span class="n">11111111111111111111110000000000</span>
+</code></pre></div><p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h4y0zhjl9tj219i0l8dk0.jpg" alt=""  /></p>
+<blockquote>
+<p>在 C/C++ 中，两种右移操作符都是 &raquo;，对无符号整数用的是逻辑右移，对有符号整数用的是算术右移；在 Java 中，逻辑右移的操作符是 &raquo;&gt;，算术右移的操作符是 &raquo;。为了方便区分，下文统一用 Java 的表示方法。</p>
+</blockquote>
+<p><strong>逻辑右移（&raquo;&gt;）运算，是对二进制整数，向右移若干位，高位补零，低位丢弃</strong>。也即，对 $[x_{w-1}, x_{w-2}, &hellip;, x_0]_b$ 逻辑左移 k 位，得到 $[0, &hellip;, 0,x_{w-1}, x_{w-2}, &hellip;, x_k]_b$。</p>
+<p>比如，对 <code>int i = -1</code> 逻辑右移 10 位，会得到 <code>i = 4194303</code> 的结果：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">// Java语言
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="o">-</span><span class="n">1</span><span class="o">;</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;Before &gt;&gt;&gt; , i&#39;s value is &#34;</span> <span class="o">+</span> <span class="n">i</span><span class="o">);</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;i&#39;s binary string is &#34;</span> <span class="o">+</span> <span class="n">Integer</span><span class="o">.</span><span class="na">toBinaryString</span><span class="o">(</span><span class="n">i</span><span class="o">));</span>
+    <span class="n">i</span> <span class="o">&gt;&gt;&gt;=</span> <span class="n">10</span><span class="o">;</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;After &gt;&gt;&gt; , i&#39;s value is &#34;</span> <span class="o">+</span> <span class="n">i</span><span class="o">);</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;i&#39;s binary string is &#34;</span> <span class="o">+</span> <span class="n">Integer</span><span class="o">.</span><span class="na">toBinaryString</span><span class="o">(</span><span class="n">i</span><span class="o">));</span>
+<span class="o">}</span>
+<span class="c1">// 输出结果：
+</span><span class="c1"></span><span class="n">Before</span> <span class="o">&gt;&gt;&gt;</span> <span class="o">,</span> <span class="n">i</span><span class="err">&#39;</span><span class="n">s</span> <span class="n">value</span> <span class="n">is</span> <span class="o">-</span><span class="n">1</span>
+<span class="n">i</span><span class="err">&#39;</span><span class="n">s</span> <span class="n">binary</span> <span class="n">string</span> <span class="n">is</span> <span class="n">11111111111111111111111111111111</span>
+<span class="n">After</span> <span class="o">&gt;&gt;&gt;</span> <span class="o">,</span> <span class="n">i</span><span class="err">&#39;</span><span class="n">s</span> <span class="n">value</span> <span class="n">is</span> <span class="n">4194303</span>
+<span class="n">i</span><span class="err">&#39;</span><span class="n">s</span> <span class="n">binary</span> <span class="n">string</span> <span class="n">is</span> <span class="n">1111111111111111111111</span>
+</code></pre></div><p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h4y11uud7kj219g0leae9.jpg" alt=""  /></p>
+<p><strong>算术右移（&raquo;）运算，是对二进制整数，向右移若干位，高位补符号位，低位丢弃</strong>。也即，对 $[x_{w-1}, x_{w-2}, &hellip;, x_0]_b$ 逻辑左移 k 位，得到 $[x_{w-1}, &hellip;, x_{w-1},x_{w-1}, x_{w-2}, &hellip;, x_k]_b$。</p>
+<p>比如，对 <code>int i = -1</code> 算术右移 10 位，仍会得到 <code>i = -1</code> 的结果：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">// Java语言
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="o">-</span><span class="n">1</span><span class="o">;</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;Before &gt;&gt; , i&#39;s value is &#34;</span> <span class="o">+</span> <span class="n">i</span><span class="o">);</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;i&#39;s binary string is &#34;</span> <span class="o">+</span> <span class="n">Integer</span><span class="o">.</span><span class="na">toBinaryString</span><span class="o">(</span><span class="n">i</span><span class="o">));</span>
+    <span class="n">i</span> <span class="o">&gt;&gt;=</span> <span class="n">10</span><span class="o">;</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;After &gt;&gt; , i&#39;s value is &#34;</span> <span class="o">+</span> <span class="n">i</span><span class="o">);</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;i&#39;s binary string is &#34;</span> <span class="o">+</span> <span class="n">Integer</span><span class="o">.</span><span class="na">toBinaryString</span><span class="o">(</span><span class="n">i</span><span class="o">));</span>
+<span class="o">}</span>
+<span class="c1">// 输出结果：
+</span><span class="c1"></span><span class="n">Before</span> <span class="o">&gt;&gt;</span> <span class="o">,</span> <span class="n">i</span><span class="err">&#39;</span><span class="n">s</span> <span class="n">value</span> <span class="n">is</span> <span class="o">-</span><span class="n">1</span>
+<span class="n">i</span><span class="err">&#39;</span><span class="n">s</span> <span class="n">binary</span> <span class="n">string</span> <span class="n">is</span> <span class="n">11111111111111111111111111111111</span>
+<span class="n">After</span> <span class="o">&gt;&gt;</span> <span class="o">,</span> <span class="n">i</span><span class="err">&#39;</span><span class="n">s</span> <span class="n">value</span> <span class="n">is</span> <span class="o">-</span><span class="n">1</span>
+<span class="n">i</span><span class="err">&#39;</span><span class="n">s</span> <span class="n">binary</span> <span class="n">string</span> <span class="n">is</span> <span class="n">11111111111111111111111111111111</span>
+</code></pre></div><p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h4y180brwvj219a0m6gpu.jpg" alt=""  /></p>
+<p><strong>目前为止，介绍移位运算的原理时，我们都默认 k &lt; w，如果 k &gt;= w 会怎样</strong>？</p>
+<p>比如， $[x_{w-1}, x_{w-2}, &hellip;, x_0]_b$ 左移 w 位，结果会是 $[0, 0, &hellip;, 0]_b$ 吗：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">// Java语言
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kt">int</span> <span class="n">i1</span> <span class="o">=</span> <span class="o">-</span><span class="n">1</span><span class="o">;</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;Before &lt;&lt; 31, i1&#39;s value is &#34;</span> <span class="o">+</span> <span class="n">i1</span><span class="o">);</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;i1&#39;s binary string is &#34;</span> <span class="o">+</span> <span class="n">Integer</span><span class="o">.</span><span class="na">toBinaryString</span><span class="o">(</span><span class="n">i1</span><span class="o">));</span>
+    <span class="n">i1</span> <span class="o">&lt;&lt;=</span> <span class="n">31</span><span class="o">;</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;After &lt;&lt; 31, i1&#39;s value is &#34;</span> <span class="o">+</span> <span class="n">i1</span><span class="o">);</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;i1&#39;s binary string is &#34;</span> <span class="o">+</span> <span class="n">Integer</span><span class="o">.</span><span class="na">toBinaryString</span><span class="o">(</span><span class="n">i1</span><span class="o">));</span>
+
+    <span class="kt">int</span> <span class="n">i2</span> <span class="o">=</span> <span class="o">-</span><span class="n">1</span><span class="o">;</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;Before &lt;&lt; 32, i2&#39;s value is &#34;</span> <span class="o">+</span> <span class="n">i2</span><span class="o">);</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;i2&#39;s binary string is &#34;</span> <span class="o">+</span> <span class="n">Integer</span><span class="o">.</span><span class="na">toBinaryString</span><span class="o">(</span><span class="n">i2</span><span class="o">));</span>
+    <span class="n">i2</span> <span class="o">&lt;&lt;=</span> <span class="n">32</span><span class="o">;</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;After &lt;&lt; 32, i2&#39;s value is &#34;</span> <span class="o">+</span> <span class="n">i2</span><span class="o">);</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;i2&#39;s binary string is &#34;</span> <span class="o">+</span> <span class="n">Integer</span><span class="o">.</span><span class="na">toBinaryString</span><span class="o">(</span><span class="n">i2</span><span class="o">));</span>
+<span class="o">}</span>
+<span class="c1">// 输出结果：
+</span><span class="c1"></span><span class="n">Before</span> <span class="o">&lt;&lt;</span> <span class="n">31</span><span class="o">,</span> <span class="n">i1</span><span class="err">&#39;</span><span class="n">s</span> <span class="n">value</span> <span class="n">is</span> <span class="o">-</span><span class="n">1</span>
+<span class="n">i1</span><span class="err">&#39;</span><span class="n">s</span> <span class="n">binary</span> <span class="n">string</span> <span class="n">is</span> <span class="n">11111111111111111111111111111111</span>
+<span class="n">After</span> <span class="o">&lt;&lt;</span> <span class="n">31</span><span class="o">,</span> <span class="n">i1</span><span class="err">&#39;</span><span class="n">s</span> <span class="n">value</span> <span class="n">is</span> <span class="o">-</span><span class="n">2147483648</span>
+<span class="n">i1</span><span class="err">&#39;</span><span class="n">s</span> <span class="n">binary</span> <span class="n">string</span> <span class="n">is</span> <span class="n">10000000000000000000000000000000</span>
+<span class="n">Before</span> <span class="o">&lt;&lt;</span> <span class="n">32</span><span class="o">,</span> <span class="n">i2</span><span class="err">&#39;</span><span class="n">s</span> <span class="n">value</span> <span class="n">is</span> <span class="o">-</span><span class="n">1</span>
+<span class="n">i2</span><span class="err">&#39;</span><span class="n">s</span> <span class="n">binary</span> <span class="n">string</span> <span class="n">is</span> <span class="n">11111111111111111111111111111111</span>
+<span class="n">After</span> <span class="o">&lt;&lt;</span> <span class="n">32</span><span class="o">,</span> <span class="n">i2</span><span class="err">&#39;</span><span class="n">s</span> <span class="n">value</span> <span class="n">is</span> <span class="o">-</span><span class="n">1</span>
+<span class="n">i2</span><span class="err">&#39;</span><span class="n">s</span> <span class="n">binary</span> <span class="n">string</span> <span class="n">is</span> <span class="n">11111111111111111111111111111111</span>
+</code></pre></div><p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h4y9cgsyssj218o0p60ya.jpg" alt=""  /></p>
+<p>上述例子中， <code>w = 32</code>，我们发现 <code>k = 31</code> 时，结果还符合预期；当 <code>k = 32</code> 时，结果不是 0，而是 -1，也即相当于 <code>k = 0</code> 时的结果。</p>
+<p>原因是这样，<strong>对 <code>w</code> 位整数 <code>x</code>，当执行 <code>x &lt;&lt; k</code> 时，实际执行的是</strong> <code>x &lt;&lt; (k % w)</code>。所以，当 <code>i2 &lt;&lt; 32</code> 时，实际是 <code>i2 &lt;&lt; 32 % 32 = i2 &lt;&lt; 0</code>。</p>
+<p>右移操作也遵循同样的规则，也即 <code>x &gt;&gt; k = x &gt;&gt; (k % w)</code>， <code>x &gt;&gt;&gt; k = x &gt;&gt;&gt; (k % w)</code>。</p>
+<h3 id="算术运算">算术运算</h3>
+<p>整数的算术运算也不总符合我们的常识，比如下面这个例子：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">// Java语言
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kt">int</span> <span class="n">i1</span> <span class="o">=</span> <span class="n">2147483647</span><span class="o">;</span>
+    <span class="kt">int</span> <span class="n">i2</span> <span class="o">=</span> <span class="n">1</span><span class="o">;</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">printf</span><span class="o">(</span><span class="s">&#34;2147483647+1=%d\n&#34;</span><span class="o">,</span> <span class="n">i1</span><span class="o">+</span><span class="n">i2</span><span class="o">);</span>
+<span class="o">}</span>
+<span class="c1">// 输出结果：
+</span><span class="c1"></span><span class="n">2147483647</span><span class="o">+</span><span class="n">1</span><span class="o">=-</span><span class="n">2147483648</span>
+</code></pre></div><p>两个正数 <code>2147483647</code> 和 <code>1</code> 相加，实际运行结果却是一个负数 <code>-2147483648</code>。原因是，运算结果超出了 <code>int</code> 类型的表示范围，我们把这种现象称作 <strong>溢出</strong>。</p>
+<p>接下来，我们将介绍整数类型常见的几种算术运算，包括当运算出现溢出时，计算机系统的处理方式。</p>
+<h4 id="加法">加法</h4>
+<p><strong>（1）无符号整数加法运算</strong></p>
+<p>对两个 w 位的无符号整数 $x, y \in[0, 2^w-1]$，有 $x+y\in[0, 2^{w+1}-2]$；如果仍用一个 w 位的整数表示相加结果，那么当结果在 $[2^w, 2^{w+1}-2]$ 范围时，也即结果需要 w + 1 位表示时，运算就产生溢出了。</p>
+<p><strong>如果出现溢出，系统会对结果进行截断，只保留低 w 位</strong>。</p>
+<p>比如，w = 4 场景下的一些例子：</p>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h4yd6269vfj21dm0sstg1.jpg" alt=""  /></p>
+<p>因此，如果用 $+_w^{u}$ 表示 w 位无符号整数的加法运算，那么它有如下规则：
+$$
+x+_w^{u}y=
+\begin{cases}
+x+y, &amp;x+y&lt;2^w\ &amp;正常\<br>
+x+y-2^w, &amp;2^w\le x+y&lt;2^{w+1}\ &amp;溢出
+\end{cases}
+$$
+其中，溢出场景因为对结果的进行截断，舍去了 $w+1$ 位，所以结果需要减去 $2^w$。</p>
+<p><strong>（2）有符号整数加法运算</strong></p>
+<p>对两个 w 位的有符号整数 $x, y \in[-2^{w-1}, 2^{w-1}-1]$，有 $x+y \in[-2^{w}, 2^{w}-2]$；如果仍用一个 w 位的整数表示相加结果，那么当结果在 $[-2^{w}, -2^{w-1}-1]$ 和 $[2^{w-1}, 2^{w}-2]$ 范围时，运算就产生溢出了。</p>
+<p>比如，w = 4 场景下的一些例子：</p>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h4yecv388ej21cu0tsqal.jpg" alt=""  /></p>
+<p>由上述例子可知，<strong>两个 w 位的负数相加，即使结果需要 w + 1 位表示，也可能是正常场景。这取决于截断位 w 位后的最高位，为 1 则还属于正常场景，为 0 则属于溢出场景</strong>。</p>
+<p>因此，如果用 $+_w^{t}$ 表示 w 位有符号整数的加法运算，那么它有如下规则：
+$$
+x+_w^{t}y=
+\begin{cases}
+x+y-2^w, &amp;2^{w-1}\le x+y\ &amp;正溢出\<br>
+x+y, &amp;-2^{w-1}\le x+y &lt;2^{w-1}\ &amp;正常\<br>
+x+y+2^w, &amp;x+y&lt;-2^{w-1}\ &amp;负溢出
+\end{cases}
+$$</p>
+<ul>
+<li><strong>正溢出场景下</strong>，原本 $x+y=2^{w-1}+\sum_{i=0}^{w-2}x_i\cdot2^i$，但按照补码编码方式，实际变成了 $x+_w^{t}y=-2^{w-1}+\sum_{i=0}^{w-2}x_i\cdot2^i$，所以就有 $x+_w^{t}y=x+y-2^w$。</li>
+<li><strong>负溢出场景下</strong>，w 位一定是 0，原本 $x+y=-2^{w}+\sum_{i=0}^{w-2}x_i\cdot2^i$，结果截断之后，实际变成了 $x+_w^{t}y=\sum_{i=0}^{w-2}x_i\cdot2^i$，所以就有 $x+_w^{t}y=x+y+2^w$。</li>
+</ul>
+<blockquote>
+<p><strong>为什么负溢出场景下，w 位一定是 0</strong>？</p>
+<p>负溢出场景出现的条件是 $x+y&lt;-2^{w-1}$，也即 :
+$$
+x+y=-2^w+\sum_{i=0}^{w-1}x_i\cdot 2^i &lt; -2^{w-1}\<br>
+=&gt;\sum_{i=0}^{w-1}x_i\cdot 2^i &lt; 2^w-2^{w-1}=2^{w-1}\<br>
+=&gt;x_{w-1}\cdot 2^{w-1} + \sum_{i=0}^{w-2}x_i\cdot 2^i &lt; 2^{w-1}\<br>
+$$
+如果要使上述不等式成立，$x_{w-1}$ 必然为 0.</p>
+</blockquote>
+<p>前面很多公式，但记住这个就行，<strong>无符号整数和有符号整数的加法运算规则，本质都是一样的，可以拆解成 4 步</strong>：</p>
+<ol>
+<li>先计算出真实加法运算的结果值。</li>
+<li>对结果值用 w + 1 位二进制表示。</li>
+<li>再将 w + 1 位的二进制结果截断，保留低 w 位。</li>
+<li>将截断后的 w 位二进制值转换回十进制整数，得到最终结果。无符号整数用无符号编码，有符号整数用补码编码。</li>
+</ol>
+<h4 id="取反">取反</h4>
+<p>取反，也即求相反数，给定一个整数 $x$，那么它的相反数 $y = -x$，也即满足 $x + y = 0$。</p>
+<p><strong>（1）无符号整数的取反</strong></p>
+<p>对一个 w 位的无符号整数 $x \in [0, 2^w-1]$，对它取反，也即找到一个整数 $y \in [0, 2^w-1]$，使得 $x + y = 0$：</p>
+<ul>
+<li>当 $x = 0$，那么很容易得出 $y = 0$；</li>
+<li>当 x &gt; 0，只有在溢出场景才会存在 $x+y=0$ 的可能。由前文可知，无符号整数加法溢出场景下，$x+_w^uy=x+y-2^w=0$ 时，有，$y=2^w-x$。</li>
+</ul>
+<p>因此，如果用 $-_w^{u}$ 表示 w 位无符号整数的取反运算，那么它有如下规则：
+$$
+-_w^{u}x=
+\begin{cases}
+x, &amp;x=0\<br>
+2^w-x, &amp;x&gt;0
+\end{cases}
+$$
+比如，w = 8 场景下的例子：</p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">// C++
+</span><span class="c1"></span><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">uint8_t</span> <span class="n">i1</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">uint8_t</span> <span class="n">i2</span> <span class="o">=</span> <span class="o">-</span><span class="n">i1</span><span class="p">;</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;i1=%u</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">i1</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;-i1=%u</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">i2</span><span class="p">);</span>
+
+    <span class="n">uint8_t</span> <span class="n">i3</span> <span class="o">=</span> <span class="mi">100</span><span class="p">;</span>
+    <span class="n">uint8_t</span> <span class="n">i4</span> <span class="o">=</span> <span class="o">-</span><span class="n">i3</span><span class="p">;</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;i3=%u</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">i3</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;-i3=%u</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">i4</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;2^8-i3=256-%u=%u</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">i3</span><span class="p">,</span> <span class="mi">256</span><span class="o">-</span><span class="n">i3</span><span class="p">);</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="c1">// 输出结果
+</span><span class="c1"></span><span class="n">i1</span><span class="o">=</span><span class="mi">0</span>
+<span class="o">-</span><span class="n">i1</span><span class="o">=</span><span class="mi">0</span>
+<span class="n">i3</span><span class="o">=</span><span class="mi">100</span>
+<span class="o">-</span><span class="n">i3</span><span class="o">=</span><span class="mi">156</span>
+<span class="mi">2</span><span class="o">^</span><span class="mi">8</span><span class="o">-</span><span class="n">i3</span><span class="o">=</span><span class="mi">256</span><span class="o">-</span><span class="mi">100</span><span class="o">=</span><span class="mi">156</span>
+</code></pre></div><p><strong>（2）有符号整数的取反</strong></p>
+<p>对一个 w 位的有符号整数 $x \in [-2^{w-1}, 2^{w-1}-1]$，对它取反，也即找到一个整数 $y \in [-2^{w-1}, 2^{w-1}-1]$，使得 $x + y = 0$：</p>
+<ul>
+<li>当 $x &gt; -2^{w-1}$，很容易得出 $y = -x$，因为此时 $-x\in [-2^{w-1}+1, 2^{w-1}-1]$ ，仍是有效的范围。</li>
+<li>当 $x = -2^{w-1}$，因为 $2^{w-1}$ 已经不再有效范围内，所以只能是溢出场景。而 $-2^{w-1}-2^{w-1}=-2^w$，截断为 w 之后，刚好为 0。所以，此时 $-x = -2^{w-1}$。</li>
+</ul>
+<p>因此，如果用 $-_w^{t}$ 表示 w 位有符号整数的取反运算，那么它有如下规则：
+$$
+-_w^{t}x=
+\begin{cases}
+-2^{w-1}, &amp;x=-2^{w-1}\<br>
+-x, &amp;x&gt;-2^{w-1}
+\end{cases}
+$$
+比如，w = 8 场景下的例子：</p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">// C++
+</span><span class="c1"></span><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">int8_t</span> <span class="n">i1</span> <span class="o">=</span> <span class="o">-</span><span class="mi">128</span><span class="p">;</span>
+    <span class="n">int8_t</span> <span class="n">i2</span> <span class="o">=</span> <span class="o">-</span><span class="n">i1</span><span class="p">;</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;i1=%d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">i1</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;-i1=%d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">i2</span><span class="p">);</span>
+
+    <span class="n">int8_t</span> <span class="n">i3</span> <span class="o">=</span> <span class="mi">100</span><span class="p">;</span>
+    <span class="n">int8_t</span> <span class="n">i4</span> <span class="o">=</span> <span class="o">-</span><span class="n">i3</span><span class="p">;</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;i3=%d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">i3</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;-i3=%d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">i4</span><span class="p">);</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="c1">// 输出结果
+</span><span class="c1"></span><span class="n">i1</span><span class="o">=-</span><span class="mi">128</span>
+<span class="o">-</span><span class="n">i1</span><span class="o">=-</span><span class="mi">128</span>
+<span class="n">i3</span><span class="o">=</span><span class="mi">100</span>
+<span class="o">-</span><span class="n">i3</span><span class="o">=-</span><span class="mi">100</span>
+</code></pre></div><h4 id="乘法">乘法</h4>
+<p>前面介绍加法时说过，无符号整数和有符号整数的加法运算都可以拆成 4 步，这对乘法运算也适用。</p>
+<p>对于无符号整数 $x,y \in [0, 2^w-1]$，那么 $x\cdot y \in [0, (2^w-1)^2]=[0,2^{2w}-2^w+1]$，即无符号整数的乘法运算结果最多需要 2w 位来表示。</p>
+<p>比如，w = 8 时，无符号整数的例子：</p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">// C++
+</span><span class="c1"></span><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">uint8_t</span> <span class="n">i1</span> <span class="o">=</span> <span class="mi">100</span><span class="p">;</span>
+    <span class="n">uint8_t</span> <span class="n">i2</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
+    <span class="n">uint8_t</span> <span class="n">i3</span> <span class="o">=</span> <span class="n">i1</span> <span class="o">*</span> <span class="n">i2</span><span class="p">;</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;normal: i1 * i2 = %d * %d = %d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">i1</span><span class="p">,</span> <span class="n">i2</span><span class="p">,</span> <span class="n">i3</span><span class="p">);</span>
+
+    <span class="n">uint8_t</span> <span class="n">i4</span> <span class="o">=</span> <span class="mi">100</span><span class="p">;</span>
+    <span class="n">uint8_t</span> <span class="n">i5</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span>
+    <span class="n">uint8_t</span> <span class="n">i6</span> <span class="o">=</span> <span class="n">i4</span> <span class="o">*</span> <span class="n">i5</span><span class="p">;</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;overflow: i4 * i5 = %d * %d = %d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">i4</span><span class="p">,</span> <span class="n">i5</span><span class="p">,</span> <span class="n">i6</span><span class="p">);</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="c1">// 输出结果
+</span><span class="c1"></span><span class="nl">normal</span><span class="p">:</span> <span class="n">i1</span> <span class="o">*</span> <span class="n">i2</span> <span class="o">=</span> <span class="mi">100</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">=</span> <span class="mi">200</span>
+<span class="nl">overflow</span><span class="p">:</span> <span class="n">i4</span> <span class="o">*</span> <span class="n">i5</span> <span class="o">=</span> <span class="mi">100</span> <span class="o">*</span> <span class="mi">3</span> <span class="o">=</span> <span class="mi">44</span>
+</code></pre></div><p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h524pmvzktj21io0suai9.jpg" alt=""  /></p>
+<p>对于有符号整数 $x,y \in [-2^{w-1}, 2^{w-1}-1]$，那么 $x\cdot y \in [-2^{w-1}\cdot(2^{w-1}-1), (-2^{w-1})^2]=[-2^{2w-2}+2^{w-1},2^{2w-2}]$，即有符号整数的乘法运算结果最多也需要 2w 位来表示。</p>
+<p>比如，w = 8 时，有符号整数的例子：</p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">// C++
+</span><span class="c1"></span><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">int8_t</span> <span class="n">i1</span> <span class="o">=</span> <span class="o">-</span><span class="mi">50</span><span class="p">;</span>
+    <span class="n">int8_t</span> <span class="n">i2</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
+    <span class="n">int8_t</span> <span class="n">i3</span> <span class="o">=</span> <span class="n">i1</span> <span class="o">*</span> <span class="n">i2</span><span class="p">;</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;normal: i1 * i2 = %d * %d = %d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">i1</span><span class="p">,</span> <span class="n">i2</span><span class="p">,</span> <span class="n">i3</span><span class="p">);</span>
+
+    <span class="n">int8_t</span> <span class="n">i4</span> <span class="o">=</span> <span class="o">-</span><span class="mi">128</span><span class="p">;</span>
+    <span class="n">int8_t</span> <span class="n">i5</span> <span class="o">=</span> <span class="mi">127</span><span class="p">;</span>
+    <span class="n">int8_t</span> <span class="n">i6</span> <span class="o">=</span> <span class="n">i4</span> <span class="o">*</span> <span class="n">i5</span><span class="p">;</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;overflow: i4 * i5 = %d * %d = %d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">i4</span><span class="p">,</span> <span class="n">i5</span><span class="p">,</span> <span class="n">i6</span><span class="p">);</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="c1">// 输出结果
+</span><span class="c1"></span><span class="nl">normal</span><span class="p">:</span> <span class="n">i1</span> <span class="o">*</span> <span class="n">i2</span> <span class="o">=</span> <span class="o">-</span><span class="mi">50</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">=</span> <span class="o">-</span><span class="mi">100</span>
+<span class="nl">overflow</span><span class="p">:</span> <span class="n">i4</span> <span class="o">*</span> <span class="n">i5</span> <span class="o">=</span> <span class="o">-</span><span class="mi">128</span> <span class="o">*</span> <span class="mi">127</span> <span class="o">=</span> <span class="o">-</span><span class="mi">128</span>
+</code></pre></div><p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h52i1ei5xnj21ji0tc7cp.jpg" alt=""  /></p>
+<p>大部分机器上，乘法运算消耗 3 ~ 10 个 CPU 时钟周期，而加法运算和位运算只消耗 1 个时钟周期，所以，追求极致性能的程序都会想办法通过加法运算和位运算来替代乘法运算。</p>
+<p>如果不考虑截断，对 $x=[x_{w-1}, x_{w-2}, &hellip;, x_0]_b$ 左移 k 位，会得到:
+$$
+[x_{w-1}, x_{w-2}, &hellip;, x_0,0,&hellip;,0]_b=\sum_{i=0}^{w-1}x_i\cdot 2^{i+k}=[\sum_{i=0}^{w-1}x_i\cdot 2^i]\cdot 2^k=x\cdot 2^k
+$$
+**也即，对** $x$ **左移 k 位 相当于乘以** $2^k$ 。</p>
+<p>如果考虑截断，就会存在溢出场景，对于 w 位的整数，左移 k 位效果也等同于 $x*_w^u2^k$ 或 $x*_w^t2^k$。</p>
+<p>比如，w = 8 时，无符号整数的例子：</p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">// C++
+</span><span class="c1"></span><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">uint8_t</span> <span class="n">i1</span> <span class="o">=</span> <span class="mi">100</span><span class="p">;</span>
+    <span class="n">uint8_t</span> <span class="n">i2</span> <span class="o">=</span> <span class="mi">4</span><span class="p">;</span>
+    <span class="n">uint8_t</span> <span class="n">i3</span> <span class="o">=</span> <span class="n">i1</span> <span class="o">*</span> <span class="n">i2</span><span class="p">;</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;i1 * i2 = %d * %d = %d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">i1</span><span class="p">,</span> <span class="n">i2</span><span class="p">,</span> <span class="n">i3</span><span class="p">);</span>
+
+    <span class="n">uint8_t</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
+    <span class="n">uint8_t</span> <span class="n">i4</span> <span class="o">=</span> <span class="n">i1</span> <span class="o">&lt;&lt;</span> <span class="n">k</span><span class="p">;</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;i1 &lt;&lt; k = %d &lt;&lt; %d = %d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">i1</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">i4</span><span class="p">);</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="c1">// 输出结果
+</span><span class="c1"></span><span class="n">i1</span> <span class="o">*</span> <span class="n">i2</span> <span class="o">=</span> <span class="mi">100</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">=</span> <span class="mi">144</span>
+<span class="n">i1</span> <span class="o">&lt;&lt;</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">100</span> <span class="o">&lt;&lt;</span> <span class="mi">2</span> <span class="o">=</span> <span class="mi">144</span>
+</code></pre></div><p>有符号整数的例子：</p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">// C++
+</span><span class="c1"></span><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">int8_t</span> <span class="n">i1</span> <span class="o">=</span> <span class="o">-</span><span class="mi">50</span><span class="p">;</span>
+    <span class="n">int8_t</span> <span class="n">i2</span> <span class="o">=</span> <span class="mi">4</span><span class="p">;</span>
+    <span class="n">int8_t</span> <span class="n">i3</span> <span class="o">=</span> <span class="n">i1</span> <span class="o">*</span> <span class="n">i2</span><span class="p">;</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;i1 * i2 = %d * %d = %d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">i1</span><span class="p">,</span> <span class="n">i2</span><span class="p">,</span> <span class="n">i3</span><span class="p">);</span>
+
+    <span class="n">int8_t</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
+    <span class="n">int8_t</span> <span class="n">i4</span> <span class="o">=</span> <span class="n">i1</span> <span class="o">&lt;&lt;</span> <span class="n">k</span><span class="p">;</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;i1 &lt;&lt; k = %d &lt;&lt; %d = %d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">i1</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">i4</span><span class="p">);</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="c1">// 输出结果
+</span><span class="c1"></span><span class="n">i1</span> <span class="o">*</span> <span class="n">i2</span> <span class="o">=</span> <span class="o">-</span><span class="mi">50</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">=</span> <span class="mi">56</span>
+<span class="n">i1</span> <span class="o">&lt;&lt;</span> <span class="n">k</span> <span class="o">=</span> <span class="o">-</span><span class="mi">50</span> <span class="o">&lt;&lt;</span> <span class="mi">2</span> <span class="o">=</span> <span class="mi">56</span>
+</code></pre></div><p><strong>那么，对于与任意常数 K 的相乘，有没可能转换为移位操作</strong>？</p>
+<p>任意常数 K，可以表示成 $[(0&hellip;0)(1&hellip;1)(0&hellip;0)\cdot\cdot\cdot(1&hellip;1)]_b$ 的形式，也即，由一系列连续的 0 和 连续的 1 组成，比如 14 可以表示成 $[(0&hellip;0)(111)(0)]_b$。</p>
+<p>假设只存在一个连续的 1 序列，从高到低， 位于 n 到 m 位，比如 14 中，n = 3，m = 1，那么：
+$$
+x\cdot K=(x&laquo; n)+(x&laquo; n-1)+&hellip;+(x&laquo; m)
+$$
+$$
+x\cdot K=(x&laquo; (n+1))-(x&laquo; m)
+$$</p>
+<p>比如，$x\cdot14$  就可以表示成 $(x&laquo; 3)+(x&laquo; 2)+(x&laquo; 1)$ 或者 $(x&laquo; 4)-(x&laquo; 1)$：</p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">// C++
+</span><span class="c1"></span><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">int8_t</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
+    <span class="n">int8_t</span> <span class="n">K</span> <span class="o">=</span> <span class="mi">14</span><span class="p">;</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;x * 14 = %d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">x</span><span class="o">*</span><span class="n">K</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;(x&lt;&lt;3) + (x&lt;&lt;2) + (x&lt;&lt;1) = %d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span><span class="o">&lt;&lt;</span><span class="mi">3</span><span class="p">)</span><span class="o">+</span><span class="p">(</span><span class="n">x</span><span class="o">&lt;&lt;</span><span class="mi">2</span><span class="p">)</span><span class="o">+</span><span class="p">(</span><span class="n">x</span><span class="o">&lt;&lt;</span><span class="mi">1</span><span class="p">));</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;(x&lt;&lt;4) - (x&lt;&lt;1) = %d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span><span class="o">&lt;&lt;</span><span class="mi">4</span><span class="p">)</span><span class="o">-</span><span class="p">(</span><span class="n">x</span><span class="o">&lt;&lt;</span><span class="mi">1</span><span class="p">));</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="c1">// 输出结果
+</span><span class="c1"></span><span class="n">x</span> <span class="o">*</span> <span class="mi">14</span> <span class="o">=</span> <span class="mi">70</span>
+<span class="p">(</span><span class="n">x</span><span class="o">&lt;&lt;</span><span class="mi">3</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">x</span><span class="o">&lt;&lt;</span><span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">x</span><span class="o">&lt;&lt;</span><span class="mi">1</span><span class="p">)</span> <span class="o">=</span> <span class="mi">70</span>
+<span class="p">(</span><span class="n">x</span><span class="o">&lt;&lt;</span><span class="mi">4</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="n">x</span><span class="o">&lt;&lt;</span><span class="mi">1</span><span class="p">)</span> <span class="o">=</span> <span class="mi">70</span>
+</code></pre></div><p>同理，当 K 的二进制表示，存在多个连续的 1 序列时，也成立。</p>
+<h4 id="除法">除法</h4>
+<p><strong>除法运算比乘法运算更慢，通常需要 30 个 CPU 时钟以上</strong>。同理， $x/2^k$ 也可以转换成右移运算，注意结果的取整：
+$$
+\lfloor x/2^k\rfloor = x &raquo; k\ or\ x &raquo;&gt; k
+$$</p>
+<p>$$
+\lceil x/2^k \rceil = (x+(1&laquo; k)-1)&raquo; k\ or\ (x+(1&laquo; k)-1)&raquo;&gt; k
+$$</p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">// C++
+</span><span class="c1"></span><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">int8_t</span> <span class="n">x</span> <span class="o">=</span> <span class="o">-</span><span class="mi">50</span><span class="p">;</span>
+    <span class="n">int8_t</span> <span class="n">K</span> <span class="o">=</span> <span class="mi">4</span><span class="p">;</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;x / 4 = %d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">x</span><span class="o">/</span><span class="n">K</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;x &gt;&gt; 2 = %d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">x</span><span class="o">&gt;&gt;</span><span class="mi">2</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;(x+(1&lt;&lt;2))&gt;&gt;2 = %d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="p">(</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">2</span><span class="p">))</span><span class="o">&gt;&gt;</span><span class="mi">2</span><span class="p">);</span>
+
+    <span class="n">uint8_t</span> <span class="n">y</span> <span class="o">=</span> <span class="mi">50</span><span class="p">;</span>
+    <span class="n">uint8_t</span> <span class="n">Z</span> <span class="o">=</span> <span class="mi">4</span><span class="p">;</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;y / 4 = %d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">y</span><span class="o">/</span><span class="n">Z</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;y &gt;&gt;&gt; 2 = %d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">y</span><span class="o">&gt;&gt;</span><span class="mi">2</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;(y+(1&lt;&lt;2))&gt;&gt;&gt;2 = %d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="p">(</span><span class="n">y</span><span class="o">+</span><span class="p">(</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">2</span><span class="p">))</span><span class="o">&gt;&gt;</span><span class="mi">2</span><span class="p">);</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="c1">// 输出结果
+</span><span class="c1"></span><span class="n">x</span> <span class="o">/</span> <span class="mi">4</span> <span class="o">=</span> <span class="o">-</span><span class="mi">12</span>
+<span class="n">x</span> <span class="o">&gt;&gt;</span> <span class="mi">2</span> <span class="o">=</span> <span class="o">-</span><span class="mi">13</span>
+<span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="p">(</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">2</span><span class="p">))</span><span class="o">&gt;&gt;</span><span class="mi">2</span> <span class="o">=</span> <span class="o">-</span><span class="mi">12</span>
+
+<span class="n">y</span> <span class="o">/</span> <span class="mi">4</span> <span class="o">=</span> <span class="mi">12</span>
+<span class="n">y</span> <span class="o">&gt;&gt;&gt;</span> <span class="mi">2</span> <span class="o">=</span> <span class="mi">12</span>
+<span class="p">(</span><span class="n">y</span><span class="o">+</span><span class="p">(</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">2</span><span class="p">))</span><span class="o">&gt;&gt;&gt;</span><span class="mi">2</span> <span class="o">=</span> <span class="mi">13</span>
+</code></pre></div><h2 id="浮点数">浮点数</h2>
+<p>考虑如下一段代码：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">// Java
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Example</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">12345</span><span class="o">;</span>
+        <span class="kt">float</span> <span class="n">f</span> <span class="o">=</span> <span class="n">12345</span><span class="o">.</span><span class="na">0F</span><span class="o">;</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">printf</span><span class="o">(</span><span class="s">&#34;binary str of i: %s\n&#34;</span><span class="o">,</span> <span class="n">int2BinaryStr</span><span class="o">(</span><span class="n">i</span><span class="o">));</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">printf</span><span class="o">(</span><span class="s">&#34;binary str of f: %s\n&#34;</span><span class="o">,</span> <span class="n">float2BinaryStr</span><span class="o">(</span><span class="n">f</span><span class="o">));</span>
+    <span class="o">}</span>
+    <span class="c1">// 将int转为32位的二进制表示
+</span><span class="c1"></span>    <span class="kd">private</span> <span class="kd">static</span> <span class="n">String</span> <span class="nf">int2BinaryStr</span><span class="o">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">String</span> <span class="n">str</span> <span class="o">=</span> <span class="n">Integer</span><span class="o">.</span><span class="na">toBinaryString</span><span class="o">(</span><span class="n">i</span><span class="o">);</span>
+        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">len</span> <span class="o">=</span> <span class="n">str</span><span class="o">.</span><span class="na">length</span><span class="o">();</span> <span class="n">len</span> <span class="o">&lt;</span> <span class="n">32</span><span class="o">;</span> <span class="n">len</span><span class="o">++)</span> <span class="o">{</span>
+            <span class="n">str</span> <span class="o">=</span> <span class="s">&#34;0&#34;</span> <span class="o">+</span> <span class="n">str</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">str</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="c1">// 将float转为32位的二进制表示
+</span><span class="c1"></span>    <span class="kd">private</span> <span class="kd">static</span> <span class="n">String</span> <span class="nf">float2BinaryStr</span><span class="o">(</span><span class="kt">float</span> <span class="n">f</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">int2BinaryStr</span><span class="o">(</span><span class="n">Float</span><span class="o">.</span><span class="na">floatToRawIntBits</span><span class="o">(</span><span class="n">f</span><span class="o">));</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div><p>我们将整数 <code>i = 12345</code> 和 浮点数 <code>f = 12345.0</code> 转成二进制表示，结果如下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="n">binary</span> <span class="n">str</span> <span class="n">of</span> <span class="n">i</span><span class="o">:</span> <span class="n">00000000000000000011000000111001</span>
+<span class="n">binary</span> <span class="n">str</span> <span class="n">of</span> <span class="n">f</span><span class="o">:</span> <span class="n">01000110010000001110010000000000</span>
+</code></pre></div><p>虽然从十进制上看，值都是 12345，但是两种类型的二进制表示却差别很大，说明，<strong>计算机系统对整数和浮点数的处理是两套不同的机制</strong>。</p>
+<p>大部分编程语言支持的整数最大是 64 位，但很多场景下，我们需要更大的取值范围，或者是小数运算，这些都是 64 位整数无法满足的场景。为了解决这些，计算机系统引入了 <strong>浮点数</strong>（<strong>Floating Point</strong>）类型。</p>
+<p>浮点数类型可以分为 32 位单精度 float/float32 类型和 64 位双精度 double/float64 类型，取值范围如下：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">类型</th>
+<th style="text-align:right">最小值</th>
+<th style="text-align:right">最大值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">float</td>
+<td style="text-align:right">-3.40282347E+38</td>
+<td style="text-align:right">3.40282347E+38</td>
+</tr>
+<tr>
+<td style="text-align:left">double</td>
+<td style="text-align:right">-1.79769313486231570E+308</td>
+<td style="text-align:right">1.79769313486231570E+308</td>
+</tr>
+</tbody>
+</table>
+<p><strong>虽然浮点数的取值范围很广，但它只能精确表示其中一小部分，其他都是近似表示</strong>。</p>
+<p>下面，我们将深入介绍浮点数的二进制表示和近似规则。</p>
+<h3 id="简单浮点数编码">简单浮点数编码</h3>
+<p>对于十进制数 $d$，可以表示成 $[d_md_{m-1}\cdot\cdot\cdot d_1d_0.d_{-1}d_{-2}\cdot\cdot\cdot d_{-n+1}d_{-n}]_d$，其中，以小数点 $.$  为界，左边为整数部分，右边为小数部分，那么：
+$$
+d=\sum_{i=-n}^m10^i\cdot d_i
+$$
+比如，$123.45_d=10^2\cdot1+10^1\cdot2+10^0\cdot3+10^{-1}\cdot4+10^{-2}\cdot5$ 。</p>
+<p>同理，对于二进制数 $b$，也可以表示成 $[b_mb_{m-1}\cdot\cdot\cdot b_1b_0.b_{-1}b_{-2}\cdot\cdot\cdot b_{-n+1}b_{-n}]_b$，同样以小数点 $.$ 分割整数和小数部分，那么：
+$$
+b=\sum_{i=-n}^m2^i\cdot b_i
+$$
+比如，$101.11_b=2^2\cdot1+2^1\cdot0+2^0\cdot1+2^{-1}\cdot1+2^{-2}\cdot1=5.75_d$。</p>
+<p>计算机系统的这种编码方式，注定只能表示 $M*2^E$ 形式的数，其他的，只能近似表示。</p>
+<p>比如，无法精确表示 0.2：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">二进制表示</th>
+<th>分数</th>
+<th>十进制表示</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">0.0</td>
+<td>0/2</td>
+<td>0.0</td>
+</tr>
+<tr>
+<td style="text-align:left">0.01</td>
+<td>1/4</td>
+<td>0.25</td>
+</tr>
+<tr>
+<td style="text-align:left">0.010</td>
+<td>2/8</td>
+<td>0.25</td>
+</tr>
+<tr>
+<td style="text-align:left">0.0011</td>
+<td>3/16</td>
+<td>0.1875</td>
+</tr>
+<tr>
+<td style="text-align:left">0.00110</td>
+<td>6/32</td>
+<td>0.1875</td>
+</tr>
+<tr>
+<td style="text-align:left">0.001101</td>
+<td>13/64</td>
+<td>0.203125</td>
+</tr>
+<tr>
+<td style="text-align:left">0.0011010</td>
+<td>26/128</td>
+<td>0.203125</td>
+</tr>
+<tr>
+<td style="text-align:left">0.00110011</td>
+<td>51/256</td>
+<td>0.19921875</td>
+</tr>
+</tbody>
+</table>
+<p>浮点数除了表示小数之外，还须表示大数，按照这种二进制编码思路，如果要表示 $5\cdot2^{100}$ ，需要 102 位，受限于计算机系统的编码长度，这显然不能接受。</p>
+<p>其实，对 $M\cdot2^E$ 形式的数，我们只须存储 M 和 E 即可，再来一个符号位 s，即可表示这种形式的数： $V=(-1)^s\cdot M\cdot2^E$。</p>
+<p>对 w 位浮点数，可以用 1 位表示 s，用 k 位表示 E，用 n 位表示 M，那么就有 w = 1 + k + n：</p>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h565roqj0kj215u0iwwhr.jpg" alt=""  /></p>
+<p><strong>（1）s 的编码</strong></p>
+<p>用 0 表示正数，1 表示负数。</p>
+<p><strong>（2）E 的编码</strong></p>
+<p>二进制表示为 $[e_{k-1}e_{k-2}&hellip;e_1e_0]$，因为 E 可以是正，也可以是负，因此，可以直接用 **补码** 进行编码。</p>
+<p>比如，k = 4 时，E 的取值是这样的：</p>
+<table>
+<thead>
+<tr>
+<th>e</th>
+<th style="text-align:right">E</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0000</td>
+<td style="text-align:right">0</td>
+</tr>
+<tr>
+<td>0001</td>
+<td style="text-align:right">1</td>
+</tr>
+<tr>
+<td>&hellip;</td>
+<td style="text-align:right"></td>
+</tr>
+<tr>
+<td>0111</td>
+<td style="text-align:right">7</td>
+</tr>
+<tr>
+<td>1000</td>
+<td style="text-align:right">-8</td>
+</tr>
+<tr>
+<td>1001</td>
+<td style="text-align:right">-7</td>
+</tr>
+<tr>
+<td>&hellip;</td>
+<td style="text-align:right"></td>
+</tr>
+<tr>
+<td>1111</td>
+<td style="text-align:right">-1</td>
+</tr>
+</tbody>
+</table>
+<p>但是，这样从 $[0000]_b$ 到 $[1111]_b$ 并不是递增的趋势。另一种方法是，对 e 用无符号编码，令 $E = e - Bias$，其中，$Bias=2^{k-1}-1$。比如，k = 4 时，$Bias=7$，那么 E 的取值是这样的：</p>
+<table>
+<thead>
+<tr>
+<th>e</th>
+<th style="text-align:right">Bias</th>
+<th style="text-align:right">E</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0000</td>
+<td style="text-align:right">7</td>
+<td style="text-align:right">-7</td>
+</tr>
+<tr>
+<td>0001</td>
+<td style="text-align:right">7</td>
+<td style="text-align:right">-6</td>
+</tr>
+<tr>
+<td>&hellip;</td>
+<td style="text-align:right"></td>
+<td style="text-align:right"></td>
+</tr>
+<tr>
+<td>0111</td>
+<td style="text-align:right">7</td>
+<td style="text-align:right">0</td>
+</tr>
+<tr>
+<td>1000</td>
+<td style="text-align:right">7</td>
+<td style="text-align:right">1</td>
+</tr>
+<tr>
+<td>1001</td>
+<td style="text-align:right">7</td>
+<td style="text-align:right">2</td>
+</tr>
+<tr>
+<td>&hellip;</td>
+<td style="text-align:right"></td>
+<td style="text-align:right"></td>
+</tr>
+<tr>
+<td>1111</td>
+<td style="text-align:right">7</td>
+<td style="text-align:right">8</td>
+</tr>
+</tbody>
+</table>
+<p><strong>（3）M 的编码</strong></p>
+<p>二进制表示为 $[m_{n-1}m_{m-2}&hellip;m_1m_0]$，M 不涉及负数，因此可以只用最高位表示整数，其他表示小数，即 $[m_{n-1}.m_{m-2}&hellip;m_1m_0]$。比如，当 n = 3 时，M 的取值如下：</p>
+<table>
+<thead>
+<tr>
+<th>m</th>
+<th style="text-align:right">M</th>
+<th style="text-align:right">十进制</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>000</td>
+<td style="text-align:right">0.00</td>
+<td style="text-align:right">0.00  (0/4)</td>
+</tr>
+<tr>
+<td>001</td>
+<td style="text-align:right">0.01</td>
+<td style="text-align:right">0.25 (1/4)</td>
+</tr>
+<tr>
+<td>010</td>
+<td style="text-align:right">0.10</td>
+<td style="text-align:right">0.5 (2/4)</td>
+</tr>
+<tr>
+<td>011</td>
+<td style="text-align:right">0.11</td>
+<td style="text-align:right">0.75 (3/4)</td>
+</tr>
+<tr>
+<td>100</td>
+<td style="text-align:right">1.00</td>
+<td style="text-align:right">1.00  (4/4)</td>
+</tr>
+<tr>
+<td>101</td>
+<td style="text-align:right">1.01</td>
+<td style="text-align:right">1.25 (5/4)</td>
+</tr>
+<tr>
+<td>110</td>
+<td style="text-align:right">1.10</td>
+<td style="text-align:right">1.5 (6/4)</td>
+</tr>
+<tr>
+<td>111</td>
+<td style="text-align:right">1.11</td>
+<td style="text-align:right">1.75 (7/4)</td>
+</tr>
+</tbody>
+</table>
+<p>但是，<strong>这种编码方式会导致 0 有很多种表示</strong>。比如 w = 8，k = 4，n = 3 时，因为 $V=(-1)^s\cdot M\cdot2^E$，所以 $[00000000]_b$、$[00001000]_b$、$[00010000]_b$ 等的浮点数值都是 0。</p>
+<p>可以这么改动，令 $m=[0.m_{n-1}m_{m-2}&hellip;m_1m_0]$，当 $e = 0$ 时，$M = m$；当 $e\neq0$ 时，$M=1+m$：</p>
+<table>
+<thead>
+<tr>
+<th>e</th>
+<th>m</th>
+<th style="text-align:right">M</th>
+<th style="text-align:right">十进制</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0000</td>
+<td>000</td>
+<td style="text-align:right">0.000</td>
+<td style="text-align:right">0.000 (0/8)</td>
+</tr>
+<tr>
+<td>0000</td>
+<td>001</td>
+<td style="text-align:right">0.001</td>
+<td style="text-align:right">0.125 (1/8)</td>
+</tr>
+<tr>
+<td>&hellip;</td>
+<td></td>
+<td style="text-align:right"></td>
+<td style="text-align:right"></td>
+</tr>
+<tr>
+<td>0000</td>
+<td>111</td>
+<td style="text-align:right">0.111</td>
+<td style="text-align:right">0.875 (7/8)</td>
+</tr>
+<tr>
+<td>0001</td>
+<td>000</td>
+<td style="text-align:right">1.000</td>
+<td style="text-align:right">1.000 (8/8)</td>
+</tr>
+<tr>
+<td>0001</td>
+<td></td>
+<td style="text-align:right">1.001</td>
+<td style="text-align:right">1.125 (9/8)</td>
+</tr>
+<tr>
+<td>&hellip;</td>
+<td></td>
+<td style="text-align:right"></td>
+<td style="text-align:right"></td>
+</tr>
+</tbody>
+</table>
+<p><strong>这样，既解决了 0 的表示问题，又让 M 的精度更大了</strong>。</p>
+<h3 id="ieee-浮点数编码">IEEE 浮点数编码</h3>
+<p>上述这些编码方法，就是 IEEE 754 Floating-Point Representation 标准中定义的浮点数编码方式的基本思路，标准会在此基础上做了一些调整，比如新增了 Infinity 和 NaN 的表示。</p>
+<p>IEEE 标准将浮点数分成 <strong>单精度</strong> 和 <strong>双精度</strong> 两种，分别用 32 位和 64 位表示，它们的 k 值和 n 值都不同：</p>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h565pevo3lj21f30u0n46.jpg" alt=""  /></p>
+<p>在此基础上，根据 e 的取值不同，又分为 3 种场景，<strong>Denormalized Values</strong>、<strong>Normalized Values</strong>、<strong>Special Values</strong>：</p>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h56drulom2j21iq0sujym.jpg" alt=""  /></p>
+<p><strong>（1）Denormalized Values</strong></p>
+<p>此场景下，e 取值为全 0，<strong>用来表示 0 值，以及接近 0 的小数</strong>。</p>
+<p>在 $V=(-1)^s\cdot M\cdot2^E$ 的表示下，$M = m$，$E = 1 - Bias = 1 - (2^{k-1}-1)$。</p>
+<blockquote>
+<p><strong>为什么 ，而不是 E = -Bias</strong>？</p>
+<p>根据前文分析，应该有 E = e - Bias，但 Denormalized Values 中，确是 E = 1 - Bias，而不是 E = 0 - Bias。</p>
+<p>这主要考虑到，从 Denormalized Values 到 Normalized Values 的平滑过度，让 Largest Denormalized Value 和 Smallest Normalized Value 更接近。后面的举例可以看到。</p>
+</blockquote>
+<p>这里，0 分为了 -0.0 和 +0.0，在一些科学计算场景下，它们会表示不同的含义。比如 $1/(+0.0) =+\infty$，$1/(-0.0) =-\infty$。</p>
+<p><strong>（2） Normalized Values</strong></p>
+<p>此场景下，e 取值不是全 0，也不是全 1，是最常见的场景。</p>
+<p>在 $V=(-1)^s\cdot M\cdot2^E$ 的表示下，$M = 1 + m = 1.m_{n-1}m_{n-2}&hellip;m_0$，$E = e - Bias = e - (2^{k-1}-1)$。</p>
+<p><strong>（3）Special Values</strong></p>
+<p>此场景下，e 取值为全 1，用来表示 Infinity 和 NaN。</p>
+<ul>
+<li>m 取值全 0，表示 Infinity：1）s = 0 时，为 $+\infty$；2）s = 1 时，为 $-\infty$。</li>
+<li>m 取值不是全 0，表示 NaN（Not a Number），比如 $\sqrt{-1}$ 或者 $\infty-\infty$。</li>
+</ul>
+<p>比如，w = 8，k = 4（此时，$Bias=2^{k-1}-1=7$），n = 3 时，IEEE 标准浮点数的编码例子如下：</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>二进制</th>
+<th style="text-align:right">e</th>
+<th style="text-align:right">E</th>
+<th style="text-align:right">$2^E$</th>
+<th style="text-align:right">m</th>
+<th style="text-align:right">M</th>
+<th style="text-align:right">$2^E\cdot M$</th>
+<th style="text-align:right">十进制</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Denormalized</td>
+<td>0 0000 000</td>
+<td style="text-align:right">0</td>
+<td style="text-align:right">-6</td>
+<td style="text-align:right">1/64</td>
+<td style="text-align:right">0/8</td>
+<td style="text-align:right">0/8</td>
+<td style="text-align:right">0/512</td>
+<td style="text-align:right">0.0</td>
+</tr>
+<tr>
+<td></td>
+<td>0 0000 001</td>
+<td style="text-align:right">0</td>
+<td style="text-align:right">-6</td>
+<td style="text-align:right">1/64</td>
+<td style="text-align:right">1/8</td>
+<td style="text-align:right">1/8</td>
+<td style="text-align:right">1/512</td>
+<td style="text-align:right">0.001953</td>
+</tr>
+<tr>
+<td></td>
+<td>&hellip;</td>
+<td style="text-align:right"></td>
+<td style="text-align:right"></td>
+<td style="text-align:right"></td>
+<td style="text-align:right"></td>
+<td style="text-align:right"></td>
+<td style="text-align:right"></td>
+<td style="text-align:right"></td>
+</tr>
+<tr>
+<td></td>
+<td>0 0000 111</td>
+<td style="text-align:right">0</td>
+<td style="text-align:right">-6</td>
+<td style="text-align:right">1/64</td>
+<td style="text-align:right">7/8</td>
+<td style="text-align:right">7/8</td>
+<td style="text-align:right">7/512</td>
+<td style="text-align:right">0.013672</td>
+</tr>
+<tr>
+<td>Normalized</td>
+<td>0 0001 000</td>
+<td style="text-align:right">1</td>
+<td style="text-align:right">-6</td>
+<td style="text-align:right">1/64</td>
+<td style="text-align:right">0/8</td>
+<td style="text-align:right">8/8</td>
+<td style="text-align:right">8/512</td>
+<td style="text-align:right">0.015625</td>
+</tr>
+<tr>
+<td></td>
+<td>0 0001 001</td>
+<td style="text-align:right">1</td>
+<td style="text-align:right">-6</td>
+<td style="text-align:right">1/64</td>
+<td style="text-align:right">1/8</td>
+<td style="text-align:right">9/8</td>
+<td style="text-align:right">9/512</td>
+<td style="text-align:right">0.017578</td>
+</tr>
+<tr>
+<td></td>
+<td>&hellip;</td>
+<td style="text-align:right"></td>
+<td style="text-align:right"></td>
+<td style="text-align:right"></td>
+<td style="text-align:right"></td>
+<td style="text-align:right"></td>
+<td style="text-align:right"></td>
+<td style="text-align:right"></td>
+</tr>
+<tr>
+<td></td>
+<td>0 1110 111</td>
+<td style="text-align:right">14</td>
+<td style="text-align:right">7</td>
+<td style="text-align:right">128</td>
+<td style="text-align:right">7/8</td>
+<td style="text-align:right">15/8</td>
+<td style="text-align:right">1920/8</td>
+<td style="text-align:right">240.0</td>
+</tr>
+<tr>
+<td>Infinity</td>
+<td>0 1111 000</td>
+<td style="text-align:right">-</td>
+<td style="text-align:right">-</td>
+<td style="text-align:right">-</td>
+<td style="text-align:right">-</td>
+<td style="text-align:right">-</td>
+<td style="text-align:right">-</td>
+<td style="text-align:right">$+\infty$</td>
+</tr>
+<tr>
+<td>NaN</td>
+<td>0 1111 001</td>
+<td style="text-align:right">-</td>
+<td style="text-align:right">-</td>
+<td style="text-align:right">-</td>
+<td style="text-align:right">-</td>
+<td style="text-align:right">-</td>
+<td style="text-align:right">-</td>
+<td style="text-align:right">NaN</td>
+</tr>
+<tr>
+<td></td>
+<td>&hellip;</td>
+<td style="text-align:right"></td>
+<td style="text-align:right"></td>
+<td style="text-align:right"></td>
+<td style="text-align:right"></td>
+<td style="text-align:right"></td>
+<td style="text-align:right"></td>
+<td style="text-align:right">NaN</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>从上表可以看出，因为 Denormalized 场景下令 E = 1 - Bias，从 Denormalized 到 Normalized 的过度，也即 7/512 到 8/512，更平滑了。如果令 E = - Bias，则是从 7/1024 到 8/512，跨度太大。</p>
+</blockquote>
+<p>到这里，我们已经深入介绍了 IEEE 浮点数编码格式，回到本节最开始的例子，如何从 <code>int i = 12345</code> 的二进制表示，推断出 <code>float f = 12345.0</code> 的二进制表示？</p>
+<ol>
+<li>首先，12345 整数的二进制表示为 $11000000111001_b$ ，也可以表示成 $1.1000000111001_b \cdot 2^{13}$ ，对应到 $V=(-1)^s\cdot M\cdot2^E$ 的形式，可以确认 s = 0，E = 13，M = 1.1000000111001。</li>
+<li>另外，12345 属于 Normalized 场景，而 float 类型中 k = 8，有，$E = e - (2^{8-1}-1) = 13$，得出 e = 140，按 k 位无符号编码表示为 $[10001100]_b$。</li>
+<li>同理，由 $M = 1 + 0.m_{n-1}m_{n-2}&hellip;m_0=1.1000000111001$，float 类型中，n = 23，所以，得出 m 的二进制表示为 $[10000001110010000000000]_b$，注意，**低位补零**。</li>
+<li>最后将 s、e、m 按照 float 单精度的编码格式组合起来，就是 $[0\ 10001100\ 10000001110010000000000]_b$，也即 12345.0 的二进制编码。</li>
+</ol>
+<h3 id="近似规则rounding">近似规则（Rounding）</h3>
+<p>前面说过，浮点数只能表示 $M*2^E$ 形式的数，其他的，只能近似表示。</p>
+<p>近似规则，我们最熟悉的是 “<strong>四舍五入</strong>”，比如，要保留 2 位小数，那么 1.234、1.235、1.236 近似之后分别是 1.23、1.24、1.24。</p>
+<p>IEEE 浮点数标准中，并没采用 “四舍五入” 法，定义了如下 4 种近似规则：</p>
+<ul>
+<li><strong>Round-to-even</strong>，往更近的方向靠，如果向上和向下的距离一样，则往偶数的方向靠。</li>
+<li><strong>Round-toward-zero</strong>，往 0 的方向靠。</li>
+<li><strong>Round-down</strong>，往更小的方向靠。</li>
+<li><strong>Round-up</strong>，往更大的方向靠。</li>
+</ul>
+<p>比如，下面的例子，需要近似为整数：</p>
+<table>
+<thead>
+<tr>
+<th>规则</th>
+<th style="text-align:right">1.40</th>
+<th style="text-align:right">1.60</th>
+<th style="text-align:right">1.50</th>
+<th style="text-align:right">2.50</th>
+<th style="text-align:right">-1.50</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Round-to-even</td>
+<td style="text-align:right">1</td>
+<td style="text-align:right">2</td>
+<td style="text-align:right">2</td>
+<td style="text-align:right">2</td>
+<td style="text-align:right">-2</td>
+</tr>
+<tr>
+<td>Round-toward-zero</td>
+<td style="text-align:right">1</td>
+<td style="text-align:right">1</td>
+<td style="text-align:right">1</td>
+<td style="text-align:right">2</td>
+<td style="text-align:right">-1</td>
+</tr>
+<tr>
+<td>Round-down</td>
+<td style="text-align:right">1</td>
+<td style="text-align:right"></td>
+<td style="text-align:right">1</td>
+<td style="text-align:right"></td>
+<td style="text-align:right">-2</td>
+</tr>
+<tr>
+<td>Round-up</td>
+<td style="text-align:right">2</td>
+<td style="text-align:right">2</td>
+<td style="text-align:right"></td>
+<td style="text-align:right">3</td>
+<td style="text-align:right">-1</td>
+</tr>
+</tbody>
+</table>
+<p>这些规则对二进制也生效，比如，Round-to-even 规则，在二进制中，0 代表偶数，1 表示奇数。下面例子中，需要按照 Round-to-even 近似保留 2 位小数：</p>
+<table>
+<thead>
+<tr>
+<th>二进制（十进制）</th>
+<th>向下</th>
+<th>中点</th>
+<th>向上</th>
+<th>Round-to-even</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>10.00011 (67/32)</td>
+<td>10.00 (64/32)</td>
+<td>68/32</td>
+<td>10.01 (72/32)</td>
+<td>10.00 (64/32)</td>
+</tr>
+<tr>
+<td>10.00110 (70/32)</td>
+<td>10.00 (64/32)</td>
+<td>68/32</td>
+<td>10.01 (72/32)</td>
+<td>10.01 (72/32)</td>
+</tr>
+<tr>
+<td>10.11100 (23/8)</td>
+<td>10.11 (22/8)</td>
+<td>23/8</td>
+<td>11.00 (24/8)</td>
+<td>11.00 (24/8)</td>
+</tr>
+<tr>
+<td>10.10100 (21/8)</td>
+<td>10.10 (20/8)</td>
+<td>21/8</td>
+<td>10.11 (22/8)</td>
+<td>10.10 (20/8)</td>
+</tr>
+</tbody>
+</table>
+<p>上述例子中，前 2 个按照就近原则近似；后 2 个处于中点位置，往偶数方向靠。</p>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h5920eqgedj21bq0rgq9q.jpg" alt=""  /></p>
+<p>注意，<strong>IEEE 标准规定 Round-to-even 为默认的近似规则</strong>。</p>
+<h3 id="浮点数运算">浮点数运算</h3>
+<p>浮点数的运算规则比较简单，令 $\oplus$ 指代后一类的运算符，x 和 y 为浮点数类型，那么 $x \oplus y$ 的运算结果为 $Round(x \oplus y)$，也即对真实计算结果进行近似。</p>
+<p>注意，算术运算的<strong>结合律</strong>、<strong>分配率</strong>在浮点数运算下是不生效的，比如：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">// Java
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+    <span class="c1">// 结合律不满足示例
+</span><span class="c1"></span>    <span class="kt">float</span> <span class="n">f1</span> <span class="o">=</span> <span class="n">3</span><span class="o">.</span><span class="na">14F</span><span class="o">;</span>
+    <span class="kt">float</span> <span class="n">f2</span> <span class="o">=</span> <span class="n">1e10F</span><span class="o">;</span>
+    <span class="kt">float</span> <span class="n">f3</span> <span class="o">=</span> <span class="o">(</span><span class="n">f1</span> <span class="o">+</span> <span class="n">f2</span><span class="o">)</span> <span class="o">-</span> <span class="n">f2</span><span class="o">;</span>
+    <span class="kt">float</span> <span class="n">f4</span> <span class="o">=</span> <span class="n">f1</span> <span class="o">+</span> <span class="o">(</span><span class="n">f2</span> <span class="o">-</span> <span class="n">f2</span><span class="o">);</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">printf</span><span class="o">(</span><span class="s">&#34;(3.14 + 1e10) - 1e10 = %f\n&#34;</span><span class="o">,</span> <span class="n">f3</span><span class="o">);</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">printf</span><span class="o">(</span><span class="s">&#34;3.14 + (1e10 - 1e10) = %f\n&#34;</span><span class="o">,</span> <span class="n">f4</span><span class="o">);</span>
+
+    <span class="c1">// 分配律不满足示例
+</span><span class="c1"></span>    <span class="kt">float</span> <span class="n">f5</span> <span class="o">=</span> <span class="n">1e20F</span><span class="o">;</span>
+    <span class="kt">float</span> <span class="n">f6</span> <span class="o">=</span> <span class="n">f5</span> <span class="o">*</span> <span class="o">(</span><span class="n">f5</span> <span class="o">-</span> <span class="n">f5</span><span class="o">);</span>
+    <span class="kt">float</span> <span class="n">f7</span> <span class="o">=</span> <span class="n">f5</span> <span class="o">*</span> <span class="n">f5</span> <span class="o">-</span> <span class="n">f5</span> <span class="o">*</span> <span class="n">f5</span><span class="o">;</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">printf</span><span class="o">(</span><span class="s">&#34;1e20 * (1e20 - 1e20) = %f\n&#34;</span><span class="o">,</span> <span class="n">f6</span><span class="o">);</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">printf</span><span class="o">(</span><span class="s">&#34;1e20 * 1e20 - 1e20 * 1e20 = %f\n&#34;</span><span class="o">,</span> <span class="n">f7</span><span class="o">);</span>
+<span class="o">}</span>
+<span class="c1">// 输出结果
+</span><span class="c1"></span><span class="o">(</span><span class="n">3</span><span class="o">.</span><span class="na">14</span> <span class="o">+</span> <span class="n">1e10</span><span class="o">)</span> <span class="o">-</span> <span class="n">1e10</span> <span class="o">=</span> <span class="n">0</span><span class="o">.</span><span class="na">000000</span>
+<span class="n">3</span><span class="o">.</span><span class="na">14</span> <span class="o">+</span> <span class="o">(</span><span class="n">1e10</span> <span class="o">-</span> <span class="n">1e10</span><span class="o">)</span> <span class="o">=</span> <span class="n">3</span><span class="o">.</span><span class="na">140000</span>
+<span class="n">1e20</span> <span class="o">*</span> <span class="o">(</span><span class="n">1e20</span> <span class="o">-</span> <span class="n">1e20</span><span class="o">)</span> <span class="o">=</span> <span class="n">0</span><span class="o">.</span><span class="na">000000</span>
+<span class="n">1e20</span> <span class="o">*</span> <span class="n">1e20</span> <span class="o">-</span> <span class="n">1e20</span> <span class="o">*</span> <span class="n">1e20</span> <span class="o">=</span> <span class="n">NaN</span>
+</code></pre></div><p>结合律例子中，<code>(3.14+1e10)-1e10</code> 结果是 0，因为 3.14 在近似时，精度丢失了，也即 <code>3.14+1e10=1e10</code>；类似，分配律例子中，<code>1e20*1e20</code> 的结果超出了 float 类型的表示范围，得到 <code>Infinity</code>，而 <code>Infinity - Infinity</code> 的结果是 <code>NaN</code>。</p>
+<p>注意，<strong>浮点数运算结果，如果超出了浮点数表示范围，会得到 <code>Infinity/-Infinity</code></strong>。这与整数运算的溢出机制有所区别。</p>
+<h2 id="数值类型转换">数值类型转换</h2>
+<p>数值类型间的转换，可以分成 2 类：<strong>宽转换</strong>（Widening Conversion）和 <strong>窄转换</strong>（Narrowing Conversion）。</p>
+<p>宽转换指往表示范围更广的类型转换，比如从 int 到 long、从 long 到 float；窄转换则相反。</p>
+<h3 id="整型间转换">整型间转换</h3>
+<p><strong>（1）宽转换</strong></p>
+<p>整型间的宽转换不会产生溢出，无符号整数场景，高位补零；有符号整数场景，高位补符号位。</p>
+<div class="highlight"><pre class="chroma"><code class="language-c++" data-lang="c++"><span class="c1">// C++
+</span><span class="c1"></span><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kt">int8_t</span> <span class="n">i1</span> <span class="o">=</span> <span class="mi">100</span><span class="p">;</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;int8_t  i1: &#34;</span> <span class="o">&lt;&lt;</span> <span class="n">bitset</span><span class="o">&lt;</span><span class="mi">8</span><span class="o">&gt;</span><span class="p">(</span><span class="n">i1</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;int16_t i1: &#34;</span> <span class="o">&lt;&lt;</span> <span class="n">bitset</span><span class="o">&lt;</span><span class="mi">16</span><span class="o">&gt;</span><span class="p">((</span><span class="kt">int16_t</span><span class="p">)</span> <span class="n">i1</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+
+    <span class="kt">int8_t</span> <span class="n">i2</span> <span class="o">=</span> <span class="o">-</span><span class="mi">100</span><span class="p">;</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;int8_t  i2: &#34;</span> <span class="o">&lt;&lt;</span> <span class="n">bitset</span><span class="o">&lt;</span><span class="mi">8</span><span class="o">&gt;</span><span class="p">(</span><span class="n">i2</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;int16_t i2: &#34;</span> <span class="o">&lt;&lt;</span> <span class="n">bitset</span><span class="o">&lt;</span><span class="mi">16</span><span class="o">&gt;</span><span class="p">((</span><span class="kt">int16_t</span><span class="p">)</span> <span class="n">i2</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+
+    <span class="kt">uint8_t</span> <span class="n">i3</span> <span class="o">=</span> <span class="mi">200</span><span class="p">;</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;uint8_t  i3: &#34;</span> <span class="o">&lt;&lt;</span> <span class="n">bitset</span><span class="o">&lt;</span><span class="mi">8</span><span class="o">&gt;</span><span class="p">(</span><span class="n">i3</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;uint16_t i3: &#34;</span> <span class="o">&lt;&lt;</span> <span class="n">bitset</span><span class="o">&lt;</span><span class="mi">16</span><span class="o">&gt;</span><span class="p">((</span><span class="kt">uint16_t</span><span class="p">)</span> <span class="n">i3</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="c1">// 输出结果
+</span><span class="c1"></span><span class="kt">int8_t</span>  <span class="nl">i1</span><span class="p">:</span> <span class="mo">01100100</span>
+<span class="kt">int16_t</span> <span class="nl">i1</span><span class="p">:</span> <span class="mo">0000000001100100</span>
+<span class="kt">int8_t</span>  <span class="nl">i2</span><span class="p">:</span> <span class="mi">10011100</span>
+<span class="kt">int16_t</span> <span class="nl">i2</span><span class="p">:</span> <span class="mi">1111111110011100</span>
+<span class="kt">uint8_t</span>  <span class="nl">i3</span><span class="p">:</span> <span class="mi">11001000</span>
+<span class="kt">uint16_t</span> <span class="nl">i3</span><span class="p">:</span> <span class="mo">0000000011001000</span>
+</code></pre></div><p><strong>（2）窄转换</strong></p>
+<p>整型间的窄转换直接进行高位截断，只保留低 n 位。比如 16 位的 <code>int16</code> 转换为 8 位的 <code>int8</code>，直接保留 <code>int16</code> 类型值的低 8 位作为转换结果。</p>
+<div class="highlight"><pre class="chroma"><code class="language-c++" data-lang="c++"><span class="c1">// C++
+</span><span class="c1"></span><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kt">int16_t</span> <span class="n">i1</span> <span class="o">=</span> <span class="mi">200</span><span class="p">;</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;int16_t i1: &#34;</span> <span class="o">&lt;&lt;</span> <span class="n">bitset</span><span class="o">&lt;</span><span class="mi">16</span><span class="o">&gt;</span><span class="p">(</span><span class="n">i1</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;int8_t  i1: &#34;</span> <span class="o">&lt;&lt;</span> <span class="n">bitset</span><span class="o">&lt;</span><span class="mi">8</span><span class="o">&gt;</span><span class="p">((</span><span class="kt">int8_t</span><span class="p">)</span> <span class="n">i1</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+
+    <span class="kt">int16_t</span> <span class="n">i2</span> <span class="o">=</span> <span class="o">-</span><span class="mi">200</span><span class="p">;</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;int16_t i2: &#34;</span> <span class="o">&lt;&lt;</span> <span class="n">bitset</span><span class="o">&lt;</span><span class="mi">16</span><span class="o">&gt;</span><span class="p">(</span><span class="n">i2</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;int8_t  i2: &#34;</span> <span class="o">&lt;&lt;</span> <span class="n">bitset</span><span class="o">&lt;</span><span class="mi">8</span><span class="o">&gt;</span><span class="p">((</span><span class="kt">int8_t</span><span class="p">)</span> <span class="n">i2</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+
+    <span class="kt">uint16_t</span> <span class="n">i3</span> <span class="o">=</span> <span class="mi">300</span><span class="p">;</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;uint16_t i3: &#34;</span> <span class="o">&lt;&lt;</span> <span class="n">bitset</span><span class="o">&lt;</span><span class="mi">16</span><span class="o">&gt;</span><span class="p">(</span><span class="n">i3</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;uint8_t  i3: &#34;</span> <span class="o">&lt;&lt;</span> <span class="n">bitset</span><span class="o">&lt;</span><span class="mi">8</span><span class="o">&gt;</span><span class="p">((</span><span class="kt">uint8_t</span><span class="p">)</span> <span class="n">i3</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="c1">// 输出结果
+</span><span class="c1"></span><span class="kt">int16_t</span> <span class="nl">i1</span><span class="p">:</span> <span class="mo">0000000011001000</span>
+<span class="kt">int8_t</span>  <span class="nl">i1</span><span class="p">:</span> <span class="mi">11001000</span>
+<span class="kt">int16_t</span> <span class="nl">i2</span><span class="p">:</span> <span class="mi">1111111100111000</span>
+<span class="kt">int8_t</span>  <span class="nl">i2</span><span class="p">:</span> <span class="mo">00111000</span>
+<span class="kt">uint16_t</span> <span class="nl">i3</span><span class="p">:</span> <span class="mo">0000000100101100</span>
+<span class="kt">uint8_t</span>  <span class="nl">i3</span><span class="p">:</span> <span class="mo">00101100</span>
+</code></pre></div><p><strong>（3）无符号整数与有符号整数间的转换</strong></p>
+<p>无符号整数与有符号整数间的转换规则是：</p>
+<ul>
+<li>如果两者二进制位数一致，比如 <code>int8</code> 到 <code>uint8</code> 的转换，则二进制数值不变，只是改变编码方式；</li>
+<li>如果位数不一致，比如 <code>int16</code> 到 <code>uint8</code> 的转换，则二进制数值，先按照宽转换或窄转换规则转换，再改变编码方式。</li>
+</ul>
+<div class="highlight"><pre class="chroma"><code class="language-c++" data-lang="c++"><span class="c1">// C++
+</span><span class="c1"></span><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kt">uint8_t</span> <span class="n">i1</span> <span class="o">=</span> <span class="mi">200</span><span class="p">;</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;uint8_t i1, decimal: &#34;</span> <span class="o">&lt;&lt;</span> <span class="o">+</span><span class="n">i1</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;, binary: &#34;</span> <span class="o">&lt;&lt;</span> <span class="n">bitset</span><span class="o">&lt;</span><span class="mi">8</span><span class="o">&gt;</span><span class="p">(</span><span class="n">i1</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;int8_t  i1, decimal: &#34;</span> <span class="o">&lt;&lt;</span> <span class="o">+</span><span class="p">(</span><span class="kt">int8_t</span><span class="p">)</span> <span class="n">i1</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;, binary: &#34;</span> <span class="o">&lt;&lt;</span> <span class="n">bitset</span><span class="o">&lt;</span><span class="mi">8</span><span class="o">&gt;</span><span class="p">((</span><span class="kt">int8_t</span><span class="p">)</span> <span class="n">i1</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+
+    <span class="kt">int16_t</span> <span class="n">i2</span> <span class="o">=</span> <span class="o">-</span><span class="mi">300</span><span class="p">;</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;int16_t i2, decimal: &#34;</span> <span class="o">&lt;&lt;</span> <span class="o">+</span><span class="n">i2</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;, binary: &#34;</span> <span class="o">&lt;&lt;</span> <span class="n">bitset</span><span class="o">&lt;</span><span class="mi">16</span><span class="o">&gt;</span><span class="p">(</span><span class="n">i2</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;uint8_t i2, decimal: &#34;</span> <span class="o">&lt;&lt;</span> <span class="o">+</span><span class="p">(</span><span class="kt">uint8_t</span><span class="p">)</span> <span class="n">i2</span> <span class="o">&lt;&lt;</span> <span class="s">&#34;,  binary: &#34;</span> <span class="o">&lt;&lt;</span> <span class="n">bitset</span><span class="o">&lt;</span><span class="mi">8</span><span class="o">&gt;</span><span class="p">((</span><span class="kt">uint8_t</span><span class="p">)</span> <span class="n">i2</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="c1">// 输出结果
+</span><span class="c1"></span><span class="kt">uint8_t</span> <span class="n">i1</span><span class="p">,</span> <span class="nl">decimal</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span> <span class="nl">binary</span><span class="p">:</span> <span class="mi">11001000</span>
+<span class="kt">int8_t</span>  <span class="n">i1</span><span class="p">,</span> <span class="nl">decimal</span><span class="p">:</span> <span class="o">-</span><span class="mi">56</span><span class="p">,</span> <span class="nl">binary</span><span class="p">:</span> <span class="mi">11001000</span>
+<span class="kt">int16_t</span> <span class="n">i2</span><span class="p">,</span> <span class="nl">decimal</span><span class="p">:</span> <span class="o">-</span><span class="mi">300</span><span class="p">,</span> <span class="nl">binary</span><span class="p">:</span> <span class="mi">1111111011010100</span>
+<span class="kt">uint8_t</span> <span class="n">i2</span><span class="p">,</span> <span class="nl">decimal</span><span class="p">:</span> <span class="mi">212</span><span class="p">,</span>  <span class="nl">binary</span><span class="p">:</span> <span class="mi">11010100</span>
+</code></pre></div><h3 id="整数与浮点数间转型">整数与浮点数间转型</h3>
+<p><strong>（1）宽转换</strong></p>
+<p>整型到浮点数类型的转换这一方向，为宽转换：</p>
+<ul>
+<li>如果浮点数的精度，能够表示整数，则正常转换。</li>
+<li>如果浮点数精度，无法表示整数，则需要近似，会导致精度丢失。</li>
+</ul>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">// Java
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kt">int</span> <span class="n">i1</span> <span class="o">=</span> <span class="n">1234567</span><span class="o">;</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">printf</span><span class="o">(</span><span class="s">&#34;int i1: %d, float i1: &#34;</span><span class="o">,</span> <span class="n">i1</span><span class="o">);</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">((</span><span class="kt">float</span><span class="o">)</span> <span class="n">i1</span><span class="o">);</span>
+
+    <span class="kt">int</span> <span class="n">i2</span> <span class="o">=</span> <span class="n">123456789</span><span class="o">;</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">printf</span><span class="o">(</span><span class="s">&#34;int i2: %d, float i2: &#34;</span><span class="o">,</span> <span class="n">i2</span><span class="o">);</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">((</span><span class="kt">float</span><span class="o">)</span> <span class="n">i2</span><span class="o">);</span>
+<span class="o">}</span>
+<span class="c1">// 输出结果
+</span><span class="c1"></span><span class="kt">int</span> <span class="n">i1</span><span class="o">:</span> <span class="n">1234567</span><span class="o">,</span> <span class="kt">float</span> <span class="n">i1</span><span class="o">:</span> <span class="n">1234567</span><span class="o">.</span><span class="na">0</span>
+<span class="kt">int</span> <span class="n">i2</span><span class="o">:</span> <span class="n">123456789</span><span class="o">,</span> <span class="kt">float</span> <span class="n">i2</span><span class="o">:</span> <span class="n">1</span><span class="o">.</span><span class="na">23456792E8</span>
+</code></pre></div><p>上述例子中，<code>i2=123456789</code> 超过 <code>float</code> 类型能够表示的精度，所以为近似后的结果 <code>1.23456792E8</code>。</p>
+<p>那么，为什么 <code>123456789</code> 会近似为 <code>1.23456792E8</code>？</p>
+<p>要解释该问题，首先要把它们转换成二进制表示：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+    <span class="o">...</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;int i2:   &#34;</span> <span class="o">+</span> <span class="n">int2BinaryStr</span><span class="o">(</span><span class="n">i2</span><span class="o">));</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;float i2: &#34;</span> <span class="o">+</span> <span class="n">float2BinaryStr</span><span class="o">((</span><span class="kt">float</span><span class="o">)</span> <span class="n">i2</span><span class="o">));</span>
+<span class="o">}</span>
+<span class="c1">// 输出结果
+</span><span class="c1"></span><span class="kt">int</span> <span class="n">i2</span><span class="o">:</span>   <span class="n">00000111010110111100110100010101</span>
+<span class="kt">float</span> <span class="n">i2</span><span class="o">:</span> <span class="n">01001100111010110111100110100011</span>
+</code></pre></div><p>接下来，我们根据 IEEE 浮点数的编码规则，尝试将 <code>int i2</code> 转换成 <code>float i2</code>：</p>
+<ol>
+<li><code>int i2</code> 的二进制 $00000111010110111100110100010101_b$，可以写成 $1.11010110111100110100010101\cdot2^{26}$，对应到 $V=(-1)^s\cdot M\cdot2^E$ 的形式，可以确认 s = 0，E = 26，M = 1.11010110111100110100010101。</li>
+<li>float 类型中 k = 8，有，$E = e - (2^{8-1}-1) = 26$，得出 e = 153，按 k 位无符号编码表示为 $[10011001]_b$。</li>
+<li>同理，由 $M = 1 + 0.m_{n-1}m_{n-2}&hellip;m_0=1.11010110111100110100010101$，但由于 float 类型的 n = 23，而 m 一共有 26 位，因此需要按照 round-to-even 规则，对 0.11010110111100110100010101进行近似，保留 23 位小数，得到 0.11010110111100110100011，所以 m 为 $[11010110111100110100011]_b$</li>
+<li>最后，将 s、e、m 按照 float 单精度的编码格式组合起来，就是 $[0\ 10011001\ 11010110111100110100011]_b$，转换成十进制，就是 <code>1.23456792E8</code>。</li>
+</ol>
+<p><strong>（2）窄转换</strong></p>
+<p>浮点数类型到整型的转换这一方向，为窄转换：</p>
+<ul>
+<li>如果浮点数的整数部分，能够用整型表示，则直接舍去小数，保留整数部分。</li>
+<li>如果超出了整型范围，则结果为该整型的最大/最小值。</li>
+</ul>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">// Java
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kt">float</span> <span class="n">f1</span> <span class="o">=</span> <span class="n">12345</span><span class="o">.</span><span class="na">123F</span><span class="o">;</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span><span class="s">&#34;float f1: &#34;</span><span class="o">);</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span><span class="n">f1</span><span class="o">);</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">printf</span><span class="o">(</span><span class="s">&#34;,  int f1: %d\n&#34;</span><span class="o">,</span> <span class="o">(</span><span class="kt">int</span><span class="o">)</span> <span class="n">f1</span><span class="o">);</span>
+
+    <span class="kt">float</span> <span class="n">f2</span> <span class="o">=</span> <span class="n">1</span><span class="o">.</span><span class="na">2345E20F</span><span class="o">;</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span><span class="s">&#34;float f2: &#34;</span><span class="o">);</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span><span class="n">f2</span><span class="o">);</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">printf</span><span class="o">(</span><span class="s">&#34;,  int f2: %d\n&#34;</span><span class="o">,</span> <span class="o">(</span><span class="kt">int</span><span class="o">)</span> <span class="n">f2</span><span class="o">);</span>
+
+    <span class="kt">float</span> <span class="n">f3</span> <span class="o">=</span> <span class="o">-</span><span class="n">1</span><span class="o">.</span><span class="na">2345E20F</span><span class="o">;</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span><span class="s">&#34;float f3: &#34;</span><span class="o">);</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span><span class="n">f3</span><span class="o">);</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">printf</span><span class="o">(</span><span class="s">&#34;, int f3: %d\n&#34;</span><span class="o">,</span> <span class="o">(</span><span class="kt">int</span><span class="o">)</span> <span class="n">f3</span><span class="o">);</span>
+ <span class="o">}</span>
+<span class="c1">// 输出结果
+</span><span class="c1"></span><span class="kt">float</span> <span class="n">f1</span><span class="o">:</span> <span class="n">12345</span><span class="o">.</span><span class="na">123</span><span class="o">,</span>  <span class="kt">int</span> <span class="n">f1</span><span class="o">:</span> <span class="n">12345</span>
+<span class="kt">float</span> <span class="n">f2</span><span class="o">:</span> <span class="n">1</span><span class="o">.</span><span class="na">2345E20</span><span class="o">,</span>  <span class="kt">int</span> <span class="n">f2</span><span class="o">:</span> <span class="n">2147483647</span>
+<span class="kt">float</span> <span class="n">f3</span><span class="o">:</span> <span class="o">-</span><span class="n">1</span><span class="o">.</span><span class="na">2345E20</span><span class="o">,</span> <span class="kt">int</span> <span class="n">f3</span><span class="o">:</span> <span class="o">-</span><span class="n">2147483648</span>
+</code></pre></div><h3 id="浮点数间转型">浮点数间转型</h3>
+<p><strong>（1）宽转换</strong></p>
+<p>单精度 <code>float</code> 到 双精度 <code>double</code> 为宽转换，不会出现精度丢失的问题。</p>
+<p>对于 $V=(-1)^s\cdot M\cdot2^E$ ，规则如下：</p>
+<ul>
+<li>s 保持不变。</li>
+<li>在 E 保持不变的前提下，因为 <code>float</code> 的 k = 8，而 <code>double</code> 的 k = 11，所以两者的 e 会有所不同。</li>
+<li>在 M 保持不变的前提下，<code>float</code> 的 n = 23，而 <code>double</code> 的 n =52，所以 m 需要低位补 52 - 23 = 29 个 0。</li>
+</ul>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">// Java
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kt">float</span> <span class="n">f1</span> <span class="o">=</span> <span class="n">1</span><span class="o">.</span><span class="na">2345E20F</span><span class="o">;</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span><span class="s">&#34;float  f1: &#34;</span><span class="o">);</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span><span class="n">f1</span><span class="o">);</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span><span class="s">&#34;, double f1: &#34;</span><span class="o">);</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">((</span><span class="kt">double</span><span class="o">)</span> <span class="n">f1</span><span class="o">);</span>
+
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;float  f1: &#34;</span> <span class="o">+</span> <span class="n">float2BinaryStr</span><span class="o">(</span><span class="n">f1</span><span class="o">));</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;double f1: &#34;</span> <span class="o">+</span> <span class="n">double2BinaryStr</span><span class="o">((</span><span class="kt">double</span><span class="o">)</span> <span class="n">f1</span><span class="o">));</span>
+<span class="o">}</span>
+<span class="c1">// 输出结果
+</span><span class="c1"></span><span class="kt">float</span>  <span class="n">f1</span><span class="o">:</span> <span class="n">1</span><span class="o">.</span><span class="na">2345E20</span><span class="o">,</span> <span class="kt">double</span> <span class="n">f1</span><span class="o">:</span> <span class="n">1</span><span class="o">.</span><span class="na">2344999897320129E20</span>
+<span class="kt">float</span>  <span class="n">f1</span><span class="o">:</span> <span class="n">01100000110101100010011011010000</span>
+<span class="kt">double</span> <span class="n">f1</span><span class="o">:</span> <span class="n">0100010000011010110001001101101000000000000000000000000000000000</span>
+</code></pre></div><p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h5bdjw84z9j21hu0s6wmf.jpg" alt=""  /></p>
+<p><strong>（2）窄转换</strong></p>
+<p><code>double</code> 到 <code>float</code> 为窄转换，会存在精度丢失问题。</p>
+<p>如果 <code>double</code> 值超出了 <code>float</code> 的表示范围，则转换结果为 <code>Infinity</code>：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">// Java
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kt">double</span> <span class="n">d1</span> <span class="o">=</span> <span class="n">1E200</span><span class="o">;</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span><span class="s">&#34;double d1: &#34;</span><span class="o">);</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">d1</span><span class="o">);</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span><span class="s">&#34;float d1: &#34;</span><span class="o">);</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">((</span><span class="kt">float</span><span class="o">)</span> <span class="n">d1</span><span class="o">);</span>
+
+    <span class="kt">double</span> <span class="n">d2</span> <span class="o">=</span> <span class="o">-</span><span class="n">1E200</span><span class="o">;</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span><span class="s">&#34;double d2: &#34;</span><span class="o">);</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">d2</span><span class="o">);</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span><span class="s">&#34;float d2: &#34;</span><span class="o">);</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">((</span><span class="kt">float</span><span class="o">)</span> <span class="n">d2</span><span class="o">);</span>
+ <span class="o">}</span>
+<span class="c1">// 输出结果
+</span><span class="c1"></span><span class="kt">double</span> <span class="n">d1</span><span class="o">:</span> <span class="n">1</span><span class="o">.</span><span class="na">0E200</span>
+<span class="kt">float</span> <span class="n">d1</span><span class="o">:</span> <span class="n">Infinity</span>
+<span class="kt">double</span> <span class="n">d2</span><span class="o">:</span> <span class="o">-</span><span class="n">1</span><span class="o">.</span><span class="na">0E200</span>
+<span class="kt">float</span> <span class="n">d2</span><span class="o">:</span> <span class="o">-</span><span class="n">Infinity</span>
+</code></pre></div><p>如果 <code>double</code> 值还在 <code>float</code> 的表示范围内，则按照如下转换规则：</p>
+<ul>
+<li>s 保持不变。</li>
+<li>在 E 保持不变的前提下，因为 <code>float</code> 的 k = 8，而 <code>double</code> 的 k = 11，所以两者的 e 会有所不同。</li>
+<li>对于 M，因为 <code>float</code> 的 n = 23，而 <code>double</code> 的 n = 52，所以转换到 float 之后，需要进行截断，只保留高 23 位。</li>
+</ul>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">// Java
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kt">double</span> <span class="n">d1</span> <span class="o">=</span> <span class="n">3</span><span class="o">.</span><span class="na">267393471324506</span><span class="o">;</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span><span class="s">&#34;double d1: &#34;</span><span class="o">);</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">d1</span><span class="o">);</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span><span class="s">&#34;float  d1: &#34;</span><span class="o">);</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">((</span><span class="kt">float</span><span class="o">)</span> <span class="n">d1</span><span class="o">);</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;double d1: &#34;</span> <span class="o">+</span> <span class="n">double2BinaryStr</span><span class="o">(</span><span class="n">d1</span><span class="o">));</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;float  d1: &#34;</span> <span class="o">+</span> <span class="n">float2BinaryStr</span><span class="o">((</span><span class="kt">float</span><span class="o">)</span> <span class="n">d1</span><span class="o">));</span>
+<span class="o">}</span>
+<span class="c1">// 输出结果
+</span><span class="c1"></span><span class="kt">double</span> <span class="n">d1</span><span class="o">:</span> <span class="n">3</span><span class="o">.</span><span class="na">267393471324506</span>
+<span class="kt">float</span>  <span class="n">d1</span><span class="o">:</span> <span class="n">3</span><span class="o">.</span><span class="na">2673936</span>
+<span class="kt">double</span> <span class="n">d1</span><span class="o">:</span> <span class="n">0100000000001010001000111001111100110000001101000000010101110110</span>
+<span class="kt">float</span>  <span class="n">d1</span><span class="o">:</span> <span class="n">01000000010100010001110011111010</span>
+</code></pre></div><p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h5bdl0qb8dj21ia0sido4.jpg" alt=""  /></p>
+<h2 id="最后">最后</h2>
+<p>本文花了很长的篇幅，深入介绍了计算机系统对数值类型的编码、运算、转换的底层原理。</p>
+<p><strong>数值类型间的转换是最容易出现隐藏 bug 的地方</strong>，特别是无符号整数与有符号整数之间的转换。所以，很多现代的编程语言，如 Java、Go 等都不再支持无符号整数，根除了该隐患。</p>
+<p>另外，浮点数的编码方式，注定它只能精确表示一小部分的数值范围，大部分都是近似，所以才有了<strong>不能用等号来比较两个浮点数</strong>的说法。</p>
+<p>数值类型虽然很基础，但使用时一定要多加小心。希望本文能够加深你对数值类型的理解，让你写出更健壮的程序。</p>
+<h3 id="文章配图">文章配图</h3>
+<p>可以在 <a class="link" href="https://mp.weixin.qq.com/s/-sYW-oa6KzTR9LNdMWCSnQ"  target="_blank" rel="noopener"
+    >用Keynote画出手绘风格的配图</a> 中找到文章的绘图方法。</p>
+<blockquote>
+<h4 id="参考">参考</h4>
+<p>[1] <a class="link" href="https://csapp.cs.cmu.edu"  target="_blank" rel="noopener"
+    >Computer Systems: A Programmer&rsquo;s Perspective (3rd edition)</a>, Randal E. Bryant .etc</p>
+<p>[2] <a class="link" href="https://docs.oracle.com/javase/specs/jls/se18/html/index.html"  target="_blank" rel="noopener"
+    >The Java® Language Specification (Java SE 18 Edition)</a>, James Gosling .etc</p>
+<p>[3] <a class="link" href="https://standards.ieee.org/ieee/754/6210/"  target="_blank" rel="noopener"
+    >IEEE Standard 754 Floating-Point Representation</a>, IEEE</p>
+<p>[4] <a class="link" href="https://www.51cto.com/article/625058.html"  target="_blank" rel="noopener"
+    >漫话：为什么计算机用补码存储数据？</a>, 漫话编程</p>
+<p>更多文章请关注微信公众号：<strong>元闰子的邀请</strong></p>
+</blockquote>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/">计算机基础</a>
+        
+            <a href="/tags/csapp/">CSAPP</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>CC BY 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3-sql-%E4%B8%AD%E7%9A%84-grouping-sets-%E8%AF%AD%E5%8F%A5/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">深入理解 SQL 中的 Grouping Sets 语句</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E5%81%87%E5%A6%82%E8%AE%A9%E4%BD%A0%E6%9D%A5%E8%AE%BE%E8%AE%A1ssl/tls%E5%8D%8F%E8%AE%AE/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">假如让你来设计SSL/TLS协议</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E6%8E%A2%E7%B4%A2os%E7%9A%84%E5%86%85%E5%AD%98%E5%8E%9F%E7%90%86/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">探索OS的内存原理</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E6%8E%A2%E7%B4%A2cpu%E7%9A%84%E8%B0%83%E5%BA%A6%E5%8E%9F%E7%90%86/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">探索CPU的调度原理</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+
+    
+        
+    <script src="https://utteranc.es/client.js" 
+        repo="ruanrunxue/yrunz-comments"
+        issue-term="pathname"
+        
+        label="yrunz"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
+
+<style>
+    .utterances {
+        max-width: unset;
+    }
+</style>
+
+<script>
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
+        }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+        setUtterancesTheme(document.body.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        setUtterancesTheme(e.detail)
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_SVG"></script>
+    <section class="copyright">
+        &copy;
+        
+            2019 -
+        
+        2023 元闰子的邀请
+    </section>
+
+    <section class="powerby">
+        
+
+        <a href="https://beian.miit.gov.cn/">粤ICP备19152659号 | </a>Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.3.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        <br />
+    </section>
+</footer>
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

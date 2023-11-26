@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='工厂方法模式（Factory Method Pattern）将对象创建的逻辑封装起来，为使用者提供一个简单易用的对象创建接口，常用于不指定对象具体类型的情况下创建对象的场景。'><title>【Go实现】实践GoF的23种设计模式：工厂方法模式</title>
+
+<link rel='canonical' href='https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95%E6%A8%A1%E5%BC%8F/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='【Go实现】实践GoF的23种设计模式：工厂方法模式'>
+<meta property='og:description' content='工厂方法模式（Factory Method Pattern）将对象创建的逻辑封装起来，为使用者提供一个简单易用的对象创建接口，常用于不指定对象具体类型的情况下创建对象的场景。'>
+<meta property='og:url' content='https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95%E6%A8%A1%E5%BC%8F/'>
+<meta property='og:site_name' content='元闰子的邀请'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='设计模式' /><meta property='article:tag' content='实践GoF的23种设计模式' /><meta property='article:tag' content='Go' /><meta property='article:published_time' content='2022-05-21T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2022-05-21T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="【Go实现】实践GoF的23种设计模式：工厂方法模式">
+<meta name="twitter:description" content="工厂方法模式（Factory Method Pattern）将对象创建的逻辑封装起来，为使用者提供一个简单易用的对象创建接口，常用于不指定对象具体类型的情况下创建对象的场景。">
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "light");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/yrz_hudc7c8721ecce4b724df5002339c76402_174377_300x0_resize_box_2.png" width="300"
+                            height="306" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://www.yrunz.com">元闰子的邀请</a></h1>
+        <h2 class="site-description">阅读、写作、生活（个人技术分享）</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>首页</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>博客</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%85%B3%E4%BA%8E%E5%85%83%E9%97%B0%E5%AD%90/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24"
+     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+     stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z"/>
+    <circle cx="12" cy="7" r="4"/>
+    <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/>
+</svg>
+
+                
+                <span>关于元闰子</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%8F%8B%E6%83%85%E9%93%BE%E6%8E%A5/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-friends" width="44" height="44"
+     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+    <circle cx="7" cy="5" r="2"/>
+    <path d="M5 22v-5l-1 -1v-4a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4l-1 1v5"/>
+    <circle cx="17" cy="5" r="2"/>
+    <path d="M15 22v-4h-2l2 -6a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1l2 6h-2v4"/>
+</svg>
+
+                
+                <span>友情链接</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>暗色模式</span>
+            </li>
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://www.yrunz.com" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E5%86%99%E5%A5%BD%E4%BB%A3%E7%A0%81/" >
+                写好代码
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95%E6%A8%A1%E5%BC%8F/">【Go实现】实践GoF的23种设计模式：工厂方法模式</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        工厂方法模式（Factory Method Pattern）将对象创建的逻辑封装起来，为使用者提供一个简单易用的对象创建接口，常用于不指定对象具体类型的情况下创建对象的场景。
+    </h3>
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">May 21, 2022</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <blockquote>
+<p>上一篇：<a class="link" href="https://mp.weixin.qq.com/s/LHezb8zWEFR7mRseqO2B_Q"  target="_blank" rel="noopener"
+    >【Go实现】实践GoF的23种设计模式：建造者模式</a></p>
+<p><strong>简单的分布式应用系统</strong>（示例代码工程）：<a class="link" href="https://github.com/ruanrunxue/Practice-Design-Pattern--Go-Implementation"  target="_blank" rel="noopener"
+    >https://github.com/ruanrunxue/Practice-Design-Pattern&ndash;Go-Implementation</a></p>
+</blockquote>
+<h2 id="简述">简述</h2>
+<p><strong>工厂方法模式</strong>（Factory Method Pattern）跟上一篇讨论的建造者模式类似，都是<strong>将对象创建的逻辑封装起来，为使用者提供一个简单易用的对象创建接口</strong>。两者在应用场景上稍有区别，建造者模式常用于需要传递多个参数来进行实例化的场景；工厂方法模式常用于<strong>不指定对象具体类型的情况下创建对象</strong>的场景。</p>
+<h2 id="uml-结构">UML 结构</h2>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h2f9p62qckj21dm0s8n3o.jpg" alt=""  /></p>
+<h2 id="代码实现">代码实现</h2>
+<h3 id="示例">示例</h3>
+<p>在<a class="link" href="https://github.com/ruanrunxue/Practice-Design-Pattern--Go-Implementation/blob/main/docs/go_ractice_design_pattern__solid_principle.md"  target="_blank" rel="noopener"
+    >简单的分布式应用系统</a>（示例代码工程）中，我们设计了 <code>Sidecar</code>  边车模块， <code>Sidecar</code>  的作用是为了给原生的 <code>Socket</code> 增加额外的功能，比如流控、日志等。</p>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1gzn32jkkduj213g0o00xq.jpg" alt=""  /></p>
+<p><code>Sidecar</code>  模块的设计运用了<strong>装饰者模式</strong>，修饰的是 <code>Socket</code> 。所以客户端其实是把 <code>Sidecar</code> 当成是 <code>Socket</code> 来使用了，比如：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// demo/network/http/http_client.go
+</span><span class="c1"></span><span class="kn">package</span> <span class="nx">http</span>
+
+<span class="c1">// 创建一个新的HTTP客户端，以Socket接口作为入参
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">NewClient</span><span class="p">(</span><span class="nx">socket</span> <span class="nx">network</span><span class="p">.</span><span class="nx">Socket</span><span class="p">,</span> <span class="nx">ip</span> <span class="kt">string</span><span class="p">)</span> <span class="p">(</span><span class="o">*</span><span class="nx">Client</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+  <span class="o">...</span> <span class="c1">// 一些初始化逻辑
+</span><span class="c1"></span>	<span class="k">return</span> <span class="nx">client</span><span class="p">,</span> <span class="kc">nil</span>
+<span class="p">}</span>
+
+<span class="c1">// 使用NewClient时，我们可以传入Sidecar来给Http客户端附加额外的流控功能
+</span><span class="c1"></span><span class="nx">client</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">http</span><span class="p">.</span><span class="nf">NewClient</span><span class="p">(</span><span class="nx">sidecar</span><span class="p">.</span><span class="nf">NewFlowCtrlSidecar</span><span class="p">(</span><span class="nx">network</span><span class="p">.</span><span class="nf">DefaultSocket</span><span class="p">()),</span> <span class="s">&#34;192.168.0.1&#34;</span><span class="p">)</span>
+</code></pre></div><p>在服务消息中介中，每次收到上游服务的 HTTP 请求，都会调用 <code>http.NewClient</code> 来创建一个 HTTP 客户端，并通过它将请求转发给下游服务：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">type</span> <span class="nx">ServiceMediator</span> <span class="kd">struct</span> <span class="p">{</span>
+  <span class="o">...</span>
+	<span class="nx">server</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Server</span>
+<span class="p">}</span>
+
+<span class="c1">// Forward 转发请求，请求URL为 /{serviceType}+ServiceUri 的形式，如/serviceA/api/v1/task
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">ServiceMediator</span><span class="p">)</span> <span class="nf">Forward</span><span class="p">(</span><span class="nx">req</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Response</span> <span class="p">{</span>
+    <span class="o">...</span>
+    <span class="c1">// 发现下游服务的目的IP地址
+</span><span class="c1"></span>    <span class="nx">dest</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">s</span><span class="p">.</span><span class="nf">discovery</span><span class="p">(</span><span class="nx">svcType</span><span class="p">)</span>
+    <span class="c1">// 创建HTTP客户端，硬编码sidecar.NewFlowCtrlSidecar(network.DefaultSocket())
+</span><span class="c1"></span>    <span class="nx">client</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">http</span><span class="p">.</span><span class="nf">NewClient</span><span class="p">(</span><span class="nx">sidecar</span><span class="p">.</span><span class="nf">NewFlowCtrlSidecar</span><span class="p">(</span><span class="nx">network</span><span class="p">.</span><span class="nf">DefaultSocket</span><span class="p">()),</span> <span class="nx">s</span><span class="p">.</span><span class="nx">localIp</span><span class="p">)</span>
+    <span class="c1">// 通过HTTP客户端转发请求
+</span><span class="c1"></span>    <span class="nx">resp</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">client</span><span class="p">.</span><span class="nf">Send</span><span class="p">(</span><span class="nx">dest</span><span class="p">,</span> <span class="nx">forwardReq</span><span class="p">)</span>
+    <span class="o">...</span>
+<span class="p">}</span>
+</code></pre></div><p>在上述实现中，我们在调用 <code>http.NewClient</code> 时把 <code>sidecar.NewFlowCtrlSidecar(network.DefaultSocket())</code> 硬编码进去了，那么如果以后要扩展 <code>Sidecar</code> ，就得修改这段代码逻辑，这违反了<a class="link" href="https://mp.weixin.qq.com/s/s3aD4mK2Aw4v99tbCIe9HA"  target="_blank" rel="noopener"
+    >开闭原则 OCP</a>。</p>
+<p>有经验的同学可能会想到，可以通过让 <code>ServiceMediator</code> 依赖 <code>Socket</code> 接口，在 <code>Forward</code> 方法调用 <code>http.NewClient</code> 时把 <code>Socket</code> 接口作为入参；然后在 <code>ServiceMediator</code>  初始化时，将具体类型的 <code>Sidecar</code> 注入到 <code>ServiceMediator</code> 中：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">type</span> <span class="nx">ServiceMediator</span> <span class="kd">struct</span> <span class="p">{</span>
+  <span class="o">...</span>
+	<span class="nx">server</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Server</span>
+  <span class="c1">// 依赖Socket抽象接口
+</span><span class="c1"></span>  <span class="nx">socket</span> <span class="nx">network</span><span class="p">.</span><span class="nx">Socket</span>
+<span class="p">}</span>
+
+<span class="c1">// Forward 转发请求，请求URL为 /{serviceType}+ServiceUri 的形式，如/serviceA/api/v1/task
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">ServiceMediator</span><span class="p">)</span> <span class="nf">Forward</span><span class="p">(</span><span class="nx">req</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Response</span> <span class="p">{</span>
+    <span class="o">...</span>
+    <span class="c1">// 发现下游服务的目的IP地址
+</span><span class="c1"></span>    <span class="nx">dest</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">s</span><span class="p">.</span><span class="nf">discovery</span><span class="p">(</span><span class="nx">svcType</span><span class="p">)</span>
+    <span class="c1">// 创建HTTP客户端，将s.socket抽象接口作为入参
+</span><span class="c1"></span>    <span class="nx">client</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">http</span><span class="p">.</span><span class="nf">NewClient</span><span class="p">(</span><span class="nx">s</span><span class="p">.</span><span class="nx">socket</span><span class="p">,</span> <span class="nx">s</span><span class="p">.</span><span class="nx">localIp</span><span class="p">)</span>
+    <span class="c1">// 通过HTTP客户端转发请求
+</span><span class="c1"></span>    <span class="nx">resp</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">client</span><span class="p">.</span><span class="nf">Send</span><span class="p">(</span><span class="nx">dest</span><span class="p">,</span> <span class="nx">forwardReq</span><span class="p">)</span>
+    <span class="o">...</span>
+<span class="p">}</span>
+
+<span class="c1">// 在ServiceMediator初始化时，将具体类型的Sidecar注入到ServiceMediator中
+</span><span class="c1"></span><span class="nx">mediator</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">ServiceMediator</span><span class="p">{</span>
+  <span class="nx">socket</span><span class="p">:</span> <span class="nx">sidecar</span><span class="p">.</span><span class="nf">NewFlowCtrlSidecar</span><span class="p">(</span><span class="nx">network</span><span class="p">.</span><span class="nf">DefaultSocket</span><span class="p">())</span>
+<span class="p">}</span>
+</code></pre></div><p>上述的修改，从原来依赖具体，改成了依赖抽象，符合了开闭原则。</p>
+<p>但是， <code>Forward</code> 方法存在并发调用的场景，因此它希望每次被调用时都创建一个新的 <code>Socket/Sidecar</code> 来完成网络通信，否则就需要加锁来保证并发安全。而上述的修改会导致在 <code>ServiceMediator</code> 的生命周期内都使用同一个 <code>Socket/Sidecar</code>，显然不符合要求。</p>
+<p>因此，我们需要一个方法，既能够满足开闭原则，而且在每次调用<code>Forward</code> 方法时也能够创建新的 <code>Socket/Sidecar</code> 实例。工厂方法模式恰好就能满足这两点要求，下面我们通过它来完成代码的优化。</p>
+<h3 id="实现">实现</h3>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// demo/sidecar/sidecar_factory.go
+</span><span class="c1"></span>
+<span class="c1">// 关键点1: 定义一个Sidecar工厂抽象接口
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Factory</span> <span class="kd">interface</span> <span class="p">{</span>
+  <span class="c1">// 关键点2: 工厂方法返回Socket抽象接口
+</span><span class="c1"></span>	<span class="nf">Create</span><span class="p">()</span> <span class="nx">network</span><span class="p">.</span><span class="nx">Socket</span>
+<span class="p">}</span>
+
+<span class="c1">// 关键点3: 按照需要实现具体的工厂
+</span><span class="c1"></span>
+
+<span class="c1">// demo/sidecar/raw_socket_sidecar_factory.go
+</span><span class="c1">// RawSocketFactory 只具备原生socket功能的sidecar，实现了Factory接口
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">RawSocketFactory</span> <span class="kd">struct</span> <span class="p">{</span>
+<span class="p">}</span>
+<span class="kd">func</span> <span class="p">(</span><span class="nx">r</span> <span class="nx">RawSocketFactory</span><span class="p">)</span> <span class="nf">Create</span><span class="p">()</span> <span class="nx">network</span><span class="p">.</span><span class="nx">Socket</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="nx">network</span><span class="p">.</span><span class="nf">DefaultSocket</span><span class="p">()</span>
+<span class="p">}</span>
+
+<span class="c1">// demo/sidecar/all_in_one_sidecar_factory.go
+</span><span class="c1">// AllInOneFactory 具备所有功能的sidecar工厂，实现了Factory接口
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">AllInOneFactory</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">producer</span> <span class="nx">mq</span><span class="p">.</span><span class="nx">Producible</span>
+<span class="p">}</span>
+<span class="kd">func</span> <span class="p">(</span><span class="nx">a</span> <span class="nx">AllInOneFactory</span><span class="p">)</span> <span class="nf">Create</span><span class="p">()</span> <span class="nx">network</span><span class="p">.</span><span class="nx">Socket</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="nf">NewAccessLogSidecar</span><span class="p">(</span><span class="nf">NewFlowCtrlSidecar</span><span class="p">(</span><span class="nx">network</span><span class="p">.</span><span class="nf">DefaultSocket</span><span class="p">()),</span> <span class="nx">a</span><span class="p">.</span><span class="nx">producer</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div><p>上述代码中，我们定义了一个工厂抽象接口 <code>Factory</code> ，并有了 2 个具体的实现 <code>RawSocketFactory</code> 和 <code>AllInOneFactory</code>。最后， <code>ServiceMediator</code> 依赖  <code>Factory</code> ，并在 <code>Forward</code> 方法中通过 <code>Factory</code> 来创建新的 <code>Socket/Sidecar</code> ：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// demo/service/mediator/service_mediator.go
+</span><span class="c1"></span>
+<span class="kd">type</span> <span class="nx">ServiceMediator</span> <span class="kd">struct</span> <span class="p">{</span>
+  <span class="o">...</span>
+	<span class="nx">server</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Server</span>
+  <span class="c1">// 关键点4: 客户端依赖Factory抽象接口
+</span><span class="c1"></span>  <span class="nx">sidecarFactory</span> <span class="nx">sidecar</span><span class="p">.</span><span class="nx">Factory</span>
+<span class="p">}</span>
+
+<span class="c1">// Forward 转发请求，请求URL为 /{serviceType}+ServiceUri 的形式，如/serviceA/api/v1/task
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">ServiceMediator</span><span class="p">)</span> <span class="nf">Forward</span><span class="p">(</span><span class="nx">req</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Response</span> <span class="p">{</span>
+    <span class="o">...</span>
+    <span class="c1">// 发现下游服务的目的IP地址
+</span><span class="c1"></span>    <span class="nx">dest</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">s</span><span class="p">.</span><span class="nf">discovery</span><span class="p">(</span><span class="nx">svcType</span><span class="p">)</span>
+    <span class="c1">// 创建HTTP客户端，调用sidecarFactory.Create()生成Socket作为入参
+</span><span class="c1"></span>    <span class="nx">client</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">http</span><span class="p">.</span><span class="nf">NewClient</span><span class="p">(</span><span class="nx">s</span><span class="p">.</span><span class="nx">sidecarFactory</span><span class="p">.</span><span class="nf">Create</span><span class="p">(),</span> <span class="nx">s</span><span class="p">.</span><span class="nx">localIp</span><span class="p">)</span>
+    <span class="c1">// 通过HTTP客户端转发请求
+</span><span class="c1"></span>    <span class="nx">resp</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">client</span><span class="p">.</span><span class="nf">Send</span><span class="p">(</span><span class="nx">dest</span><span class="p">,</span> <span class="nx">forwardReq</span><span class="p">)</span>
+    <span class="o">...</span>
+<span class="p">}</span>
+
+<span class="c1">// 关键点5: 在ServiceMediator初始化时，将具体类型的sidecar.Factory注入到ServiceMediator中
+</span><span class="c1"></span><span class="nx">mediator</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">ServiceMediator</span><span class="p">{</span>
+  <span class="nx">sidecarFactory</span><span class="p">:</span> <span class="o">&amp;</span><span class="nx">AllInOneFactory</span><span class="p">{}</span>
+  <span class="c1">// sidecarFactory: &amp;RawSocketFactory{}
+</span><span class="c1"></span><span class="p">}</span>
+</code></pre></div><p>下面总结实现工厂方法模式的几个关键点：</p>
+<ol>
+<li>定义一个工厂方法抽象接口，比如前文中的 <code>sidecar.Factory</code>。</li>
+<li>工厂方法中，返回需要创建的对象/接口，比如 <code>network.Socket</code>。其中，工厂方法通常命名为 <code>Create</code>。</li>
+<li>按照具体需要，定义工厂方法抽象接口的具体实现对象，比如 <code>RawSocketFactory</code> 和 <code>AllInOneFactory</code>。</li>
+<li>客户端使用时，依赖工厂方法抽象接口。</li>
+<li>在客户端初始化阶段，完成具体工厂对象的依赖注入。</li>
+</ol>
+<h2 id="扩展">扩展</h2>
+<h3 id="go-风格的实现">Go 风格的实现</h3>
+<p>前文的工厂方法模式实现，是非常典型的<strong>面向对象风格</strong>，下面我们给出一个更具 Go 风格的实现。</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// demo/sidecar/sidecar_factory_func.go
+</span><span class="c1"></span>
+<span class="c1">// 关键点1: 定义Sidecar工厂方法类型
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">FactoryFunc</span> <span class="kd">func</span><span class="p">()</span> <span class="nx">network</span><span class="p">.</span><span class="nx">Socket</span>
+
+<span class="c1">// 关键点2: 按需定义具体的工厂方法实现，注意这里定义的是工厂方法的工厂方法，返回的是FactoryFunc工厂方法类型
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">RawSocketFactoryFunc</span><span class="p">()</span> <span class="nx">FactoryFunc</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="kd">func</span><span class="p">()</span> <span class="nx">network</span><span class="p">.</span><span class="nx">Socket</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="nx">network</span><span class="p">.</span><span class="nf">DefaultSocket</span><span class="p">()</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">AllInOneFactoryFunc</span><span class="p">(</span><span class="nx">producer</span> <span class="nx">mq</span><span class="p">.</span><span class="nx">Producible</span><span class="p">)</span> <span class="nx">FactoryFunc</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="kd">func</span><span class="p">()</span> <span class="nx">network</span><span class="p">.</span><span class="nx">Socket</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="nf">NewAccessLogSidecar</span><span class="p">(</span><span class="nf">NewFlowCtrlSidecar</span><span class="p">(</span><span class="nx">network</span><span class="p">.</span><span class="nf">DefaultSocket</span><span class="p">()),</span> <span class="nx">producer</span><span class="p">)</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">type</span> <span class="nx">ServiceMediator</span> <span class="kd">struct</span> <span class="p">{</span>
+  <span class="o">...</span>
+	<span class="nx">server</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Server</span>
+  <span class="c1">// 关键点3: 客户端依赖FactoryFunc工厂方法类型
+</span><span class="c1"></span>  <span class="nx">sidecarFactoryFunc</span> <span class="nx">FactoryFunc</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">ServiceMediator</span><span class="p">)</span> <span class="nf">Forward</span><span class="p">(</span><span class="nx">req</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Response</span> <span class="p">{</span>
+    <span class="o">...</span>
+    <span class="nx">dest</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">s</span><span class="p">.</span><span class="nf">discovery</span><span class="p">(</span><span class="nx">svcType</span><span class="p">)</span>
+    <span class="c1">// 关键点4: 创建HTTP客户端，调用sidecarFactoryFunc()生成Socket作为入参
+</span><span class="c1"></span>    <span class="nx">client</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">http</span><span class="p">.</span><span class="nf">NewClient</span><span class="p">(</span><span class="nx">s</span><span class="p">.</span><span class="nf">sidecarFactoryFunc</span><span class="p">(),</span> <span class="nx">s</span><span class="p">.</span><span class="nx">localIp</span><span class="p">)</span>
+    <span class="nx">resp</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">client</span><span class="p">.</span><span class="nf">Send</span><span class="p">(</span><span class="nx">dest</span><span class="p">,</span> <span class="nx">forwardReq</span><span class="p">)</span>
+    <span class="o">...</span>
+<span class="p">}</span>
+
+<span class="c1">// 关键点5: 在ServiceMediator初始化时，将具体类型的FactoryFunc注入到ServiceMediator中
+</span><span class="c1"></span><span class="nx">mediator</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">ServiceMediator</span><span class="p">{</span>
+  <span class="nx">sidecarFactoryFunc</span><span class="p">:</span> <span class="nf">RawSocketFactoryFunc</span><span class="p">()</span>
+  <span class="c1">// sidecarFactory: AllInOneFactoryFunc(producer)
+</span><span class="c1"></span><span class="p">}</span>
+</code></pre></div><p>上述的实现，利用了 Go 语言中<strong>函数作为一等公民</strong>的特点，少定义了几个 <code>interface</code> 和 <code>struct</code>，代码更加的简洁。</p>
+<p>几个实现的关键点与面向对象风格的实现类似。值得注意的是 <code>关键点2</code> ，我们相当于定义了一个<strong>工厂方法的工厂方法</strong>，这么做是为了利用函数闭包的特点来<strong>传递参数</strong>。如果直接定义工厂方法，那么 <code>AllInOneFactoryFunc</code> 的实现是下面这样的，无法实现多态：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// 并非FactoryFunc类型，无法实现多态
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">AllInOneFactoryFunc</span><span class="p">(</span><span class="nx">producer</span> <span class="nx">mq</span><span class="p">.</span><span class="nx">Producible</span><span class="p">)</span> <span class="nx">network</span><span class="p">.</span><span class="nx">Socket</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nf">NewAccessLogSidecar</span><span class="p">(</span><span class="nf">NewFlowCtrlSidecar</span><span class="p">(</span><span class="nx">network</span><span class="p">.</span><span class="nf">DefaultSocket</span><span class="p">()),</span> <span class="nx">producer</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div><h3 id="简单工厂">简单工厂</h3>
+<p>工厂方法模式的另一个变种是<strong>简单工厂</strong>，它并不通过多态，而是通过简单的 <code>switch-case/if-else</code> 条件判断来决定创建哪种产品：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// demo/sidecar/sidecar_simple_factory.go
+</span><span class="c1"></span>
+<span class="c1">// 关键点1: 定义sidecar类型
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Type</span> <span class="kt">uint8</span>
+
+<span class="c1">// 关键点2: 按照需要定义sidecar具体类型
+</span><span class="c1"></span><span class="kd">const</span> <span class="p">(</span>
+	<span class="nx">Raw</span> <span class="nx">Type</span> <span class="p">=</span> <span class="kc">iota</span>
+	<span class="nx">AllInOne</span>
+<span class="p">)</span>
+
+<span class="c1">// 关键点3: 定义简单工厂对象
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">SimpleFactory</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">producer</span> <span class="nx">mq</span><span class="p">.</span><span class="nx">Producible</span>
+<span class="p">}</span>
+
+<span class="c1">// 关键点4: 定义工厂方法，入参为sidecar类型，根据switch-case或者if-else来创建产品
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="nx">SimpleFactory</span><span class="p">)</span> <span class="nf">Create</span><span class="p">(</span><span class="nx">sidecarType</span> <span class="nx">Type</span><span class="p">)</span> <span class="nx">network</span><span class="p">.</span><span class="nx">Socket</span> <span class="p">{</span>
+	<span class="k">switch</span> <span class="nx">sidecarType</span> <span class="p">{</span>
+	<span class="k">case</span> <span class="nx">Raw</span><span class="p">:</span>
+		<span class="k">return</span> <span class="nx">network</span><span class="p">.</span><span class="nf">DefaultSocket</span><span class="p">()</span>
+	<span class="k">case</span> <span class="nx">AllInOne</span><span class="p">:</span>
+		<span class="k">return</span> <span class="nf">NewAccessLogSidecar</span><span class="p">(</span><span class="nf">NewFlowCtrlSidecar</span><span class="p">(</span><span class="nx">network</span><span class="p">.</span><span class="nf">DefaultSocket</span><span class="p">()),</span> <span class="nx">s</span><span class="p">.</span><span class="nx">producer</span><span class="p">)</span>
+	<span class="k">default</span><span class="p">:</span>
+		<span class="k">return</span> <span class="kc">nil</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// 关键点5: 创建产品时传入具体的sidecar类型，比如sidecar.AllInOne
+</span><span class="c1"></span><span class="nx">simpleFactory</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">sidecar</span><span class="p">.</span><span class="nx">SimpleFactory</span><span class="p">{</span><span class="nx">producer</span><span class="p">:</span> <span class="nx">producer</span><span class="p">}</span>
+<span class="nx">sidecar</span> <span class="o">:=</span> <span class="nx">simpleFactory</span><span class="p">.</span><span class="nf">Create</span><span class="p">(</span><span class="nx">sidecar</span><span class="p">.</span><span class="nx">AllInOne</span><span class="p">)</span>
+</code></pre></div><h3 id="静态工厂方法">静态工厂方法</h3>
+<p>静态工厂方法是 Java/C++ 的说法，主要用于替代构造函数来完成对象的实例化，能够让代码的可读性更好，而且起到了与客户端解耦的作用。比如 Java 的静态工厂方法实现如下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Packet</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="n">Endpoint</span> <span class="n">src</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="n">Endpoint</span> <span class="n">dest</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kd">final</span> <span class="n">Object</span> <span class="n">payload</span><span class="o">;</span>
+
+    <span class="kd">private</span> <span class="nf">Packet</span><span class="o">(</span><span class="n">Endpoint</span> <span class="n">src</span><span class="o">,</span> <span class="n">Endpoint</span> <span class="n">dest</span><span class="o">,</span> <span class="n">Object</span> <span class="n">payload</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">src</span> <span class="o">=</span> <span class="n">src</span><span class="o">;</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">dest</span> <span class="o">=</span> <span class="n">dest</span><span class="o">;</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">payload</span> <span class="o">=</span> <span class="n">payload</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="c1">// 静态工厂方法
+</span><span class="c1"></span>    <span class="kd">public</span> <span class="kd">static</span> <span class="n">Packet</span> <span class="nf">of</span><span class="o">(</span><span class="n">Endpoint</span> <span class="n">src</span><span class="o">,</span> <span class="n">Endpoint</span> <span class="n">dest</span><span class="o">,</span> <span class="n">Object</span> <span class="n">payload</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="k">new</span> <span class="n">Packet</span><span class="o">(</span><span class="n">src</span><span class="o">,</span> <span class="n">dest</span><span class="o">,</span> <span class="n">payload</span><span class="o">);</span>
+    <span class="o">}</span>
+		<span class="o">...</span>
+<span class="o">}</span>
+
+<span class="c1">// 用法
+</span><span class="c1"></span><span class="n">packet</span> <span class="o">=</span> <span class="n">Packet</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="n">src</span><span class="o">,</span> <span class="n">dest</span><span class="o">,</span> <span class="n">payload</span><span class="o">)</span>
+</code></pre></div><p>Go 中并没有<strong>静态</strong>一说，直接通过普通函数来完成对象的构造即可，比如：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// demo/network/packet.go
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Packet</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">src</span>     <span class="nx">Endpoint</span>
+	<span class="nx">dest</span>    <span class="nx">Endpoint</span>
+	<span class="nx">payload</span> <span class="kd">interface</span><span class="p">{}</span>
+<span class="p">}</span>
+
+<span class="c1">// 工厂方法
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">NewPacket</span><span class="p">(</span><span class="nx">src</span><span class="p">,</span> <span class="nx">dest</span> <span class="nx">Endpoint</span><span class="p">,</span> <span class="nx">payload</span> <span class="kd">interface</span><span class="p">{})</span> <span class="o">*</span><span class="nx">Packet</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="o">&amp;</span><span class="nx">Packet</span><span class="p">{</span>
+		<span class="nx">src</span><span class="p">:</span>     <span class="nx">src</span><span class="p">,</span>
+		<span class="nx">dest</span><span class="p">:</span>    <span class="nx">dest</span><span class="p">,</span>
+		<span class="nx">payload</span><span class="p">:</span> <span class="nx">payload</span><span class="p">,</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// 用法
+</span><span class="c1"></span><span class="nx">packet</span> <span class="o">:=</span> <span class="nf">NewPacket</span><span class="p">(</span><span class="nx">src</span><span class="p">,</span> <span class="nx">dest</span><span class="p">,</span> <span class="nx">payload</span><span class="p">)</span>
+</code></pre></div><h2 id="典型应用场景">典型应用场景</h2>
+<ol>
+<li><strong>对象实例化逻辑较为复杂</strong>时，可选择使用工厂方法模式/简单工厂/静态工厂方法来进行封装，为客户端提供一个易用的接口。</li>
+<li>如果<strong>实例化的对象/接口涉及多种实现</strong>，可以使用工厂方法模式实现多态。</li>
+<li><strong>普通对象的创建，推荐使用静态工厂方法</strong>，比直接的实例化（比如 <code>&amp;Packet{src: src, dest: dest, payload: payload}</code>）具备更好的可读性和低耦合。</li>
+</ol>
+<h2 id="优缺点">优缺点</h2>
+<h3 id="优点">优点</h3>
+<ol>
+<li>代码的可读性更好。</li>
+<li>与客户端程序解耦，当实例化逻辑变更时，只需改动工厂方法即可，避免了霰弹式修改。</li>
+</ol>
+<h3 id="缺点">缺点</h3>
+<ol>
+<li>引入工厂方法模式会新增一些对象/接口的定义，滥用会导致代码更加复杂。</li>
+</ol>
+<h2 id="与其他模式的关联">与其他模式的关联</h2>
+<p>很多同学容易将工厂方法模式和<strong>抽象工厂模式</strong>混淆，抽象工厂模式主要运用在实例化“<strong>产品族</strong>”的场景，可以看成是工厂方法模式的一种演进。</p>
+<blockquote>
+<h4 id="参考">参考</h4>
+<p>[1] <a class="link" href="https://mp.weixin.qq.com/s/s3aD4mK2Aw4v99tbCIe9HA"  target="_blank" rel="noopener"
+    >【Go实现】实践GoF的23种设计模式：SOLID原则</a>, 元闰子</p>
+<p>[2] <a class="link" href="https://learning.oreilly.com/library/view/design-patterns-elements/0201633612/"  target="_blank" rel="noopener"
+    >Design Patterns, Chapter 3. Creational Patterns</a>, GoF</p>
+<p>[3] <a class="link" href="https://www.sohamkamani.com/golang/2018-06-20-golang-factory-patterns/"  target="_blank" rel="noopener"
+    >Factory patterns in Go (Golang)</a>, Soham Kamani</p>
+<p>[4] <a class="link" href="https://zh.wikipedia.org/wiki/%e5%b7%a5%e5%8e%82%e6%96%b9%e6%b3%95"  target="_blank" rel="noopener"
+    >工厂方法</a>, 维基百科</p>
+<p>更多文章请关注微信公众号：<strong>元闰子的邀请</strong></p>
+</blockquote>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">设计模式</a>
+        
+            <a href="/tags/%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">实践GoF的23种设计模式</a>
+        
+            <a href="/tags/go/">Go</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>CC BY 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%A4%87%E5%BF%98%E5%BD%95%E6%A8%A1%E5%BC%8F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">【Go实现】实践GoF的23种设计模式：备忘录模式</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%91%BD%E4%BB%A4%E6%A8%A1%E5%BC%8F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">【Go实现】实践GoF的23种设计模式：命令模式</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">【Go实现】实践GoF的23种设计模式：代理模式</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E8%AE%BF%E9%97%AE%E8%80%85%E6%A8%A1%E5%BC%8F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">【Go实现】实践GoF的23种设计模式：访问者模式</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E8%BF%AD%E4%BB%A3%E5%99%A8%E6%A8%A1%E5%BC%8F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">【Go实现】实践GoF的23种设计模式：迭代器模式</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+
+    
+        
+    <script src="https://utteranc.es/client.js" 
+        repo="ruanrunxue/yrunz-comments"
+        issue-term="pathname"
+        
+        label="yrunz"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
+
+<style>
+    .utterances {
+        max-width: unset;
+    }
+</style>
+
+<script>
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
+        }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+        setUtterancesTheme(document.body.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        setUtterancesTheme(e.detail)
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_SVG"></script>
+    <section class="copyright">
+        &copy;
+        
+            2019 -
+        
+        2023 元闰子的邀请
+    </section>
+
+    <section class="powerby">
+        
+
+        <a href="https://beian.miit.gov.cn/">粤ICP备19152659号 | </a>Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.3.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        <br />
+    </section>
+</footer>
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

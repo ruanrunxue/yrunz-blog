@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Categories on 元闰子的邀请</title>
+    <link>https://www.yrunz.com/categories/</link>
+    <description>Recent content in Categories on 元闰子的邀请</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 25 Nov 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://www.yrunz.com/categories/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>写好代码</title>
+      <link>https://www.yrunz.com/categories/%E5%86%99%E5%A5%BD%E4%BB%A3%E7%A0%81/</link>
+      <pubDate>Sat, 25 Nov 2023 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/categories/%E5%86%99%E5%A5%BD%E4%BB%A3%E7%A0%81/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>读书的地方</title>
+      <link>https://www.yrunz.com/categories/%E8%AF%BB%E4%B9%A6%E7%9A%84%E5%9C%B0%E6%96%B9/</link>
+      <pubDate>Sun, 19 Nov 2023 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/categories/%E8%AF%BB%E4%B9%A6%E7%9A%84%E5%9C%B0%E6%96%B9/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>写字的地方</title>
+      <link>https://www.yrunz.com/categories/%E5%86%99%E5%AD%97%E7%9A%84%E5%9C%B0%E6%96%B9/</link>
+      <pubDate>Mon, 23 Jan 2023 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/categories/%E5%86%99%E5%AD%97%E7%9A%84%E5%9C%B0%E6%96%B9/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>思考的地方</title>
+      <link>https://www.yrunz.com/categories/%E6%80%9D%E8%80%83%E7%9A%84%E5%9C%B0%E6%96%B9/</link>
+      <pubDate>Sun, 20 Nov 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/categories/%E6%80%9D%E8%80%83%E7%9A%84%E5%9C%B0%E6%96%B9/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>基础</title>
+      <link>https://www.yrunz.com/categories/%E5%9F%BA%E7%A1%80/</link>
+      <pubDate>Thu, 18 Aug 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/categories/%E5%9F%BA%E7%A1%80/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>架构</title>
+      <link>https://www.yrunz.com/categories/%E6%9E%B6%E6%9E%84/</link>
+      <pubDate>Fri, 08 Apr 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/categories/%E6%9E%B6%E6%9E%84/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Golang</title>
+      <link>https://www.yrunz.com/categories/golang/</link>
+      <pubDate>Sun, 10 Jan 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/categories/golang/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Java</title>
+      <link>https://www.yrunz.com/categories/java/</link>
+      <pubDate>Tue, 28 Jul 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/categories/java/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>

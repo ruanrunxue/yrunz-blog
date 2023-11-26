@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='前言 2020年是艰难的一年，对于中国和世界而言，是新冠疫情的卷席全人类；对于个人而言，是工作上的无比繁忙。
+以前一直会开这么一个玩笑，“在我们公司工作，那是一年工作，三年经验”。在工作的前两年，说出这句话更多的是一种自嘲，但在今年，它却是一个真实的写照。回顾2020年自己所做的事情，初略一想，除了工作，貌似也只剩下工作了。年初时定下的一些计划，大部分都因为工作繁忙的缘故而被搁置。在阅读和写作上，梳理了自己今年读过的书，数量还不及去年的三分之一；而写过的文章，更是寥寥无几。特别是在作为主业的软件技术方面，更是没有实质的进步，感觉还是停留在2019年的水平。在这个技术日新月异的行业，不进则退，貌似，今年是失败的一年？
+一直以来都坚信《钢之炼金术师》中等价交换这一原则，既然花了这么多时间在工作上，那必定会有所收获。仔细一想，今年收获最大的，莫过于对意志的磨练。
+身为一名软件工程师，相信大家对技术都有着执着的追求。特别是初入职场，肯定有过把所有相关的技术框架学个遍的想法，唯恐跟不上时代的潮流。如果在工作的第一年问我，“对于一名软件工程师而言，什么是最重要的？”，我会回答，技术；工作的第二年，在学习了一些软件方法论，特别是领域驱动设计之后，结合工作上的项目经验，这才慢慢认识到，软件技术万变不离其宗，业务才是软件的核心。如果还问我同样的问题，我会回答，业务和技术；工作的第三年，在经历了如此艰难的2020年之后，如果再问题同样的问题，我会回答，意志、业务和技术。
+意志 一直以来大概是没有经历过很考验意志的时刻，高中按部就班地学习，然后考上大学；大学也是平平淡淡地度过六年，然后步入职场。连挑灯夜战都没几次，更别说引锥刺股了。工作的前两年虽说也有过曲折，但对比2020年，那都是不值得一提。因为新项目的巨大挑战，从3月初开始，下班的时间点逐渐延后，并在4月份达到了高峰，甚至在4月的最后一周里连睡觉都成了一件奢侈的事情。在整个4月里，为了解决新项目的难题，拼的已经不再是软件技术，更多的是意志力。
+记得有一天晚上为了解决一个问题，已经通宵工作到凌晨6点，却还是连问题原因都没找出来。心情的低落，身体的疲惫，那一刻已经临近崩溃。这时想起《指环王》里面Sam对Frodo说的一番话：
+ Frodo: I can’t do this, Sam.
+Sam: I know. It’s all wrong. By rights, we shouldn’t even be here. But we are. It’s like in the great stories, Mr. Frodo. The ones that really mattered.
+Full of darkness and danger they were. And sometimes you didn’t want to know the end. Because how could the end be happy? How could the world go back to the way it was when so much bad had happened?'><title>2020年的成长印记</title>
+
+<link rel='canonical' href='https://www.yrunz.com/p/2020%E5%B9%B4%E7%9A%84%E6%88%90%E9%95%BF%E5%8D%B0%E8%AE%B0/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='2020年的成长印记'>
+<meta property='og:description' content='前言 2020年是艰难的一年，对于中国和世界而言，是新冠疫情的卷席全人类；对于个人而言，是工作上的无比繁忙。
+以前一直会开这么一个玩笑，“在我们公司工作，那是一年工作，三年经验”。在工作的前两年，说出这句话更多的是一种自嘲，但在今年，它却是一个真实的写照。回顾2020年自己所做的事情，初略一想，除了工作，貌似也只剩下工作了。年初时定下的一些计划，大部分都因为工作繁忙的缘故而被搁置。在阅读和写作上，梳理了自己今年读过的书，数量还不及去年的三分之一；而写过的文章，更是寥寥无几。特别是在作为主业的软件技术方面，更是没有实质的进步，感觉还是停留在2019年的水平。在这个技术日新月异的行业，不进则退，貌似，今年是失败的一年？
+一直以来都坚信《钢之炼金术师》中等价交换这一原则，既然花了这么多时间在工作上，那必定会有所收获。仔细一想，今年收获最大的，莫过于对意志的磨练。
+身为一名软件工程师，相信大家对技术都有着执着的追求。特别是初入职场，肯定有过把所有相关的技术框架学个遍的想法，唯恐跟不上时代的潮流。如果在工作的第一年问我，“对于一名软件工程师而言，什么是最重要的？”，我会回答，技术；工作的第二年，在学习了一些软件方法论，特别是领域驱动设计之后，结合工作上的项目经验，这才慢慢认识到，软件技术万变不离其宗，业务才是软件的核心。如果还问我同样的问题，我会回答，业务和技术；工作的第三年，在经历了如此艰难的2020年之后，如果再问题同样的问题，我会回答，意志、业务和技术。
+意志 一直以来大概是没有经历过很考验意志的时刻，高中按部就班地学习，然后考上大学；大学也是平平淡淡地度过六年，然后步入职场。连挑灯夜战都没几次，更别说引锥刺股了。工作的前两年虽说也有过曲折，但对比2020年，那都是不值得一提。因为新项目的巨大挑战，从3月初开始，下班的时间点逐渐延后，并在4月份达到了高峰，甚至在4月的最后一周里连睡觉都成了一件奢侈的事情。在整个4月里，为了解决新项目的难题，拼的已经不再是软件技术，更多的是意志力。
+记得有一天晚上为了解决一个问题，已经通宵工作到凌晨6点，却还是连问题原因都没找出来。心情的低落，身体的疲惫，那一刻已经临近崩溃。这时想起《指环王》里面Sam对Frodo说的一番话：
+ Frodo: I can’t do this, Sam.
+Sam: I know. It’s all wrong. By rights, we shouldn’t even be here. But we are. It’s like in the great stories, Mr. Frodo. The ones that really mattered.
+Full of darkness and danger they were. And sometimes you didn’t want to know the end. Because how could the end be happy? How could the world go back to the way it was when so much bad had happened?'>
+<meta property='og:url' content='https://www.yrunz.com/p/2020%E5%B9%B4%E7%9A%84%E6%88%90%E9%95%BF%E5%8D%B0%E8%AE%B0/'>
+<meta property='og:site_name' content='元闰子的邀请'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='读书笔记' /><meta property='article:tag' content='年终总结' /><meta property='article:tag' content='成长' /><meta property='article:published_time' content='2020-12-31T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2020-12-31T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="2020年的成长印记">
+<meta name="twitter:description" content="前言 2020年是艰难的一年，对于中国和世界而言，是新冠疫情的卷席全人类；对于个人而言，是工作上的无比繁忙。
+以前一直会开这么一个玩笑，“在我们公司工作，那是一年工作，三年经验”。在工作的前两年，说出这句话更多的是一种自嘲，但在今年，它却是一个真实的写照。回顾2020年自己所做的事情，初略一想，除了工作，貌似也只剩下工作了。年初时定下的一些计划，大部分都因为工作繁忙的缘故而被搁置。在阅读和写作上，梳理了自己今年读过的书，数量还不及去年的三分之一；而写过的文章，更是寥寥无几。特别是在作为主业的软件技术方面，更是没有实质的进步，感觉还是停留在2019年的水平。在这个技术日新月异的行业，不进则退，貌似，今年是失败的一年？
+一直以来都坚信《钢之炼金术师》中等价交换这一原则，既然花了这么多时间在工作上，那必定会有所收获。仔细一想，今年收获最大的，莫过于对意志的磨练。
+身为一名软件工程师，相信大家对技术都有着执着的追求。特别是初入职场，肯定有过把所有相关的技术框架学个遍的想法，唯恐跟不上时代的潮流。如果在工作的第一年问我，“对于一名软件工程师而言，什么是最重要的？”，我会回答，技术；工作的第二年，在学习了一些软件方法论，特别是领域驱动设计之后，结合工作上的项目经验，这才慢慢认识到，软件技术万变不离其宗，业务才是软件的核心。如果还问我同样的问题，我会回答，业务和技术；工作的第三年，在经历了如此艰难的2020年之后，如果再问题同样的问题，我会回答，意志、业务和技术。
+意志 一直以来大概是没有经历过很考验意志的时刻，高中按部就班地学习，然后考上大学；大学也是平平淡淡地度过六年，然后步入职场。连挑灯夜战都没几次，更别说引锥刺股了。工作的前两年虽说也有过曲折，但对比2020年，那都是不值得一提。因为新项目的巨大挑战，从3月初开始，下班的时间点逐渐延后，并在4月份达到了高峰，甚至在4月的最后一周里连睡觉都成了一件奢侈的事情。在整个4月里，为了解决新项目的难题，拼的已经不再是软件技术，更多的是意志力。
+记得有一天晚上为了解决一个问题，已经通宵工作到凌晨6点，却还是连问题原因都没找出来。心情的低落，身体的疲惫，那一刻已经临近崩溃。这时想起《指环王》里面Sam对Frodo说的一番话：
+ Frodo: I can’t do this, Sam.
+Sam: I know. It’s all wrong. By rights, we shouldn’t even be here. But we are. It’s like in the great stories, Mr. Frodo. The ones that really mattered.
+Full of darkness and danger they were. And sometimes you didn’t want to know the end. Because how could the end be happy? How could the world go back to the way it was when so much bad had happened?">
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "light");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/yrz_hudc7c8721ecce4b724df5002339c76402_174377_300x0_resize_box_2.png" width="300"
+                            height="306" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://www.yrunz.com">元闰子的邀请</a></h1>
+        <h2 class="site-description">阅读、写作、生活（个人技术分享）</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>首页</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>博客</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%85%B3%E4%BA%8E%E5%85%83%E9%97%B0%E5%AD%90/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24"
+     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+     stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z"/>
+    <circle cx="12" cy="7" r="4"/>
+    <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/>
+</svg>
+
+                
+                <span>关于元闰子</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%8F%8B%E6%83%85%E9%93%BE%E6%8E%A5/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-friends" width="44" height="44"
+     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+    <circle cx="7" cy="5" r="2"/>
+    <path d="M5 22v-5l-1 -1v-4a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4l-1 1v5"/>
+    <circle cx="17" cy="5" r="2"/>
+    <path d="M15 22v-4h-2l2 -6a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1l2 6h-2v4"/>
+</svg>
+
+                
+                <span>友情链接</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>暗色模式</span>
+            </li>
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://www.yrunz.com" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E5%86%99%E5%AD%97%E7%9A%84%E5%9C%B0%E6%96%B9/" >
+                写字的地方
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/2020%E5%B9%B4%E7%9A%84%E6%88%90%E9%95%BF%E5%8D%B0%E8%AE%B0/">2020年的成长印记</a>
+    </h2>
+
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Dec 31, 2020</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <h2 id="前言">前言</h2>
+<p><em>2020年是艰难的一年，对于中国和世界而言，是新冠疫情的卷席全人类；对于个人而言，是工作上的无比繁忙。</em></p>
+<p>以前一直会开这么一个玩笑，“<strong>在我们公司工作，那是一年工作，三年经验</strong>”。在工作的前两年，说出这句话更多的是一种自嘲，但在今年，它却是一个真实的写照。回顾2020年自己所做的事情，初略一想，除了工作，貌似也只剩下工作了。年初时定下的一些计划，大部分都因为工作繁忙的缘故而被搁置。在阅读和写作上，梳理了自己今年读过的书，数量还不及去年的三分之一；而写过的文章，更是寥寥无几。特别是在作为主业的软件技术方面，更是没有实质的进步，感觉还是停留在2019年的水平。在这个技术日新月异的行业，不进则退，<em>貌似，今年是失败的一年？</em></p>
+<p>一直以来都坚信《钢之炼金术师》中<strong>等价交换</strong>这一原则，既然花了这么多时间在工作上，那必定会有所收获。仔细一想，<strong>今年收获最大的，莫过于对意志的磨练</strong>。</p>
+<p>身为一名软件工程师，相信大家对技术都有着执着的追求。特别是初入职场，肯定有过把所有相关的技术框架学个遍的想法，唯恐跟不上时代的潮流。如果在工作的第一年问我，“<strong>对于一名软件工程师而言，什么是最重要的？</strong>”，我会回答，<strong>技术</strong>；工作的第二年，在学习了一些软件方法论，特别是领域驱动设计之后，结合工作上的项目经验，这才慢慢认识到，软件技术万变不离其宗，业务才是软件的核心。如果还问我同样的问题，我会回答，<strong>业务和技术</strong>；工作的第三年，在经历了如此艰难的2020年之后，如果再问题同样的问题，我会回答，<strong>意志、业务和技术</strong>。</p>
+<h2 id="意志">意志</h2>
+<p>一直以来大概是没有经历过很考验意志的时刻，高中按部就班地学习，然后考上大学；大学也是平平淡淡地度过六年，然后步入职场。连挑灯夜战都没几次，更别说引锥刺股了。工作的前两年虽说也有过曲折，但对比2020年，那都是不值得一提。因为新项目的巨大挑战，从3月初开始，下班的时间点逐渐延后，并在4月份达到了高峰，甚至在4月的最后一周里连睡觉都成了一件奢侈的事情。<strong>在整个4月里，为了解决新项目的难题，拼的已经不再是软件技术，更多的是意志力</strong>。</p>
+<p>记得有一天晚上为了解决一个问题，已经通宵工作到凌晨6点，却还是连问题原因都没找出来。心情的低落，身体的疲惫，那一刻已经临近崩溃。这时想起《指环王》里面Sam对Frodo说的一番话：</p>
+<blockquote>
+<p><strong>Frodo</strong>: I can’t do this, Sam.</p>
+<p><strong>Sam</strong>: I know. It’s all wrong. By rights, we shouldn’t even be here. But we are. It’s like in the great stories, Mr. Frodo. The ones that really mattered.</p>
+<p>Full of darkness and danger they were. And sometimes you didn’t want to know the end. Because how could the end be happy? How could the world go back to the way it was when so much bad had happened?</p>
+<p><strong>But in the end, it’s only a passing thing, this shadow</strong>. Even darkness must pass. A new day will come. And when the sun shines, it will shine out the clearer. Those were the stories that stayed with you that meant something. Even if you were too small to understand why. But I think, Mr. Frodo, I do understand. I know now.</p>
+<p><strong>Fold in those stories had lots of chances of turning back, only they didn’t. They kept going because they were holding on to something</strong>.</p>
+<p><strong>Frodo</strong>: What are we holding on to Sam?</p>
+<p><strong>Sam</strong>: There is some good in this world, Mr. Frodo. And it’s worth fighting for.</p>
+</blockquote>
+<p><em>困难总会过去，只要心怀希望，没有迈不过去的坎</em>。</p>
+<p>随着4月的结束，这一挑战也成功告一段落。当走在去庆祝的路上时，伴随着倾洒的阳光和迎面的微风，嘴角轻轻扬起，那一刻的舒畅，永远也不会忘掉。没有人愿意再重复一次这样的经历，但它却让我们的内心更加的强大了，而我也在这次的经历中收获了<strong>意志</strong>。</p>
+<h2 id="读书">读书</h2>
+<p>2020年读的书相比去年少了很多，而且大多都是在零散的时间里阅读的电子版书籍。软件技术类的书基本都是在O&rsquo;Reilly平台上阅读，上面技术类的书籍很全还很新（通过ACM注册会员很划算，转送门：<a class="link" href="https://zhuanlan.zhihu.com/p/83928266"  target="_blank" rel="noopener"
+    >https://zhuanlan.zhihu.com/p/83928266</a>）；其他人文、科普类的都是在微信读书上完成。不得不说，微信读书可以让人充分利用各种碎片时间，最重要的是还能在睡前起到催眠的作用，<strong>实在是失眠多梦必备APP</strong>。</p>
+<h3 id="软件类">软件类</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img src="https://tva1.sinaimg.cn/large/0081Kckwgy1gma7ei6jqaj30jn0rswjc.jpg" alt=""  /></td>
+<td><img src="https://tva1.sinaimg.cn/large/0081Kckwgy1gma7i1hl1nj30oe0u0wgn.jpg" alt=""  /></td>
+</tr>
+<tr>
+<td>年初转Go开发之后看的第一本Go相关的技术书籍，江湖人称《Go语言圣经》，从基本语法讲到高级特性，细节很丰富，入门必备书籍。</td>
+<td>主要通过TDD的流程来讲解如何使用Go实现经典的23种设计模式，其中也介绍了Go的一些基础知识。书的整体水准一般，但也算是开卷有益。</td>
+</tr>
+<tr>
+<td><img src="https://tva1.sinaimg.cn/large/0081Kckwgy1gmabt66o3dj30ks0ran1w.jpg" alt=""  /></td>
+<td><img src="https://tva1.sinaimg.cn/large/0081Kckwgy1gmac2o5ocij30al0dvmyc.jpg" alt=""  /></td>
+</tr>
+<tr>
+<td>今年读过的最好的技术类书籍，从实现最简单的数据库讲起，深入浅出地介绍了当前大火的各种分布式系统的实现原理。读完之后有种醍醐灌顶的感觉。</td>
+<td>可以说是架构师的入门指南，书中不仅介绍了如何设计一个好的软件系统，而且还教你如何成为一个优秀的Tech Leader，非常值得一读。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="人文社科类">人文社科类</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img src="https://tva1.sinaimg.cn/large/0081Kckwgy1gmacgopvj2j30lc0sgmzi.jpg" alt=""  /></td>
+<td><img src="https://tva1.sinaimg.cn/large/0081Kckwgy1gmacctjndwj30u012sk8b.jpg" alt=""  /></td>
+</tr>
+<tr>
+<td>写给小白看的设计入门书籍，作者提出了设计的4大基本原则：<strong>亲密性</strong>、<strong>对齐</strong>、<strong>重复</strong>、<strong>对比</strong>，对于写PPT来说非常受用。</td>
+<td>很早就听说这本书了，今年读完之后也深有感触，<strong>只有健康的体魄，再加上平静的心境，才能让我们幸福的过完这一生</strong>。</td>
+</tr>
+<tr>
+<td><img src="https://tva1.sinaimg.cn/large/0081Kckwgy1gmacyko1kdj30890cf0sw.jpg" alt=""  /></td>
+<td><img src="https://tva1.sinaimg.cn/large/0081Kckwgy1gmad7vzuthj30u01630zy.jpg" alt=""  /></td>
+</tr>
+<tr>
+<td>一直很好奇<strong>美学</strong>这一门学科讲的是什么，于是就挑了朱光潜大师的这一本《谈美》。看完之后，内容也没记住多少，倒是再看一棵树时，不再只会从科学和实用的角度去看待它，还会提醒自己尝试从美学的角度欣赏它。</td>
+<td>从史前时代开始讲起，介绍世界各地的各种艺术和艺术家们的故事。这本书一定要买实体书看，在微信读书上无法体会到艺术带给人的震撼。</td>
+</tr>
+<tr>
+<td><img src="https://tva1.sinaimg.cn/large/0081Kckwgy1gmadj5po22j30af0dw0u9.jpg" alt=""  /></td>
+<td><img src="https://tva1.sinaimg.cn/large/0081Kckwgy1gmah310psbj30f60kewiy.jpg" alt=""  /></td>
+</tr>
+<tr>
+<td>也是很出名的一本书了，记住书中介绍几种沟通技巧，<strong>观察</strong>、<strong>感受</strong>、<strong>需要</strong>、<strong>请求</strong>，并在与他人交流的时候提醒自己使用它们，有利于改善与他人的关系。</td>
+<td>初看书名以为是管理学的书，读了才发现原来是一本社会心理学的书，通过很多实际的例子，讲述如何利用各种<strong>影响力</strong>来达成目标。</td>
+</tr>
+<tr>
+<td><img src="https://tva1.sinaimg.cn/large/0081Kckwgy1gmah9y1965j30f10lu41g.jpg" alt=""  /></td>
+<td></td>
+</tr>
+<tr>
+<td>读完印象最深的是，万历皇帝一开始也是想励精图治，随之却被各种事情所打击，最后变成了无为而治。在怒其不争的同时，也深深体会到他身为人皇的不容易。</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="科普类">科普类</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img src="https://tva1.sinaimg.cn/large/0081Kckwgy1gmak0ud23mj30b90enwfl.jpg" alt=""  /></td>
+<td><img src="https://img1.doubanio.com/view/subject/l/public/s33471187.jpg" alt="img"  /></td>
+</tr>
+<tr>
+<td>去年读的《原则》的作者力荐的书籍，从基因的角度讲述生命的进化。读完之后，并没有很深刻的印象，还是觉得前些年读的《基因组：人种自传23章》更加好。</td>
+<td>以一种独特的穿越视角来介绍人类文明历史上各种重要的发明，非常的有趣易读。</td>
+</tr>
+<tr>
+<td><img src="https://img9.doubanio.com/view/subject/l/public/s29793336.jpg" alt="img"  /></td>
+<td><img src="https://tva1.sinaimg.cn/large/0081Kckwgy1gmal8b1l2rj30xc0hi0u9.jpg" alt=""  /></td>
+</tr>
+<tr>
+<td>颠覆常识，刷新认知的一本书，原来人类的很多疾病也帮助人类在特定的时期渡过了一个又一个的难关。</td>
+<td>原来微生物也可以像基因一样在世代中遗传，只是现代人所追求的“无菌”让人体内微生物多样性逐渐缺失，也间接导致了很多现代疾病的盛行。看完这本书最大的感受就是，以后要好好善待我们身体里的这群小朋友了。</td>
+</tr>
+</tbody>
+</table>
+<h2 id="总结">总结</h2>
+<p>2020年过得很艰难，但也遇到了很多美好的人和事；虽说工作繁忙，却也磨练了意志。希望2021年里能够克服惰性，保持阅读和写作，也希望生活能对自己更好些。</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">读书笔记</a>
+        
+            <a href="/tags/%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/">年终总结</a>
+        
+            <a href="/tags/%E6%88%90%E9%95%BF/">成长</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>CC BY 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/2022-%E5%B9%B4%E5%B0%8F%E7%BB%93/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">2022 年小结</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/2021%E5%B9%B4%E5%B0%8F%E7%BB%93/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">2021年小结</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/2019%E5%B9%B4%E7%9A%84%E8%AF%BB%E4%B9%A6%E5%8D%B0%E8%AE%B0/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">2019年的读书印记</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E4%B8%8D%E4%B8%80%E6%A0%B7%E7%9A%84%E5%9B%BD%E6%96%87%E8%AF%BE/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">不一样的国文课</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E7%BA%B3%E7%93%A6%E5%B0%94%E5%AE%9D%E5%85%B8%E5%A6%82%E4%BD%95%E8%8E%B7%E5%BE%97%E5%B9%B8%E7%A6%8F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">《纳瓦尔宝典》：如何获得幸福？</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+
+    
+        
+    <script src="https://utteranc.es/client.js" 
+        repo="ruanrunxue/yrunz-comments"
+        issue-term="pathname"
+        
+        label="yrunz"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
+
+<style>
+    .utterances {
+        max-width: unset;
+    }
+</style>
+
+<script>
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
+        }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+        setUtterancesTheme(document.body.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        setUtterancesTheme(e.detail)
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_SVG"></script>
+    <section class="copyright">
+        &copy;
+        
+            2019 -
+        
+        2023 元闰子的邀请
+    </section>
+
+    <section class="powerby">
+        
+
+        <a href="https://beian.miit.gov.cn/">粤ICP备19152659号 | </a>Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.3.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        <br />
+    </section>
+</footer>
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

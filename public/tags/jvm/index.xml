@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>jvm on 元闰子的邀请</title>
+    <link>https://www.yrunz.com/tags/jvm/</link>
+    <description>Recent content in jvm on 元闰子的邀请</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 02 Feb 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://www.yrunz.com/tags/jvm/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Java的对象模型——Oop-Klass模型（二）</title>
+      <link>https://www.yrunz.com/p/java%E7%9A%84%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8Boop-klass%E6%A8%A1%E5%9E%8B%E4%BA%8C/</link>
+      <pubDate>Sun, 02 Feb 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/java%E7%9A%84%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8Boop-klass%E6%A8%A1%E5%9E%8B%E4%BA%8C/</guid>
+      <description>前言 在《Java对象表示——Oop-Klass模型（一）》一文的最后讲到，为了实现Java方法调用的动态绑定，HotSpot使用了与C++虚函数类似的机制，同时为了避免每个对象都维护一个虚函数表，于是就设计了Klass类。
+如下为HotSpot源码中对Klass的功能介绍：
+ A Klass provides:
+​ 1: language level class object (method dictionary etc.)
+​ 2: provide vm dispatch behavior for the object
+Both functions are combined into one C++ class.
+ 可见，Klass主要提供了两个功能：
+（1）用于表示Java类。Klass中保存了一个Java对象的类型信息，包括类名、限定符、常量池、方法字典等。一个class文件被JVM加载之后，就会被解析成一个Klass对象存储在内存中。
+（2）实现对象的虚分派（virtual dispatch）。所谓的虚分派，是JVM用来实现多态的一种机制。
+class A { void callMe() { System.out.println(&amp;#34;This is A.&amp;#34;); } } class B extends A { @Override public void callMe() { System.out.println(&amp;#34;This is B.&amp;#34;); } } class C extends A { @Override public void callMe() { System.</description>
+    </item>
+    
+    <item>
+      <title>Java的对象模型——Oop-Klass模型（一）</title>
+      <link>https://www.yrunz.com/p/java%E7%9A%84%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8Boop-klass%E6%A8%A1%E5%9E%8B%E4%B8%80/</link>
+      <pubDate>Fri, 31 Jan 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/java%E7%9A%84%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8Boop-klass%E6%A8%A1%E5%9E%8B%E4%B8%80/</guid>
+      <description>前言 谈起Java对象，笔者的第一反应是在：Java中的每一个对象（不包括基础类型）都继承于Object对象。相信这也是大多数程序员对Java对象的初次印象，Object可以表示所有的Java对象。但是，这种理解仅仅是停留在语言层面，至于更深的JVM层面，对象还是用Object来表示吗？显然不是。JVM通常使用非Java语言实现，是用来解析并运行Java程序的，它有自己的模型来表示Java语言的各种特性，包括Object。下面我们以HotSpot为例，一起来探讨Java对象在JVM层面的Java对象模型。
+ HotSpot采用C++语言实现，下文中的JVM如无特殊说明，指的都是HotSpot。
+ Java程序通过new操作符来创建一个对象，在深入探讨HotSpot的Java对象模型前，我们先看下new操作符的具体实现。
+// hotspot/src/share/vm/interpreter/interpreterRuntime.cpp ... // HotSpot中new操作符的实现函数 IRT_ENTRY(void, InterpreterRuntime::_new(JavaThread* thread, ConstantPool* pool, int index)) Klass* k_oop = pool-&amp;gt;klass_at(index, CHECK); instanceKlassHandle klass (THREAD, k_oop); // Make sure we are not instantiating an abstract klass  klass-&amp;gt;check_valid_for_instantiation(true, CHECK); // Make sure klass is initialized  klass-&amp;gt;initialize(CHECK); // At this point the class may not be fully initialized  // ...  oop obj = klass-&amp;gt;allocate_instance(CHECK); thread-&amp;gt;set_vm_result(obj); IRT_END ... 上述代码片段来自HotSpot源码中new操作符的实现函数，先不深入分析每一行的具体含义，这段代码给我们最直观的功能就是：先对klass对象进行初始化工作，然后再用它来创建出oop对象。到这里我们大致就能猜出，oop表示的就是一个Java对象。而这里的klass和Java中的Class之间似乎有着紧密的联系，一是两者的名字非常类似，另外也可通过第16行代码得到进一步的肯定。对Java的反射机制稍微有所了解的人，看着第16行代码一定很熟悉，因为它与使用Class.</description>
+    </item>
+    
+  </channel>
+</rss>

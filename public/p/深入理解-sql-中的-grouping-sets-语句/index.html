@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='本文首先简单介绍 Grouping Sets 的用法，然后以 Spark SQL 作为切入点，深入解析 Grouping Sets 的实现机制。'><title>深入理解 SQL 中的 Grouping Sets 语句</title>
+
+<link rel='canonical' href='https://www.yrunz.com/p/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3-sql-%E4%B8%AD%E7%9A%84-grouping-sets-%E8%AF%AD%E5%8F%A5/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='深入理解 SQL 中的 Grouping Sets 语句'>
+<meta property='og:description' content='本文首先简单介绍 Grouping Sets 的用法，然后以 Spark SQL 作为切入点，深入解析 Grouping Sets 的实现机制。'>
+<meta property='og:url' content='https://www.yrunz.com/p/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3-sql-%E4%B8%AD%E7%9A%84-grouping-sets-%E8%AF%AD%E5%8F%A5/'>
+<meta property='og:site_name' content='元闰子的邀请'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Spark SQL' /><meta property='article:tag' content='SQL' /><meta property='article:published_time' content='2022-07-03T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2022-07-03T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="深入理解 SQL 中的 Grouping Sets 语句">
+<meta name="twitter:description" content="本文首先简单介绍 Grouping Sets 的用法，然后以 Spark SQL 作为切入点，深入解析 Grouping Sets 的实现机制。">
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "light");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/yrz_hudc7c8721ecce4b724df5002339c76402_174377_300x0_resize_box_2.png" width="300"
+                            height="306" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://www.yrunz.com">元闰子的邀请</a></h1>
+        <h2 class="site-description">阅读、写作、生活（个人技术分享）</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>首页</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>博客</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%85%B3%E4%BA%8E%E5%85%83%E9%97%B0%E5%AD%90/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24"
+     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+     stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z"/>
+    <circle cx="12" cy="7" r="4"/>
+    <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/>
+</svg>
+
+                
+                <span>关于元闰子</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%8F%8B%E6%83%85%E9%93%BE%E6%8E%A5/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-friends" width="44" height="44"
+     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+    <circle cx="7" cy="5" r="2"/>
+    <path d="M5 22v-5l-1 -1v-4a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4l-1 1v5"/>
+    <circle cx="17" cy="5" r="2"/>
+    <path d="M15 22v-4h-2l2 -6a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1l2 6h-2v4"/>
+</svg>
+
+                
+                <span>友情链接</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>暗色模式</span>
+            </li>
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://www.yrunz.com" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E5%9F%BA%E7%A1%80/" >
+                基础
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3-sql-%E4%B8%AD%E7%9A%84-grouping-sets-%E8%AF%AD%E5%8F%A5/">深入理解 SQL 中的 Grouping Sets 语句</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        本文首先简单介绍 Grouping Sets 的用法，然后以 Spark SQL 作为切入点，深入解析 Grouping Sets 的实现机制。
+    </h3>
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Jul 03, 2022</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <h2 id="前言">前言</h2>
+<p>SQL 中 <code>Group By</code> 语句大家都很熟悉，<strong>根据指定的规则对数据进行分组</strong>，常常和<strong>聚合函数</strong>一起使用。</p>
+<p>比如，考虑有表 <code>dealer</code>，表中数据如下：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">id (Int)</th>
+<th style="text-align:center">city (String)</th>
+<th style="text-align:center">car_model (String)</th>
+<th style="text-align:center">quantity (Int)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">100</td>
+<td style="text-align:center">Fremont</td>
+<td style="text-align:center">Honda Civic</td>
+<td style="text-align:center">10</td>
+</tr>
+<tr>
+<td style="text-align:center">100</td>
+<td style="text-align:center">Fremont</td>
+<td style="text-align:center">Honda Accord</td>
+<td style="text-align:center">15</td>
+</tr>
+<tr>
+<td style="text-align:center">100</td>
+<td style="text-align:center">Fremont</td>
+<td style="text-align:center">Honda CRV</td>
+<td style="text-align:center">7</td>
+</tr>
+<tr>
+<td style="text-align:center">200</td>
+<td style="text-align:center">Dublin</td>
+<td style="text-align:center">Honda Civic</td>
+<td style="text-align:center">20</td>
+</tr>
+<tr>
+<td style="text-align:center">200</td>
+<td style="text-align:center">Dublin</td>
+<td style="text-align:center">Honda Accord</td>
+<td style="text-align:center">10</td>
+</tr>
+<tr>
+<td style="text-align:center">200</td>
+<td style="text-align:center">Dublin</td>
+<td style="text-align:center">Honda CRV</td>
+<td style="text-align:center">3</td>
+</tr>
+<tr>
+<td style="text-align:center">300</td>
+<td style="text-align:center">San Jose</td>
+<td style="text-align:center">Honda Civic</td>
+<td style="text-align:center">5</td>
+</tr>
+<tr>
+<td style="text-align:center">300</td>
+<td style="text-align:center">San Jose</td>
+<td style="text-align:center">Honda Accord</td>
+<td style="text-align:center">8</td>
+</tr>
+</tbody>
+</table>
+<p>如果执行 SQL 语句 <code>SELECT id, sum(quantity) FROM dealer GROUP BY id ORDER BY id</code>，会得到如下结果：</p>
+<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="o">+</span><span class="c1">---+-------------+
+</span><span class="c1"></span><span class="o">|</span><span class="w"> </span><span class="n">id</span><span class="o">|</span><span class="k">sum</span><span class="p">(</span><span class="n">quantity</span><span class="p">)</span><span class="o">|</span><span class="w">
+</span><span class="w"></span><span class="o">+</span><span class="c1">---+-------------+
+</span><span class="c1"></span><span class="o">|</span><span class="mi">100</span><span class="o">|</span><span class="w">           </span><span class="mi">32</span><span class="o">|</span><span class="w">
+</span><span class="w"></span><span class="o">|</span><span class="mi">200</span><span class="o">|</span><span class="w">           </span><span class="mi">33</span><span class="o">|</span><span class="w">
+</span><span class="w"></span><span class="o">|</span><span class="mi">300</span><span class="o">|</span><span class="w">           </span><span class="mi">13</span><span class="o">|</span><span class="w">
+</span><span class="w"></span><span class="o">+</span><span class="c1">---+-------------+
+</span></code></pre></div><p>上述 SQL 语句的意思就是对数据按 <code>id</code> 列进行分组，然后在每个分组内对 <code>quantity</code> 列进行求和。</p>
+<p><code>Group By</code> 语句除了上面的简单用法之外，还有更高级的用法，常见的是 <code>Grouping Sets</code>、<code>RollUp</code> 和 <code>Cube</code>，它们在 OLAP 时比较常用。其中，<code>RollUp</code> 和 <code>Cube</code> 都是以 <code>Grouping Sets</code> 为基础实现的，因此，弄懂了 <code>Grouping Sets</code>，也就理解了 <code>RollUp</code> 和 <code>Cube</code> 。</p>
+<p>本文首先简单介绍 <code>Grouping Sets</code> 的用法，然后以 Spark SQL 作为切入点，深入解析 <code>Grouping Sets</code> 的实现机制。</p>
+<blockquote>
+<p>Spark SQL 是 Apache Spark 大数据处理框架的一个子模块，用来处理结构化信息。它可以将 SQL 语句翻译多个任务在 Spark 集群上执行，<strong>允许用户直接通过 SQL 来处理数据</strong>，大大提升了易用性。</p>
+</blockquote>
+<h2 id="grouping-sets-简介">Grouping Sets 简介</h2>
+<p>Spark SQL 官方文档中 <a class="link" href="https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-groupby.html"  target="_blank" rel="noopener"
+    >SQL Syntax</a> 一节对 <code>Grouping Sets</code> 语句的描述如下：</p>
+<blockquote>
+<p>Groups the rows for each grouping set specified after GROUPING SETS. （&hellip; 一些举例） This clause is a shorthand for a <code>UNION ALL</code> where each leg of the <code>UNION ALL</code> operator performs aggregation of each grouping set specified in the <code>GROUPING SETS</code> clause. （&hellip; 一些举例）</p>
+</blockquote>
+<p>也即，<code>Grouping Sets</code> 语句的作用是指定几个 <strong>grouping set</strong> 作为 <code>Group By</code> 的分组规则，然后再将结果联合在一起。它的效果和，<strong>先分别对这些 grouping set 进行 <code>Group By </code> 分组之后，再通过 Union All 将结果联合起来</strong>，是一样的。</p>
+<p>比如，对于 <code>dealer</code> 表，<code>Group By Grouping Sets ((city, car_model), (city), (car_model), ())</code> 和 <code>Union All((Group By city, car_model), (Group By city), (Group By car_model), 全局聚合)</code> 的效果是相同的：</p>
+<p>先看 Grouping Sets 版的执行结果：</p>
+<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">spark</span><span class="o">-</span><span class="k">sql</span><span class="o">&gt;</span><span class="w"> </span><span class="k">SELECT</span><span class="w"> </span><span class="n">city</span><span class="p">,</span><span class="w"> </span><span class="n">car_model</span><span class="p">,</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">quantity</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="k">sum</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">dealer</span><span class="w"> 
+</span><span class="w">         </span><span class="o">&gt;</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="k">GROUPING</span><span class="w"> </span><span class="k">SETS</span><span class="w"> </span><span class="p">((</span><span class="n">city</span><span class="p">,</span><span class="w"> </span><span class="n">car_model</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="n">city</span><span class="p">),</span><span class="w"> </span><span class="p">(</span><span class="n">car_model</span><span class="p">),</span><span class="w"> </span><span class="p">())</span><span class="w"> 
+</span><span class="w">         </span><span class="o">&gt;</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">city</span><span class="p">,</span><span class="w"> </span><span class="n">car_model</span><span class="p">;</span><span class="w">
+</span><span class="w"></span><span class="o">+</span><span class="c1">--------+------------+---+
+</span><span class="c1"></span><span class="o">|</span><span class="w">    </span><span class="n">city</span><span class="o">|</span><span class="w">   </span><span class="n">car_model</span><span class="o">|</span><span class="k">sum</span><span class="o">|</span><span class="w">
+</span><span class="w"></span><span class="o">+</span><span class="c1">--------+------------+---+
+</span><span class="c1"></span><span class="o">|</span><span class="w">    </span><span class="k">null</span><span class="o">|</span><span class="w">        </span><span class="k">null</span><span class="o">|</span><span class="w"> </span><span class="mi">78</span><span class="o">|</span><span class="w">
+</span><span class="w"></span><span class="o">|</span><span class="w">    </span><span class="k">null</span><span class="o">|</span><span class="n">Honda</span><span class="w"> </span><span class="n">Accord</span><span class="o">|</span><span class="w"> </span><span class="mi">33</span><span class="o">|</span><span class="w">
+</span><span class="w"></span><span class="o">|</span><span class="w">    </span><span class="k">null</span><span class="o">|</span><span class="w">   </span><span class="n">Honda</span><span class="w"> </span><span class="n">CRV</span><span class="o">|</span><span class="w"> </span><span class="mi">10</span><span class="o">|</span><span class="w">
+</span><span class="w"></span><span class="o">|</span><span class="w">    </span><span class="k">null</span><span class="o">|</span><span class="w"> </span><span class="n">Honda</span><span class="w"> </span><span class="n">Civic</span><span class="o">|</span><span class="w"> </span><span class="mi">35</span><span class="o">|</span><span class="w">
+</span><span class="w"></span><span class="o">|</span><span class="w">  </span><span class="n">Dublin</span><span class="o">|</span><span class="w">        </span><span class="k">null</span><span class="o">|</span><span class="w"> </span><span class="mi">33</span><span class="o">|</span><span class="w">
+</span><span class="w"></span><span class="o">|</span><span class="w">  </span><span class="n">Dublin</span><span class="o">|</span><span class="n">Honda</span><span class="w"> </span><span class="n">Accord</span><span class="o">|</span><span class="w"> </span><span class="mi">10</span><span class="o">|</span><span class="w">
+</span><span class="w"></span><span class="o">|</span><span class="w">  </span><span class="n">Dublin</span><span class="o">|</span><span class="w">   </span><span class="n">Honda</span><span class="w"> </span><span class="n">CRV</span><span class="o">|</span><span class="w">  </span><span class="mi">3</span><span class="o">|</span><span class="w">
+</span><span class="w"></span><span class="o">|</span><span class="w">  </span><span class="n">Dublin</span><span class="o">|</span><span class="w"> </span><span class="n">Honda</span><span class="w"> </span><span class="n">Civic</span><span class="o">|</span><span class="w"> </span><span class="mi">20</span><span class="o">|</span><span class="w">
+</span><span class="w"></span><span class="o">|</span><span class="w"> </span><span class="n">Fremont</span><span class="o">|</span><span class="w">        </span><span class="k">null</span><span class="o">|</span><span class="w"> </span><span class="mi">32</span><span class="o">|</span><span class="w">
+</span><span class="w"></span><span class="o">|</span><span class="w"> </span><span class="n">Fremont</span><span class="o">|</span><span class="n">Honda</span><span class="w"> </span><span class="n">Accord</span><span class="o">|</span><span class="w"> </span><span class="mi">15</span><span class="o">|</span><span class="w">
+</span><span class="w"></span><span class="o">|</span><span class="w"> </span><span class="n">Fremont</span><span class="o">|</span><span class="w">   </span><span class="n">Honda</span><span class="w"> </span><span class="n">CRV</span><span class="o">|</span><span class="w">  </span><span class="mi">7</span><span class="o">|</span><span class="w">
+</span><span class="w"></span><span class="o">|</span><span class="w"> </span><span class="n">Fremont</span><span class="o">|</span><span class="w"> </span><span class="n">Honda</span><span class="w"> </span><span class="n">Civic</span><span class="o">|</span><span class="w"> </span><span class="mi">10</span><span class="o">|</span><span class="w">
+</span><span class="w"></span><span class="o">|</span><span class="n">San</span><span class="w"> </span><span class="n">Jose</span><span class="o">|</span><span class="w">        </span><span class="k">null</span><span class="o">|</span><span class="w"> </span><span class="mi">13</span><span class="o">|</span><span class="w">
+</span><span class="w"></span><span class="o">|</span><span class="n">San</span><span class="w"> </span><span class="n">Jose</span><span class="o">|</span><span class="n">Honda</span><span class="w"> </span><span class="n">Accord</span><span class="o">|</span><span class="w">  </span><span class="mi">8</span><span class="o">|</span><span class="w">
+</span><span class="w"></span><span class="o">|</span><span class="n">San</span><span class="w"> </span><span class="n">Jose</span><span class="o">|</span><span class="w"> </span><span class="n">Honda</span><span class="w"> </span><span class="n">Civic</span><span class="o">|</span><span class="w">  </span><span class="mi">5</span><span class="o">|</span><span class="w">
+</span><span class="w"></span><span class="o">+</span><span class="c1">--------+------------+---+
+</span></code></pre></div><p>再看 Union All 版的执行结果：</p>
+<div class="highlight"><pre class="chroma"><code class="language-sql" data-lang="sql"><span class="n">spark</span><span class="o">-</span><span class="k">sql</span><span class="o">&gt;</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">city</span><span class="p">,</span><span class="w"> </span><span class="n">car_model</span><span class="p">,</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">quantity</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="k">sum</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">dealer</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">city</span><span class="p">,</span><span class="w"> </span><span class="n">car_model</span><span class="p">)</span><span class="w"> </span><span class="k">UNION</span><span class="w"> </span><span class="k">ALL</span><span class="w"> 
+</span><span class="w">         </span><span class="o">&gt;</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="n">city</span><span class="p">,</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">car_model</span><span class="p">,</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">quantity</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="k">sum</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">dealer</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">city</span><span class="p">)</span><span class="w"> </span><span class="k">UNION</span><span class="w"> </span><span class="k">ALL</span><span class="w"> 
+</span><span class="w">         </span><span class="o">&gt;</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">city</span><span class="p">,</span><span class="w"> </span><span class="n">car_model</span><span class="p">,</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">quantity</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="k">sum</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">dealer</span><span class="w"> </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">car_model</span><span class="p">)</span><span class="w"> </span><span class="k">UNION</span><span class="w"> </span><span class="k">ALL</span><span class="w"> 
+</span><span class="w">         </span><span class="o">&gt;</span><span class="w"> </span><span class="p">(</span><span class="k">SELECT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">city</span><span class="p">,</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">car_model</span><span class="p">,</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">quantity</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="k">sum</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">dealer</span><span class="p">)</span><span class="w"> 
+</span><span class="w">         </span><span class="o">&gt;</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">city</span><span class="p">,</span><span class="w"> </span><span class="n">car_model</span><span class="p">;</span><span class="w">
+</span><span class="w"></span><span class="o">+</span><span class="c1">--------+------------+---+
+</span><span class="c1"></span><span class="o">|</span><span class="w">    </span><span class="n">city</span><span class="o">|</span><span class="w">   </span><span class="n">car_model</span><span class="o">|</span><span class="k">sum</span><span class="o">|</span><span class="w">
+</span><span class="w"></span><span class="o">+</span><span class="c1">--------+------------+---+
+</span><span class="c1"></span><span class="o">|</span><span class="w">    </span><span class="k">null</span><span class="o">|</span><span class="w">        </span><span class="k">null</span><span class="o">|</span><span class="w"> </span><span class="mi">78</span><span class="o">|</span><span class="w">
+</span><span class="w"></span><span class="o">|</span><span class="w">    </span><span class="k">null</span><span class="o">|</span><span class="n">Honda</span><span class="w"> </span><span class="n">Accord</span><span class="o">|</span><span class="w"> </span><span class="mi">33</span><span class="o">|</span><span class="w">
+</span><span class="w"></span><span class="o">|</span><span class="w">    </span><span class="k">null</span><span class="o">|</span><span class="w">   </span><span class="n">Honda</span><span class="w"> </span><span class="n">CRV</span><span class="o">|</span><span class="w"> </span><span class="mi">10</span><span class="o">|</span><span class="w">
+</span><span class="w"></span><span class="o">|</span><span class="w">    </span><span class="k">null</span><span class="o">|</span><span class="w"> </span><span class="n">Honda</span><span class="w"> </span><span class="n">Civic</span><span class="o">|</span><span class="w"> </span><span class="mi">35</span><span class="o">|</span><span class="w">
+</span><span class="w"></span><span class="o">|</span><span class="w">  </span><span class="n">Dublin</span><span class="o">|</span><span class="w">        </span><span class="k">null</span><span class="o">|</span><span class="w"> </span><span class="mi">33</span><span class="o">|</span><span class="w">
+</span><span class="w"></span><span class="o">|</span><span class="w">  </span><span class="n">Dublin</span><span class="o">|</span><span class="n">Honda</span><span class="w"> </span><span class="n">Accord</span><span class="o">|</span><span class="w"> </span><span class="mi">10</span><span class="o">|</span><span class="w">
+</span><span class="w"></span><span class="o">|</span><span class="w">  </span><span class="n">Dublin</span><span class="o">|</span><span class="w">   </span><span class="n">Honda</span><span class="w"> </span><span class="n">CRV</span><span class="o">|</span><span class="w">  </span><span class="mi">3</span><span class="o">|</span><span class="w">
+</span><span class="w"></span><span class="o">|</span><span class="w">  </span><span class="n">Dublin</span><span class="o">|</span><span class="w"> </span><span class="n">Honda</span><span class="w"> </span><span class="n">Civic</span><span class="o">|</span><span class="w"> </span><span class="mi">20</span><span class="o">|</span><span class="w">
+</span><span class="w"></span><span class="o">|</span><span class="w"> </span><span class="n">Fremont</span><span class="o">|</span><span class="w">        </span><span class="k">null</span><span class="o">|</span><span class="w"> </span><span class="mi">32</span><span class="o">|</span><span class="w">
+</span><span class="w"></span><span class="o">|</span><span class="w"> </span><span class="n">Fremont</span><span class="o">|</span><span class="n">Honda</span><span class="w"> </span><span class="n">Accord</span><span class="o">|</span><span class="w"> </span><span class="mi">15</span><span class="o">|</span><span class="w">
+</span><span class="w"></span><span class="o">|</span><span class="w"> </span><span class="n">Fremont</span><span class="o">|</span><span class="w">   </span><span class="n">Honda</span><span class="w"> </span><span class="n">CRV</span><span class="o">|</span><span class="w">  </span><span class="mi">7</span><span class="o">|</span><span class="w">
+</span><span class="w"></span><span class="o">|</span><span class="w"> </span><span class="n">Fremont</span><span class="o">|</span><span class="w"> </span><span class="n">Honda</span><span class="w"> </span><span class="n">Civic</span><span class="o">|</span><span class="w"> </span><span class="mi">10</span><span class="o">|</span><span class="w">
+</span><span class="w"></span><span class="o">|</span><span class="n">San</span><span class="w"> </span><span class="n">Jose</span><span class="o">|</span><span class="w">        </span><span class="k">null</span><span class="o">|</span><span class="w"> </span><span class="mi">13</span><span class="o">|</span><span class="w">
+</span><span class="w"></span><span class="o">|</span><span class="n">San</span><span class="w"> </span><span class="n">Jose</span><span class="o">|</span><span class="n">Honda</span><span class="w"> </span><span class="n">Accord</span><span class="o">|</span><span class="w">  </span><span class="mi">8</span><span class="o">|</span><span class="w">
+</span><span class="w"></span><span class="o">|</span><span class="n">San</span><span class="w"> </span><span class="n">Jose</span><span class="o">|</span><span class="w"> </span><span class="n">Honda</span><span class="w"> </span><span class="n">Civic</span><span class="o">|</span><span class="w">  </span><span class="mi">5</span><span class="o">|</span><span class="w">
+</span><span class="w"></span><span class="o">+</span><span class="c1">--------+------------+---+
+</span></code></pre></div><p>两版的查询结果完全一样。</p>
+<h2 id="grouping-sets-的执行计划">Grouping Sets 的执行计划</h2>
+<p>从执行结果上看，Grouping Sets 版本和 Union All 版本的 SQL 是等价的，但 Grouping Sets 版本更加简洁。</p>
+<p><strong>那么，<code>Grouping Sets</code> 仅仅只是 <code>Union All</code> 的一个缩写，或者语法糖吗</strong>？</p>
+<p>为了进一步探究 <code>Grouping Sets</code> 的底层实现是否和 <code>Union All</code> 是一致的，我们可以来看下两者的执行计划。</p>
+<p>首先，我们通过 <code>explain extended</code> 来查看 Union All 版本的 <strong>Optimized Logical Plan</strong>:</p>
+<div class="highlight"><pre class="chroma"><code class="language-scala" data-lang="scala"><span class="n">spark</span><span class="o">-</span><span class="n">sql</span><span class="o">&gt;</span> <span class="n">explain</span> <span class="n">extended</span> <span class="o">(</span><span class="nc">SELECT</span> <span class="n">city</span><span class="o">,</span> <span class="n">car_model</span><span class="o">,</span> <span class="n">sum</span><span class="o">(</span><span class="n">quantity</span><span class="o">)</span> <span class="nc">AS</span> <span class="n">sum</span> <span class="nc">FROM</span> <span class="n">dealer</span> <span class="nc">GROUP</span> <span class="nc">BY</span> <span class="n">city</span><span class="o">,</span> <span class="n">car_model</span><span class="o">)</span> <span class="nc">UNION</span> <span class="nc">ALL</span> <span class="o">(</span><span class="nc">SELECT</span> <span class="n">city</span><span class="o">,</span> <span class="nc">NULL</span> <span class="n">as</span> <span class="n">car_model</span><span class="o">,</span> <span class="n">sum</span><span class="o">(</span><span class="n">quantity</span><span class="o">)</span> <span class="nc">AS</span> <span class="n">sum</span> <span class="nc">FROM</span> <span class="n">dealer</span> <span class="nc">GROUP</span> <span class="nc">BY</span> <span class="n">city</span><span class="o">)</span> <span class="nc">UNION</span> <span class="nc">ALL</span> <span class="o">(</span><span class="nc">SELECT</span> <span class="nc">NULL</span> <span class="n">as</span> <span class="n">city</span><span class="o">,</span> <span class="n">car_model</span><span class="o">,</span> <span class="n">sum</span><span class="o">(</span><span class="n">quantity</span><span class="o">)</span> <span class="nc">AS</span> <span class="n">sum</span> <span class="nc">FROM</span> <span class="n">dealer</span> <span class="nc">GROUP</span> <span class="nc">BY</span> <span class="n">car_model</span><span class="o">)</span> <span class="nc">UNION</span> <span class="nc">ALL</span> <span class="o">(</span><span class="nc">SELECT</span> <span class="nc">NULL</span> <span class="n">as</span> <span class="n">city</span><span class="o">,</span> <span class="nc">NULL</span> <span class="n">as</span> <span class="n">car_model</span><span class="o">,</span> <span class="n">sum</span><span class="o">(</span><span class="n">quantity</span><span class="o">)</span> <span class="nc">AS</span> <span class="n">sum</span> <span class="nc">FROM</span> <span class="n">dealer</span><span class="o">)</span> <span class="nc">ORDER</span> <span class="nc">BY</span> <span class="n">city</span><span class="o">,</span> <span class="n">car_model</span><span class="o">;</span>
+<span class="o">==</span> <span class="nc">Parsed</span> <span class="nc">Logical</span> <span class="nc">Plan</span> <span class="o">==</span>
+<span class="o">...</span>
+<span class="o">==</span> <span class="nc">Analyzed</span> <span class="nc">Logical</span> <span class="nc">Plan</span> <span class="o">==</span>
+<span class="o">...</span>
+<span class="o">==</span> <span class="nc">Optimized</span> <span class="nc">Logical</span> <span class="nc">Plan</span> <span class="o">==</span>
+<span class="nc">Sort</span> <span class="o">[</span><span class="kt">city</span><span class="k">#</span><span class="err">93</span> <span class="kt">ASC</span> <span class="kt">NULLS</span> <span class="kt">FIRST</span>, <span class="kt">car_model</span><span class="k">#</span><span class="err">94</span> <span class="kt">ASC</span> <span class="kt">NULLS</span> <span class="kt">FIRST</span><span class="o">],</span> <span class="kc">true</span>
+<span class="o">+-</span> <span class="nc">Union</span> <span class="kc">false</span><span class="o">,</span> <span class="kc">false</span>
+   <span class="k">:</span><span class="kt">-</span> <span class="kt">Aggregate</span> <span class="o">[</span><span class="kt">city</span><span class="k">#</span><span class="err">93</span>, <span class="kt">car_model</span><span class="k">#</span><span class="err">94</span><span class="o">],</span> <span class="o">[</span><span class="kt">city</span><span class="k">#</span><span class="err">93</span>, <span class="kt">car_model</span><span class="k">#</span><span class="err">94</span>, <span class="kt">sum</span><span class="o">(</span><span class="kt">quantity</span><span class="k">#</span><span class="err">95</span><span class="o">)</span> <span class="kt">AS</span> <span class="kt">sum</span><span class="k">#</span><span class="err">79</span><span class="kt">L</span><span class="o">]</span>
+   <span class="k">:</span>  <span class="kt">+-</span> <span class="kt">Project</span> <span class="o">[</span><span class="kt">city</span><span class="k">#</span><span class="err">93</span>, <span class="kt">car_model</span><span class="k">#</span><span class="err">94</span>, <span class="kt">quantity</span><span class="k">#</span><span class="err">95</span><span class="o">]</span>
+   <span class="k">:</span>     <span class="kt">+-</span> <span class="kt">HiveTableRelation</span> <span class="o">[</span><span class="kt">`default`.`dealer`</span>, <span class="kt">...</span>, <span class="kt">Data</span> <span class="kt">Cols:</span> <span class="o">[</span><span class="kt">id</span><span class="k">#</span><span class="err">92</span>, <span class="kt">city</span><span class="k">#</span><span class="err">93</span>, <span class="kt">car_model</span><span class="k">#</span><span class="err">94</span>, <span class="kt">quantity</span><span class="k">#</span><span class="err">95</span><span class="o">]</span>, <span class="kt">Partition</span> <span class="kt">Cols:</span> <span class="o">[]]</span>
+   <span class="k">:</span><span class="kt">-</span> <span class="kt">Aggregate</span> <span class="o">[</span><span class="kt">city</span><span class="k">#</span><span class="err">97</span><span class="o">],</span> <span class="o">[</span><span class="kt">city</span><span class="k">#</span><span class="err">97</span>, <span class="kt">null</span> <span class="kt">AS</span> <span class="kt">car_model</span><span class="k">#</span><span class="err">112</span>, <span class="kt">sum</span><span class="o">(</span><span class="kt">quantity</span><span class="k">#</span><span class="err">99</span><span class="o">)</span> <span class="kt">AS</span> <span class="kt">sum</span><span class="k">#</span><span class="err">81</span><span class="kt">L</span><span class="o">]</span>
+   <span class="k">:</span>  <span class="kt">+-</span> <span class="kt">Project</span> <span class="o">[</span><span class="kt">city</span><span class="k">#</span><span class="err">97</span>, <span class="kt">quantity</span><span class="k">#</span><span class="err">99</span><span class="o">]</span>
+   <span class="k">:</span>     <span class="kt">+-</span> <span class="kt">HiveTableRelation</span> <span class="o">[</span><span class="kt">`default`.`dealer`</span>, <span class="kt">...</span>, <span class="kt">Data</span> <span class="kt">Cols:</span> <span class="o">[</span><span class="kt">id</span><span class="k">#</span><span class="err">96</span>, <span class="kt">city</span><span class="k">#</span><span class="err">97</span>, <span class="kt">car_model</span><span class="k">#</span><span class="err">98</span>, <span class="kt">quantity</span><span class="k">#</span><span class="err">99</span><span class="o">]</span>, <span class="kt">Partition</span> <span class="kt">Cols:</span> <span class="o">[]]</span>
+   <span class="k">:</span><span class="kt">-</span> <span class="kt">Aggregate</span> <span class="o">[</span><span class="kt">car_model</span><span class="k">#</span><span class="err">102</span><span class="o">],</span> <span class="o">[</span><span class="kt">null</span> <span class="kt">AS</span> <span class="kt">city</span><span class="k">#</span><span class="err">113</span>, <span class="kt">car_model</span><span class="k">#</span><span class="err">102</span>, <span class="kt">sum</span><span class="o">(</span><span class="kt">quantity</span><span class="k">#</span><span class="err">103</span><span class="o">)</span> <span class="kt">AS</span> <span class="kt">sum</span><span class="k">#</span><span class="err">83</span><span class="kt">L</span><span class="o">]</span>
+   <span class="k">:</span>  <span class="kt">+-</span> <span class="kt">Project</span> <span class="o">[</span><span class="kt">car_model</span><span class="k">#</span><span class="err">102</span>, <span class="kt">quantity</span><span class="k">#</span><span class="err">103</span><span class="o">]</span>
+   <span class="k">:</span>     <span class="kt">+-</span> <span class="kt">HiveTableRelation</span> <span class="o">[</span><span class="kt">`default`.`dealer`</span>, <span class="kt">...</span>, <span class="kt">Data</span> <span class="kt">Cols:</span> <span class="o">[</span><span class="kt">id</span><span class="k">#</span><span class="err">100</span>, <span class="kt">city</span><span class="k">#</span><span class="err">101</span>, <span class="kt">car_model</span><span class="k">#</span><span class="err">102</span>, <span class="kt">quantity</span><span class="k">#</span><span class="err">103</span><span class="o">]</span>, <span class="kt">Partition</span> <span class="kt">Cols:</span> <span class="o">[]]</span>
+   <span class="o">+-</span> <span class="nc">Aggregate</span> <span class="o">[</span><span class="kt">null</span> <span class="kt">AS</span> <span class="kt">city</span><span class="k">#</span><span class="err">114</span>, <span class="kt">null</span> <span class="kt">AS</span> <span class="kt">car_model</span><span class="k">#</span><span class="err">115</span>, <span class="kt">sum</span><span class="o">(</span><span class="kt">quantity</span><span class="k">#</span><span class="err">107</span><span class="o">)</span> <span class="kt">AS</span> <span class="kt">sum</span><span class="k">#</span><span class="err">86</span><span class="kt">L</span><span class="o">]</span>
+      <span class="o">+-</span> <span class="nc">Project</span> <span class="o">[</span><span class="kt">quantity</span><span class="k">#</span><span class="err">107</span><span class="o">]</span>
+         <span class="o">+-</span> <span class="nc">HiveTableRelation</span> <span class="o">[</span><span class="kt">`default`.`dealer`</span>, <span class="kt">...</span>, <span class="kt">Data</span> <span class="kt">Cols:</span> <span class="o">[</span><span class="kt">id</span><span class="k">#</span><span class="err">104</span>, <span class="kt">city</span><span class="k">#</span><span class="err">105</span>, <span class="kt">car_model</span><span class="k">#</span><span class="err">106</span>, <span class="kt">quantity</span><span class="k">#</span><span class="err">107</span><span class="o">]</span>, <span class="kt">Partition</span> <span class="kt">Cols:</span> <span class="o">[]]</span>
+<span class="o">==</span> <span class="nc">Physical</span> <span class="nc">Plan</span> <span class="o">==</span>
+<span class="o">...</span>
+</code></pre></div><p>从上述的 Optimized Logical Plan 可以清晰地看出 Union All 版本的执行逻辑：</p>
+<ol>
+<li>执行每个子查询语句，计算得出查询结果。其中，每个查询语句的逻辑是这样的：
+<ul>
+<li>在 <strong>HiveTableRelation</strong> 节点对 <code>dealer</code> 表进行全表扫描。</li>
+<li>在 <strong>Project</strong> 节点选出与查询语句结果相关的列，比如对于子查询语句 <code>SELECT NULL as city, NULL as car_model, sum(quantity) AS sum FROM dealer</code>，只需保留 <code>quantity</code> 列即可。</li>
+<li>在 <strong>Aggregate</strong> 节点完成 <code>quantity</code> 列对聚合运算。在上述的 Plan 中，Aggregate 后面紧跟的就是用来分组的列，比如 <code>Aggregate [city#902]</code> 就表示根据 <code>city</code> 列来进行分组。</li>
+</ul>
+</li>
+<li>在 <strong>Union</strong> 节点完成对每个子查询结果的联合。</li>
+<li>最后，在 <strong>Sort</strong> 节点完成对数据的排序，上述 Plan 中 <code>Sort [city#93 ASC NULLS FIRST, car_model#94 ASC NULLS FIRST]</code> 就表示根据 <code>city</code> 和 <code>car_model</code> 列进行升序排序。</li>
+</ol>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h3sxgg9kjpj21c40qednb.jpg" alt=""  /></p>
+<p>接下来，我们通过 <code>explain extended</code> 来查看 Grouping Sets 版本的 Optimized Logical Plan：</p>
+<div class="highlight"><pre class="chroma"><code class="language-scala" data-lang="scala"><span class="n">spark</span><span class="o">-</span><span class="n">sql</span><span class="o">&gt;</span> <span class="n">explain</span> <span class="n">extended</span> <span class="nc">SELECT</span> <span class="n">city</span><span class="o">,</span> <span class="n">car_model</span><span class="o">,</span> <span class="n">sum</span><span class="o">(</span><span class="n">quantity</span><span class="o">)</span> <span class="nc">AS</span> <span class="n">sum</span> <span class="nc">FROM</span> <span class="n">dealer</span> <span class="nc">GROUP</span> <span class="nc">BY</span> <span class="nc">GROUPING</span> <span class="nc">SETS</span> <span class="o">((</span><span class="n">city</span><span class="o">,</span> <span class="n">car_model</span><span class="o">),</span> <span class="o">(</span><span class="n">city</span><span class="o">),</span> <span class="o">(</span><span class="n">car_model</span><span class="o">),</span> <span class="o">())</span> <span class="nc">ORDER</span> <span class="nc">BY</span> <span class="n">city</span><span class="o">,</span> <span class="n">car_model</span><span class="o">;</span>
+<span class="o">==</span> <span class="nc">Parsed</span> <span class="nc">Logical</span> <span class="nc">Plan</span> <span class="o">==</span>
+<span class="o">...</span>
+<span class="o">==</span> <span class="nc">Analyzed</span> <span class="nc">Logical</span> <span class="nc">Plan</span> <span class="o">==</span>
+<span class="o">...</span>
+<span class="o">==</span> <span class="nc">Optimized</span> <span class="nc">Logical</span> <span class="nc">Plan</span> <span class="o">==</span>
+<span class="nc">Sort</span> <span class="o">[</span><span class="kt">city</span><span class="k">#</span><span class="err">138</span> <span class="kt">ASC</span> <span class="kt">NULLS</span> <span class="kt">FIRST</span>, <span class="kt">car_model</span><span class="k">#</span><span class="err">139</span> <span class="kt">ASC</span> <span class="kt">NULLS</span> <span class="kt">FIRST</span><span class="o">],</span> <span class="kc">true</span>
+<span class="o">+-</span> <span class="nc">Aggregate</span> <span class="o">[</span><span class="kt">city</span><span class="k">#</span><span class="err">138</span>, <span class="kt">car_model</span><span class="k">#</span><span class="err">139</span>, <span class="kt">spark_grouping_id</span><span class="k">#</span><span class="err">137</span><span class="kt">L</span><span class="o">],</span> <span class="o">[</span><span class="kt">city</span><span class="k">#</span><span class="err">138</span>, <span class="kt">car_model</span><span class="k">#</span><span class="err">139</span>, <span class="kt">sum</span><span class="o">(</span><span class="kt">quantity</span><span class="k">#</span><span class="err">133</span><span class="o">)</span> <span class="kt">AS</span> <span class="kt">sum</span><span class="k">#</span><span class="err">124</span><span class="kt">L</span><span class="o">]</span>
+   <span class="o">+-</span> <span class="nc">Expand</span> <span class="o">[[</span><span class="kt">quantity</span><span class="k">#</span><span class="err">133</span>, <span class="kt">city</span><span class="k">#</span><span class="err">131</span>, <span class="kt">car_model</span><span class="k">#</span><span class="err">132</span>, <span class="err">0</span><span class="o">]</span>, <span class="o">[</span><span class="kt">quantity</span><span class="k">#</span><span class="err">133</span>, <span class="kt">city</span><span class="k">#</span><span class="err">131</span>, <span class="kt">null</span>, <span class="err">1</span><span class="o">]</span>, <span class="o">[</span><span class="kt">quantity</span><span class="k">#</span><span class="err">133</span>, <span class="kt">null</span>, <span class="kt">car_model</span><span class="k">#</span><span class="err">132</span>, <span class="err">2</span><span class="o">]</span>, <span class="o">[</span><span class="kt">quantity</span><span class="k">#</span><span class="err">133</span>, <span class="kt">null</span>, <span class="kt">null</span>, <span class="err">3</span><span class="o">]],</span> <span class="o">[</span><span class="kt">quantity</span><span class="k">#</span><span class="err">133</span>, <span class="kt">city</span><span class="k">#</span><span class="err">138</span>, <span class="kt">car_model</span><span class="k">#</span><span class="err">139</span>, <span class="kt">spark_grouping_id</span><span class="k">#</span><span class="err">137</span><span class="kt">L</span><span class="o">]</span>
+      <span class="o">+-</span> <span class="nc">Project</span> <span class="o">[</span><span class="kt">quantity</span><span class="k">#</span><span class="err">133</span>, <span class="kt">city</span><span class="k">#</span><span class="err">131</span>, <span class="kt">car_model</span><span class="k">#</span><span class="err">132</span><span class="o">]</span>
+         <span class="o">+-</span> <span class="nc">HiveTableRelation</span> <span class="o">[</span><span class="kt">`default`.`dealer`</span>, <span class="kt">org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe</span>, <span class="kt">Data</span> <span class="kt">Cols:</span> <span class="o">[</span><span class="kt">id</span><span class="k">#</span><span class="err">130</span>, <span class="kt">city</span><span class="k">#</span><span class="err">131</span>, <span class="kt">car_model</span><span class="k">#</span><span class="err">132</span>, <span class="kt">quantity</span><span class="k">#</span><span class="err">133</span><span class="o">]</span>, <span class="kt">Partition</span> <span class="kt">Cols:</span> <span class="o">[]]</span>
+<span class="o">==</span> <span class="nc">Physical</span> <span class="nc">Plan</span> <span class="o">==</span>
+<span class="o">...</span>
+</code></pre></div><p>从 Optimized Logical Plan 来看，Grouping Sets 版本要简洁很多！具体的执行逻辑是这样的：</p>
+<ol>
+<li>在 <strong>HiveTableRelation</strong> 节点对 <code>dealer</code> 表进行全表扫描。</li>
+<li>在 <strong>Project</strong> 节点选出与查询语句结果相关的列。</li>
+<li>接下来的 <strong>Expand</strong> 节点是关键，数据经过该节点后，多出了 <code>spark_grouping_id</code> 列。从 Plan 中可以看出来，Expand 节点包含了 <code>Grouping Sets</code> 里的各个 grouping set 信息，比如 <code>[quantity#133, city#131, null, 1]</code> 对应的就是 <code>(city)</code> 这一 grouping set。而且，每个 grouping set 对应的 <code>spark_grouping_id</code> 列的值都是固定的，比如 <code>(city)</code> 对应的 <code>spark_grouping_id</code> 为 <code>1</code>。</li>
+<li>在 <strong>Aggregate</strong> 节点完成 <code>quantity</code> 列对聚合运算，其中分组的规则为 <code>city, car_model, spark_grouping_id</code>。注意，数据经过 Aggregate 节点后，<code>spark_grouping_id</code> 列被删除了！</li>
+<li>最后，在 <strong>Sort</strong> 节点完成对数据的排序。</li>
+</ol>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h3tftl8o9qj21cu0sqahh.jpg" alt=""  /></p>
+<p>从 Optimized Logical Plan 来看，虽然 Union All 版本和 Grouping Sets 版本的效果一致，但它们的底层实现有着巨大的差别。</p>
+<p>其中，Grouping Sets 版本的 Plan 中最关键的是 Expand 节点，目前，我们只知道数据经过它之后，多出了 <code>spark_grouping_id</code> 列。而且从最终结果来看，<code>spark_grouping_id</code> 只是 Spark SQL 的内部实现细节，对用户并不体现。</p>
+<blockquote>
+<p><code>spark_grouping_id</code> 其实可通过 <code>GROUPING_ID()</code> 函数查询得到，但一般用户不必关注。</p>
+</blockquote>
+<p>那么：</p>
+<ol>
+<li><strong>Expand 的实现逻辑是怎样的，为什么能达到 <code>Union All</code> 的效果？</strong></li>
+<li><strong>Expand 节点的输出数据是怎样的</strong>？</li>
+<li><strong><code>spark_grouping_id</code> 列的作用是什么</strong>？</li>
+</ol>
+<p>通过 Physical Plan，我们发现 Expand 节点对应的算子名称也是 <code>Expand</code>:</p>
+<div class="highlight"><pre class="chroma"><code class="language-scala" data-lang="scala"><span class="o">==</span> <span class="nc">Physical</span> <span class="nc">Plan</span> <span class="o">==</span>
+<span class="nc">AdaptiveSparkPlan</span> <span class="n">isFinalPlan</span><span class="k">=</span><span class="kc">false</span>
+<span class="o">+-</span> <span class="nc">Sort</span> <span class="o">[</span><span class="kt">city</span><span class="k">#</span><span class="err">138</span> <span class="kt">ASC</span> <span class="kt">NULLS</span> <span class="kt">FIRST</span>, <span class="kt">car_model</span><span class="k">#</span><span class="err">139</span> <span class="kt">ASC</span> <span class="kt">NULLS</span> <span class="kt">FIRST</span><span class="o">],</span> <span class="kc">true</span><span class="o">,</span> <span class="mi">0</span>
+   <span class="o">+-</span> <span class="nc">Exchange</span> <span class="n">rangepartitioning</span><span class="o">(</span><span class="n">city</span><span class="k">#</span><span class="mi">138</span> <span class="nc">ASC</span> <span class="nc">NULLS</span> <span class="nc">FIRST</span><span class="o">,</span> <span class="n">car_model</span><span class="k">#</span><span class="mi">139</span> <span class="nc">ASC</span> <span class="nc">NULLS</span> <span class="nc">FIRST</span><span class="o">,</span> <span class="mi">200</span><span class="o">),</span> <span class="nc">ENSURE_REQUIREMENTS</span><span class="o">,</span> <span class="o">[</span><span class="kt">plan_id=</span><span class="err">422</span><span class="o">]</span>
+      <span class="o">+-</span> <span class="nc">HashAggregate</span><span class="o">(</span><span class="n">keys</span><span class="o">=[</span><span class="kt">city</span><span class="k">#</span><span class="err">138</span>, <span class="kt">car_model</span><span class="k">#</span><span class="err">139</span>, <span class="kt">spark_grouping_id</span><span class="k">#</span><span class="err">137</span><span class="kt">L</span><span class="o">],</span> <span class="n">functions</span><span class="o">=[</span><span class="kt">sum</span><span class="o">(</span><span class="kt">quantity</span><span class="k">#</span><span class="err">133</span><span class="o">)],</span> <span class="n">output</span><span class="o">=[</span><span class="kt">city</span><span class="k">#</span><span class="err">138</span>, <span class="kt">car_model</span><span class="k">#</span><span class="err">139</span>, <span class="kt">sum</span><span class="k">#</span><span class="err">124</span><span class="kt">L</span><span class="o">])</span>
+         <span class="o">+-</span> <span class="nc">Exchange</span> <span class="n">hashpartitioning</span><span class="o">(</span><span class="n">city</span><span class="k">#</span><span class="mi">138</span><span class="o">,</span> <span class="n">car_model</span><span class="k">#</span><span class="mi">139</span><span class="o">,</span> <span class="n">spark_grouping_id</span><span class="k">#</span><span class="mi">137L</span><span class="o">,</span> <span class="mi">200</span><span class="o">),</span> <span class="nc">ENSURE_REQUIREMENTS</span><span class="o">,</span> <span class="o">[</span><span class="kt">plan_id=</span><span class="err">419</span><span class="o">]</span>
+            <span class="o">+-</span> <span class="nc">HashAggregate</span><span class="o">(</span><span class="n">keys</span><span class="o">=[</span><span class="kt">city</span><span class="k">#</span><span class="err">138</span>, <span class="kt">car_model</span><span class="k">#</span><span class="err">139</span>, <span class="kt">spark_grouping_id</span><span class="k">#</span><span class="err">137</span><span class="kt">L</span><span class="o">],</span> <span class="n">functions</span><span class="o">=[</span><span class="kt">partial_sum</span><span class="o">(</span><span class="kt">quantity</span><span class="k">#</span><span class="err">133</span><span class="o">)],</span> <span class="n">output</span><span class="o">=[</span><span class="kt">city</span><span class="k">#</span><span class="err">138</span>, <span class="kt">car_model</span><span class="k">#</span><span class="err">139</span>, <span class="kt">spark_grouping_id</span><span class="k">#</span><span class="err">137</span><span class="kt">L</span>, <span class="kt">sum</span><span class="k">#</span><span class="err">141</span><span class="kt">L</span><span class="o">])</span>
+               <span class="o">+-</span> <span class="nc">Expand</span> <span class="o">[[</span><span class="kt">quantity</span><span class="k">#</span><span class="err">133</span>, <span class="kt">city</span><span class="k">#</span><span class="err">131</span>, <span class="kt">car_model</span><span class="k">#</span><span class="err">132</span>, <span class="err">0</span><span class="o">]</span>, <span class="o">[</span><span class="kt">quantity</span><span class="k">#</span><span class="err">133</span>, <span class="kt">city</span><span class="k">#</span><span class="err">131</span>, <span class="kt">null</span>, <span class="err">1</span><span class="o">]</span>, <span class="o">[</span><span class="kt">quantity</span><span class="k">#</span><span class="err">133</span>, <span class="kt">null</span>, <span class="kt">car_model</span><span class="k">#</span><span class="err">132</span>, <span class="err">2</span><span class="o">]</span>, <span class="o">[</span><span class="kt">quantity</span><span class="k">#</span><span class="err">133</span>, <span class="kt">null</span>, <span class="kt">null</span>, <span class="err">3</span><span class="o">]],</span> <span class="o">[</span><span class="kt">quantity</span><span class="k">#</span><span class="err">133</span>, <span class="kt">city</span><span class="k">#</span><span class="err">138</span>, <span class="kt">car_model</span><span class="k">#</span><span class="err">139</span>, <span class="kt">spark_grouping_id</span><span class="k">#</span><span class="err">137</span><span class="kt">L</span><span class="o">]</span>
+                  <span class="o">+-</span> <span class="nc">Scan</span> <span class="n">hive</span> <span class="n">default</span><span class="o">.</span><span class="n">dealer</span> <span class="o">[</span><span class="kt">quantity</span><span class="k">#</span><span class="err">133</span>, <span class="kt">city</span><span class="k">#</span><span class="err">131</span>, <span class="kt">car_model</span><span class="k">#</span><span class="err">132</span><span class="o">],</span> <span class="nc">HiveTableRelation</span> <span class="o">[</span><span class="kt">`default`.`dealer`</span>, <span class="kt">...</span>, <span class="kt">Data</span> <span class="kt">Cols:</span> <span class="o">[</span><span class="kt">id</span><span class="k">#</span><span class="err">130</span>, <span class="kt">city</span><span class="k">#</span><span class="err">131</span>, <span class="kt">car_model</span><span class="k">#</span><span class="err">132</span>, <span class="kt">quantity</span><span class="k">#</span><span class="err">133</span><span class="o">]</span>, <span class="kt">Partition</span> <span class="kt">Cols:</span> <span class="o">[]]</span>
+</code></pre></div><p>带着前面的几个问题，接下来我们深入 Spark SQL 的 <code>Expand</code> 算子源码寻找答案。</p>
+<h2 id="expand-算子的实现">Expand 算子的实现</h2>
+<p>Expand 算子在 Spark SQL 源码中的实现为 <code>ExpandExec</code> 类（Spark SQL 中的算子实现类的命名都是 <code>XxxExec</code> 的格式，其中 <code>Xxx</code> 为具体的算子名，比如 Project 算子的实现类为 <code>ProjectExec</code>），核心代码如下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-scala" data-lang="scala"><span class="cm">/**
+</span><span class="cm"> * Apply all of the GroupExpressions to every input row, hence we will get
+</span><span class="cm"> * multiple output rows for an input row.
+</span><span class="cm"> * @param projections The group of expressions, all of the group expressions should
+</span><span class="cm"> *                    output the same schema specified bye the parameter `output`
+</span><span class="cm"> * @param output      The output Schema
+</span><span class="cm"> * @param child       Child operator
+</span><span class="cm"> */</span>
+<span class="k">case</span> <span class="k">class</span> <span class="nc">ExpandExec</span><span class="o">(</span>
+    <span class="n">projections</span><span class="k">:</span> <span class="kt">Seq</span><span class="o">[</span><span class="kt">Seq</span><span class="o">[</span><span class="kt">Expression</span><span class="o">]],</span>
+    <span class="n">output</span><span class="k">:</span> <span class="kt">Seq</span><span class="o">[</span><span class="kt">Attribute</span><span class="o">],</span>
+    <span class="n">child</span><span class="k">:</span> <span class="kt">SparkPlan</span><span class="o">)</span>
+  <span class="k">extends</span> <span class="nc">UnaryExecNode</span> <span class="k">with</span> <span class="nc">CodegenSupport</span> <span class="o">{</span>
+
+  <span class="o">...</span>
+  <span class="c1">// 关键点1，将child.output，也即上游算子输出数据的schema，
+</span><span class="c1"></span>  <span class="c1">// 绑定到表达式数组exprs，以此来计算输出数据
+</span><span class="c1"></span>  <span class="k">private</span><span class="o">[</span><span class="kt">this</span><span class="o">]</span> <span class="k">val</span> <span class="n">projection</span> <span class="k">=</span>
+    <span class="o">(</span><span class="n">exprs</span><span class="k">:</span> <span class="kt">Seq</span><span class="o">[</span><span class="kt">Expression</span><span class="o">])</span> <span class="k">=&gt;</span> <span class="nc">UnsafeProjection</span><span class="o">.</span><span class="n">create</span><span class="o">(</span><span class="n">exprs</span><span class="o">,</span> <span class="n">child</span><span class="o">.</span><span class="n">output</span><span class="o">)</span>
+
+  <span class="c1">// doExecute()方法为Expand算子执行逻辑所在
+</span><span class="c1"></span>  <span class="k">protected</span> <span class="k">override</span> <span class="k">def</span> <span class="n">doExecute</span><span class="o">()</span><span class="k">:</span> <span class="kt">RDD</span><span class="o">[</span><span class="kt">InternalRow</span><span class="o">]</span> <span class="k">=</span> <span class="o">{</span>
+    <span class="k">val</span> <span class="n">numOutputRows</span> <span class="k">=</span> <span class="n">longMetric</span><span class="o">(</span><span class="s">&#34;numOutputRows&#34;</span><span class="o">)</span>
+
+    <span class="c1">// 处理上游算子的输出数据，Expand算子的输入数据就从iter迭代器获取
+</span><span class="c1"></span>    <span class="n">child</span><span class="o">.</span><span class="n">execute</span><span class="o">().</span><span class="n">mapPartitions</span> <span class="o">{</span> <span class="n">iter</span> <span class="k">=&gt;</span>
+      <span class="c1">// 关键点2，projections对应了Grouping Sets里面每个grouping set的表达式，
+</span><span class="c1"></span>      <span class="c1">// 表达式输出数据的schema为this.output, 比如 (quantity, city, car_model, spark_grouping_id)
+</span><span class="c1"></span>      <span class="c1">// 这里的逻辑是为它们各自生成一个UnsafeProjection对象，通过该对象的apply方法就能得出Expand算子的输出数据
+</span><span class="c1"></span>      <span class="k">val</span> <span class="n">groups</span> <span class="k">=</span> <span class="n">projections</span><span class="o">.</span><span class="n">map</span><span class="o">(</span><span class="n">projection</span><span class="o">).</span><span class="n">toArray</span>
+      <span class="k">new</span> <span class="nc">Iterator</span><span class="o">[</span><span class="kt">InternalRow</span><span class="o">]</span> <span class="o">{</span>
+        <span class="k">private</span><span class="o">[</span><span class="kt">this</span><span class="o">]</span> <span class="k">var</span> <span class="n">result</span><span class="k">:</span> <span class="kt">InternalRow</span> <span class="o">=</span> <span class="k">_</span>
+        <span class="k">private</span><span class="o">[</span><span class="kt">this</span><span class="o">]</span> <span class="k">var</span> <span class="n">idx</span> <span class="k">=</span> <span class="o">-</span><span class="mi">1</span>  <span class="c1">// -1 means the initial state
+</span><span class="c1"></span>        <span class="k">private</span><span class="o">[</span><span class="kt">this</span><span class="o">]</span> <span class="k">var</span> <span class="n">input</span><span class="k">:</span> <span class="kt">InternalRow</span> <span class="o">=</span> <span class="k">_</span>
+
+        <span class="k">override</span> <span class="k">final</span> <span class="k">def</span> <span class="n">hasNext</span><span class="k">:</span> <span class="kt">Boolean</span> <span class="o">=</span> <span class="o">(-</span><span class="mi">1</span> <span class="o">&lt;</span> <span class="n">idx</span> <span class="o">&amp;&amp;</span> <span class="n">idx</span> <span class="o">&lt;</span> <span class="n">groups</span><span class="o">.</span><span class="n">length</span><span class="o">)</span> <span class="o">||</span> <span class="n">iter</span><span class="o">.</span><span class="n">hasNext</span>
+
+        <span class="k">override</span> <span class="k">final</span> <span class="k">def</span> <span class="n">next</span><span class="o">()</span><span class="k">:</span> <span class="kt">InternalRow</span> <span class="o">=</span> <span class="o">{</span>
+          <span class="c1">// 关键点3，对于输入数据的每一条记录，都重复使用N次，其中N的大小对应了projections数组的大小，
+</span><span class="c1"></span>          <span class="c1">// 也即Grouping Sets里指定的grouping set的数量
+</span><span class="c1"></span>          <span class="k">if</span> <span class="o">(</span><span class="n">idx</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+            <span class="c1">// in the initial (-1) or beginning(0) of a new input row, fetch the next input tuple
+</span><span class="c1"></span>            <span class="n">input</span> <span class="k">=</span> <span class="n">iter</span><span class="o">.</span><span class="n">next</span><span class="o">()</span>
+            <span class="n">idx</span> <span class="k">=</span> <span class="mi">0</span>
+          <span class="o">}</span>
+          <span class="c1">// 关键点4，对输入数据的每一条记录，通过UnsafeProjection计算得出输出数据，
+</span><span class="c1"></span>          <span class="c1">// 每个grouping set对应的UnsafeProjection都会对同一个input计算一遍
+</span><span class="c1"></span>          <span class="n">result</span> <span class="k">=</span> <span class="n">groups</span><span class="o">(</span><span class="n">idx</span><span class="o">)(</span><span class="n">input</span><span class="o">)</span>
+          <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>
+
+          <span class="k">if</span> <span class="o">(</span><span class="n">idx</span> <span class="o">==</span> <span class="n">groups</span><span class="o">.</span><span class="n">length</span> <span class="o">&amp;&amp;</span> <span class="n">iter</span><span class="o">.</span><span class="n">hasNext</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">idx</span> <span class="k">=</span> <span class="mi">0</span>
+          <span class="o">}</span>
+
+          <span class="n">numOutputRows</span> <span class="o">+=</span> <span class="mi">1</span>
+          <span class="n">result</span>
+        <span class="o">}</span>
+      <span class="o">}</span>
+    <span class="o">}</span>
+  <span class="o">}</span>
+  <span class="o">...</span>
+<span class="o">}</span>
+</code></pre></div><p><code>ExpandExec</code> 的实现并不复杂，想要理解它的运作原理，关键是看懂上述源码中提到的 4 个关键点。</p>
+<p><code>关键点 1</code> 和 <code>关键点 2</code> 是基础，<code>关键点 2</code>  中的 <code>groups</code> 是一个 <code>UnsafeProjection[N]</code> 数组类型，其中每个 <code>UnsafeProjection</code> 代表了 <code>Grouping Sets</code> 语句里指定的 grouping set，它的定义是这样的：</p>
+<div class="highlight"><pre class="chroma"><code class="language-scala" data-lang="scala"><span class="c1">// A projection that returns UnsafeRow.
+</span><span class="c1"></span><span class="k">abstract</span> <span class="k">class</span> <span class="nc">UnsafeProjection</span> <span class="k">extends</span> <span class="nc">Projection</span> <span class="o">{</span>
+  <span class="k">override</span> <span class="k">def</span> <span class="n">apply</span><span class="o">(</span><span class="n">row</span><span class="k">:</span> <span class="kt">InternalRow</span><span class="o">)</span><span class="k">:</span> <span class="kt">UnsafeRow</span>
+<span class="o">}</span>
+
+<span class="c1">// The factory object for `UnsafeProjection`.
+</span><span class="c1"></span><span class="k">object</span> <span class="nc">UnsafeProjection</span>
+    <span class="k">extends</span> <span class="nc">CodeGeneratorWithInterpretedFallback</span><span class="o">[</span><span class="kt">Seq</span><span class="o">[</span><span class="kt">Expression</span><span class="o">]</span>, <span class="kt">UnsafeProjection</span><span class="o">]</span> <span class="o">{</span>
+  <span class="c1">// Returns an UnsafeProjection for given sequence of Expressions, which will be bound to
+</span><span class="c1"></span>  <span class="c1">// `inputSchema`.
+</span><span class="c1"></span>  <span class="k">def</span> <span class="n">create</span><span class="o">(</span><span class="n">exprs</span><span class="k">:</span> <span class="kt">Seq</span><span class="o">[</span><span class="kt">Expression</span><span class="o">],</span> <span class="n">inputSchema</span><span class="k">:</span> <span class="kt">Seq</span><span class="o">[</span><span class="kt">Attribute</span><span class="o">])</span><span class="k">:</span> <span class="kt">UnsafeProjection</span> <span class="o">=</span> <span class="o">{</span>
+    <span class="n">create</span><span class="o">(</span><span class="n">bindReferences</span><span class="o">(</span><span class="n">exprs</span><span class="o">,</span> <span class="n">inputSchema</span><span class="o">))</span>
+  <span class="o">}</span>
+  <span class="o">...</span>
+<span class="o">}</span>
+</code></pre></div><p><code>UnsafeProjection</code> 起来了类似列投影的作用，其中， <code>apply</code> 方法根据创建时的传参 <code>exprs</code> 和 <code>inputSchema</code>，对输入记录进行列投影，得出输出记录。</p>
+<p>比如，前面的 <code>GROUPING SETS ((city, car_model), (city), (car_model), ())</code> 例子，它对应的 <code>groups</code> 是这样的：</p>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h3tha2rk2mj21gn0u0dq9.jpg" alt=""  /></p>
+<p>其中，<code>AttributeReference</code> 类型的表达式，在计算时，会直接引用输入数据对应列的值；<code>Iteral</code> 类型的表达式，在计算时，值是固定的。</p>
+<p><code>关键点 3</code> 和 <code>关键点 4</code> 是 Expand 算子的精华所在，<code>ExpandExec</code> 通过这两段逻辑，将每一个输入记录，<strong>扩展</strong>（<strong>Expand</strong>）成 N 条输出记录。</p>
+<blockquote>
+<p><code>关键点 4</code> 中 <code>groups(idx)(input)</code> 等同于 <code>groups(idx).apply(input)</code> 。</p>
+</blockquote>
+<p>还是以前面 <code>GROUPING SETS ((city, car_model), (city), (car_model), ())</code> 为例子，效果是这样的：</p>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h3ti1nronyj21j00ruqbt.jpg" alt=""  /></p>
+<p>到这里，我们已经弄清楚 Expand 算子的工作原理，再回头看前面提到的 3 个问题，也不难回答了：</p>
+<ol>
+<li>
+<p><strong>Expand 的实现逻辑是怎样的，为什么能达到 <code>Union All</code> 的效果？</strong></p>
+<p>如果说 <code>Union All</code> 是先聚合再联合，那么 Expand 就是先联合再聚合。Expand 利用 <code>groups</code> 里的 N 个表达式对每条输入记录进行计算，扩展成 N 条输出记录。后面再聚合时，就能达到与 <code>Union All</code> 一样的效果了。</p>
+</li>
+<li>
+<p><strong>Expand 节点的输出数据是怎样的</strong>？</p>
+<p>在 schema 上，Expand 输出数据会比输入数据多出 <code>spark_grouping_id</code> 列；在记录数上，是输入数据记录数的 N 倍。</p>
+</li>
+<li>
+<p><strong><code>spark_grouping_id</code> 列的作用是什么</strong>？</p>
+<p><code>spark_grouping_id</code> 给每个 grouping set 进行编号，这样，即使在 Expand 阶段把数据先联合起来，在 Aggregate 阶段（把 <code>spark_grouping_id</code> 加入到分组规则）也能保证数据能够按照每个 grouping set 分别聚合，确保了结果的正确性。</p>
+<p>我们可以通过在 <code>SELECT</code> 语句后加上 <code>GROUPING_ID()</code> 函数来查询 <code>spark_grouping_id</code>：</p>
+<div class="highlight"><pre class="chroma"><code class="language-scala" data-lang="scala"><span class="n">spark</span><span class="o">-</span><span class="n">sql</span><span class="o">&gt;</span> <span class="nc">SELECT</span> <span class="n">city</span><span class="o">,</span> <span class="n">car_model</span><span class="o">,</span> <span class="n">sum</span><span class="o">(</span><span class="n">quantity</span><span class="o">)</span> <span class="nc">AS</span> <span class="n">sum</span><span class="o">,</span> <span class="nc">GROUPING_ID</span><span class="o">()</span> <span class="n">as</span> <span class="n">spark_grouping_id</span> <span class="nc">FROM</span> <span class="n">dealer</span> 
+         <span class="o">&gt;</span> <span class="nc">GROUP</span> <span class="nc">BY</span> <span class="nc">GROUPING</span> <span class="nc">SETS</span> <span class="o">((</span><span class="n">city</span><span class="o">,</span> <span class="n">car_model</span><span class="o">),</span> <span class="o">(</span><span class="n">city</span><span class="o">),</span> <span class="o">(</span><span class="n">car_model</span><span class="o">),</span> <span class="o">())</span> 
+         <span class="o">&gt;</span> <span class="nc">ORDER</span> <span class="nc">BY</span> <span class="n">city</span><span class="o">,</span> <span class="n">car_model</span><span class="o">;</span>
+<span class="o">+--------+------------+---+-----------------+</span>
+<span class="o">|</span>    <span class="n">city</span><span class="o">|</span>   <span class="n">car_model</span><span class="o">|</span><span class="n">sum</span><span class="o">|</span><span class="n">spark_grouping_id</span><span class="o">|</span>
+<span class="o">+--------+------------+---+-----------------+</span>
+<span class="o">|</span>    <span class="kc">null</span><span class="o">|</span>        <span class="kc">null</span><span class="o">|</span> <span class="mi">78</span><span class="o">|</span>                <span class="mi">3</span><span class="o">|</span>
+<span class="o">|</span>    <span class="kc">null</span><span class="o">|</span><span class="nc">Honda</span> <span class="nc">Accord</span><span class="o">|</span> <span class="mi">33</span><span class="o">|</span>                <span class="mi">2</span><span class="o">|</span>
+<span class="o">|</span>    <span class="kc">null</span><span class="o">|</span>   <span class="nc">Honda</span> <span class="nc">CRV</span><span class="o">|</span> <span class="mi">10</span><span class="o">|</span>                <span class="mi">2</span><span class="o">|</span>
+<span class="o">|</span>    <span class="kc">null</span><span class="o">|</span> <span class="nc">Honda</span> <span class="nc">Civic</span><span class="o">|</span> <span class="mi">35</span><span class="o">|</span>                <span class="mi">2</span><span class="o">|</span>
+<span class="o">|</span>  <span class="nc">Dublin</span><span class="o">|</span>        <span class="kc">null</span><span class="o">|</span> <span class="mi">33</span><span class="o">|</span>                <span class="mi">1</span><span class="o">|</span>
+<span class="o">|</span>  <span class="nc">Dublin</span><span class="o">|</span><span class="nc">Honda</span> <span class="nc">Accord</span><span class="o">|</span> <span class="mi">10</span><span class="o">|</span>                <span class="mi">0</span><span class="o">|</span>
+<span class="o">|</span>  <span class="nc">Dublin</span><span class="o">|</span>   <span class="nc">Honda</span> <span class="nc">CRV</span><span class="o">|</span>  <span class="mi">3</span><span class="o">|</span>                <span class="mi">0</span><span class="o">|</span>
+<span class="o">|</span>  <span class="nc">Dublin</span><span class="o">|</span> <span class="nc">Honda</span> <span class="nc">Civic</span><span class="o">|</span> <span class="mi">20</span><span class="o">|</span>                <span class="mi">0</span><span class="o">|</span>
+<span class="o">|</span> <span class="nc">Fremont</span><span class="o">|</span>        <span class="kc">null</span><span class="o">|</span> <span class="mi">32</span><span class="o">|</span>                <span class="mi">1</span><span class="o">|</span>
+<span class="o">|</span> <span class="nc">Fremont</span><span class="o">|</span><span class="nc">Honda</span> <span class="nc">Accord</span><span class="o">|</span> <span class="mi">15</span><span class="o">|</span>                <span class="mi">0</span><span class="o">|</span>
+<span class="o">|</span> <span class="nc">Fremont</span><span class="o">|</span>   <span class="nc">Honda</span> <span class="nc">CRV</span><span class="o">|</span>  <span class="mi">7</span><span class="o">|</span>                <span class="mi">0</span><span class="o">|</span>
+<span class="o">|</span> <span class="nc">Fremont</span><span class="o">|</span> <span class="nc">Honda</span> <span class="nc">Civic</span><span class="o">|</span> <span class="mi">10</span><span class="o">|</span>                <span class="mi">0</span><span class="o">|</span>
+<span class="o">|</span><span class="nc">San</span> <span class="nc">Jose</span><span class="o">|</span>        <span class="kc">null</span><span class="o">|</span> <span class="mi">13</span><span class="o">|</span>                <span class="mi">1</span><span class="o">|</span>
+<span class="o">|</span><span class="nc">San</span> <span class="nc">Jose</span><span class="o">|</span><span class="nc">Honda</span> <span class="nc">Accord</span><span class="o">|</span>  <span class="mi">8</span><span class="o">|</span>                <span class="mi">0</span><span class="o">|</span>
+<span class="o">|</span><span class="nc">San</span> <span class="nc">Jose</span><span class="o">|</span> <span class="nc">Honda</span> <span class="nc">Civic</span><span class="o">|</span>  <span class="mi">5</span><span class="o">|</span>                <span class="mi">0</span><span class="o">|</span>
+<span class="o">+--------+------------+---+-----------------+</span>
+</code></pre></div><p>这样，我们就能清晰看出每一条记录对应的 grouping set 是哪个了。</p>
+</li>
+</ol>
+<h2 id="查询性能对比">查询性能对比</h2>
+<p>从前文可知，Grouping Sets 和 Union All 两个版本的 SQL 语句有着一样的效果，但是它们的执行计划却有着巨大的差别。下面，我们将比对两个版本之间的执行性能差异。</p>
+<p>spark-sql 执行完 SQL 语句之后会打印耗时信息，我们对两个版本的 SQL 分别执行 10 次，得到如下信息：</p>
+<div class="highlight"><pre class="chroma"><code class="language-scala" data-lang="scala"><span class="c1">// Grouping Sets 版本执行10次的耗时信息
+</span><span class="c1">// SELECT city, car_model, sum(quantity) AS sum FROM dealer GROUP BY GROUPING SETS ((city, car_model), (city), (car_model), ()) ORDER BY city, car_model;
+</span><span class="c1"></span><span class="nc">Time</span> <span class="n">taken</span><span class="k">:</span> <span class="err">0</span><span class="kt">.</span><span class="err">289</span> <span class="kt">seconds</span><span class="o">,</span> <span class="nc">Fetched</span> <span class="mi">15</span> <span class="n">row</span><span class="o">(</span><span class="n">s</span><span class="o">)</span>
+<span class="nc">Time</span> <span class="n">taken</span><span class="k">:</span> <span class="err">0</span><span class="kt">.</span><span class="err">251</span> <span class="kt">seconds</span><span class="o">,</span> <span class="nc">Fetched</span> <span class="mi">15</span> <span class="n">row</span><span class="o">(</span><span class="n">s</span><span class="o">)</span>
+<span class="nc">Time</span> <span class="n">taken</span><span class="k">:</span> <span class="err">0</span><span class="kt">.</span><span class="err">259</span> <span class="kt">seconds</span><span class="o">,</span> <span class="nc">Fetched</span> <span class="mi">15</span> <span class="n">row</span><span class="o">(</span><span class="n">s</span><span class="o">)</span>
+<span class="nc">Time</span> <span class="n">taken</span><span class="k">:</span> <span class="err">0</span><span class="kt">.</span><span class="err">258</span> <span class="kt">seconds</span><span class="o">,</span> <span class="nc">Fetched</span> <span class="mi">15</span> <span class="n">row</span><span class="o">(</span><span class="n">s</span><span class="o">)</span>
+<span class="nc">Time</span> <span class="n">taken</span><span class="k">:</span> <span class="err">0</span><span class="kt">.</span><span class="err">296</span> <span class="kt">seconds</span><span class="o">,</span> <span class="nc">Fetched</span> <span class="mi">15</span> <span class="n">row</span><span class="o">(</span><span class="n">s</span><span class="o">)</span>
+<span class="nc">Time</span> <span class="n">taken</span><span class="k">:</span> <span class="err">0</span><span class="kt">.</span><span class="err">247</span> <span class="kt">seconds</span><span class="o">,</span> <span class="nc">Fetched</span> <span class="mi">15</span> <span class="n">row</span><span class="o">(</span><span class="n">s</span><span class="o">)</span>
+<span class="nc">Time</span> <span class="n">taken</span><span class="k">:</span> <span class="err">0</span><span class="kt">.</span><span class="err">298</span> <span class="kt">seconds</span><span class="o">,</span> <span class="nc">Fetched</span> <span class="mi">15</span> <span class="n">row</span><span class="o">(</span><span class="n">s</span><span class="o">)</span>
+<span class="nc">Time</span> <span class="n">taken</span><span class="k">:</span> <span class="err">0</span><span class="kt">.</span><span class="err">286</span> <span class="kt">seconds</span><span class="o">,</span> <span class="nc">Fetched</span> <span class="mi">15</span> <span class="n">row</span><span class="o">(</span><span class="n">s</span><span class="o">)</span>
+<span class="nc">Time</span> <span class="n">taken</span><span class="k">:</span> <span class="err">0</span><span class="kt">.</span><span class="err">292</span> <span class="kt">seconds</span><span class="o">,</span> <span class="nc">Fetched</span> <span class="mi">15</span> <span class="n">row</span><span class="o">(</span><span class="n">s</span><span class="o">)</span>
+<span class="nc">Time</span> <span class="n">taken</span><span class="k">:</span> <span class="err">0</span><span class="kt">.</span><span class="err">282</span> <span class="kt">seconds</span><span class="o">,</span> <span class="nc">Fetched</span> <span class="mi">15</span> <span class="n">row</span><span class="o">(</span><span class="n">s</span><span class="o">)</span>
+
+<span class="c1">// Union All 版本执行10次的耗时信息
+</span><span class="c1">// (SELECT city, car_model, sum(quantity) AS sum FROM dealer GROUP BY city, car_model) UNION ALL (SELECT city, NULL as car_model, sum(quantity) AS sum FROM dealer GROUP BY city) UNION ALL (SELECT NULL as city, car_model, sum(quantity) AS sum FROM dealer GROUP BY car_model) UNION ALL (SELECT NULL as city, NULL as car_model, sum(quantity) AS sum FROM dealer) ORDER BY city, car_model;
+</span><span class="c1"></span><span class="nc">Time</span> <span class="n">taken</span><span class="k">:</span> <span class="err">0</span><span class="kt">.</span><span class="err">628</span> <span class="kt">seconds</span><span class="o">,</span> <span class="nc">Fetched</span> <span class="mi">15</span> <span class="n">row</span><span class="o">(</span><span class="n">s</span><span class="o">)</span>
+<span class="nc">Time</span> <span class="n">taken</span><span class="k">:</span> <span class="err">0</span><span class="kt">.</span><span class="err">594</span> <span class="kt">seconds</span><span class="o">,</span> <span class="nc">Fetched</span> <span class="mi">15</span> <span class="n">row</span><span class="o">(</span><span class="n">s</span><span class="o">)</span>
+<span class="nc">Time</span> <span class="n">taken</span><span class="k">:</span> <span class="err">0</span><span class="kt">.</span><span class="err">591</span> <span class="kt">seconds</span><span class="o">,</span> <span class="nc">Fetched</span> <span class="mi">15</span> <span class="n">row</span><span class="o">(</span><span class="n">s</span><span class="o">)</span>
+<span class="nc">Time</span> <span class="n">taken</span><span class="k">:</span> <span class="err">0</span><span class="kt">.</span><span class="err">607</span> <span class="kt">seconds</span><span class="o">,</span> <span class="nc">Fetched</span> <span class="mi">15</span> <span class="n">row</span><span class="o">(</span><span class="n">s</span><span class="o">)</span>
+<span class="nc">Time</span> <span class="n">taken</span><span class="k">:</span> <span class="err">0</span><span class="kt">.</span><span class="err">616</span> <span class="kt">seconds</span><span class="o">,</span> <span class="nc">Fetched</span> <span class="mi">15</span> <span class="n">row</span><span class="o">(</span><span class="n">s</span><span class="o">)</span>
+<span class="nc">Time</span> <span class="n">taken</span><span class="k">:</span> <span class="err">0</span><span class="kt">.</span><span class="err">64</span> <span class="kt">seconds</span><span class="o">,</span> <span class="nc">Fetched</span> <span class="mi">15</span> <span class="n">row</span><span class="o">(</span><span class="n">s</span><span class="o">)</span>
+<span class="nc">Time</span> <span class="n">taken</span><span class="k">:</span> <span class="err">0</span><span class="kt">.</span><span class="err">623</span> <span class="kt">seconds</span><span class="o">,</span> <span class="nc">Fetched</span> <span class="mi">15</span> <span class="n">row</span><span class="o">(</span><span class="n">s</span><span class="o">)</span>
+<span class="nc">Time</span> <span class="n">taken</span><span class="k">:</span> <span class="err">0</span><span class="kt">.</span><span class="err">625</span> <span class="kt">seconds</span><span class="o">,</span> <span class="nc">Fetched</span> <span class="mi">15</span> <span class="n">row</span><span class="o">(</span><span class="n">s</span><span class="o">)</span>
+<span class="nc">Time</span> <span class="n">taken</span><span class="k">:</span> <span class="err">0</span><span class="kt">.</span><span class="err">62</span> <span class="kt">seconds</span><span class="o">,</span> <span class="nc">Fetched</span> <span class="mi">15</span> <span class="n">row</span><span class="o">(</span><span class="n">s</span><span class="o">)</span>
+<span class="nc">Time</span> <span class="n">taken</span><span class="k">:</span> <span class="err">0</span><span class="kt">.</span><span class="err">62</span> <span class="kt">seconds</span><span class="o">,</span> <span class="nc">Fetched</span> <span class="mi">15</span> <span class="n">row</span><span class="o">(</span><span class="n">s</span><span class="o">)</span>
+</code></pre></div><p>可以算出，Grouping Sets 版本的 SQL 平均耗时为 <strong>0.276s</strong>；Union All 版本的 SQL 平均耗时为 <strong>0.616s</strong>，是前者的 <strong>2.2 倍</strong>！</p>
+<p>所以，<strong>Grouping Sets 版本的 SQL 不仅在表达上更加简洁，在性能上也更加高效</strong>。</p>
+<h2 id="rollup-和-cube">RollUp 和 Cube</h2>
+<p><code>Group By</code> 的高级用法中，还有 <code>RollUp</code> 和 <code>Cube</code> 两个比较常用。</p>
+<p><strong>首先，我们看下 <code>RollUp</code> 语句</strong>。</p>
+<p>Spark SQL 官方文档中 <a class="link" href="https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-groupby.html"  target="_blank" rel="noopener"
+    >SQL Syntax</a> 一节对 <code>RollUp</code> 语句的描述如下：</p>
+<blockquote>
+<p>Specifies multiple levels of aggregations in a single statement. This clause is used to compute aggregations based on multiple grouping sets. <code>ROLLUP</code> is a shorthand for <code>GROUPING SETS</code>. （&hellip; 一些例子）</p>
+</blockquote>
+<p>官方文档中，把 <code>RollUp</code> 描述为 <code>Grouping Sets</code> 的简写，等价规则为：<code>RollUp(A, B, C) == Grouping Sets((A, B, C), (A, B), (A), ())</code>。</p>
+<p>比如，<code>Group By RollUp(city, car_model)</code> 就等同于 <code>Group By Grouping Sets((city, car_model), (city), ())</code>。</p>
+<p>下面，我们通过 <code>expand extended</code> 看下 RollUp 版本 SQL 的 Optimized Logical Plan：</p>
+<div class="highlight"><pre class="chroma"><code class="language-scala" data-lang="scala"><span class="n">spark</span><span class="o">-</span><span class="n">sql</span><span class="o">&gt;</span> <span class="n">explain</span> <span class="n">extended</span> <span class="nc">SELECT</span> <span class="n">city</span><span class="o">,</span> <span class="n">car_model</span><span class="o">,</span> <span class="n">sum</span><span class="o">(</span><span class="n">quantity</span><span class="o">)</span> <span class="nc">AS</span> <span class="n">sum</span> <span class="nc">FROM</span> <span class="n">dealer</span> <span class="nc">GROUP</span> <span class="nc">BY</span> <span class="nc">ROLLUP</span><span class="o">(</span><span class="n">city</span><span class="o">,</span> <span class="n">car_model</span><span class="o">)</span> <span class="nc">ORDER</span> <span class="nc">BY</span> <span class="n">city</span><span class="o">,</span> <span class="n">car_model</span><span class="o">;</span>
+<span class="o">==</span> <span class="nc">Parsed</span> <span class="nc">Logical</span> <span class="nc">Plan</span> <span class="o">==</span>
+<span class="o">...</span>
+<span class="o">==</span> <span class="nc">Analyzed</span> <span class="nc">Logical</span> <span class="nc">Plan</span> <span class="o">==</span>
+<span class="o">...</span>
+<span class="o">==</span> <span class="nc">Optimized</span> <span class="nc">Logical</span> <span class="nc">Plan</span> <span class="o">==</span>
+<span class="nc">Sort</span> <span class="o">[</span><span class="kt">city</span><span class="k">#</span><span class="err">2164</span> <span class="kt">ASC</span> <span class="kt">NULLS</span> <span class="kt">FIRST</span>, <span class="kt">car_model</span><span class="k">#</span><span class="err">2165</span> <span class="kt">ASC</span> <span class="kt">NULLS</span> <span class="kt">FIRST</span><span class="o">],</span> <span class="kc">true</span>
+<span class="o">+-</span> <span class="nc">Aggregate</span> <span class="o">[</span><span class="kt">city</span><span class="k">#</span><span class="err">2164</span>, <span class="kt">car_model</span><span class="k">#</span><span class="err">2165</span>, <span class="kt">spark_grouping_id</span><span class="k">#</span><span class="err">2163</span><span class="kt">L</span><span class="o">],</span> <span class="o">[</span><span class="kt">city</span><span class="k">#</span><span class="err">2164</span>, <span class="kt">car_model</span><span class="k">#</span><span class="err">2165</span>, <span class="kt">sum</span><span class="o">(</span><span class="kt">quantity</span><span class="k">#</span><span class="err">2159</span><span class="o">)</span> <span class="kt">AS</span> <span class="kt">sum</span><span class="k">#</span><span class="err">2150</span><span class="kt">L</span><span class="o">]</span>
+   <span class="o">+-</span> <span class="nc">Expand</span> <span class="o">[[</span><span class="kt">quantity</span><span class="k">#</span><span class="err">2159</span>, <span class="kt">city</span><span class="k">#</span><span class="err">2157</span>, <span class="kt">car_model</span><span class="k">#</span><span class="err">2158</span>, <span class="err">0</span><span class="o">]</span>, <span class="o">[</span><span class="kt">quantity</span><span class="k">#</span><span class="err">2159</span>, <span class="kt">city</span><span class="k">#</span><span class="err">2157</span>, <span class="kt">null</span>, <span class="err">1</span><span class="o">]</span>, <span class="o">[</span><span class="kt">quantity</span><span class="k">#</span><span class="err">2159</span>, <span class="kt">null</span>, <span class="kt">null</span>, <span class="err">3</span><span class="o">]],</span> <span class="o">[</span><span class="kt">quantity</span><span class="k">#</span><span class="err">2159</span>, <span class="kt">city</span><span class="k">#</span><span class="err">2164</span>, <span class="kt">car_model</span><span class="k">#</span><span class="err">2165</span>, <span class="kt">spark_grouping_id</span><span class="k">#</span><span class="err">2163</span><span class="kt">L</span><span class="o">]</span>
+      <span class="o">+-</span> <span class="nc">Project</span> <span class="o">[</span><span class="kt">quantity</span><span class="k">#</span><span class="err">2159</span>, <span class="kt">city</span><span class="k">#</span><span class="err">2157</span>, <span class="kt">car_model</span><span class="k">#</span><span class="err">2158</span><span class="o">]</span>
+         <span class="o">+-</span> <span class="nc">HiveTableRelation</span> <span class="o">[</span><span class="kt">`default`.`dealer`</span>, <span class="kt">...</span>, <span class="kt">Data</span> <span class="kt">Cols:</span> <span class="o">[</span><span class="kt">id</span><span class="k">#</span><span class="err">2156</span>, <span class="kt">city</span><span class="k">#</span><span class="err">2157</span>, <span class="kt">car_model</span><span class="k">#</span><span class="err">2158</span>, <span class="kt">quantity</span><span class="k">#</span><span class="err">2159</span><span class="o">]</span>, <span class="kt">Partition</span> <span class="kt">Cols:</span> <span class="o">[]]</span>
+<span class="o">==</span> <span class="nc">Physical</span> <span class="nc">Plan</span> <span class="o">==</span>
+<span class="o">...</span>
+</code></pre></div><p>从上述 Plan 可以看出，<code>RollUp</code> 底层实现用的也是 Expand 算子，说明 <code>RollUp</code> 确实是基于 <code>Grouping Sets</code> 实现的。 而且 <code>Expand [[quantity#2159, city#2157, car_model#2158, 0], [quantity#2159, city#2157, null, 1], [quantity#2159, null, null, 3]]</code> 也表明 <code>RollUp</code> 符合等价规则。</p>
+<p><strong>下面，我们按照同样的思路，看下 <code>Cube</code> 语句</strong>。</p>
+<p>Spark SQL 官方文档中 <a class="link" href="https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-groupby.html"  target="_blank" rel="noopener"
+    >SQL Syntax</a> 一节对 <code>Cube</code> 语句的描述如下：</p>
+<blockquote>
+<p><code>CUBE</code> clause is used to perform aggregations based on combination of grouping columns specified in the <code>GROUP BY</code>clause. <code>CUBE</code> is a shorthand for <code>GROUPING SETS</code>. (&hellip; 一些例子)</p>
+</blockquote>
+<p>同样，官方文档把 <code>Cube</code> 描述为 <code>Grouping Sets</code> 的简写，等价规则为：<code>Cube(A, B, C) == Grouping Sets((A, B, C), (A, B), (A, C), (B, C), (A), (B), (C), ())</code>。</p>
+<p>比如，<code>Group By Cube(city, car_model)</code> 就等同于 <code>Group By Grouping Sets((city, car_model), (city), (car_model), ())</code>。</p>
+<p>下面，我们通过 <code>expand extended</code> 看下 Cube 版本 SQL 的 Optimized Logical Plan：</p>
+<div class="highlight"><pre class="chroma"><code class="language-scala" data-lang="scala"><span class="n">spark</span><span class="o">-</span><span class="n">sql</span><span class="o">&gt;</span> <span class="n">explain</span> <span class="n">extended</span> <span class="nc">SELECT</span> <span class="n">city</span><span class="o">,</span> <span class="n">car_model</span><span class="o">,</span> <span class="n">sum</span><span class="o">(</span><span class="n">quantity</span><span class="o">)</span> <span class="nc">AS</span> <span class="n">sum</span> <span class="nc">FROM</span> <span class="n">dealer</span> <span class="nc">GROUP</span> <span class="nc">BY</span> <span class="nc">CUBE</span><span class="o">(</span><span class="n">city</span><span class="o">,</span> <span class="n">car_model</span><span class="o">)</span> <span class="nc">ORDER</span> <span class="nc">BY</span> <span class="n">city</span><span class="o">,</span> <span class="n">car_model</span><span class="o">;</span>
+<span class="o">==</span> <span class="nc">Parsed</span> <span class="nc">Logical</span> <span class="nc">Plan</span> <span class="o">==</span>
+<span class="o">...</span>
+<span class="o">==</span> <span class="nc">Analyzed</span> <span class="nc">Logical</span> <span class="nc">Plan</span> <span class="o">==</span>
+<span class="o">...</span>
+<span class="o">==</span> <span class="nc">Optimized</span> <span class="nc">Logical</span> <span class="nc">Plan</span> <span class="o">==</span>
+<span class="nc">Sort</span> <span class="o">[</span><span class="kt">city</span><span class="k">#</span><span class="err">2202</span> <span class="kt">ASC</span> <span class="kt">NULLS</span> <span class="kt">FIRST</span>, <span class="kt">car_model</span><span class="k">#</span><span class="err">2203</span> <span class="kt">ASC</span> <span class="kt">NULLS</span> <span class="kt">FIRST</span><span class="o">],</span> <span class="kc">true</span>
+<span class="o">+-</span> <span class="nc">Aggregate</span> <span class="o">[</span><span class="kt">city</span><span class="k">#</span><span class="err">2202</span>, <span class="kt">car_model</span><span class="k">#</span><span class="err">2203</span>, <span class="kt">spark_grouping_id</span><span class="k">#</span><span class="err">2201</span><span class="kt">L</span><span class="o">],</span> <span class="o">[</span><span class="kt">city</span><span class="k">#</span><span class="err">2202</span>, <span class="kt">car_model</span><span class="k">#</span><span class="err">2203</span>, <span class="kt">sum</span><span class="o">(</span><span class="kt">quantity</span><span class="k">#</span><span class="err">2197</span><span class="o">)</span> <span class="kt">AS</span> <span class="kt">sum</span><span class="k">#</span><span class="err">2188</span><span class="kt">L</span><span class="o">]</span>
+   <span class="o">+-</span> <span class="nc">Expand</span> <span class="o">[[</span><span class="kt">quantity</span><span class="k">#</span><span class="err">2197</span>, <span class="kt">city</span><span class="k">#</span><span class="err">2195</span>, <span class="kt">car_model</span><span class="k">#</span><span class="err">2196</span>, <span class="err">0</span><span class="o">]</span>, <span class="o">[</span><span class="kt">quantity</span><span class="k">#</span><span class="err">2197</span>, <span class="kt">city</span><span class="k">#</span><span class="err">2195</span>, <span class="kt">null</span>, <span class="err">1</span><span class="o">]</span>, <span class="o">[</span><span class="kt">quantity</span><span class="k">#</span><span class="err">2197</span>, <span class="kt">null</span>, <span class="kt">car_model</span><span class="k">#</span><span class="err">2196</span>, <span class="err">2</span><span class="o">]</span>, <span class="o">[</span><span class="kt">quantity</span><span class="k">#</span><span class="err">2197</span>, <span class="kt">null</span>, <span class="kt">null</span>, <span class="err">3</span><span class="o">]],</span> <span class="o">[</span><span class="kt">quantity</span><span class="k">#</span><span class="err">2197</span>, <span class="kt">city</span><span class="k">#</span><span class="err">2202</span>, <span class="kt">car_model</span><span class="k">#</span><span class="err">2203</span>, <span class="kt">spark_grouping_id</span><span class="k">#</span><span class="err">2201</span><span class="kt">L</span><span class="o">]</span>
+      <span class="o">+-</span> <span class="nc">Project</span> <span class="o">[</span><span class="kt">quantity</span><span class="k">#</span><span class="err">2197</span>, <span class="kt">city</span><span class="k">#</span><span class="err">2195</span>, <span class="kt">car_model</span><span class="k">#</span><span class="err">2196</span><span class="o">]</span>
+         <span class="o">+-</span> <span class="nc">HiveTableRelation</span> <span class="o">[</span><span class="kt">`default`.`dealer`</span>, <span class="kt">...</span>, <span class="kt">Data</span> <span class="kt">Cols:</span> <span class="o">[</span><span class="kt">id</span><span class="k">#</span><span class="err">2194</span>, <span class="kt">city</span><span class="k">#</span><span class="err">2195</span>, <span class="kt">car_model</span><span class="k">#</span><span class="err">2196</span>, <span class="kt">quantity</span><span class="k">#</span><span class="err">2197</span><span class="o">]</span>, <span class="kt">Partition</span> <span class="kt">Cols:</span> <span class="o">[]]</span>
+<span class="o">==</span> <span class="nc">Physical</span> <span class="nc">Plan</span> <span class="o">==</span>
+<span class="o">...</span>
+</code></pre></div><p>从上述 Plan 可以看出，<code>Cube</code> 底层用的也是 Expand 算子，说明 <code>Cube</code> 确实基于 <code>Grouping Sets</code> 实现，而且也符合等价规则。</p>
+<p>所以，<code>RollUp</code> 和 <code>Cube</code> 可以看成是 <code>Grouping Sets</code> 的语法糖，在底层实现和性能上是一样的。</p>
+<h2 id="最后">最后</h2>
+<p>本文重点讨论了 <code>Group By</code> 高级用法 <code>Groupings Sets</code> 语句的功能和底层实现。</p>
+<p>虽然 <code>Groupings Sets</code> 的功能，通过 <code>Union All</code> 也能实现，但前者并非后者的语法糖，它们的底层实现完全不一样。<code>Grouping Sets</code> 采用的是先联合再聚合的思路，通过 <code>spark_grouping_id</code> 列来保证数据的正确性；<code>Union All</code> 则采用先聚合再联合的思路。<code>Grouping Sets</code> <strong>在 SQL 语句表达和性能上都有更大的优势</strong>。</p>
+<p><code>Group By</code> 的另外两个高级用法 <code>RollUp</code> 和 <code>Cube</code>  则可以看成是 <code>Grouping Sets</code> 的语法糖，它们的底层都是基于 Expand 算子实现，<strong>在性能上与直接使用 <code>Grouping Sets</code> 是一样的，但在 SQL 表达上更加简洁</strong>。</p>
+<h3 id="文章配图">文章配图</h3>
+<p>可以在 <a class="link" href="https://mp.weixin.qq.com/s/-sYW-oa6KzTR9LNdMWCSnQ"  target="_blank" rel="noopener"
+    >用Keynote画出手绘风格的配图</a> 中找到文章的绘图方法。</p>
+<blockquote>
+<h4 id="参考">参考</h4>
+<p>[1] <a class="link" href="https://spark.apache.org/docs/latest/sql-programming-guide.html"  target="_blank" rel="noopener"
+    >Spark SQL Guide</a>, Apache Spark</p>
+<p>[2] <a class="link" href="https://github.com/apache/spark"  target="_blank" rel="noopener"
+    >apache spark 3.3 版本源码</a>, Apache Spark, GitHub</p>
+<p>更多文章请关注微信公众号：<strong>元闰子的邀请</strong></p>
+</blockquote>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/spark-sql/">Spark SQL</a>
+        
+            <a href="/tags/sql/">SQL</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>CC BY 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E7%9A%84%E6%95%B0%E5%80%BC%E7%B1%BB%E5%9E%8B/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">深入理解计算机系统的数值类型</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E5%81%87%E5%A6%82%E8%AE%A9%E4%BD%A0%E6%9D%A5%E8%AE%BE%E8%AE%A1ssl/tls%E5%8D%8F%E8%AE%AE/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">假如让你来设计SSL/TLS协议</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E6%8E%A2%E7%B4%A2os%E7%9A%84%E5%86%85%E5%AD%98%E5%8E%9F%E7%90%86/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">探索OS的内存原理</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E6%8E%A2%E7%B4%A2cpu%E7%9A%84%E8%B0%83%E5%BA%A6%E5%8E%9F%E7%90%86/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">探索CPU的调度原理</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+
+    
+        
+    <script src="https://utteranc.es/client.js" 
+        repo="ruanrunxue/yrunz-comments"
+        issue-term="pathname"
+        
+        label="yrunz"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
+
+<style>
+    .utterances {
+        max-width: unset;
+    }
+</style>
+
+<script>
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
+        }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+        setUtterancesTheme(document.body.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        setUtterancesTheme(e.detail)
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_SVG"></script>
+    <section class="copyright">
+        &copy;
+        
+            2019 -
+        
+        2023 元闰子的邀请
+    </section>
+
+    <section class="powerby">
+        
+
+        <a href="https://beian.miit.gov.cn/">粤ICP备19152659号 | </a>Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.3.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        <br />
+    </section>
+</footer>
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

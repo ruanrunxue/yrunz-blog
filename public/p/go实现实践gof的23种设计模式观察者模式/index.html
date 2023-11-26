@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='当你需要监听某个状态的变更，且在状态变更时，通知到监听者，用观察者模式吧。'><title>【Go实现】实践GoF的23种设计模式：观察者模式</title>
+
+<link rel='canonical' href='https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='【Go实现】实践GoF的23种设计模式：观察者模式'>
+<meta property='og:description' content='当你需要监听某个状态的变更，且在状态变更时，通知到监听者，用观察者模式吧。'>
+<meta property='og:url' content='https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F/'>
+<meta property='og:site_name' content='元闰子的邀请'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='设计模式' /><meta property='article:tag' content='实践GoF的23种设计模式' /><meta property='article:tag' content='Go' /><meta property='article:published_time' content='2022-07-23T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2022-07-23T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="【Go实现】实践GoF的23种设计模式：观察者模式">
+<meta name="twitter:description" content="当你需要监听某个状态的变更，且在状态变更时，通知到监听者，用观察者模式吧。">
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "light");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/yrz_hudc7c8721ecce4b724df5002339c76402_174377_300x0_resize_box_2.png" width="300"
+                            height="306" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://www.yrunz.com">元闰子的邀请</a></h1>
+        <h2 class="site-description">阅读、写作、生活（个人技术分享）</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>首页</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>博客</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%85%B3%E4%BA%8E%E5%85%83%E9%97%B0%E5%AD%90/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24"
+     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+     stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z"/>
+    <circle cx="12" cy="7" r="4"/>
+    <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/>
+</svg>
+
+                
+                <span>关于元闰子</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%8F%8B%E6%83%85%E9%93%BE%E6%8E%A5/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-friends" width="44" height="44"
+     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+    <circle cx="7" cy="5" r="2"/>
+    <path d="M5 22v-5l-1 -1v-4a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4l-1 1v5"/>
+    <circle cx="17" cy="5" r="2"/>
+    <path d="M15 22v-4h-2l2 -6a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1l2 6h-2v4"/>
+</svg>
+
+                
+                <span>友情链接</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>暗色模式</span>
+            </li>
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://www.yrunz.com" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E5%86%99%E5%A5%BD%E4%BB%A3%E7%A0%81/" >
+                写好代码
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F/">【Go实现】实践GoF的23种设计模式：观察者模式</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        当你需要监听某个状态的变更，且在状态变更时，通知到监听者，用观察者模式吧。
+    </h3>
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Jul 23, 2022</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <blockquote>
+<p>上一篇：<a class="link" href="https://mp.weixin.qq.com/s/NT6_KOY_hGkA-y2b4fw45A"  target="_blank" rel="noopener"
+    >【Go实现】实践GoF的23种设计模式：装饰者模式</a></p>
+<p><strong>简单的分布式应用系统</strong>（示例代码工程）：<a class="link" href="https://github.com/ruanrunxue/Practice-Design-Pattern--Go-Implementation"  target="_blank" rel="noopener"
+    >https://github.com/ruanrunxue/Practice-Design-Pattern&ndash;Go-Implementation</a></p>
+</blockquote>
+<h2 id="简介">简介</h2>
+<p>现在有 2 个服务，Service A 和 Service B，通过 REST 接口通信；Service A 在某个业务场景下调用 Service B 的接口完成一个计算密集型任务，假设接口为 http://service_b/api/v1/domain；该任务运行时间很长，但 Service A 不想一直阻塞在接口调用上。为了满足 Service A 的要求，通常有 2 种方案：</p>
+<ol>
+<li>
+<p>Service A 隔一段时间调用一次 Service B 的接口，如果任务还没完成，就返回 HTTP Status 102 Processing；如果已完成，则返回 HTTP Status 200 Ok。</p>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h4gk1oezcrj21co0rwtfr.jpg" alt=""  /></p>
+</li>
+<li>
+<p>Service A 在请求 Service B 接口时带上 callback uri，比如 http://service_b/api/v1/domain?callbackuri=http://service_a/api/v1/domain，Service B 收到请求后立即返回 HTTP Status 200 Ok，等任务完成后再调用 Service A callback uri 进行通知。</p>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h4gk5xc6jcj21ae0ryjxj.jpg" alt=""  /></p>
+</li>
+</ol>
+<p>方案 1 须要轮询接口，轮询太频繁会导致资源浪费，间隔太长又会导致任务完成后 Service A 无法及时感知。显然，方案 2 更加高效，因此也被广泛应用。</p>
+<p>方案 2 用到的思想就是本文要介绍的<strong>观察者模式</strong>（<strong>Observer Pattern</strong>），GoF 对它的定义如下：</p>
+<blockquote>
+<p>Define a one-to-many dependency between objects so that when one object changes state, all its dependents are notified and updated automatically.</p>
+</blockquote>
+<p>我们将观察者称为 <strong>Observer</strong>，被观察者（或主体）称为 <strong>Subject</strong>，那么 <strong>Subject 和 Observer 是一对多的关系</strong>，当 Subject 状态变更时，所有的 Observer 都会被通知到。</p>
+<h2 id="uml-结构">UML 结构</h2>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h4gn9y12alj21fm0q2wkz.jpg" alt=""  /></p>
+<h2 id="场景上下文">场景上下文</h2>
+<p>在 <a class="link" href="https://github.com/ruanrunxue/Practice-Design-Pattern--Go-Implementation/blob/main/docs/go_ractice_design_pattern__solid_principle.md"  target="_blank" rel="noopener"
+    >简单的分布式应用系统</a>（示例代码工程）中，应用之间通过 network 模块来通信，其中通信模型采用观察者模式：</p>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h4gqq5hw9tj21ea0p2grn.jpg" alt=""  /></p>
+<p>从上图可知，App 直接依赖 http 模块，而 http 模块底层则依赖 socket 模块：</p>
+<ol>
+<li>在 <code>App2</code> 初始化时，先向 http 模块注册一个 <code>request handler</code>，处理 <code>App1</code> 发送的 http 请求。</li>
+<li>http 模块会将 <code>request handler</code> 转换为 <code>packet handler</code> 注册到 socket 模块上。</li>
+<li><code>App 1</code> 发送 http 请求，http 模块将请求转换为 <code>socket packet</code> 发往 <code>App 2</code> 的 socket 模块。</li>
+<li><code>App 2</code> 的 socket 模块收到 packet 后，调用 <code>packet handler</code> 处理该报文；<code>packet handler</code> 又会调用 <code>App 2</code> 注册的 <code>request handler</code> 处理该请求。</li>
+</ol>
+<p>在上述 <strong>socket - http - app 三层模型</strong> 中，对 socket 和 http，socket 是 Subject，http 是 Observer；对 http 和 app，http 是 Subject，app 是 Observer。</p>
+<h2 id="代码实现">代码实现</h2>
+<p>因为在观察者模式的实现上，socket 模块和 http 模块类似，所以，下面只给出 socket 模块的实现：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// demo/network/socket.go
+</span><span class="c1"></span><span class="kn">package</span> <span class="nx">network</span>
+
+<span class="c1">// 关键点1: 定义Observer接口
+</span><span class="c1">// SocketListener Socket报文监听者
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">SocketListener</span> <span class="kd">interface</span> <span class="p">{</span>
+  <span class="c1">// 关键2: 为Observer定义更新处理方法，入参为相关的上下文对象
+</span><span class="c1"></span>	<span class="nf">Handle</span><span class="p">(</span><span class="nx">packet</span> <span class="o">*</span><span class="nx">Packet</span><span class="p">)</span> <span class="kt">error</span>
+<span class="p">}</span>
+
+<span class="c1">// Subject接口
+</span><span class="c1">// Socket 网络通信Socket接口
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Socket</span> <span class="kd">interface</span> <span class="p">{</span>
+	<span class="c1">// Listen 在endpoint指向地址上起监听
+</span><span class="c1"></span>	<span class="nf">Listen</span><span class="p">(</span><span class="nx">endpoint</span> <span class="nx">Endpoint</span><span class="p">)</span> <span class="kt">error</span>
+	<span class="c1">// Close 关闭监听
+</span><span class="c1"></span>	<span class="nf">Close</span><span class="p">(</span><span class="nx">endpoint</span> <span class="nx">Endpoint</span><span class="p">)</span>
+	<span class="c1">// Send 发送网络报文
+</span><span class="c1"></span>	<span class="nf">Send</span><span class="p">(</span><span class="nx">packet</span> <span class="o">*</span><span class="nx">Packet</span><span class="p">)</span> <span class="kt">error</span>
+	<span class="c1">// Receive 接收网络报文
+</span><span class="c1"></span>	<span class="nf">Receive</span><span class="p">(</span><span class="nx">packet</span> <span class="o">*</span><span class="nx">Packet</span><span class="p">)</span>
+	<span class="c1">// AddListener 增加网络报文监听者
+</span><span class="c1"></span>	<span class="nf">AddListener</span><span class="p">(</span><span class="nx">listener</span> <span class="nx">SocketListener</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// 关键点3: 定义Subject对象
+</span><span class="c1">// socketImpl Socket的默认实现
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">socketImpl</span> <span class="kd">struct</span> <span class="p">{</span>
+  <span class="c1">// 关键点4: 在Subject中持有Observer的集合
+</span><span class="c1"></span>	<span class="nx">listeners</span> <span class="p">[]</span><span class="nx">SocketListener</span>
+<span class="p">}</span>
+
+<span class="c1">// 关键点5: 为Subject定义注册Observer的方法
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">socketImpl</span><span class="p">)</span> <span class="nf">AddListener</span><span class="p">(</span><span class="nx">listener</span> <span class="nx">SocketListener</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">s</span><span class="p">.</span><span class="nx">listeners</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">s</span><span class="p">.</span><span class="nx">listeners</span><span class="p">,</span> <span class="nx">listener</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// 关键点6: 当Subject状态变更时，遍历Observers集合，调用它们的更新处理方法
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">socketImpl</span><span class="p">)</span> <span class="nf">Receive</span><span class="p">(</span><span class="nx">packet</span> <span class="o">*</span><span class="nx">Packet</span><span class="p">)</span> <span class="p">{</span>
+	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">listener</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">s</span><span class="p">.</span><span class="nx">listeners</span> <span class="p">{</span>
+		<span class="nx">listener</span><span class="p">.</span><span class="nf">Handle</span><span class="p">(</span><span class="nx">packet</span><span class="p">)</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+<span class="o">...</span>
+</code></pre></div><p>总结实现观察者模式的几个关键点：</p>
+<ol>
+<li>定义 Observer 接口，上述例子中为 <code>SocketListener</code> 接口。</li>
+<li>为 Observer 接口定义状态更新的处理方法，其中方法入参为相关的上下文对象。上述例子为 <code>Handle</code> 方法，上下文对象为 <code>Packet</code>。</li>
+<li>定义 Subject 对象，上述例子为 <code>socketImpl</code> 对象。当然，也可以先将 Subject 抽象为接口，比如上述例子中的 <code>Socket</code> 接口，但大多数情况下都不是必须的。</li>
+<li>在 Subject 对象中，持有 Observer 接口的集合，上述例子为 <code>listeners</code> 属性。<strong>让 Subject 依赖 Observer 接口，能够使 Subject 与具体的 Observer 实现解耦，提升代码的可扩展性</strong>。</li>
+<li>为 Subject 对象定义注册 Observer 的方法，上述例子为 <code>AddListener</code> 方法。</li>
+<li>当 Subject 状态变更时，遍历 Observer 集合，并调用它们的状态更变处理方法，上述例子为 <code>Receive</code> 方法。</li>
+</ol>
+<h2 id="扩展">扩展</h2>
+<h3 id="发布-订阅模式">发布-订阅模式</h3>
+<p>与观察者模式相近的，是<strong>发布-订阅模式</strong>（<strong>Pub-Sub Pattern</strong>），很多人会把两者等同，但它们之间还是有些差异。</p>
+<p>从前文的观察者模式实现中，我们发现 Subject 持有 Observer 的引用，当状态变更时，Subject 直接调用 Observer 的更新处理方法完成通知。也就是，Subject 知道有哪些 Observer，也知道 Observer 的数量：</p>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h4gz7fhuz1j212u0oi42e.jpg" alt=""  /></p>
+<p>在发布-订阅模式中，我们将发布方称为 <strong>Publisher</strong>，订阅方称为 <strong>Subscriber</strong>，不同于观察者模式，Publisher 并不直接持有 Subscriber 引用，它们之间通常通过 <strong>Broker</strong> 来完成解耦。也即，Publisher 不知道有哪些 Subscriber，也不知道 Subscriber 的数量：</p>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h4gz9mepafj21am0p2gqv.jpg" alt=""  /></p>
+<p><strong>发布-订阅模式被广泛应用在消息中间件的实现上</strong>，比如 Apache Kafka 基于 Topic 实现了发布-订阅模式，发布方称为 Producer，订阅方称为 Consumer。</p>
+<p>下面，我们通过 <a class="link" href="https://github.com/ruanrunxue/Practice-Design-Pattern--Go-Implementation/blob/main/docs/go_ractice_design_pattern__solid_principle.md"  target="_blank" rel="noopener"
+    >简单的分布式应用系统</a>（示例代码工程）中的 mq 模块，展示一个简单的发布-订阅模式实现，在该实现中，我们将 Publisher 的 produce 方法和 Subscriber 的 consume 方法都合并到 Broker 中：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// demo/mq/memory_mq.go
+</span><span class="c1"></span>
+<span class="c1">// 关键点1: 定义通信双方交互的消息，携带topic信息
+</span><span class="c1">// Message 消息队列中消息定义
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Message</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">topic</span>   <span class="nx">Topic</span>
+	<span class="nx">payload</span> <span class="kt">string</span>
+<span class="p">}</span>
+
+<span class="c1">// 关键点2: 定义Broker对象
+</span><span class="c1">// memoryMq 内存消息队列，通过channel实现
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">memoryMq</span> <span class="kd">struct</span> <span class="p">{</span>
+  <span class="c1">// 关键点3: Broker中维持一个队列的map，其中key为topic，value为queue，go语言通常用chan实现。
+</span><span class="c1"></span>	<span class="nx">queues</span> <span class="nx">sync</span><span class="p">.</span><span class="nx">Map</span> <span class="c1">// key为Topic，value为chan *Message，每个topic单独一个队列
+</span><span class="c1"></span><span class="p">}</span>
+
+<span class="c1">// 关键点4: 为Broker定义Produce方法，根据消息中的topic选择对应的queue发布消息
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">m</span> <span class="o">*</span><span class="nx">memoryMq</span><span class="p">)</span> <span class="nf">Produce</span><span class="p">(</span><span class="nx">message</span> <span class="o">*</span><span class="nx">Message</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+	<span class="nx">record</span><span class="p">,</span> <span class="nx">ok</span> <span class="o">:=</span> <span class="nx">m</span><span class="p">.</span><span class="nx">queues</span><span class="p">.</span><span class="nf">Load</span><span class="p">(</span><span class="nx">message</span><span class="p">.</span><span class="nf">Topic</span><span class="p">())</span>
+	<span class="k">if</span> <span class="p">!</span><span class="nx">ok</span> <span class="p">{</span>
+		<span class="nx">q</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="o">*</span><span class="nx">Message</span><span class="p">,</span> <span class="mi">10000</span><span class="p">)</span>
+		<span class="nx">m</span><span class="p">.</span><span class="nx">queues</span><span class="p">.</span><span class="nf">Store</span><span class="p">(</span><span class="nx">message</span><span class="p">.</span><span class="nf">Topic</span><span class="p">(),</span> <span class="nx">q</span><span class="p">)</span>
+		<span class="nx">record</span> <span class="p">=</span> <span class="nx">q</span>
+	<span class="p">}</span>
+	<span class="nx">queue</span><span class="p">,</span> <span class="nx">ok</span> <span class="o">:=</span> <span class="nx">record</span><span class="p">.(</span><span class="kd">chan</span> <span class="o">*</span><span class="nx">Message</span><span class="p">)</span>
+	<span class="k">if</span> <span class="p">!</span><span class="nx">ok</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="nx">errors</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="s">&#34;model&#39;s type is not chan *Message&#34;</span><span class="p">)</span>
+	<span class="p">}</span>
+	<span class="nx">queue</span> <span class="o">&lt;-</span> <span class="nx">message</span>
+	<span class="k">return</span> <span class="kc">nil</span>
+<span class="p">}</span>
+
+<span class="c1">// 关键点5: 为Broker定义Consume方法，根据topic选择对应的queue消费消息
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">m</span> <span class="o">*</span><span class="nx">memoryMq</span><span class="p">)</span> <span class="nf">Consume</span><span class="p">(</span><span class="nx">topic</span> <span class="nx">Topic</span><span class="p">)</span> <span class="p">(</span><span class="o">*</span><span class="nx">Message</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">record</span><span class="p">,</span> <span class="nx">ok</span> <span class="o">:=</span> <span class="nx">m</span><span class="p">.</span><span class="nx">queues</span><span class="p">.</span><span class="nf">Load</span><span class="p">(</span><span class="nx">topic</span><span class="p">)</span>
+	<span class="k">if</span> <span class="p">!</span><span class="nx">ok</span> <span class="p">{</span>
+		<span class="nx">q</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="o">*</span><span class="nx">Message</span><span class="p">,</span> <span class="mi">10000</span><span class="p">)</span>
+		<span class="nx">m</span><span class="p">.</span><span class="nx">queues</span><span class="p">.</span><span class="nf">Store</span><span class="p">(</span><span class="nx">topic</span><span class="p">,</span> <span class="nx">q</span><span class="p">)</span>
+		<span class="nx">record</span> <span class="p">=</span> <span class="nx">q</span>
+	<span class="p">}</span>
+	<span class="nx">queue</span><span class="p">,</span> <span class="nx">ok</span> <span class="o">:=</span> <span class="nx">record</span><span class="p">.(</span><span class="kd">chan</span> <span class="o">*</span><span class="nx">Message</span><span class="p">)</span>
+	<span class="k">if</span> <span class="p">!</span><span class="nx">ok</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">errors</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="s">&#34;model&#39;s type is not chan *Message&#34;</span><span class="p">)</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="o">&lt;-</span><span class="nx">queue</span><span class="p">,</span> <span class="kc">nil</span>
+<span class="p">}</span>
+</code></pre></div><p>客户端使用时，直接调用 <code>memoryMq</code> 的 <code>Produce</code> 方法和 <code>Consume</code> 方法完成消息的生产和消费：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// 发布方
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">publisher</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">msg</span> <span class="o">:=</span> <span class="nf">NewMessage</span><span class="p">(</span><span class="s">&#34;test&#34;</span><span class="p">,</span> <span class="s">&#34;hello world&#34;</span><span class="p">)</span>
+	<span class="nx">err</span> <span class="o">:=</span> <span class="nf">MemoryMqInstance</span><span class="p">().</span><span class="nf">Produce</span><span class="p">(</span><span class="nx">msg</span><span class="p">)</span>
+	<span class="nx">assert</span><span class="p">.</span><span class="nf">Nil</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// 订阅方
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">subscriber</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">result</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nf">MemoryMqInstance</span><span class="p">().</span><span class="nf">Consume</span><span class="p">(</span><span class="s">&#34;test&#34;</span><span class="p">)</span>
+	<span class="nx">assert</span><span class="p">.</span><span class="nf">Nil</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+	<span class="nx">assert</span><span class="p">.</span><span class="nf">Equal</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span> <span class="s">&#34;hello world&#34;</span><span class="p">,</span> <span class="nx">result</span><span class="p">.</span><span class="nx">payload</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div><p>总结实现发布-订阅模式的几个关键点：</p>
+<ol>
+<li>定义通信双方交互的消息，携带 topic 信息，上述例子为 <code>Message</code> 对象。</li>
+<li>定义 Broker 对象，Broker 是缓存消息的地方，上述例子为 <code>memoryMq</code> 对象。</li>
+<li>在 Broker 中维持一个队列的 map，其中 key 为 topic，value 为 queue，<strong>go 语言通常用 chan 来实现 queue</strong>，上述例子为 <code>queues</code> 属性。</li>
+<li>为 Broker 定义 produce 方法，根据消息中的 topic 选择对应的 queue 发布消息，上述例子为 <code>Produce</code> 方法。</li>
+<li>为 Broker 定义 consume 方法，根据 topic 选择对应的 queue 消费消息，上述例子为 <code>Consume</code> 方法。</li>
+</ol>
+<h3 id="push-模式-vs-pull-模式">Push 模式 VS Pull 模式</h3>
+<p>实现观察者模式和发布-订阅模式时，都会涉及到 <strong>Push 模式</strong>或 <strong>Pull 模式</strong>的选取。所谓 Push 模式，指的是 Subject/Publisher 直接将消息推送给 Observer/Subscriber；所谓 Pull 模式，指的是 Observer/Subscriber 主动向 Subject/Publisher 拉取消息：</p>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24egy1h4h0mnk1zlj21aa0mk78n.jpg" alt=""  /></p>
+<p><strong>Push 模式和 Pull 模式的选择，取决于通信双方处理消息的速率大小</strong>。</p>
+<p>如果 Subject/Publisher 方生产消息的速率要比 Observer/Subscriber 方处理消息的速率小，可以选择 Push 模式，以求得更高效、及时的消息传递；相反，如果 Subject/Publisher 方产生消息的速率要大，就要选择 Pull 模式，由 Observer/Subscriber 方决定消息的消费速率，否则可能导致 Observer/Subscriber 崩溃。</p>
+<p>Pull 模式有个缺点，如果当前无消息可处理，将导致 Observer/Subscriber 空轮询，可以采用类似 Kafka 的解决方案：<strong>让 Observer/Subscriber 阻塞一定时长，让出 CPU，避免长期无效的 CPU 空转</strong>。</p>
+<h2 id="典型应用场景">典型应用场景</h2>
+<ul>
+<li>需要监听某个状态的变更，且在状态变更时，通知到监听者。</li>
+<li><strong>web 框架</strong>。很多 web 框架都用了观察者模式，用户注册请求 handler 到框架，框架收到相应请求后，调用 handler 完成处理逻辑。</li>
+<li><strong>消息中间件</strong>。如 Kafka、RocketMQ 等。</li>
+</ul>
+<h2 id="优缺点">优缺点</h2>
+<h3 id="优点">优点</h3>
+<ul>
+<li>
+<p>消息通信双方解耦。观察者模式通过依赖接口达到松耦合；发布-订阅模式则通过 Broker 达到解耦目的。</p>
+</li>
+<li>
+<p>支持广播通信。</p>
+</li>
+<li>
+<p>可基于 topic 来达到<strong>指定消费某一类型消息</strong>的目的。</p>
+</li>
+</ul>
+<h3 id="缺点">缺点</h3>
+<ul>
+<li>通知 Observer/Subscriber 的顺序是不确定的，应用程序不应该依赖通知顺序来保证业务逻辑的正确性。</li>
+<li>广播通信场景，需要 Observer/Subscriber 自己去判断是否需要处理该消息，否则容易导致 <strong>unexpected update</strong>。</li>
+</ul>
+<h2 id="与其他模式的关联">与其他模式的关联</h2>
+<p>观察者模式和发布-订阅模式中的 Subject 和 Broker，通常都会使用 <a class="link" href="https://mp.weixin.qq.com/s/fzdxrhziPkSqM_RBTeSPKA"  target="_blank" rel="noopener"
+    >单例模式</a> 来确保它们全局唯一。</p>
+<h3 id="文章配图">文章配图</h3>
+<p>可以在 <a class="link" href="https://mp.weixin.qq.com/s/-sYW-oa6KzTR9LNdMWCSnQ"  target="_blank" rel="noopener"
+    >用Keynote画出手绘风格的配图</a> 中找到文章的绘图方法。</p>
+<blockquote>
+<h4 id="参考">参考</h4>
+<p>[1] <a class="link" href="https://mp.weixin.qq.com/s/s3aD4mK2Aw4v99tbCIe9HA"  target="_blank" rel="noopener"
+    >【Go实现】实践GoF的23种设计模式：SOLID原则</a>, 元闰子</p>
+<p>[2] <a class="link" href="https://mp.weixin.qq.com/s/fzdxrhziPkSqM_RBTeSPKA"  target="_blank" rel="noopener"
+    >【Go实现】实践GoF的23种设计模式：单例模式</a>, 元闰子</p>
+<p>[3] <a class="link" href="https://learning.oreilly.com/library/view/design-patterns-elements/0201633612/"  target="_blank" rel="noopener"
+    >Design Patterns, Chapter 5. Behavioral Patterns</a>, GoF</p>
+<p>[4] <a class="link" href="https://refactoringguru.cn/design-patterns/observer"  target="_blank" rel="noopener"
+    >观察者模式</a>, refactoringguru.cn</p>
+<p>[5] <a class="link" href="https://zhuanlan.zhihu.com/p/51357583"  target="_blank" rel="noopener"
+    >观察者模式 vs 发布订阅模式</a>, 柳树</p>
+<p>更多文章请关注微信公众号：<strong>元闰子的邀请</strong></p>
+</blockquote>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">设计模式</a>
+        
+            <a href="/tags/%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">实践GoF的23种设计模式</a>
+        
+            <a href="/tags/go/">Go</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>CC BY 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%A4%87%E5%BF%98%E5%BD%95%E6%A8%A1%E5%BC%8F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">【Go实现】实践GoF的23种设计模式：备忘录模式</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%91%BD%E4%BB%A4%E6%A8%A1%E5%BC%8F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">【Go实现】实践GoF的23种设计模式：命令模式</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">【Go实现】实践GoF的23种设计模式：代理模式</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E8%AE%BF%E9%97%AE%E8%80%85%E6%A8%A1%E5%BC%8F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">【Go实现】实践GoF的23种设计模式：访问者模式</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E8%BF%AD%E4%BB%A3%E5%99%A8%E6%A8%A1%E5%BC%8F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">【Go实现】实践GoF的23种设计模式：迭代器模式</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+
+    
+        
+    <script src="https://utteranc.es/client.js" 
+        repo="ruanrunxue/yrunz-comments"
+        issue-term="pathname"
+        
+        label="yrunz"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
+
+<style>
+    .utterances {
+        max-width: unset;
+    }
+</style>
+
+<script>
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
+        }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+        setUtterancesTheme(document.body.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        setUtterancesTheme(e.detail)
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_SVG"></script>
+    <section class="copyright">
+        &copy;
+        
+            2019 -
+        
+        2023 元闰子的邀请
+    </section>
+
+    <section class="powerby">
+        
+
+        <a href="https://beian.miit.gov.cn/">粤ICP备19152659号 | </a>Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.3.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        <br />
+    </section>
+</footer>
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

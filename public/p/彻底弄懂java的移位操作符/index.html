@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='前言 对于移位操作符，很多人既感到熟悉，又感到陌生。熟悉是因为移位操作符是最基本的操作符之一，几乎每种编程语言都包含这一操作符；陌生是因为除非是追求极致性能等罕见场景，否则也很难用得上它。打开JDK源码，你会发现移位操作符的身影极为常见，弄清楚它的用法，对阅读源码很有帮助。
+移位操作是把数据看作是二进制数，然后将其向左或向右移动若干位的运算。在Java编程语言中，移位操作符包含三种，分别是 &amp;lt;&amp;lt;（左移）、 &amp;gt;&amp;gt;（带符号右移）和 &amp;gt;&amp;gt;&amp;gt;（无符号右移），这三种操作符都只能作用于long、int、short、byte、char这四种基本的整型类型上。
+左移操作符 &amp;laquo; 左移操作符 &amp;lt;&amp;lt; 是将数据转换成二进制数后，向左移若干位，高位丢弃，低位补零。看如下例子：
+public static void main(String[] args) { int i = -1; System.out.println(&amp;#34;Before &amp;lt;&amp;lt; , i&amp;#39;s value is &amp;#34; &#43; i); System.out.println(&amp;#34;i&amp;#39;s binary string is &amp;#34; &#43; Integer.toBinaryString(i)); i &amp;lt;&amp;lt;= 10; System.out.println(&amp;#34;After &amp;lt;&amp;lt; , i&amp;#39;s value is &amp;#34; &#43; i); System.out.println(&amp;#34;i&amp;#39;s binary string is &amp;#34; &#43; Integer.toBinaryString(i)); } Java的int占32位，因此对i = -1转换成二进制数，然后左移10位，其结果是左边高10位丢弃，右边低10位补0，再转换为十进制，得到i = -1024的结果。
+因此，上述例子的输出结果为：
+Before &amp;lt;&amp;lt; , i&#39;s value is -1 i&#39;s binary string is 11111111111111111111111111111111 After &amp;lt;&amp;lt; , i&#39;s value is -1024 i&#39;s binary string is 11111111111111111111110000000000 带符号右移操作符 &amp;raquo; 众所周知，Java中整型表示负数时，最高位为符号位，正数为0，负数为1。&amp;gt;&amp;gt; 是带符号的右移操作符，将数据转换成二进制数后，向右移若干位，高位补符号位，低位丢弃。对于正数作右移操作时，具体体现为高位补0；负数则补1。看如下例子：'><title>彻底弄懂Java的移位操作符</title>
+
+<link rel='canonical' href='https://www.yrunz.com/p/%E5%BD%BB%E5%BA%95%E5%BC%84%E6%87%82java%E7%9A%84%E7%A7%BB%E4%BD%8D%E6%93%8D%E4%BD%9C%E7%AC%A6/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='彻底弄懂Java的移位操作符'>
+<meta property='og:description' content='前言 对于移位操作符，很多人既感到熟悉，又感到陌生。熟悉是因为移位操作符是最基本的操作符之一，几乎每种编程语言都包含这一操作符；陌生是因为除非是追求极致性能等罕见场景，否则也很难用得上它。打开JDK源码，你会发现移位操作符的身影极为常见，弄清楚它的用法，对阅读源码很有帮助。
+移位操作是把数据看作是二进制数，然后将其向左或向右移动若干位的运算。在Java编程语言中，移位操作符包含三种，分别是 &amp;lt;&amp;lt;（左移）、 &amp;gt;&amp;gt;（带符号右移）和 &amp;gt;&amp;gt;&amp;gt;（无符号右移），这三种操作符都只能作用于long、int、short、byte、char这四种基本的整型类型上。
+左移操作符 &amp;laquo; 左移操作符 &amp;lt;&amp;lt; 是将数据转换成二进制数后，向左移若干位，高位丢弃，低位补零。看如下例子：
+public static void main(String[] args) { int i = -1; System.out.println(&amp;#34;Before &amp;lt;&amp;lt; , i&amp;#39;s value is &amp;#34; &#43; i); System.out.println(&amp;#34;i&amp;#39;s binary string is &amp;#34; &#43; Integer.toBinaryString(i)); i &amp;lt;&amp;lt;= 10; System.out.println(&amp;#34;After &amp;lt;&amp;lt; , i&amp;#39;s value is &amp;#34; &#43; i); System.out.println(&amp;#34;i&amp;#39;s binary string is &amp;#34; &#43; Integer.toBinaryString(i)); } Java的int占32位，因此对i = -1转换成二进制数，然后左移10位，其结果是左边高10位丢弃，右边低10位补0，再转换为十进制，得到i = -1024的结果。
+因此，上述例子的输出结果为：
+Before &amp;lt;&amp;lt; , i&#39;s value is -1 i&#39;s binary string is 11111111111111111111111111111111 After &amp;lt;&amp;lt; , i&#39;s value is -1024 i&#39;s binary string is 11111111111111111111110000000000 带符号右移操作符 &amp;raquo; 众所周知，Java中整型表示负数时，最高位为符号位，正数为0，负数为1。&amp;gt;&amp;gt; 是带符号的右移操作符，将数据转换成二进制数后，向右移若干位，高位补符号位，低位丢弃。对于正数作右移操作时，具体体现为高位补0；负数则补1。看如下例子：'>
+<meta property='og:url' content='https://www.yrunz.com/p/%E5%BD%BB%E5%BA%95%E5%BC%84%E6%87%82java%E7%9A%84%E7%A7%BB%E4%BD%8D%E6%93%8D%E4%BD%9C%E7%AC%A6/'>
+<meta property='og:site_name' content='元闰子的邀请'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='java' /><meta property='article:published_time' content='2019-12-22T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2019-12-22T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="彻底弄懂Java的移位操作符">
+<meta name="twitter:description" content="前言 对于移位操作符，很多人既感到熟悉，又感到陌生。熟悉是因为移位操作符是最基本的操作符之一，几乎每种编程语言都包含这一操作符；陌生是因为除非是追求极致性能等罕见场景，否则也很难用得上它。打开JDK源码，你会发现移位操作符的身影极为常见，弄清楚它的用法，对阅读源码很有帮助。
+移位操作是把数据看作是二进制数，然后将其向左或向右移动若干位的运算。在Java编程语言中，移位操作符包含三种，分别是 &amp;lt;&amp;lt;（左移）、 &amp;gt;&amp;gt;（带符号右移）和 &amp;gt;&amp;gt;&amp;gt;（无符号右移），这三种操作符都只能作用于long、int、short、byte、char这四种基本的整型类型上。
+左移操作符 &amp;laquo; 左移操作符 &amp;lt;&amp;lt; 是将数据转换成二进制数后，向左移若干位，高位丢弃，低位补零。看如下例子：
+public static void main(String[] args) { int i = -1; System.out.println(&amp;#34;Before &amp;lt;&amp;lt; , i&amp;#39;s value is &amp;#34; &#43; i); System.out.println(&amp;#34;i&amp;#39;s binary string is &amp;#34; &#43; Integer.toBinaryString(i)); i &amp;lt;&amp;lt;= 10; System.out.println(&amp;#34;After &amp;lt;&amp;lt; , i&amp;#39;s value is &amp;#34; &#43; i); System.out.println(&amp;#34;i&amp;#39;s binary string is &amp;#34; &#43; Integer.toBinaryString(i)); } Java的int占32位，因此对i = -1转换成二进制数，然后左移10位，其结果是左边高10位丢弃，右边低10位补0，再转换为十进制，得到i = -1024的结果。
+因此，上述例子的输出结果为：
+Before &amp;lt;&amp;lt; , i&#39;s value is -1 i&#39;s binary string is 11111111111111111111111111111111 After &amp;lt;&amp;lt; , i&#39;s value is -1024 i&#39;s binary string is 11111111111111111111110000000000 带符号右移操作符 &amp;raquo; 众所周知，Java中整型表示负数时，最高位为符号位，正数为0，负数为1。&amp;gt;&amp;gt; 是带符号的右移操作符，将数据转换成二进制数后，向右移若干位，高位补符号位，低位丢弃。对于正数作右移操作时，具体体现为高位补0；负数则补1。看如下例子：">
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "light");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/yrz_hudc7c8721ecce4b724df5002339c76402_174377_300x0_resize_box_2.png" width="300"
+                            height="306" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://www.yrunz.com">元闰子的邀请</a></h1>
+        <h2 class="site-description">阅读、写作、生活（个人技术分享）</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>首页</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>博客</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%85%B3%E4%BA%8E%E5%85%83%E9%97%B0%E5%AD%90/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24"
+     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+     stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z"/>
+    <circle cx="12" cy="7" r="4"/>
+    <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/>
+</svg>
+
+                
+                <span>关于元闰子</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%8F%8B%E6%83%85%E9%93%BE%E6%8E%A5/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-friends" width="44" height="44"
+     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+    <circle cx="7" cy="5" r="2"/>
+    <path d="M5 22v-5l-1 -1v-4a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4l-1 1v5"/>
+    <circle cx="17" cy="5" r="2"/>
+    <path d="M15 22v-4h-2l2 -6a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1l2 6h-2v4"/>
+</svg>
+
+                
+                <span>友情链接</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>暗色模式</span>
+            </li>
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://www.yrunz.com" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/java/" >
+                Java
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/%E5%BD%BB%E5%BA%95%E5%BC%84%E6%87%82java%E7%9A%84%E7%A7%BB%E4%BD%8D%E6%93%8D%E4%BD%9C%E7%AC%A6/">彻底弄懂Java的移位操作符</a>
+    </h2>
+
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Dec 22, 2019</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <h2 id="前言">前言</h2>
+<p>对于<strong>移位操作符</strong>，很多人既感到熟悉，又感到陌生。熟悉是因为移位操作符是最基本的操作符之一，几乎每种编程语言都包含这一操作符；陌生是因为除非是追求极致性能等罕见场景，否则也很难用得上它。打开JDK源码，你会发现移位操作符的身影极为常见，弄清楚它的用法，对阅读源码很有帮助。</p>
+<p>移位操作是把数据看作是二进制数，然后将其向左或向右移动若干位的运算。在Java编程语言中，移位操作符包含三种，分别是 <code>&lt;&lt;</code>（左移）、 <code>&gt;&gt;</code>（带符号右移）和 <code>&gt;&gt;&gt;</code>（无符号右移），这三种操作符都只能作用于<code>long</code>、<code>int</code>、<code>short</code>、<code>byte</code>、<code>char</code>这四种基本的整型类型上。</p>
+<h2 id="左移操作符-">左移操作符 &laquo;</h2>
+<p>左移操作符 <code>&lt;&lt;</code> 是将数据转换成二进制数后，<strong>向左移若干位，高位丢弃，低位补零</strong>。看如下例子：</p>
+<div class="highlight"><pre class="chroma"><code class="language-Java" data-lang="Java"><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="o">-</span><span class="n">1</span><span class="o">;</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;Before &lt;&lt; , i&#39;s value is &#34;</span> <span class="o">+</span> <span class="n">i</span><span class="o">);</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;i&#39;s binary string is &#34;</span> <span class="o">+</span> <span class="n">Integer</span><span class="o">.</span><span class="na">toBinaryString</span><span class="o">(</span><span class="n">i</span><span class="o">));</span>
+    <span class="n">i</span> <span class="o">&lt;&lt;=</span> <span class="n">10</span><span class="o">;</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;After &lt;&lt; , i&#39;s value is &#34;</span> <span class="o">+</span> <span class="n">i</span><span class="o">);</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;i&#39;s binary string is &#34;</span> <span class="o">+</span> <span class="n">Integer</span><span class="o">.</span><span class="na">toBinaryString</span><span class="o">(</span><span class="n">i</span><span class="o">));</span>
+<span class="o">}</span>
+</code></pre></div><p>Java的<code>int</code>占32位，因此对<code>i = -1</code>转换成二进制数，然后左移10位，其结果是左边高10位丢弃，右边低10位补<code>0</code>，再转换为十进制，得到<code>i = -1024</code>的结果。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-11-133027.png" alt="int -1 &amp;laquo; 10 = -1024"  /></p>
+<p>因此，上述例子的输出结果为：</p>
+<pre><code>Before &lt;&lt; , i's value is -1
+i's binary string is 11111111111111111111111111111111
+After &lt;&lt; , i's value is -1024
+i's binary string is 11111111111111111111110000000000
+</code></pre><h2 id="带符号右移操作符-">带符号右移操作符 &raquo;</h2>
+<p>众所周知，Java中整型表示负数时，最高位为符号位，正数为<code>0</code>，负数为<code>1</code>。<code>&gt;&gt;</code> 是带符号的右移操作符，将数据转换成二进制数后，<strong>向右移若干位，高位补符号位，低位丢弃</strong>。对于正数作右移操作时，具体体现为高位补<code>0</code>；负数则补<code>1</code>。看如下例子：</p>
+<div class="highlight"><pre class="chroma"><code class="language-Java" data-lang="Java"><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+    <span class="c1">// 对正数进行右移操作
+</span><span class="c1"></span>    <span class="kt">int</span> <span class="n">i1</span> <span class="o">=</span> <span class="n">4992</span><span class="o">;</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;Before &gt;&gt; , i1&#39;s value is &#34;</span> <span class="o">+</span> <span class="n">i1</span><span class="o">);</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;i1&#39;s binary string is &#34;</span> <span class="o">+</span> <span class="n">Integer</span><span class="o">.</span><span class="na">toBinaryString</span><span class="o">(</span><span class="n">i1</span><span class="o">));</span>
+    <span class="n">i1</span> <span class="o">&gt;&gt;=</span> <span class="n">10</span><span class="o">;</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;After &gt;&gt; , i1&#39;s value is &#34;</span> <span class="o">+</span> <span class="n">i1</span><span class="o">);</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;i1&#39;s binary string is &#34;</span> <span class="o">+</span> <span class="n">Integer</span><span class="o">.</span><span class="na">toBinaryString</span><span class="o">(</span><span class="n">i1</span><span class="o">));</span>
+    <span class="c1">// 对负数进行右移操作
+</span><span class="c1"></span>    <span class="kt">int</span> <span class="n">i2</span> <span class="o">=</span> <span class="o">-</span><span class="n">4992</span><span class="o">;</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;Before &gt;&gt; , i2&#39;s value is &#34;</span> <span class="o">+</span> <span class="n">i2</span><span class="o">);</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;i2&#39;s binary string is &#34;</span> <span class="o">+</span> <span class="n">Integer</span><span class="o">.</span><span class="na">toBinaryString</span><span class="o">(</span><span class="n">i2</span><span class="o">));</span>
+    <span class="n">i2</span> <span class="o">&gt;&gt;=</span> <span class="n">10</span><span class="o">;</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;After &gt;&gt; , i2&#39;s value is &#34;</span> <span class="o">+</span> <span class="n">i2</span><span class="o">);</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;i2&#39;s binary string is &#34;</span> <span class="o">+</span> <span class="n">Integer</span><span class="o">.</span><span class="na">toBinaryString</span><span class="o">(</span><span class="n">i2</span><span class="o">));</span>
+<span class="o">}</span>
+</code></pre></div><p>例子中，<code>i1 = 4992</code>转换成二进制数，右移10位，其结果是左边高10位补<code>0</code>，右边低10位丢弃，再转换为十进制，得到<code>i1 = 4</code>的结果。同理，<code>i2 = -4992</code>，右移10位，左边高10位补<code>1</code>，右边低10位丢弃，得到<code>i2 = -5</code>的结果。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-11-133103.png" alt="int 4992 &amp;raquo; 10 = 4 和 int -4992 &amp;raquo; 10 = -5"  /></p>
+<p>因此，上述例子的输出结果为：</p>
+<pre><code>Before &gt;&gt; , i1's value is 4992
+i1's binary string is 1001110000000
+After &gt;&gt; , i1's value is 4
+i1's binary string is 100
+Before &gt;&gt; , i2's value is -4992
+i2's binary string is 11111111111111111110110010000000
+After &gt;&gt; , i2's value is -5
+i2's binary string is 11111111111111111111111111111011
+</code></pre><h2 id="无符号右移操作符-">无符号右移操作符 &raquo;&gt;</h2>
+<p>无符号右移操作符 <code>&gt;&gt;&gt;</code>与<code>&gt;&gt;</code>类似，都是将数据转换为二进制数后右移若干位，不同之处在于，不论负数与否，结果都是<strong>高位补零，低位丢弃</strong>。看如下例子：</p>
+<div class="highlight"><pre class="chroma"><code class="language-Java" data-lang="Java"><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kt">int</span> <span class="n">i3</span> <span class="o">=</span> <span class="o">-</span><span class="n">4992</span><span class="o">;</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;Before &gt;&gt;&gt; , i3&#39;s value is &#34;</span> <span class="o">+</span> <span class="n">i3</span><span class="o">);</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;i3&#39;s binary string is &#34;</span> <span class="o">+</span> <span class="n">Integer</span><span class="o">.</span><span class="na">toBinaryString</span><span class="o">(</span><span class="n">i3</span><span class="o">));</span>
+    <span class="n">i3</span> <span class="o">&gt;&gt;&gt;=</span> <span class="n">10</span><span class="o">;</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;After &gt;&gt;&gt; , i3&#39;s value is &#34;</span> <span class="o">+</span> <span class="n">i3</span><span class="o">);</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;i3&#39;s binary string is &#34;</span> <span class="o">+</span> <span class="n">Integer</span><span class="o">.</span><span class="na">toBinaryString</span><span class="o">(</span><span class="n">i3</span><span class="o">));</span>
+<span class="o">}</span>
+</code></pre></div><p>同样对<code>i3 = -4992</code>进行操作，转换成二进制数后，右移10位，其结果为左边高10位补<code>0</code>，右边低10位丢弃，再转换成十进制，得到<code>i3 = 4194299</code>的结果。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-11-133131.png" alt="int -4992 &amp;raquo;&amp;gt; 10 = 4194299"  /></p>
+<p>因此，上述例子的输出结果为：</p>
+<pre><code>Before &gt;&gt;&gt; , i3's value is -4992
+i3's binary string is 11111111111111111110110010000000
+After &gt;&gt;&gt; , i3's value is 4194299
+i3's binary string is 1111111111111111111011
+</code></pre><h2 id="真的懂了吗">真的懂了吗？</h2>
+<h3 id="对-shortbytechar-的移位操作">对 short、byte、char 的移位操作</h3>
+<p>再看如下例子：</p>
+<div class="highlight"><pre class="chroma"><code class="language-Java" data-lang="Java"><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kt">byte</span> <span class="n">b</span> <span class="o">=</span> <span class="o">-</span><span class="n">1</span><span class="o">;</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;Before &gt;&gt; , b&#39;s value is &#34;</span> <span class="o">+</span> <span class="n">b</span><span class="o">);</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;b&#39;s binary string is &#34;</span> <span class="o">+</span> <span class="n">Integer</span><span class="o">.</span><span class="na">toBinaryString</span><span class="o">(</span><span class="n">b</span><span class="o">));</span>
+    <span class="n">b</span> <span class="o">&gt;&gt;&gt;=</span> <span class="n">6</span><span class="o">;</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;After &gt;&gt; , b&#39;s value is &#34;</span> <span class="o">+</span> <span class="n">b</span><span class="o">);</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;b&#39;s binary string is &#34;</span> <span class="o">+</span> <span class="n">Integer</span><span class="o">.</span><span class="na">toBinaryString</span><span class="o">(</span><span class="n">b</span><span class="o">));</span>
+<span class="o">}</span>
+</code></pre></div><p>Java的<code>byte</code>占8位，按照前面讲述的原理，对<code>b = -1</code>转换为二进制数后，右移6位，左边高6位补<code>0</code>，右边低位丢弃，其结果应该是<code>b = 3</code>。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-11-133204.png" alt="int -1 &amp;raquo;&amp;gt; 6 = 3 ?"  /></p>
+<p>真的这样吗？我们看一下例子运行的结果：</p>
+<pre><code>Before &gt;&gt; , b's value is -1
+b's binary string is 11111111111111111111111111111111
+After &gt;&gt; , b's value is -1
+b's binary string is 11111111111111111111111111111111
+</code></pre><p><em>运行结果与我们预期的结果不对！</em></p>
+<p>原来，Java在处理<code>byte</code>、<code>short</code>、<code>char</code>的移位操作前，会<strong>先将其转型成<code>int</code>类型，然后在进行操作</strong>！特别地，当对这三者使用<code>&lt;&lt;=</code>、<code>&gt;&gt;=</code>和<code>&gt;&gt;&gt;=</code>时，其实是得到对移位后的<code>int</code>进行低位截断后的结果！对例子改动一下进行验证：</p>
+<div class="highlight"><pre class="chroma"><code class="language-Java" data-lang="Java"><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kt">byte</span> <span class="n">b</span> <span class="o">=</span> <span class="o">-</span><span class="n">1</span><span class="o">;</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;Before &gt;&gt; , b&#39;s value is &#34;</span> <span class="o">+</span> <span class="n">b</span><span class="o">);</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;b&#39;s binary string is &#34;</span> <span class="o">+</span> <span class="n">Integer</span><span class="o">.</span><span class="na">toBinaryString</span><span class="o">(</span><span class="n">b</span><span class="o">));</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;After &gt;&gt; , b&#39;s value is &#34;</span> <span class="o">+</span> <span class="o">(</span><span class="n">b</span> <span class="o">&gt;&gt;&gt;</span> <span class="n">6</span><span class="o">));</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;b&#39;s binary string is &#34;</span> <span class="o">+</span> <span class="n">Integer</span><span class="o">.</span><span class="na">toBinaryString</span><span class="o">(</span><span class="n">b</span> <span class="o">&gt;&gt;&gt;</span> <span class="n">6</span><span class="o">));</span>
+<span class="o">}</span>
+</code></pre></div><p>在该例子中，没有使用 <code>&gt;&gt;&gt;=</code> 对 <code>b</code> 进行再赋值，而是直接将 <code>b &gt;&gt;&gt; 6</code> 进行输出（需要注意的是，<code>b &gt;&gt;&gt; 6</code>  的结果为 <code>int</code> 类型），其输出如下：</p>
+<pre><code>Before &gt;&gt; , b's value is -1
+b's binary string is 11111111111111111111111111111111
+After &gt;&gt; , b's value is 67108863
+b's binary string is 11111111111111111111111111
+</code></pre><p>因此，第一个例子中实际的运算过程应该是这样：</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-11-133229.png" alt="byte -1 &amp;raquo;&amp;gt; 6 = -1"  /></p>
+<p>对于<code>short</code>和<code>char</code>的移位操作原理也一样，读者可以自行进行实验验证。</p>
+<h3 id="如果移位的位数超过数值所占有的位数会怎样">如果移位的位数超过数值所占有的位数会怎样？</h3>
+<p>到目前为止的所有的例子中，移位的位数都在数值所占有的位数之内，比如对<code>int</code>类型的移位都没有超过32。那么如果对<code>int</code>类型移位超过32位会怎样？且看如下例子：</p>
+<div class="highlight"><pre class="chroma"><code class="language-Java" data-lang="Java"><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kt">int</span> <span class="n">i4</span> <span class="o">=</span> <span class="o">-</span><span class="n">1</span><span class="o">;</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;Before &gt;&gt;&gt; , i4&#39;s value is &#34;</span> <span class="o">+</span> <span class="n">i4</span><span class="o">);</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;i4&#39;s binary string is &#34;</span> <span class="o">+</span> <span class="n">Integer</span><span class="o">.</span><span class="na">toBinaryString</span><span class="o">(</span><span class="n">i4</span><span class="o">));</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;After &gt;&gt;&gt; 31 , i4&#39;s value is &#34;</span> <span class="o">+</span> <span class="o">(</span><span class="n">i4</span> <span class="o">&gt;&gt;&gt;</span> <span class="n">31</span><span class="o">));</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;i4&#39;s binary string is &#34;</span> <span class="o">+</span> <span class="n">Integer</span><span class="o">.</span><span class="na">toBinaryString</span><span class="o">(</span><span class="n">i4</span> <span class="o">&gt;&gt;&gt;</span> <span class="n">31</span><span class="o">));</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;After &gt;&gt;&gt; 32 , i4&#39;s value is &#34;</span> <span class="o">+</span> <span class="o">(</span><span class="n">i4</span> <span class="o">&gt;&gt;&gt;</span> <span class="n">32</span><span class="o">));</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;i4&#39;s binary string is &#34;</span> <span class="o">+</span> <span class="n">Integer</span><span class="o">.</span><span class="na">toBinaryString</span><span class="o">(</span><span class="n">i4</span> <span class="o">&gt;&gt;&gt;</span> <span class="n">32</span><span class="o">));</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;After &gt;&gt;&gt; 33 , i4&#39;s value is &#34;</span> <span class="o">+</span> <span class="o">(</span><span class="n">i4</span> <span class="o">&gt;&gt;&gt;</span> <span class="n">33</span><span class="o">));</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;i4&#39;s binary string is &#34;</span> <span class="o">+</span> <span class="n">Integer</span><span class="o">.</span><span class="na">toBinaryString</span><span class="o">(</span><span class="n">i4</span> <span class="o">&gt;&gt;&gt;</span> <span class="n">33</span><span class="o">));</span>
+<span class="o">}</span>
+</code></pre></div><p>根据前面讲述的原理，对于<code>i4 &gt;&gt;&gt; 31</code>我们很容易得出结果为<code>1</code>。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-11-133251.png" alt="int -1 &amp;raquo;&amp;gt; 31 = 1"  /></p>
+<p><em>那么，<code>i4 &gt;&gt;&gt; 32</code>的结果会是<code>0</code>吗？</em></p>
+<p><strong>NO</strong>！Java对移位操作符的右操作数<code>rhs</code>有特别的处理，对于<code>int</code>类型，只取其低5位，也就是取<code>rhs % 32</code>的结果；对于long类型，只取其低6位，也即是取<code>rhs % 64</code>的结果。因此，对于<code>i4 &gt;&gt;&gt; 32</code>，实际上是<code>i4 &gt;&gt;&gt; (32 % 32) </code>，也即<code>i4 &gt;&gt;&gt; 0 </code>，结果仍然是<code>-1</code>。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-11-133323.png" alt="int -1 &amp;raquo;&amp;gt; 32 = -1"  /></p>
+<p>同理，对于<code>i4 &gt;&gt;&gt; 33</code>等同于<code>i4 &gt;&gt;&gt; 1</code>，其结果为<code>2147483647</code>。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-11-133342.png" alt="int -1 &amp;raquo;&amp;gt; 33 = 2147483647"  /></p>
+<p>因此，上述例子的输出结果如下：</p>
+<pre><code>Before &gt;&gt;&gt; , i4's value is -1
+i4's binary string is 11111111111111111111111111111111
+After &gt;&gt;&gt; 31 , i4's value is 1
+i4's binary string is 1
+After &gt;&gt;&gt; 32 , i4's value is -1
+i4's binary string is 11111111111111111111111111111111
+After &gt;&gt;&gt; 33 , i4's value is 2147483647
+i4's binary string is 1111111111111111111111111111111
+</code></pre><p>对于<code>long</code>类型也是同样的道理，读者可以自行进行实验验证。</p>
+<h2 id="总结">总结</h2>
+<p>移位操作符虽说是Java中最基本的操作符之一，但是若不彻底弄清楚其中细节，稍有不慎，便容易犯错。移位操作符实际上支持的类型只有<code>int</code>和<code>long</code>，编译器在对<code>short</code>、<code>byte</code>、<code>char</code>类型进行移位前，都会将其转换为<code>int</code>类型再操作。移位操作符在JDK源码中，最常见的用法便是将其当成是乘 <code>*</code> 或者除 <code>/</code> 操作符使用 ：对一个整型左移一位，相当于乘以2；右移一位，相当于除以2。其中原因就是，相比于使用 <code>*</code> 和 <code>/</code> ，在Java代码里使用 <code>&lt;&lt;</code> 和 <code>&gt;&gt;</code> 转换成的指令码运行起来会更高效些。</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/java/">Java</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>CC BY 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/%E4%BB%8Ehash%E7%B4%A2%E5%BC%95%E5%88%B0lsm%E6%A0%91%E4%BA%8C/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">从Hash索引到LSM树（二）</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E4%BB%8Ehash%E7%B4%A2%E5%BC%95%E5%88%B0lsm%E6%A0%91%E4%B8%80/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">从Hash索引到LSM树（一）</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/java%E7%9A%84%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8Boop-klass%E6%A8%A1%E5%9E%8B%E4%BA%8C/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Java的对象模型——Oop-Klass模型（二）</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/java%E7%9A%84%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8Boop-klass%E6%A8%A1%E5%9E%8B%E4%B8%80/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Java的对象模型——Oop-Klass模型（一）</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+
+    
+        
+    <script src="https://utteranc.es/client.js" 
+        repo="ruanrunxue/yrunz-comments"
+        issue-term="pathname"
+        
+        label="yrunz"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
+
+<style>
+    .utterances {
+        max-width: unset;
+    }
+</style>
+
+<script>
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
+        }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+        setUtterancesTheme(document.body.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        setUtterancesTheme(e.detail)
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_SVG"></script>
+    <section class="copyright">
+        &copy;
+        
+            2019 -
+        
+        2023 元闰子的邀请
+    </section>
+
+    <section class="powerby">
+        
+
+        <a href="https://beian.miit.gov.cn/">粤ICP备19152659号 | </a>Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.3.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        <br />
+    </section>
+</footer>
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>
