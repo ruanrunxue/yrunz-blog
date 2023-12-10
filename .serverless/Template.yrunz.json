@@ -1,0 +1,11 @@
+{
+  "bucketName": "yrunz-1300638001",
+  "region": "ap-guangzhou",
+  "url": "https://yrunz-1300638001.cos-website.ap-guangzhou.myqcloud.com",
+  "host": [
+    "https://www.yrunz.com (CNAME: www.yrunz.com.cdn.dnsv1.com）"
+  ],
+  "hostName": [
+    "www_yrunz.com"
+  ]
+}

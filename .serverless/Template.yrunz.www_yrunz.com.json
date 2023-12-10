@@ -1,0 +1,9 @@
+{
+  "host": "www.yrunz.com",
+  "origin": "yrunz-1300638001.cos-website.ap-guangzhou.myqcloud.com",
+  "cname": "www.yrunz.com.cdn.dnsv1.com",
+  "inputCache": {
+    "base": "{\"host\":\"www.yrunz.com\",\"hostType\":\"cos\",\"serviceType\":\"web\",\"fwdHost\":\"yrunz-1300638001.cos-website.ap-guangzhou.myqcloud.com\",\"origin\":\"yrunz-1300638001.cos-website.ap-guangzhou.myqcloud.com\",\"fromClientRemark\":\"tencent-website\",\"projectId\":0}",
+    "https": "{\"switch\":\"on\",\"http2\":\"on\",\"certInfo\":{\"certId\":\"iD1MPcU7\"}}"
+  }
+}

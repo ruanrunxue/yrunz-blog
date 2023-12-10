@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='适配器模式让原本因为接口不匹配而无法一起工作的两个类/结构体能够一起工作。'><title>【Go实现】实践GoF的23种设计模式：适配器模式</title>
+
+<link rel='canonical' href='https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E9%80%82%E9%85%8D%E5%99%A8%E6%A8%A1%E5%BC%8F/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='【Go实现】实践GoF的23种设计模式：适配器模式'>
+<meta property='og:description' content='适配器模式让原本因为接口不匹配而无法一起工作的两个类/结构体能够一起工作。'>
+<meta property='og:url' content='https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E9%80%82%E9%85%8D%E5%99%A8%E6%A8%A1%E5%BC%8F/'>
+<meta property='og:site_name' content='元闰子的邀请'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='设计模式' /><meta property='article:tag' content='实践GoF的23种设计模式' /><meta property='article:tag' content='Go' /><meta property='article:published_time' content='2023-12-10T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2023-12-10T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="【Go实现】实践GoF的23种设计模式：适配器模式">
+<meta name="twitter:description" content="适配器模式让原本因为接口不匹配而无法一起工作的两个类/结构体能够一起工作。">
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "light");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/yrz_hudc7c8721ecce4b724df5002339c76402_174377_300x0_resize_box_2.png" width="300"
+                            height="306" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://www.yrunz.com">元闰子的邀请</a></h1>
+        <h2 class="site-description">阅读、写作、生活（个人技术分享）</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>首页</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>博客</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%85%B3%E4%BA%8E%E5%85%83%E9%97%B0%E5%AD%90/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24"
+     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+     stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z"/>
+    <circle cx="12" cy="7" r="4"/>
+    <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/>
+</svg>
+
+                
+                <span>关于元闰子</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%8F%8B%E6%83%85%E9%93%BE%E6%8E%A5/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-friends" width="44" height="44"
+     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+    <circle cx="7" cy="5" r="2"/>
+    <path d="M5 22v-5l-1 -1v-4a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4l-1 1v5"/>
+    <circle cx="17" cy="5" r="2"/>
+    <path d="M15 22v-4h-2l2 -6a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1l2 6h-2v4"/>
+</svg>
+
+                
+                <span>友情链接</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>暗色模式</span>
+            </li>
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://www.yrunz.com" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E5%86%99%E5%A5%BD%E4%BB%A3%E7%A0%81/" >
+                写好代码
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E9%80%82%E9%85%8D%E5%99%A8%E6%A8%A1%E5%BC%8F/">【Go实现】实践GoF的23种设计模式：适配器模式</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        适配器模式让原本因为接口不匹配而无法一起工作的两个类/结构体能够一起工作。
+    </h3>
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Dec 10, 2023</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <blockquote>
+<p>上一篇：<a class="link" href="https://mp.weixin.qq.com/s/1ZPv2pk_b8iivOIebX0-dQ"  target="_blank" rel="noopener"
+    >【Go实现】实践GoF的23种设计模式：备忘录模式</a></p>
+<p><strong>简单的分布式应用系统</strong>（示例代码工程）：<a class="link" href="https://github.com/ruanrunxue/Practice-Design-Pattern--Go-Implementation"  target="_blank" rel="noopener"
+    >https://github.com/ruanrunxue/Practice-Design-Pattern&ndash;Go-Implementation</a></p>
+</blockquote>
+<h2 id="简介">简介</h2>
+<p><strong>适配器模式</strong>（Adapter）是最常用的结构型模式之一，在现实生活中，适配器模式也是处处可见，比如电源插头转换器，它可以让英式的插头工作在中式的插座上。</p>
+<p>GoF 对它的定义如下：</p>
+<blockquote>
+<p>Convert the interface of a class into another interface clients expect. Adapter lets classes work together that couldn’t otherwise because of incompatible interfaces.</p>
+</blockquote>
+<p>简单来说，就是<strong>适配器模式让原本因为接口不匹配而无法一起工作的两个类/结构体能够一起工作</strong>。</p>
+<p>适配器模式所做的就是<strong>将一个接口 <code>Adaptee</code>，通过适配器 <code>Adapter</code> 转换成 Client 所期望的另一个接口 <code>Target</code> 来使用</strong>，实现原理也很简单，就是 <code>Adapter</code> 通过实现 <code>Target</code> 接口，并在对应的方法中调用 <code>Adaptee</code> 的接口实现。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-11-29-235329.png" alt=""  /></p>
+<h2 id="uml-结构">UML 结构</h2>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-12-02-022240.png" alt=""  /></p>
+<h2 id="场景上下文">场景上下文</h2>
+<p>在 <a class="link" href="https://github.com/ruanrunxue/Practice-Design-Pattern--Go-Implementation/blob/main/docs/go_ractice_design_pattern__solid_principle.md"  target="_blank" rel="noopener"
+    >简单的分布式应用系统</a>（示例代码工程）中，db 模块用来存储服务注册信息和系统监控数据，它是一个 key-value 数据库。在 <a class="link" href="https://mp.weixin.qq.com/s/0qAIhbh4g_9Cde5tR2x24A"  target="_blank" rel="noopener"
+    >访问者模式</a> 中，我们为它实现了 Table 的按列查询功能；同时，我们也为它实现了简单的 SQL 查询功能（将会在 <strong>解释器模式</strong> 中介绍），查询的结果是 <code>SqlResult</code> 结构体，它提供一个 <code>toMap</code> 方法将结果转换成 <code>map</code> 。</p>
+<p>为了方便用户使用，我们将实现在终端控制台上提供人机交互的能力，如下所示，用户输入 SQL 语句，后台返回查询结果：</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-12-03-023656.png" alt=""  /></p>
+<p>终端控制台的具体实现为 <code>Console</code>，为了提供可扩展的查询结果显示样式，我们设计了 <code>ConsoleRender</code> 接口，但因 <code>SqlResult</code> 并未实现该接口，所以 <code>Console</code> 无法直接渲染 <code>SqlResult</code> 的查询结果。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-12-03-154134.png" alt=""  /></p>
+<p>为此，我们需要实现一个适配器，让 <code>Console</code> 能够通过适配器将 <code>SqlResult</code> 的查询结果渲染出来。示例中，我们设计了适配器 <code>TableRender</code>，它实现了 <code>ConsoleRender</code> 接口，并以表格的形式渲染出查询结果，如前文所示。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-12-03-155326.png" alt=""  /></p>
+<h2 id="代码实现">代码实现</h2>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// demo/db/sql.go
+</span><span class="c1"></span><span class="kn">package</span> <span class="nx">db</span>
+
+<span class="c1">// Adaptee SQL语句执行返回的结果，并未实现Target接口
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">SqlResult</span> <span class="kd">struct</span> <span class="p">{</span>
+    <span class="nx">fields</span> <span class="p">[]</span><span class="kt">string</span>
+    <span class="nx">vals</span>   <span class="p">[]</span><span class="kd">interface</span><span class="p">{}</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">SqlResult</span><span class="p">)</span> <span class="nf">Add</span><span class="p">(</span><span class="nx">field</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">record</span> <span class="kd">interface</span><span class="p">{})</span> <span class="p">{</span>
+    <span class="nx">s</span><span class="p">.</span><span class="nx">fields</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">s</span><span class="p">.</span><span class="nx">fields</span><span class="p">,</span> <span class="nx">field</span><span class="p">)</span>
+    <span class="nx">s</span><span class="p">.</span><span class="nx">vals</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">s</span><span class="p">.</span><span class="nx">vals</span><span class="p">,</span> <span class="nx">record</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">SqlResult</span><span class="p">)</span> <span class="nf">ToMap</span><span class="p">()</span> <span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kd">interface</span><span class="p">{}</span> <span class="p">{</span>
+    <span class="nx">results</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kd">interface</span><span class="p">{})</span>
+    <span class="k">for</span> <span class="nx">i</span><span class="p">,</span> <span class="nx">f</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">s</span><span class="p">.</span><span class="nx">fields</span> <span class="p">{</span>
+        <span class="nx">results</span><span class="p">[</span><span class="nx">f</span><span class="p">]</span> <span class="p">=</span> <span class="nx">s</span><span class="p">.</span><span class="nx">vals</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nx">results</span>
+<span class="p">}</span>
+
+<span class="c1">// demo/db/console.go
+</span><span class="c1"></span><span class="kn">package</span> <span class="nx">db</span>
+
+<span class="c1">// Client 终端控制台
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Console</span> <span class="kd">struct</span> <span class="p">{</span>
+    <span class="nx">db</span> <span class="nx">Db</span>
+<span class="p">}</span>
+
+<span class="c1">// Output 调用ConsoleRender完成对查询结果的渲染输出
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">c</span> <span class="o">*</span><span class="nx">Console</span><span class="p">)</span> <span class="nf">Output</span><span class="p">(</span><span class="nx">render</span> <span class="nx">ConsoleRender</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">render</span><span class="p">.</span><span class="nf">Render</span><span class="p">())</span>
+<span class="p">}</span>
+
+<span class="c1">// Target接口，控制台db查询结果渲染接口
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">ConsoleRender</span> <span class="kd">interface</span> <span class="p">{</span>
+    <span class="nf">Render</span><span class="p">()</span> <span class="kt">string</span>
+<span class="p">}</span>
+
+<span class="c1">// TableRender表格形式的查询结果渲染Adapter
+</span><span class="c1">// 关键点1: 定义Adapter结构体/类
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">TableRender</span> <span class="kd">struct</span> <span class="p">{</span>
+    <span class="c1">// 关键点2: 在Adapter中聚合Adaptee，这里是把SqlResult作为TableRender的成员变量
+</span><span class="c1"></span>    <span class="nx">result</span> <span class="o">*</span><span class="nx">SqlResult</span>
+<span class="p">}</span>
+
+<span class="c1">// 关键点3: 实现Target接口，这里是实现了ConsoleRender接口
+</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">TableRender</span><span class="p">)</span> <span class="nf">Render</span><span class="p">()</span> <span class="kt">string</span> <span class="p">{</span>
+    <span class="c1">// 关键点4: 在Target接口实现中，调用Adaptee的原有方法实现具体的业务逻辑
+</span><span class="c1"></span>    <span class="nx">vals</span> <span class="o">:=</span> <span class="nx">t</span><span class="p">.</span><span class="nx">result</span><span class="p">.</span><span class="nf">ToMap</span><span class="p">()</span>
+    <span class="kd">var</span> <span class="nx">header</span> <span class="p">[]</span><span class="kt">string</span>
+    <span class="kd">var</span> <span class="nx">data</span> <span class="p">[]</span><span class="kt">string</span>
+    <span class="k">for</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">val</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">vals</span> <span class="p">{</span>
+        <span class="nx">header</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">header</span><span class="p">,</span> <span class="nx">key</span><span class="p">)</span>
+        <span class="nx">data</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">data</span><span class="p">,</span> <span class="nx">fmt</span><span class="p">.</span><span class="nf">Sprintf</span><span class="p">(</span><span class="s">&#34;%v&#34;</span><span class="p">,</span> <span class="nx">val</span><span class="p">))</span>
+    <span class="p">}</span>
+    <span class="nx">builder</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">strings</span><span class="p">.</span><span class="nx">Builder</span><span class="p">{}</span>
+    <span class="nx">table</span> <span class="o">:=</span> <span class="nx">tablewriter</span><span class="p">.</span><span class="nf">NewWriter</span><span class="p">(</span><span class="nx">builder</span><span class="p">)</span>
+    <span class="nx">table</span><span class="p">.</span><span class="nf">SetHeader</span><span class="p">(</span><span class="nx">header</span><span class="p">)</span>
+    <span class="nx">table</span><span class="p">.</span><span class="nf">Append</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span>
+    <span class="nx">table</span><span class="p">.</span><span class="nf">Render</span><span class="p">()</span>
+    <span class="k">return</span> <span class="nx">builder</span><span class="p">.</span><span class="nf">String</span><span class="p">()</span>
+<span class="p">}</span>
+
+<span class="c1">// 这里是另一个Adapter，实现了将error渲染的功能
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">ErrorRender</span> <span class="kd">struct</span> <span class="p">{</span>
+    <span class="nx">err</span> <span class="kt">error</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">e</span> <span class="o">*</span><span class="nx">ErrorRender</span><span class="p">)</span> <span class="nf">Render</span><span class="p">()</span> <span class="kt">string</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">e</span><span class="p">.</span><span class="nx">err</span><span class="p">.</span><span class="nf">Error</span><span class="p">()</span>
+<span class="p">}</span>
+
+</code></pre></div><p>客户端这么使用：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="p">(</span><span class="nx">c</span> <span class="o">*</span><span class="nx">Console</span><span class="p">)</span> <span class="nf">Start</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;welcome to Demo DB, enter exit to end!&#34;</span><span class="p">)</span>
+    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;&gt; please enter a sql expression:&#34;</span><span class="p">)</span>
+    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Print</span><span class="p">(</span><span class="s">&#34;&gt; &#34;</span><span class="p">)</span>
+    <span class="nx">scanner</span> <span class="o">:=</span> <span class="nx">bufio</span><span class="p">.</span><span class="nf">NewScanner</span><span class="p">(</span><span class="nx">os</span><span class="p">.</span><span class="nx">Stdin</span><span class="p">)</span>
+    <span class="k">for</span> <span class="nx">scanner</span><span class="p">.</span><span class="nf">Scan</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nx">sql</span> <span class="o">:=</span> <span class="nx">scanner</span><span class="p">.</span><span class="nf">Text</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nx">sql</span> <span class="o">==</span> <span class="s">&#34;exit&#34;</span> <span class="p">{</span>
+            <span class="k">break</span>
+        <span class="p">}</span>
+        <span class="nx">result</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">c</span><span class="p">.</span><span class="nx">db</span><span class="p">.</span><span class="nf">ExecSql</span><span class="p">(</span><span class="nx">sql</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nx">err</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
+            <span class="c1">// 关键点5：在需要Target接口的地方，传入适配器Adapter实例，其中创建Adapter实例时需要传入Adaptee实例
+</span><span class="c1"></span>            <span class="nx">c</span><span class="p">.</span><span class="nf">Output</span><span class="p">(</span><span class="nf">NewTableRender</span><span class="p">(</span><span class="nx">result</span><span class="p">))</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="nx">c</span><span class="p">.</span><span class="nf">Output</span><span class="p">(</span><span class="nf">NewErrorRender</span><span class="p">(</span><span class="nx">err</span><span class="p">))</span>
+        <span class="p">}</span>
+        <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;&gt; please enter a sql expression:&#34;</span><span class="p">)</span>
+        <span class="nx">fmt</span><span class="p">.</span><span class="nf">Print</span><span class="p">(</span><span class="s">&#34;&gt; &#34;</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div><p>在已经有了 Target 接口（<code>ConsoleRender</code>）和 Adaptee（<code>SqlResult</code>）的前提下，总结实现适配器模式的几个关键点：</p>
+<ol>
+<li>定义 Adapter 结构体/类，这里是 <code>TableRender</code> 结构体。</li>
+<li>在 Adapter 中聚合 Adaptee，这里是把 <code>SqlResult</code> 作为 <code>TableRender</code> 的成员变量。</li>
+<li>Adapter 实现 Target 接口，这里是 <code>TableRender</code>  实现了 <code>ConsoleRender</code> 接口。</li>
+<li>在 Target 接口实现中，调用 Adaptee 的原有方法实现具体的业务逻辑，这里是在 <code>TableRender.Render()</code> 调用 <code>SqlResult.ToMap()</code> 方法，得到查询结果，然后再对结果进行渲染。</li>
+<li>在 Client 需要 Target 接口的地方，传入适配器 Adapter 实例，其中创建 Adapter 实例时传入 Adaptee 实例。这里是在 <code>NewTableRender()</code> 创建 <code>TableRender</code> 实例时，传入 <code>SqlResult</code> 作为入参，随后将 <code>TableRender</code> 实例传入 <code>Console.Output()</code> 方法。</li>
+</ol>
+<h2 id="扩展">扩展</h2>
+<h3 id="适配器模式在-gin-中的运用">适配器模式在 Gin 中的运用</h3>
+<p>Gin 是一个高性能的 Web 框架，它的常见用法如下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// 用户自定义的请求处理函数，类型为gin.HandlerFunc
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">myGinHandler</span><span class="p">(</span><span class="nx">c</span> <span class="o">*</span><span class="nx">gin</span><span class="p">.</span><span class="nx">Context</span><span class="p">)</span> <span class="p">{</span>
+    <span class="o">...</span> <span class="c1">// 具体处理请求的逻辑
+</span><span class="c1"></span><span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// 创建默认的route引擎,类型为gin.Engine
+</span><span class="c1"></span>    <span class="nx">r</span> <span class="o">:=</span> <span class="nx">gin</span><span class="p">.</span><span class="nf">Default</span><span class="p">()</span>
+    <span class="c1">// route定义
+</span><span class="c1"></span>    <span class="nx">r</span><span class="p">.</span><span class="nf">GET</span><span class="p">(</span><span class="s">&#34;/my-route&#34;</span><span class="p">,</span> <span class="nx">myGinHandler</span><span class="p">)</span>
+    <span class="c1">// route引擎启动
+</span><span class="c1"></span>    <span class="nx">r</span><span class="p">.</span><span class="nf">Run</span><span class="p">()</span>
+<span class="p">}</span>
+</code></pre></div><p>在实际运用场景中，可能存在这种情况。用户起初的 Web 框架使用了 Go 原生的 <code>net/http</code>，使用场景如下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// 用户自定义的请求处理函数，类型为http.Handler
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">myHttpHandler</span><span class="p">(</span><span class="nx">w</span> <span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">r</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="p">{</span>
+    <span class="o">...</span> <span class="c1">// 具体处理请求的逻辑
+</span><span class="c1"></span><span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// route定义
+</span><span class="c1"></span>    <span class="nx">http</span><span class="p">.</span><span class="nf">HandleFunc</span><span class="p">(</span><span class="s">&#34;/my-route&#34;</span><span class="p">,</span> <span class="nx">myHttpHandler</span><span class="p">)</span>
+    <span class="c1">// route启动
+</span><span class="c1"></span>    <span class="nx">http</span><span class="p">.</span><span class="nf">ListenAndServe</span><span class="p">(</span><span class="s">&#34;:8080&#34;</span><span class="p">,</span> <span class="kc">nil</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div><p>因性能问题，当前客户准备切换至 Gin 框架，显然，<code>myHttpHandler</code> 因接口不兼容，不能直接注册到 <code>gin.Default()</code> 上。为了方便用户，Gin 框架提供了一个适配器 <code>gin.WrapH</code>，可以将 <code>http.Handler</code> 类型转换成 <code>gin.HandlerFunc</code> 类型，它的定义如下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// WrapH is a helper function for wrapping http.Handler and returns a Gin middleware.
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">WrapH</span><span class="p">(</span><span class="nx">h</span> <span class="nx">http</span><span class="p">.</span><span class="nx">Handler</span><span class="p">)</span> <span class="nx">HandlerFunc</span> <span class="p">{</span>
+	  <span class="k">return</span> <span class="kd">func</span><span class="p">(</span><span class="nx">c</span> <span class="o">*</span><span class="nx">Context</span><span class="p">)</span> <span class="p">{</span>
+		  <span class="nx">h</span><span class="p">.</span><span class="nf">ServeHTTP</span><span class="p">(</span><span class="nx">c</span><span class="p">.</span><span class="nx">Writer</span><span class="p">,</span> <span class="nx">c</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span>
+	  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div><p>使用方法如下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// 用户自定义的请求处理函数，类型为http.Handler
+</span><span class="c1"></span><span class="kd">func</span> <span class="nf">myHttpHandler</span><span class="p">(</span><span class="nx">w</span> <span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">r</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="p">{</span>
+    <span class="o">...</span> <span class="c1">// 具体处理请求的逻辑
+</span><span class="c1"></span><span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// 创建默认的route引擎
+</span><span class="c1"></span>    <span class="nx">r</span> <span class="o">:=</span> <span class="nx">gin</span><span class="p">.</span><span class="nf">Default</span><span class="p">()</span>
+    <span class="c1">// route定义
+</span><span class="c1"></span>    <span class="nx">r</span><span class="p">.</span><span class="nf">GET</span><span class="p">(</span><span class="s">&#34;/my-route&#34;</span><span class="p">,</span> <span class="nx">gin</span><span class="p">.</span><span class="nf">WrapH</span><span class="p">(</span><span class="nx">myHttpHandler</span><span class="p">))</span>
+    <span class="c1">// route引擎启动
+</span><span class="c1"></span>    <span class="nx">r</span><span class="p">.</span><span class="nf">Run</span><span class="p">()</span>
+<span class="p">}</span>
+</code></pre></div><p>在这个例子中，<code>gin.Engine</code> 就是 Client，<code>gin.HandlerFunc</code> 是 Target 接口，<code>http.Handler</code> 是 Adaptee，<code>gin.WrapH</code> 是 Adapter。这是一个 Go 风格的适配器模式实现，以更为简洁的 <code>func</code> 替代了 <code>struct</code>。</p>
+<h2 id="典型应用场景">典型应用场景</h2>
+<ul>
+<li>将一个接口 A 转换成用户希望的另外一个接口 B，这样就能使原来不兼容的接口 A 和接口 B 相互协作。</li>
+<li>老系统的重构。在不改变原有接口的情况下，让老接口适配到新的接口。</li>
+</ul>
+<h2 id="优缺点">优缺点</h2>
+<h3 id="优点">优点</h3>
+<ol>
+<li>能够使 Adaptee 和 Target 之间解耦。通过引入新的 Adapter 来适配 Target，Adaptee 无须修改，符合<a class="link" href="https://mp.weixin.qq.com/s/s3aD4mK2Aw4v99tbCIe9HA"  target="_blank" rel="noopener"
+    >开闭原则</a>。</li>
+<li>灵活性好，能够很方便地通过不同的适配器来适配不同的接口。</li>
+</ol>
+<h3 id="缺点">缺点</h3>
+<ol>
+<li>增加代码复杂度。适配器模式需要新增适配器，如果滥用会导致系统的代码复杂度增大。</li>
+</ol>
+<h2 id="与其他模式的关联">与其他模式的关联</h2>
+<p>适配器模式 和 <a class="link" href="https://mp.weixin.qq.com/s/NT6_KOY_hGkA-y2b4fw45A"  target="_blank" rel="noopener"
+    >装饰者模式</a>、<a class="link" href="https://mp.weixin.qq.com/s/_Z86PUn6hHgXh_4HWGv0Bg"  target="_blank" rel="noopener"
+    >代理模式</a> 在 UML 结构上具有一定的相似性。但适配器模式改变原有对象的接口，但不改变原有功能；而装饰者模式和代理模式则在不改变接口的情况下，增强原有对象的功能。</p>
+<h3 id="文章配图">文章配图</h3>
+<p>可以在 <a class="link" href="https://mp.weixin.qq.com/s/-sYW-oa6KzTR9LNdMWCSnQ"  target="_blank" rel="noopener"
+    >用Keynote画出手绘风格的配图</a> 中找到文章的绘图方法。</p>
+<blockquote>
+<h4 id="参考">参考</h4>
+<p>[1] <a class="link" href="https://mp.weixin.qq.com/s/s3aD4mK2Aw4v99tbCIe9HA"  target="_blank" rel="noopener"
+    >【Go实现】实践GoF的23种设计模式：SOLID原则</a>, 元闰子</p>
+<p>[2] <a class="link" href="https://learning.oreilly.com/library/view/design-patterns-elements/0201633612/ch04.html"  target="_blank" rel="noopener"
+    >Design Patterns, Chapter 4. Structural Patterns</a>, GoF</p>
+<p>[3] <a class="link" href="https://refactoringguru.cn/design-patterns/adapter"  target="_blank" rel="noopener"
+    >适配器模式</a>, refactoringguru.cn</p>
+<p>[4] <a class="link" href="https://github.com/gin-gonic/gin"  target="_blank" rel="noopener"
+    >Gin Web Framework</a>, Gin</p>
+<p>更多文章请关注微信公众号：<strong>元闰子的邀请</strong></p>
+</blockquote>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">设计模式</a>
+        
+            <a href="/tags/%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">实践GoF的23种设计模式</a>
+        
+            <a href="/tags/go/">Go</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>CC BY 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%A4%87%E5%BF%98%E5%BD%95%E6%A8%A1%E5%BC%8F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">【Go实现】实践GoF的23种设计模式：备忘录模式</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%91%BD%E4%BB%A4%E6%A8%A1%E5%BC%8F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">【Go实现】实践GoF的23种设计模式：命令模式</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">【Go实现】实践GoF的23种设计模式：代理模式</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E8%AE%BF%E9%97%AE%E8%80%85%E6%A8%A1%E5%BC%8F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">【Go实现】实践GoF的23种设计模式：访问者模式</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E8%BF%AD%E4%BB%A3%E5%99%A8%E6%A8%A1%E5%BC%8F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">【Go实现】实践GoF的23种设计模式：迭代器模式</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+
+    
+        
+    <script src="https://utteranc.es/client.js" 
+        repo="ruanrunxue/yrunz-comments"
+        issue-term="pathname"
+        
+        label="yrunz"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
+
+<style>
+    .utterances {
+        max-width: unset;
+    }
+</style>
+
+<script>
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
+        }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+        setUtterancesTheme(document.body.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        setUtterancesTheme(e.detail)
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_SVG"></script>
+    <section class="copyright">
+        &copy;
+        
+            2019 -
+        
+        2023 元闰子的邀请
+    </section>
+
+    <section class="powerby">
+        
+
+        <a href="https://beian.miit.gov.cn/">粤ICP备19152659号 | </a>Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.3.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        <br />
+    </section>
+</footer>
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

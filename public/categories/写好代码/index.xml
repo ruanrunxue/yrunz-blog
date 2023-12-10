@@ -6,7 +6,23 @@
     <description>Recent content in 写好代码 on 元闰子的邀请</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 25 Nov 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://www.yrunz.com/categories/%E5%86%99%E5%A5%BD%E4%BB%A3%E7%A0%81/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 10 Dec 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://www.yrunz.com/categories/%E5%86%99%E5%A5%BD%E4%BB%A3%E7%A0%81/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>【Go实现】实践GoF的23种设计模式：适配器模式</title>
+      <link>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E9%80%82%E9%85%8D%E5%99%A8%E6%A8%A1%E5%BC%8F/</link>
+      <pubDate>Sun, 10 Dec 2023 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E9%80%82%E9%85%8D%E5%99%A8%E6%A8%A1%E5%BC%8F/</guid>
+      <description>上一篇：【Go实现】实践GoF的23种设计模式：备忘录模式
+简单的分布式应用系统（示例代码工程）：https://github.com/ruanrunxue/Practice-Design-Pattern&amp;ndash;Go-Implementation
+ 简介 适配器模式（Adapter）是最常用的结构型模式之一，在现实生活中，适配器模式也是处处可见，比如电源插头转换器，它可以让英式的插头工作在中式的插座上。
+GoF 对它的定义如下：
+ Convert the interface of a class into another interface clients expect. Adapter lets classes work together that couldn’t otherwise because of incompatible interfaces.
+ 简单来说，就是适配器模式让原本因为接口不匹配而无法一起工作的两个类/结构体能够一起工作。
+适配器模式所做的就是将一个接口 Adaptee，通过适配器 Adapter 转换成 Client 所期望的另一个接口 Target 来使用，实现原理也很简单，就是 Adapter 通过实现 Target 接口，并在对应的方法中调用 Adaptee 的接口实现。
+UML 结构 场景上下文 在 简单的分布式应用系统（示例代码工程）中，db 模块用来存储服务注册信息和系统监控数据，它是一个 key-value 数据库。在 访问者模式 中，我们为它实现了 Table 的按列查询功能；同时，我们也为它实现了简单的 SQL 查询功能（将会在 解释器模式 中介绍），查询的结果是 SqlResult 结构体，它提供一个 toMap 方法将结果转换成 map 。</description>
+    </item>
+    
     <item>
       <title>【Go实现】实践GoF的23种设计模式：备忘录模式</title>
       <link>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E5%A4%87%E5%BF%98%E5%BD%95%E6%A8%A1%E5%BC%8F/</link>
