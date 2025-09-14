@@ -1,6 +1,6 @@
 ---
 title: OLTP上云，哪种架构最划算？·VLDB'25
-description: 本文介绍的是 VLDB'25 论文《OLTP in the Cloud: Architectures, Tradeoffs, and Cost》，论文系统分析了云上 OLTP 的工作负载，并确定每种负载下成本最优的架构及硬件配置。
+description: 本文介绍的是 VLDB'2025 论文《OLTP in the Cloud _ Architectures, Tradeoffs, and Cost》，论文系统分析了云上 OLTP 的工作负载，并确定每种负载下成本最优的架构及硬件配置。
 date: 2025-09-14
 categories:
   - 论文解读
