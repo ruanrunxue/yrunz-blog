@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='SIGMOD&#39;26 论文《ByteHouse_ByteDance’s Cloud-Native Data Warehouse for Real-Time Multimodal Data Analytics》中，字节团队介绍了实时多模态分析引擎 ByteHouse，本文将讲解 ByteHouse 存储层的设计思路。'><title>实时多模态数据处理的存储层要怎么设计？· SIGMOD&#39;26</title>
+
+<link rel='canonical' href='https://www.yrunz.com/p/%E5%AE%9E%E6%97%B6%E5%A4%9A%E6%A8%A1%E6%80%81%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86%E7%9A%84%E5%AD%98%E5%82%A8%E5%B1%82%E8%A6%81%E6%80%8E%E4%B9%88%E8%AE%BE%E8%AE%A1-sigmod26/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='实时多模态数据处理的存储层要怎么设计？· SIGMOD&#39;26'>
+<meta property='og:description' content='SIGMOD&#39;26 论文《ByteHouse_ByteDance’s Cloud-Native Data Warehouse for Real-Time Multimodal Data Analytics》中，字节团队介绍了实时多模态分析引擎 ByteHouse，本文将讲解 ByteHouse 存储层的设计思路。'>
+<meta property='og:url' content='https://www.yrunz.com/p/%E5%AE%9E%E6%97%B6%E5%A4%9A%E6%A8%A1%E6%80%81%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86%E7%9A%84%E5%AD%98%E5%82%A8%E5%B1%82%E8%A6%81%E6%80%8E%E4%B9%88%E8%AE%BE%E8%AE%A1-sigmod26/'>
+<meta property='og:site_name' content='元闰子的邀请'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='数据库' /><meta property='article:tag' content='大数据' /><meta property='article:tag' content='论文' /><meta property='article:published_time' content='2026-04-12T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2026-04-12T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="实时多模态数据处理的存储层要怎么设计？· SIGMOD&#39;26">
+<meta name="twitter:description" content="SIGMOD&#39;26 论文《ByteHouse_ByteDance’s Cloud-Native Data Warehouse for Real-Time Multimodal Data Analytics》中，字节团队介绍了实时多模态分析引擎 ByteHouse，本文将讲解 ByteHouse 存储层的设计思路。">
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "light");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/yrz_hudc7c8721ecce4b724df5002339c76402_174377_300x0_resize_box_2.png" width="300"
+                            height="306" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://www.yrunz.com">元闰子的邀请</a></h1>
+        <h2 class="site-description">阅读、写作、生活（个人技术分享）</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>首页</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>博客</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%85%B3%E4%BA%8E%E5%85%83%E9%97%B0%E5%AD%90/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24"
+     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+     stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z"/>
+    <circle cx="12" cy="7" r="4"/>
+    <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/>
+</svg>
+
+                
+                <span>关于元闰子</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%8F%8B%E6%83%85%E9%93%BE%E6%8E%A5/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-friends" width="44" height="44"
+     viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+    <circle cx="7" cy="5" r="2"/>
+    <path d="M5 22v-5l-1 -1v-4a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4l-1 1v5"/>
+    <circle cx="17" cy="5" r="2"/>
+    <path d="M15 22v-4h-2l2 -6a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1l2 6h-2v4"/>
+</svg>
+
+                
+                <span>友情链接</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>暗色模式</span>
+            </li>
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://www.yrunz.com" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB/" >
+                论文解读
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/%E5%AE%9E%E6%97%B6%E5%A4%9A%E6%A8%A1%E6%80%81%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86%E7%9A%84%E5%AD%98%E5%82%A8%E5%B1%82%E8%A6%81%E6%80%8E%E4%B9%88%E8%AE%BE%E8%AE%A1-sigmod26/">实时多模态数据处理的存储层要怎么设计？· SIGMOD&#39;26</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        SIGMOD&#39;26 论文《ByteHouse_ByteDance’s Cloud-Native Data Warehouse for Real-Time Multimodal Data Analytics》中，字节团队介绍了实时多模态分析引擎 ByteHouse，本文将讲解 ByteHouse 存储层的设计思路。
+    </h3>
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Apr 12, 2026</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <blockquote>
+<p>SIGMOD'26 论文《ByteHouse: ByteDance’s Cloud-Native Data Warehouse for Real-Time Multimodal Data Analytics》中，字节团队介绍了实时多模态分析引擎 ByteHouse，本文将讲解 ByteHouse 存储层的设计思路。</p>
+</blockquote>
+<h2 id="前言">前言</h2>
+<p>在 AI 时代，多模态数据处理有如下 3 种负载：</p>
+<ul>
+<li><strong>OLAP</strong>。传统分析型 SQL 查询，侧重<strong>范围扫描</strong>，以顺序读 IO 为主。</li>
+<li><strong>多模检索</strong>。传统 SQL 无法查询图片、视频等多模态数据，须将它们转成向量，通过向量检索进行语义相关性查询。侧重<strong>点查</strong>，以随机读 IO 为主。</li>
+<li><strong>实时 ETL</strong>。提供高时效性，逐条写入。</li>
+</ul>
+<p>面对不同的负载，传统的解决方案是组合多种引擎。</p>
+<p>OLAP 采用 Spark、ClickHouse 等 OLAP 引擎；</p>
+<p>多模检索采用 Milvus、pgvector 等向量数据库；</p>
+<p>实时 ETL 采用 Kafka、Flink 等流式引擎；</p>
+<p>然而，<strong>不同引擎的存储格式通常是不同的，该方案会带来数据同步问题</strong>。</p>
+<p>另外，存算分离的云原生架构已经逐渐成为现代数据引擎的标配。相比于结构化数据，多模态数据的存储体积更大，基于低成本的对象存储构建存储层已经是主流。</p>
+<p>然而，<strong>对象存储在 IO 带宽和时延上都存在较大的劣势，容易成为整个数据处理管道的瓶颈</strong>。</p>
+<p>下面，我们看下实时多模态分析引擎 ByteHouse 的存储层是如何解决这两个问题 。</p>
+<h2 id="parquet-的问题">Parquet 的问题</h2>
+<p>在数据分析领域，Parquet 是最流行的开放数据格式。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2026-04-11-040429.png" alt=""  /></p>
+<p>但 Parquet 是面向传统 OLAP 负载设计的，不擅长点查，无法高效支撑多模态检索。</p>
+<p>首先，<strong>点查路径长，需要 1 + N 次 IO</strong>：</p>
+<ol>
+<li>通过 Foot Length 找到 FileMetaData 的 offset，<strong>1 次 IO</strong>。</li>
+<li>加载 FileMetaData 到内存，过滤掉不相关的 RowGroup，找到对应列的 first page offset 。</li>
+<li>遍历 Page，通过 Page Header 的 max 和 min 信息定位到数据所在的 Page，<strong>N 次 IO</strong>，N 为 RowGroup 中 Page 的数量。</li>
+<li>拉取 Page 到内存，解压得到 M 条数据。</li>
+<li>遍历数据，找到所需的那条数据。</li>
+</ol>
+<p>针对这个问题，Parquet 2.x 做了些优化，将 Page Header 中 max, min 等统计信息，集中存储到 Column Index 和 Offset Index 中：</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2026-04-11-042115.png" alt=""  /></p>
+<p>这样只需 1 + 2 次 IO 就能完成点查。</p>
+<p>但只有 max、min 无法进行二分查找，遍历仍不可避免，点查路径还是很长。</p>
+<p>常见的解决方案是，<strong>在 Parquet 文件之外使用辅助索引</strong>。但因为是不同的文件，<strong>代价是增加额外的 IO 次数</strong>。</p>
+<p>向量不是 Parquet 的“一等公民”，采用嵌套数组的存储布局。同一列所有向量在物理上紧挨平铺，通过 offset 来索引。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2026-04-11-102807.png" alt=""  /></p>
+<p>由于没有向量的元数据，比如向量范数，所以在检索时无法进行快速剪枝。对稀疏向量存储也没有优化。</p>
+<p>总结来说就是，<strong>Parquet 不适合向量的存储</strong>。</p>
+<p>另外，<strong>Parquet 没有版本管理</strong>，需要配合 Iceberg 等开放表格才能应对实时 ETL 的负载。</p>
+<p>针对这些问题，ByteHouse 提出了一个新的数据格式，Sniffer。</p>
+<h2 id="sniffer-数据格式">Sniffer 数据格式</h2>
+<p>论文把 Sniffer 称为自描述的文件格式。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2026-04-11-130840.png" alt=""  /></p>
+<p>从布局上看，Sniffer 分成 3 部分：</p>
+<ul>
+<li><strong>Data</strong>：存储实际数据，布局跟 Parquet 很像，DataBlock 是数据压缩的最小单位。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Sniffer</th>
+<th>Parquet</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RecordGroup</td>
+<td>RowGroup</td>
+</tr>
+<tr>
+<td>ColumnPartition</td>
+<td>Column</td>
+</tr>
+<tr>
+<td>DataBlock</td>
+<td>Page</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Descriptor</strong>：统一存储索引、Schema 等元数据。</li>
+<li><strong>Footer</strong>：只保留 File Version、Descriptor offset、CRC，长度固定。</li>
+</ul>
+<p>通过 Descriptor， Sniffer 把 Sort-Key 与数据放在一个文件里面，<strong>不用引入额外的辅助索引就能进行二分搜索</strong>，点查路径更短了。</p>
+<p>Descriptor 常驻内存，并通过 LRU 进行缓存管理。这也意味着 Sniffer 在缓存命中的情况下，只需 1 次内存元数据获取 + 1 次 IO 即可实现点查，时延可达微秒级。</p>
+<p>ByteHouse 包含一个 Encoding Decision Tree，<strong>能够根据不同的数据类型、数据采样特征，自动选择合适的编码，从而使得 Sniffer 存储和检索更高效</strong>。</p>
+<p>Sniffer 把向量作为“一等公民”，抛弃了 Parquet 的 Repetition&amp;Definition 编码，采用 Length-and-Presence (L&amp;P) 编码，为每个向量附加了向量范式等单独的元数据。</p>
+<p>这样做的一个好处是，<strong>即使是同一列的不同向量，也能根据向量的特征选择不同 FOR 或 ALP 等不同的编码，更灵活了</strong>。代价是元数据存储体积更大了。</p>
+<p>另外，Sniffer 对稀疏向量也做了优化，对于值为 0 的部分不再需要 padding，节省了存储空间。</p>
+<p>总结来说，Sniffer 相比 Parquet 能够以更少的 IO 次数和更短的查询路径完成点查操作，并在向量存储和检索上做了优化。</p>
+<p>不过，<strong>读放大问题，Sniffer 并没有解决</strong>。读取某个数据单元，仍需把整个 DataBlock 拉取到内存中解压。</p>
+<p>Lance 数据格式倒是通过 Full Zip 编码解决了该问题，它的压缩单位是单个数据单元。所以，它能直接索引到某列某行的数据。代价是更低的压缩率。</p>
+<h2 id="表模型设计">表模型设计</h2>
+<p>ByteHouse 仍保留了表模型的设计，并针对多模态数据做了优化。</p>
+<p>我们很容易通过 Table 来表征传统结构化数据，<strong>每个数据存储为一个数据单元</strong>，检索时用该数据单元作匹配即可。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2026-04-12-023220.png" alt=""  /></p>
+<p>但对多模态数据，我们常常需要进行向量语义检索，这时该模型就不灵了。</p>
+<p>以文档为例。虽然可以把文档全部内容都塞进一个数据单元，但对整个文档作向量 Embedding 后，会因为向量表征的文档太大，导致关键信息丢失。语义检索失效。</p>
+<p>常见的做法是对文档进行切片，以切片为 Embedding 粒度，保留更多的语义信息。</p>
+<p>视频、音频、图片也是类似的。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2026-04-12-032459.png" alt=""  /></p>
+<p>ByteHouse 就是采用 <strong>&lt;document_id, chunk_id&gt;</strong> 的表模型设计。</p>
+<p>另外，在物理存储时，每个 Table 都包含 <strong>stable segments</strong> 和 <strong>delta segments</strong> 两部分。</p>
+<ul>
+<li>stable segments 不可变，针对 OLAP 吞吐量作优化。</li>
+<li>delta segments 应对数据的 insert、update，并根据自适应的 Compact 策略将变更数据合并到 stable segments 部分。</li>
+</ul>
+<p>通过 MVCC 机制保证数据访问的一致性，从而能够支持实时 ETL 负载。</p>
+<p>为了避免频繁小 IO，ByteHouse 的数据存储管道分 2 步：</p>
+<ol>
+<li>Key-Value 缓存。将行级写入缓存到 ByteKV 中，基于 WAL 保证数据持久化。</li>
+<li>刷入列式存储。当缓存累积到阈值后，刷入列式存储。</li>
+</ol>
+<p>整体看下来，有点像 LSM-Tree 的设计。</p>
+<h2 id="ssd-缓存">SSD 缓存</h2>
+<p>Sniffer 虽然降低了读数据的 IO 次数，但对象存储的带宽和时延硬伤，仍可能导致数据读写成为系统瓶颈。</p>
+<p>ByteHouse 的生产数据表明，<strong>在处理小 IO、随机 IO 时，对象存储的读取时延可占端到端的 70%</strong>！</p>
+<p>为此，ByteHouse 在存储层引入了 SSD 缓存，<strong>Cluster-Scale Caching</strong>。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2026-04-12-034249.png" alt=""  /></p>
+<p>Cluster-Scale Caching 是一个分布式的缓存系统，包含 2 种角色：</p>
+<ul>
+<li><strong>Cache Coordinators</strong> (CCs) ：管理全局 namespace 和 metadata。</li>
+<li><strong>Cache Nodes</strong> (CNs)：提供 SSD 数据缓存。逻辑上将文件按照固定的大小（默认 12MB）分块管理，物理上会进一步将数据块分成 更小的块，从而减缓读放大问题。</li>
+</ul>
+<h2 id="文件系统抽象">文件系统抽象</h2>
+<p>到这里，存储层已经准备好，还需要能被计算节点访问的 API。</p>
+<p>ByteHouse 把它抽象成 <strong>NexusFS</strong>，提供文件访问接口，集成在计算节点，是连接存储层和计算层的桥梁。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2026-04-12-075241.png" alt=""  /></p>
+<p>NexusFS 在计算侧也有本地 SSD 缓存，包含 3 个组件：</p>
+<ul>
+<li><strong>Region Manager</strong>：将本地 SSD 划分成 1MB 大小的 region 进行管理，region 会被进一步划分成更小的 data segments，后者是 IO 调度和缓存的单位。</li>
+<li><strong>Buffer Manager</strong>：对内存数据进行管理，计算层算子能够零拷贝读取其中的数据。</li>
+<li><strong>Metadata Manager</strong>：管理 data segments 的元数据，比如该 data segment 所在的文件，该文件所在的 region 信息等。</li>
+</ul>
+<p>NexusFS 采用全链路对齐 IO 的策略，确保数据在<strong>本地内存-&gt;本地 SSD-&gt;远端存储层</strong>都是 IO 对齐的，按照固定大小的 data segment 加载，消除碎片化 IO。</p>
+<h2 id="总结">总结</h2>
+<p>本文主要介绍了 ByteHouse 存储层的一些设计思路。</p>
+<p><strong>在原有面向 OLAP 负载的设计上，增加了对多模检索和实时 ETL 能力的增强</strong>。</p>
+<p>核心是：</p>
+<ol>
+<li>统一 3 种不同负载的数据格式，将索引和数据放在同一文件，降低点查 IO 次数。</li>
+<li>在对象存储之上增加 SSD 缓存，降低数据加载时延、提升 IO 带宽。</li>
+</ol>
+<p>不过，ByteHouse 在点查负载上，并没有 Lance 优化的彻底，是压缩率和点查性能的权衡。</p>
+<h3 id="文章配图">文章配图</h3>
+<p>可以在 <a class="link" href="https://mp.weixin.qq.com/s/-sYW-oa6KzTR9LNdMWCSnQ"  target="_blank" rel="noopener"
+    >用Keynote画出手绘风格的配图</a> 中找到文章的绘图方法。</p>
+<blockquote>
+<h4 id="参考">参考</h4>
+<p>[1] <a class="link" href="https://arxiv.org/abs/2602.08226"  target="_blank" rel="noopener"
+    >ByteHouse: ByteDance’s Cloud-Native Data Warehouse for Real-Time Multimodal Data Analytics</a>, ByteDance</p>
+<p>[2] <a class="link" href="https://parquet.apache.org/docs/file-format/"  target="_blank" rel="noopener"
+    >Parquet File Format</a>, Apache Parquet</p>
+</blockquote>
+<p>（完）</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a>
+        
+            <a href="/tags/%E5%A4%A7%E6%95%B0%E6%8D%AE/">大数据</a>
+        
+            <a href="/tags/%E8%AE%BA%E6%96%87/">论文</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>CC BY 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/20%E4%BA%BFtpmc%E5%88%B7%E6%96%B0%E8%AE%B0%E5%BD%95polardb%E5%81%9A%E4%BA%86%E5%93%AA%E4%BA%9B%E4%BC%98%E5%8C%96-vldb25/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">20亿tpmC刷新记录，PolarDB做了哪些优化？· VLDB&#39;25</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E5%AF%B9-agent-first-%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E7%95%85%E6%83%B3/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">对 Agent-First 数据库的畅想</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/oltp%E4%B8%8A%E4%BA%91%E5%93%AA%E7%A7%8D%E6%9E%B6%E6%9E%84%E6%9C%80%E5%88%92%E7%AE%97vldb25/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">OLTP上云，哪种架构最划算？·VLDB&#39;25</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E6%80%8E%E4%B9%88%E7%94%A8-cxl-%E5%8A%A0%E9%80%9F%E6%95%B0%E6%8D%AE%E5%BA%93-sigmod25/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">怎么用 CXL 加速数据库？· SIGMOD&#39;25</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+
+    
+        
+    <script src="https://utteranc.es/client.js" 
+        repo="ruanrunxue/yrunz-comments"
+        issue-term="pathname"
+        
+        label="yrunz"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
+
+<style>
+    .utterances {
+        max-width: unset;
+    }
+</style>
+
+<script>
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
+        }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+        setUtterancesTheme(document.body.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        setUtterancesTheme(e.detail)
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_SVG"></script>
+    <section class="copyright">
+        &copy;
+        
+            2019 -
+        
+        2026 元闰子的邀请
+    </section>
+
+    <section class="powerby">
+        
+
+        <a href="https://beian.miit.gov.cn/">粤ICP备19152659号 | </a>Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.3.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        <br />
+    </section>
+</footer>
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

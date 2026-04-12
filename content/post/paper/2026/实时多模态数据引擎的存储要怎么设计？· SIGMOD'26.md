@@ -1,3 +1,16 @@
+---
+title: 实时多模态数据处理的存储层要怎么设计？· SIGMOD'26
+description: SIGMOD'26 论文《ByteHouse_ByteDance’s Cloud-Native Data Warehouse for Real-Time Multimodal Data Analytics》中，字节团队介绍了实时多模态分析引擎 ByteHouse，本文将讲解 ByteHouse 存储层的设计思路。
+date: 2026-04-12
+categories:
+  - 论文解读
+tags:
+  - 数据库
+  - 大数据
+  - 论文
+author: 元闰子
+---
+
 > SIGMOD'26 论文《ByteHouse: ByteDance’s Cloud-Native Data Warehouse for Real-Time Multimodal Data Analytics》中，字节团队介绍了实时多模态分析引擎 ByteHouse，本文将讲解 ByteHouse 存储层的设计思路。
 
 ## 前言
