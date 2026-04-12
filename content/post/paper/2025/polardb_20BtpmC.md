@@ -1,6 +1,6 @@
 ---
 title: 20亿tpmC刷新记录，PolarDB做了哪些优化？· VLDB'25
-description: 本文要介绍的是 VLDB'25 论文《From Scale-Up to Scale-Out_PolarDB’s Journey to Achieving 2 Billion tpmC》。阿里云 PolarDB 今年登顶 TPC-C 基准测试，以 20.55 亿 tpmC 的成绩刷新世界记录，该论文主要介绍了 PolarDB 达成这一成绩所做的一些关键优化。
+description: 本文要介绍的是 VLDB'25 论文《From Scale-Up to Scale-OutPolarDB’s Journey to Achieving 2 Billion tpmC》。阿里云 PolarDB 今年登顶 TPC-C 基准测试，以 20.55 亿 tpmC 的成绩刷新世界记录，该论文主要介绍了 PolarDB 达成这一成绩所做的一些关键优化。
 date: 2025-12-10
 categories:
   - 论文解读
