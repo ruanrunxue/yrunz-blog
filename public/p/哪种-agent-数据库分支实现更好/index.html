@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Agent 的多路径探索需要高效的数据分支。本文对比 Xata、Neon、Dolt 和 MatrixOne 的实现原理与取舍，看看兼容性、分支能力和性能该如何权衡。'><title>哪种 Agent 数据库分支实现更好？</title>
+
+<link rel='canonical' href='https://www.yrunz.com/p/%E5%93%AA%E7%A7%8D-agent-%E6%95%B0%E6%8D%AE%E5%BA%93%E5%88%86%E6%94%AF%E5%AE%9E%E7%8E%B0%E6%9B%B4%E5%A5%BD/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='哪种 Agent 数据库分支实现更好？'>
+<meta property='og:description' content='Agent 的多路径探索需要高效的数据分支。本文对比 Xata、Neon、Dolt 和 MatrixOne 的实现原理与取舍，看看兼容性、分支能力和性能该如何权衡。'>
+<meta property='og:url' content='https://www.yrunz.com/p/%E5%93%AA%E7%A7%8D-agent-%E6%95%B0%E6%8D%AE%E5%BA%93%E5%88%86%E6%94%AF%E5%AE%9E%E7%8E%B0%E6%9B%B4%E5%A5%BD/'>
+<meta property='og:site_name' content='元闰子的邀请'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='AI' /><meta property='article:tag' content='Agent' /><meta property='article:tag' content='数据库' /><meta property='article:published_time' content='2026-11-07T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2026-11-07T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="哪种 Agent 数据库分支实现更好？">
+<meta name="twitter:description" content="Agent 的多路径探索需要高效的数据分支。本文对比 Xata、Neon、Dolt 和 MatrixOne 的实现原理与取舍，看看兼容性、分支能力和性能该如何权衡。">
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "light");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/yrz_huab1eef27cf09ceddd85969461c7dd38b_46713_300x0_resize_box_2.png" width="300"
+                            height="306" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://www.yrunz.com">元闰子的邀请</a></h1>
+        <h2 class="site-description">阅读、写作、生活（个人技术分享）</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>首页</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>博客</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%85%B3%E4%BA%8E%E5%85%83%E9%97%B0%E5%AD%90/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>关于元闰子</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%8F%8B%E6%83%85%E9%93%BE%E6%8E%A5/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>友情链接</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>暗色模式</span>
+            </li>
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://www.yrunz.com" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/ai/" >
+                AI
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/%E5%93%AA%E7%A7%8D-agent-%E6%95%B0%E6%8D%AE%E5%BA%93%E5%88%86%E6%94%AF%E5%AE%9E%E7%8E%B0%E6%9B%B4%E5%A5%BD/">哪种 Agent 数据库分支实现更好？</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        Agent 的多路径探索需要高效的数据分支。本文对比 Xata、Neon、Dolt 和 MatrixOne 的实现原理与取舍，看看兼容性、分支能力和性能该如何权衡。
+    </h3>
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Nov 07, 2026</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <h2 id="tldr">TL;DR</h2>
+<p>Agent 经常需要多路径探索、反复试错。数据分支就像给每次尝试准备一个独立的“实验场”，失败了可以直接丢弃，不影响其他分支。</p>
+<p>数据分支的关键是<strong>写时复制</strong>：创建时共享已有数据，发生修改时再分别保存变化，不必每次都复制整个数据库。</p>
+<p>Xata 兼容性好，但分支能力较基础。Neon 在 Postgres 兼容和分支能力之间做了折中。</p>
+<p>Dolt 和 MatrixOne 的分支操作更丰富。Dolt 在部分 SQL 执行性能上有所取舍；MatrixOne 则更偏 OLAP 场景。</p>
+<p>所以，<strong>没有哪种实现有绝对优势</strong>。怎么选，要看你更看重兼容性还是分支语义，更看重分支操作性能还是 SQL 执行性能。</p>
+<h2 id="前言">前言</h2>
+<p>在《<a class="link" href="https://mp.weixin.qq.com/s/dMZ2v_Dp1way5ps3jnrgfg"  target="_blank" rel="noopener"
+    >AI Agent需要什么样的数据库？</a>》和《<a class="link" href="https://mp.weixin.qq.com/s/N1Xm2T-i4fyV2gG71GysSw"  target="_blank" rel="noopener"
+    >对 Agent-First 数据库的畅想</a>》中，我们讨论过在 Agent 应用下，数据库有哪些负载特征。那时我们认为，<strong>多路径探索、反复试错、频繁调试</strong>是 Agent 使用数据库主要特征之一，<strong>需要数据分支来替代传统的快照恢复机制</strong>。</p>
+<p>近一年随着 Claude Code 等 Agent 的火爆，这些特征也愈发明显。</p>
+<p>下面是一个典型的软件工程场景：</p>
+<p><img src="/images/agent-db-branch/branch-1.png" alt="软件工程分支场景示意图 Keynote 描边版"  /></p>
+<p>Agent 正在开发一个忠诚度分级的新需求，根据客户情况把他们分成不同等级。开发过程涉及对数据库的表结构和数据做变更：</p>
+<ol>
+<li>
+<p>从 <code>main</code> 分支拉出特性分支 <code>B1</code>，先给数据库新增 <code>tier</code> 列，表示客户等级。</p>
+</li>
+<li>
+<p>先从 <code>B1</code> 拉出 <code>B2</code> 分支，根据新开发的分级算法和支付历史计算客户等级，回填到 <code>tier</code> 列。随后进行测试回归，发现客户等级分布不符合预期，原因是分级算法有问题。</p>
+</li>
+<li>
+<p>再从 <code>B1</code> 拉出 <code>B3</code> 分支，根据新的分级算法计算客户等级，回填到 <code>tier</code> 列。最后测试回归通过，需求回合到 <code>main</code> 分支。</p>
+</li>
+</ol>
+<p><strong>这里的分支既包含了代码分支，也有数据库的数据分支</strong>。</p>
+<p>试想一下，如果没有数据分支，从第 2 步到第 3 步，还需要把已回填到 <code>tier</code> 列数据删除。效率低，也存在安全隐患。</p>
+<p>随着 Agent 走向成熟，Agent 应用场景也会从当前的 Vibe Coding 走向生产级的应用，数据分支的也将迎来更多的用武之地。比如：</p>
+<ul>
+<li>
+<p><strong>故障复现</strong>：在生产环境复现导致故障的数据库事务。采用二分法创建分支 + 重放事务实现。</p>
+</li>
+<li>
+<p><strong>数据清洗</strong>：检测并修正数据库的数据错误，提升下游的任务质量。主 Agent 持续识别各数据表的错误，派生子 Agent 执行<strong>分支-&gt;变更-&gt;验证</strong>的清洗流程。</p>
+</li>
+<li>
+<p><strong>蒙特卡洛树搜索</strong>（MCTS）：常应用于金融、供应链管理、Text-to-SQL 等场景。每个搜索策略都可能涉及数据修改，都需要一个独立的数据分支。</p>
+</li>
+<li>
+<p><strong>仿真</strong>：与 MCTS 类似。</p>
+</li>
+</ul>
+<p>业界对数据分支的跟进热度，大都从 Databricks 以 10 亿美元收购 Neon 开始。之后，很多数据库都宣称支持了数据分支特性，它们各有各的实现方式。</p>
+<p><em>那么，哪种分支的实现才是更好的呢？</em></p>
+<p>本文将探讨数据分支不同的实现方式，对比它们的优缺点，尝试回答这一问题。</p>
+<h2 id="数据分支实现技术分类">数据分支实现技术分类</h2>
+<p><strong>写时复制</strong>，Copy on Write（<strong>CoW</strong>），是实现数据分支绕不开的技术。根据 CoW 粒度的不同，我们可以把数据分支分成如下四类：</p>
+<ul>
+<li>
+<p><strong>块设备 Block 级</strong>。代表产品 Xata，基于 ZFS 的 CoW 能力实现分支，数据库内核不感知，100% 兼容 Postgres。</p>
+</li>
+<li>
+<p><strong>数据库 Page 级</strong>。代表产品 Neon，基于 Page 快照 + 增量 WAL 实现分支，对 Postgres 做了存算分离改造，提供百毫秒级冷启动时延。</p>
+</li>
+<li>
+<p><strong>数据库 Chunk 级</strong>。代表产品 Dolt，基于 B 树变体的内容寻址树 Prolly Tree 实现分支，自研内核。</p>
+</li>
+<li>
+<p><strong>数据库 行 级</strong>。代表产品 MatrixOne，属于 HTAP 流派，更偏 OLAP。基于 LSM 引擎的 Append-only 特性实现 Tuple 级的 CoW。</p>
+</li>
+</ul>
+<p>文件系统 Block 级的生态兼容性最好，数据库 Tuple 级的分支语义最丰富。</p>
+<p><img src="/images/agent-db-branch/branch-2.png" alt="数据分支分类图 标志左置版"  /></p>
+<h2 id="xata-的实现">Xata 的实现</h2>
+<p>Xata 基于 NVMe over Fabric（NVMe-oF） 协议构建存算分离架构。</p>
+<p><img src="/images/agent-db-branch/branch-3.png" alt="Xata 分支管理、存算架构与块级写时复制"  /></p>
+<p>在 Xata 中，每个数据分支都有一个数据库实例，每个实例在存储层都独享一个块设备。块设备统一由 ZFS zpool 管理，每个块设备都会对应一个 zvol 卷。</p>
+<p>新创建的子分支的数据块 <code>A, B, C</code> 会引用到父分支，只有当子分支修改时，才会复制一份 <code>A’, B’</code>，从而实现了 Block 级的 CoW。</p>
+<p>分支的生命周期管理则由控制面完成，创建分支时，会创建子分支实例、创建新的 zvol 块设备，并让子分支实例通过 NVMe-oF 与块设备相连。</p>
+<p>从数据库实例的视角，<strong>它看到的仍是本地文件目录</strong>，也不感知分支的存在。</p>
+<p>所以，Xata 的策略是，<strong>数据库只管照常读写，把分支交给平台</strong>（ZFS 的存储块快照和克隆能力）。</p>
+<p>这样做最大的好处是<strong>数据库内核无感</strong>，理论上可以支持任何数据库，生态 100% 兼容。</p>
+<p>代价是，数据分支语义支持少，只能是最基础的 <code>create</code>、<code>delete</code>、<code>checkout</code>。</p>
+<h2 id="neon-的实现">Neon 的实现</h2>
+<p>Neon 是分支数据库领域的明星，它的存算分离、Log-as-Database 架构已经成为业界标杆。更多架构和原理细节，参考《AI Agent 需要什么样的数据库？》</p>
+<p><img src="/images/agent-db-branch/branch-4.png" alt="Neon 数据分支架构原理图"  /></p>
+<p><a class="link" href="https://neon.com/blog/get-page-at-lsn"  target="_blank" rel="noopener"
+    >Neon 官方存储引擎说明</a></p>
+<p>Neon 使用 LSN 来做数据版本管理，每个数据变更都会有唯一的 LSN。所以，分支管理变得很容易，只要记住分支分叉的 LSN，就能维护整个分支血缘关系。</p>
+<p><strong>基于 LSN 的分支管理也让 Neon 具备了 TimeTravel 能力</strong>，通过 <strong>Page 镜像</strong> + <strong>WAL 增量回放</strong>，就能让分支回滚到任意的时间点。这是 Neon 比 Xata 多出的分支语义，<code>rollback</code>。</p>
+<p>父子分支共享分叉 LSN 之前的数据，分叉后会基于不同的 WAL 完成 Page 重建，所以，CoW 的粒度是 Page 级。</p>
+<p>Neon 改造了 Postgres 的存储引擎，把数据分支能力构筑在数据库内核，构建了基本完整的分支语义 <code>create</code>、<code>delete</code>、<code>checkout</code>、<code>rollback</code>。</p>
+<p>Neon 仍是经典的 B-Tree 引擎，仍适用于传统的数据库负载，而且计算层还是 Postgres 实例。</p>
+<p>所以，Neon 的策略是，<strong>够用的分支语义 + PostgresSQL 兼容</strong>。这种 Trade-Off 设计，也正是 Neon 广受欢迎的主要原因之一。</p>
+<h2 id="dolt-的实现">Dolt 的实现</h2>
+<p>Neon 让 Postgres 具备了数据分支能力，<strong>Dolt 则是面向数据分支重新设计了数据库</strong>。</p>
+<p><img src="/images/agent-db-branch/branch-5.png" alt="Dolt 数据分支架构原理图"  /></p>
+<p><a class="link" href="https://www.dolthub.com/docs/architecture/storage-engine/"  target="_blank" rel="noopener"
+    >Dolt 官方存储引擎说明</a></p>
+<p>Dolt 走类似 Git 的分支管理路线，通过 DAG 来维护分支血缘，每次 commit 对应 DAG 中的一个节点。刚拉分支时，父子分支会指向同一 commit 点，随着数据写入会逐渐分化。</p>
+<p>这也意味着，<strong>Dolt 必须显式 commit 才能回滚</strong>。要做到 Neon 一样的 TimeTravel，就需要每次修改都 commit，但版本管理开销也会随之增大。</p>
+<p>DAG 只是管理，<strong>Dolt 实现数据分支语义的核心是 Prolly Tree</strong>，全称 Probabilistic B-Tree，也叫内容寻址树。</p>
+<p>Prolly Tree 是 B-Tree 的变体，每个节点为一个 Chunk。Chunk 的大小通过内容定义分块算法动态划分，目标是 4K 大小。每个 Chunk 包含多行记录，且有一个内容哈希值。</p>
+<p>数据存储在叶子节点，非叶子节点存储的是叶子节点的内容哈希值。所以，<strong>只要有数据修改，必然会产生一颗新的 Tree</strong>。</p>
+<p>内容哈希值能够帮助 Dolt 快速定位到修改数据所在的 Chunk，因此非常适合用来做 <code>diff</code> 和 <code>merge</code>。</p>
+<p>Dolt 已经不再是传统的 B-Tree 引擎，它专门为数据分支场景设计，具备了相当完善的分支语义，但<strong>代价是读写性能变差</strong>。</p>
+<p>Dolt 官方博客数据，对比传统的 B-Tree，Prolly Tree 的读性能慢 20%，批量写性能慢 67%。特别是开启自动 commit 写时，性能慢 3 倍！</p>
+<p>所以，<strong>Dolt 的策略是牺牲一些 SQL 读写性能，换来更完善的分支语义支持</strong>。</p>
+<h2 id="matrixone-的实现">MatrixOne 的实现</h2>
+<p>前面提到的都是 OLTP 数据库，MatrixOne 则是基于 LSM-Tree 的 HTAP 数据库，更偏 OLAP。</p>
+<p><img src="/images/agent-db-branch/branch-6.png" alt="MatrixOne 数据分支技术原理图"  /></p>
+<p><a class="link" href="https://www.matrixorigin.io/blog/git4data-part3-under-the-hood"  target="_blank" rel="noopener"
+    >MatrixOne 官方原理说明</a> · <a class="link" href="https://arxiv.org/abs/2609.02106"  target="_blank" rel="noopener"
+    >Git4Data 论文</a></p>
+<p>LSM-Tree 的特点是 Append-only，任何一次数据新增、修改、删除都会被记录下来，而且能随机读，这就很适合做分支。</p>
+<blockquote>
+<p>WAL 也会记录任何一次数据变更，但只能靠顺序回放，无法高效随机读。</p>
+</blockquote>
+<p>MatrixOne 实现分支的核心机制就是 <strong>Append-only + MVCC</strong>。</p>
+<p><strong>Append-only 奠定了存储基础</strong>，父子分支共享不可变的数据对象，各自修改以增量记录的方式保存在新的数据对象中，实现了行级 CoW。</p>
+<p><strong>MVCC 提供分支管理基础</strong>，能判断某个时间点哪些版本可见，结合分支元数据，实现父子分支各看各的数据。</p>
+<p>在此基础上，MatrixOne 很容易就实现了相对完善的分支语义。比如 <code>diff</code>、<code>merge</code>，可通过对父子分支的增量数据对象做一次按行聚合比较实现。</p>
+<p>所以，MatrixOne 很好地<strong>利用了 LSM-Tree 的 Append-only 特性，扩展了对数据分支的支持</strong>。</p>
+<h2 id="评测对比">评测对比</h2>
+<p>网上还没有对这 4 款数据库统一拉通测评，只能东拼西凑拿到一些信息。</p>
+<h3 id="分支语义对比">分支语义对比</h3>
+<p>在分支语义上，Dolt 和 MatrixOne 支持最丰富，Neon 够用，Xata 刚入门槛。</p>
+<p><img src="/images/agent-db-branch/branch-7.png" alt="数据库分支语义对比"  /></p>
+<h3 id="分支创建性能对比">分支创建性能对比</h3>
+<p>Xata 和 Neon 为每个分支都创建一个独立的计算实例，提供了最彻底的隔离。但因为涉及实例启动和建立连接，性能相对较差。Xata 官方数据为 1~2s，Neon 网上实测数据也在 1s 左右。</p>
+<p>Dolt 和 MatrixOne 因为不涉及实例创建，分支创建时延更低，都达到了 10ms 左右。</p>
+<h3 id="sql-执行性能对比">SQL 执行性能对比</h3>
+<p>Xata、Neon、MatrixOne 都没有对传统引擎内核做大改，只是扩展了对数据分支的支持，SQL 执行性能不会太差。</p>
+<p>Dolt 把存储引擎换成了 Prolly Tree，是专门针对分支优化的设计。官方数据显示，Doltlite（把 Prolly Tree 替换到 SQLite 中）对比 SQLite，读性能慢 20%、批量写性能慢 67%、自动 commit 写性能慢 3 倍。</p>
+<h2 id="最后">最后</h2>
+<p>本文主要介绍了 4 类数据分支的实现方案。</p>
+<p>Xata 生态兼容最好，但分支语义支持有限。</p>
+<p>Neon 是一个很好的折中方案，因此也最受欢迎。</p>
+<p>Dolt 专门为数据分支设计，分支语义支持完善，分支创建性能高，但代价是 SQL 执行性能损耗大。</p>
+<p>MatrixOne 则是在 LSM-Tree 的基础上扩展了分支语义的支持，分支语义和性能都挺好，但生态较弱。</p>
+<p>所以，<strong>数据分支没有哪种实现有绝对的优势，它们都在各方面做了权衡。</strong></p>
+<h3 id="文章配图">文章配图</h3>
+<p>配图由 ChatGPT + Figma 插件生成，可以在 <a class="link" href="https://mp.weixin.qq.com/s/-sYW-oa6KzTR9LNdMWCSnQ"  target="_blank" rel="noopener"
+    >用Keynote画出手绘风格的配图</a> 中找到配图风格。</p>
+<blockquote>
+<h4 id="参考">参考</h4>
+<p>[1] <a class="link" href="https://xata.io/blog/xatastor-zfs-nvme-of-for-millions-of-postgres-databases"  target="_blank" rel="noopener"
+    >Inside Xatastor: ZFS + NVMe-oF for millions of Postgres databases</a>, Xata</p>
+<p>[2] <a class="link" href="https://neon.com/blog/get-page-at-lsn"  target="_blank" rel="noopener"
+    >Deep dive into Neon storage engine</a>, Neon</p>
+<p>[3] <a class="link" href="https://www.dolthub.com/docs/architecture/storage-engine/"  target="_blank" rel="noopener"
+    >Storage Engine</a>, DoltHub</p>
+<p>[4] <a class="link" href="https://www.dolthub.com/blog/2026-06-08-how-fast-is-doltlite"  target="_blank" rel="noopener"
+    >How Fast Is DoltLite?</a>, DoltHub</p>
+<p>[5] <a class="link" href="https://arxiv.org/abs/2609.02106"  target="_blank" rel="noopener"
+    >Git4Data: Database-Native Version Control for AI Agents</a>, MatrixOrigin &amp; Purdue University</p>
+<p>[6] <a class="link" href="https://arxiv.org/abs/2604.17180"  target="_blank" rel="noopener"
+    >BranchBench: Aligning Database Branching with Agentic Demands</a>, Elaine Ang 等</p>
+</blockquote>
+<p>（完）</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/ai/">AI</a>
+        
+            <a href="/tags/agent/">Agent</a>
+        
+            <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>CC BY 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/%E4%B8%BA%E4%BB%80%E4%B9%88-claude-code-%E8%A6%81%E8%BF%99%E6%A0%B7%E8%AE%BE%E8%AE%A1/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">为什么 Claude Code 要这样设计？</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E6%80%8E%E6%A0%B7%E6%89%8D%E7%AE%97%E6%98%AF%E5%A5%BD%E7%9A%84-agent-%E8%AE%B0%E5%BF%86%E7%B3%BB%E7%BB%9F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">怎样才算是好的 Agent 记忆系统？</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/ai-agent%E9%9C%80%E8%A6%81%E4%BB%80%E4%B9%88%E6%A0%B7%E7%9A%84%E6%95%B0%E6%8D%AE%E5%BA%93/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">AI Agent需要什么样的数据库？</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E5%BF%AB%E9%80%9F%E4%BA%86%E8%A7%A3%E7%94%9F%E6%88%90%E5%BC%8Fai/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">快速了解生成式AI</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+
+    
+        
+    <script src="https://utteranc.es/client.js" 
+        repo="ruanrunxue/yrunz-comments"
+        issue-term="pathname"
+        
+        label="yrunz"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
+
+<style>
+    .utterances {
+        max-width: unset;
+    }
+</style>
+
+<script>
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
+        }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+        setUtterancesTheme(document.body.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        setUtterancesTheme(e.detail)
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2019 - 
+        
+        2026 元闰子的邀请
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.3.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>
