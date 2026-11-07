@@ -1,0 +1,38 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Install Hugo
+        run: |
+          curl -fsSL https://github.com/gohugoio/hugo/releases/download/v0.83.0/hugo_extended_0.83.0_Linux-64bit.tar.gz | tar -xz hugo
+          sudo mv hugo /usr/local/bin/hugo
+      - uses: actions/configure-pages@v5
+      - name: Build
+        run: hugo --baseURL 'https://ruanrunxue.github.io/yrunz-blog/' --destination "$RUNNER_TEMP/site"
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ${{ runner.temp }}/site
+      - uses: actions/deploy-pages@v4
+        id: deployment
