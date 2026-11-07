@@ -258,18 +258,18 @@
 <p>更详细的从单体架构演进到微服务架构的内容，参考《<a class="link" href="https://mp.weixin.qq.com/s/8oqzNuHfJVDvTXSZ9zObig"  target="_blank" rel="noopener"
     >软件架构，一切尽在权衡</a><!-- raw HTML omitted -->[4]<!-- raw HTML omitted -->》。</p>
 </blockquote>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-08-02-114321.png" alt=""  /></p>
+<p><img src="/images/recovered/2025-08-02-114321.png" alt=""  /></p>
 <p>虽然微服务架构也有缺点，比如服务间通信导致的性能下降，但人们更倾向于在平台或基础设施层去解决它们，而不是走回单体架构的路。</p>
 <p>AI 时代的应用也是如此，虽然目前 Multi-Agent 系统的失败率普遍在 60% 以上 <!-- raw HTML omitted -->[5]<!-- raw HTML omitted -->，存在 Agent 间无效通信等诸多问题，但大多人都不会怀疑从 Single-Agent 到 Multi-Agent 的演进趋势。Multi-Agent 系统下，各个 Agent 各司其职，在复杂任务的执行上对比 Single-Agent 系统有着绝对的优势。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-08-02-115329.png" alt=""  /></p>
+<p><img src="/images/recovered/2025-08-02-115329.png" alt=""  /></p>
 <p>到目前为止，从业务应用视角看，分离貌似是个必然的趋势。其背后的逻辑是，<strong>专业的人做专业的事，在各自领域做到最优，尽可能降低相互影响</strong>。</p>
 <p>然而，我们再往上来到用户交互层，又会发现明显的统一趋势。从黄页到搜索框，从复杂的图形交互界面 APP 到简单的自然语言交互 AI Agent，应用趋于将分散的交互入口汇聚成简单易用的统一入口。</p>
 <h2 id="模型视角">模型视角</h2>
 <p>从大模型的视角，我们可以看到很多统一的趋势。</p>
 <p>1、<strong>模型所支持的 token 上下文长度上限变得越来越大，过去需要分多次执行的推理请求，现在执行一次推理即可</strong>。2023 年发布的 GPT-3.5 模型最高支持 4 K 上下文长度（约 4 千个汉字），到今年发布的 Gemini 2.5 Pro 模型已经可以支持 1 M 上下文长度（约 2 百万个汉字）。现假设要为一本 1 百万字的中文书籍生成 1000 字的摘要，那么需要调用 GPT-3.5 约 161 次，生成效率低且不说，还可能会损失部分全局信息导致结果不准确；而 Gemini 2.5 Pro 只需调用  1 次即可，更高效、也更准确。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-08-02-155456.png" alt=""  /></p>
+<p><img src="/images/recovered/2025-08-02-155456.png" alt=""  /></p>
 <p>2、<strong>多模态大模型已经成为主流</strong>，今年发布的豆包 1.6、Gemini 2.5、Grok 4 等都已原生支持多模态理解能力。我们正处于多模态数据融合的时代，一个典型的例子，如今很多文章往往会融入了大量的图表、插图和视频。为了更好地整合和理解文章内容，过去可能使用文本模型 + 图像模型 + 视频模型的组合方案，现在你只需一个多模态模型即可。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-08-02-233355.png" alt=""  /></p>
+<p><img src="/images/recovered/2025-08-02-233355.png" alt=""  /></p>
 <p>3、<strong>模型趋于集成工具调用能力</strong>。我们在利用大模型执行任务时，很多情况下都需要额外的工具调用，比如通过联网搜索或向量数据库来增强输出质量、执行一段代码等。过去最常见的解决方案是借助 LangChain 这类第三方框架搭建一套工作流，模型会先根据用户输入确定要调用哪些工具，再由框架进行工具调用并将结果反馈给模型，最后模型生成答案。</p>
 <p>但这类方案需要人工进行工作流编排，对普通用户来说有一定的使用门槛；而且大模型与外部系统间必然存在中间转换的开销。因此，目前趋势更倾向于将工具调用融入到模型推理的过程中，比如 Claude 4、Kimi K2，毕竟只有模型自己才知道在推理的哪一步需要调用什么样的工具才能生成质量更高的答案。</p>
 <p><strong>长文本、多模态、工具调用，这些能力都是用户可以感知到的，无一例外都趋于 All in one 原生集成到模型中，呈统一趋势</strong>。</p>
@@ -278,40 +278,40 @@
 <p>举个例子，假设这些参数中分成数字处理、因果推理、文学创作、实体识别这四大类，现在用户询问 &ldquo;1+1=?&quot;，即使这是一个数字处理相关的问题，但其他三类参数仍会参与计算，导致算力浪费。</p>
 <p>如果模型能够提前识别输入问题的类别，并只激活相关的参数参与计算，那么就能有效减少算力了。</p>
 <p>MoE（Mixture-of-Experts）架构就是这个思路，它将不同类别的参数拆分出来成为一个个 Expert 专家，由 Gating Network（路由） 将 token 路由到对应的 Top-K 个 Expert 上进行计算，未激活的 Expert 不参与计算。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-08-03-052651.png" alt=""  /></p>
+<p><img src="/images/recovered/2025-08-03-052651.png" alt=""  /></p>
 <p>可见，模型也不是一昧的统一。</p>
 <h2 id="平台视角">平台视角</h2>
 <p>回到前文微服务的例子，服务拆分后，最简单的部署方案是把各服务部署在独立的节点上。然而，微服务的工作负载通常都是不稳定的，有波峰波谷，这种部署方案会带来资源利用率低的问题。比如在某个时间点，服务 A 正处于业务高峰期，节点资源已经用满，为保障 SLA 不得不采取限流机制；而服务 B 正处于业务空闲期，有大量的资源空闲。</p>
 <p>更好的方法（也是当前的主流方法）是将所有节点资源池化，通过全局的调度器（比如 K8S）来进行统一调度，这样就可以将原来服务 B 所在节点的资源给服务 A 使用了。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-08-03-072954.png" alt=""  /></p>
+<p><img src="/images/recovered/2025-08-03-072954.png" alt=""  /></p>
 <p>除了微服务，企业通常还会存在大数据、AI 训练和推荐等各类业务，过去，为了避免不同业务之间相互影响，它们通常会部署在不同的集群。随着资源调度和隔离技术的成熟<!-- raw HTML omitted -->[12]<!-- raw HTML omitted -->，不同业务趋于混合部署、统一调度，以追求更高的资源利用率。</p>
 <p>再来看数据系统。</p>
 <p>假设现在要对微服务所产生的数据进行分析，以支持商业决策。最简单的方案是直接读取各微服务的数据库。</p>
 <p>但这个方案有着明显的缺点：数据过于分散。随着数据量的增大，这种跨库的数据查询性能将会变得很差。更好的方法是单独设立一个关系型数据仓库（Rational Data Warehouse, RDW），将各数据库的数据同步到 RDW，由 RDW 对外提供高性能的 SQL 查询服务。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-08-03-073715.png" alt=""  /></p>
+<p><img src="/images/recovered/2025-08-03-073715.png" alt=""  /></p>
 <p>前面我们主要关注结构化的表格数据，但企业还有很多 PDF、图片、视频等非结构化数据，RDW 无法处理。为此，数据湖（Data Lake）被引入，提供非结构化数据的读写能力。</p>
 <p>到目前为止，结构化数据的写入和非结构化数据的写入是分开的，可以让它们都统一入湖 ，再从数据湖中同步数据到 RDW，这就是现代数据仓库架构（Modern Data Warehouse，MDW）。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-08-03-074557.png" alt=""  /></p>
+<p><img src="/images/recovered/2025-08-03-074557.png" alt=""  /></p>
 <p>MDW 架构下结构化数据和非结构化数据的查询是割裂的，可以在此之上构建一个统一的数据治理层，提高数据的可访问性、可发现性、安全性和可用性，这就是 Data Fabric 架构。</p>
 <p>到现在，结构化数据还需从数据湖复制到 RDW，存在两份数据副本，可以在数据湖之上构建一个能够同时支持结构化和非结构化数据的读写格式，比如 Delta Lake、Iceberg，这就是 LakeHouse 湖仓一体架构。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-08-03-075244.png" alt=""  /></p>
+<p><img src="/images/recovered/2025-08-03-075244.png" alt=""  /></p>
 <p>可见，从数据仓库到湖仓一体，数据系统着明显的统一趋势，旨在减少数据副本、为用户提供结构化和非结构化数据的统一查询服务。</p>
 <p>除了大数据系统，数据库系统也在走向统一的路线，特别是 AI 时代到来后，能够同时支持多种工作负载的一体化数据库<!-- raw HTML omitted -->[13]<!-- raw HTML omitted -->也成为了一种演进趋势。<strong>数据库虽然在功能上趋于统一，但在技术实现上却仍是分离的趋势</strong>，一体化数据库里针对 OLAP、OLTP、向量、全文检索等不同的负载，仍是采用不同类型的引擎，只是在查询层做了统一<!-- raw HTML omitted -->[14]<!-- raw HTML omitted -->。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-08-03-075703.png" alt=""  /></p>
+<p><img src="/images/recovered/2025-08-03-075703.png" alt=""  /></p>
 <p>另外，数据库也从最开始的存算一体，到存算分离，再到今年阿里云 PloarDB 的计算、内存、存储三层解耦<!-- raw HTML omitted -->[15]<!-- raw HTML omitted -->，通过分离架构实现极致的资源利用率和可扩展性。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-08-03-080822.png" alt=""  /></p>
+<p><img src="/images/recovered/2025-08-03-080822.png" alt=""  /></p>
 <h2 id="基础设施视角">基础设施视角</h2>
 <p>在最初的冯诺依曼体系架构中，包含控制器和运算器的中央处理器，即 CPU，被设计成能够处理所有业务负载的通用计算芯片。经过多年的优化，CPU 在分支预测、指令乱序执行等流程上都已经过了深度优化，非常善于执行复杂的计算任务。</p>
 <p>然而，并非所有的业务都需要复杂的计算，比如图形渲染和矩阵运算，它们都由大量的简单计算任务组成，所需的是强大的并行计算能力，这促使了专用加速芯片 GPU、NPU、TPU 的诞生。类似的，还有专门针对 IO 密集型负载的 DPU 加速芯片。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-08-03-083921.png" alt=""  /></p>
+<p><img src="/images/recovered/2025-08-03-083921.png" alt=""  /></p>
 <p>这意味着，基础设施趋于用专门的硬件去应对不同的应用负载，与前面提到的数据引擎类似，走的是分离的路线。</p>
 <p>如《<a class="link" href="https://mp.weixin.qq.com/s/fXUrTWIlcsG-a-uld9LNEA"  target="_blank" rel="noopener"
     >为什么CPU不能有更多的核？</a> 》里所提到的，基于功耗、散热等多方面的考虑，单个芯片的核数（算力）不能无限增加，这也同样适用于单服务器。当业务所需算力超过单机算力时，最常见的做法是通过 TCP/IP 网络将各个服务器连接起来，形成一个分布式的系统。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-08-03-084727.png" alt=""  /></p>
+<p><img src="/images/recovered/2025-08-03-084727.png" alt=""  /></p>
 <p>但 TCP/IP 网络传输，就意味着数据需要经过多层协议栈解析，而且网络带宽通常都在 100 GB/s 以下。随着 AI 时代的到来，面对计算密集型的 AI 负载，通信往往会成为主要瓶颈。</p>
 <p>于是，类似 NVLink 这种支持 GPU 点对点通信的高速互联协议被推出，到 NVLink 5.0 代际，单 GPU 已可支持 18 个 NVLink 连接，总带宽可达 1.8 TB/s，极大改善了通信瓶颈。</p>
 <p>而 CXL 协议（Compute Express Link）则更近一步，它支持远端 Load/Store 内存语义通信，允许程序像访问本地内存一样访问远端节点内存，让真正意义上的超节点成为可能。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-08-03-085436.png" alt=""  /></p>
+<p><img src="/images/recovered/2025-08-03-085436.png" alt=""  /></p>
 <p>所以，基础设施也趋于让各类异构算力互联更高效，形成一个超节点对外提供服务，是典型的统一路线。</p>
 <h2 id="分离还是统一">分离还是统一？</h2>
 <p>如前文分析，从业务、模型、平台、基础设施几个视角上看，整个系统既有分离趋势，也有统一趋势。</p>

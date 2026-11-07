@@ -247,19 +247,19 @@
 </blockquote>
 <p>简单来说，就是<strong>适配器模式让原本因为接口不匹配而无法一起工作的两个类/结构体能够一起工作</strong>。</p>
 <p>适配器模式所做的就是<strong>将一个接口 <code>Adaptee</code>，通过适配器 <code>Adapter</code> 转换成 Client 所期望的另一个接口 <code>Target</code> 来使用</strong>，实现原理也很简单，就是 <code>Adapter</code> 通过实现 <code>Target</code> 接口，并在对应的方法中调用 <code>Adaptee</code> 的接口实现。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-11-29-235329.png" alt=""  /></p>
+<p><img src="/images/recovered/2023-11-29-235329.png" alt=""  /></p>
 <h2 id="uml-结构">UML 结构</h2>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-12-02-022240.png" alt=""  /></p>
+<p><img src="/images/recovered/2023-12-02-022240.png" alt=""  /></p>
 <h2 id="场景上下文">场景上下文</h2>
 <p>在 <a class="link" href="https://github.com/ruanrunxue/Practice-Design-Pattern--Go-Implementation/blob/main/docs/go_ractice_design_pattern__solid_principle.md"  target="_blank" rel="noopener"
     >简单的分布式应用系统</a>（示例代码工程）中，db 模块用来存储服务注册信息和系统监控数据，它是一个 key-value 数据库。在 <a class="link" href="https://mp.weixin.qq.com/s/0qAIhbh4g_9Cde5tR2x24A"  target="_blank" rel="noopener"
     >访问者模式</a> 中，我们为它实现了 Table 的按列查询功能；同时，我们也为它实现了简单的 SQL 查询功能（将会在 <strong>解释器模式</strong> 中介绍），查询的结果是 <code>SqlResult</code> 结构体，它提供一个 <code>toMap</code> 方法将结果转换成 <code>map</code> 。</p>
 <p>为了方便用户使用，我们将实现在终端控制台上提供人机交互的能力，如下所示，用户输入 SQL 语句，后台返回查询结果：</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-12-03-023656.png" alt=""  /></p>
+<p><img src="/images/recovered/2023-12-03-023656.png" alt=""  /></p>
 <p>终端控制台的具体实现为 <code>Console</code>，为了提供可扩展的查询结果显示样式，我们设计了 <code>ConsoleRender</code> 接口，但因 <code>SqlResult</code> 并未实现该接口，所以 <code>Console</code> 无法直接渲染 <code>SqlResult</code> 的查询结果。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-12-03-154134.png" alt=""  /></p>
+<p><img src="/images/recovered/2023-12-03-154134.png" alt=""  /></p>
 <p>为此，我们需要实现一个适配器，让 <code>Console</code> 能够通过适配器将 <code>SqlResult</code> 的查询结果渲染出来。示例中，我们设计了适配器 <code>TableRender</code>，它实现了 <code>ConsoleRender</code> 接口，并以表格的形式渲染出查询结果，如前文所示。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-12-03-155326.png" alt=""  /></p>
+<p><img src="/images/recovered/2023-12-03-155326.png" alt=""  /></p>
 <h2 id="代码实现">代码实现</h2>
 <div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// demo/db/sql.go
 </span><span class="c1"></span><span class="kn">package</span> <span class="nx">db</span>

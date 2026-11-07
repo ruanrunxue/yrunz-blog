@@ -284,7 +284,7 @@ $$</p>
 <p>导致软件复杂的原因可以细分出很多种来，而概括起来莫过于两种：<em>依赖（dependencies）</em> 和 <em>隐晦（obscurity）</em>。前者会让修改起来很费劲而且容易出现bug，比如当修改<code>模块1</code>时，往往也涉及到<code>模块2</code>、<code>模块3</code>、<code>...</code> 的改动；后者会让软件难以理解，定位一个bug，甚至是仅仅读懂一段代码都需要花费大量的时间。</p>
 <p>软件的复杂性往往伴随着如下几种症状：</p>
 <p><strong>霰弹式修改（Change amplification）</strong>。当只需要修改一个功能，但又不得不对许多模块作出改动时，我们称之为霰弹式修改。这通常是因为模块之间耦合过重，相互依赖太多导致的。 比如，有一组Web页面，每个页面都是一个HTML文件，每个HTML都有一个<code>背景</code>属性。由于各个HTML的<code>背景</code>属性都是分开定义的，因此如果需要把背景颜色从橙色修改为蓝色时，就需要改动所有的HTML文件。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-11-132417.png" alt="霰弹式修改的典型例子"  /></p>
+<p><img src="/images/recovered/2023-10-11-132417.png" alt="霰弹式修改的典型例子"  /></p>
 <p><strong>认知负担（Cognitive load）</strong>。当我们说一个模块隐晦、难以理解时，它就有过重的认知负担，这种情况下往往需要读者花费大量时间才能明白该模块的功能。比如，提供一个不带任何注释的<code>calculate</code>接口，它有2个<code>int</code>类型的入参和一个<code>int</code>类型的返回值。从该函数的签名上看，调用者根本无法得知函数的功能是什么，他只能通过花时间去阅读源码来确定函数功能后才敢去调用该函数。</p>
 <div class="highlight"><pre class="chroma"><code class="language-Java" data-lang="Java"><span class="kt">int</span> <span class="nf">calculate</span><span class="o">(</span><span class="kt">int</span> <span class="n">val1</span><span class="o">,</span> <span class="kt">int</span> <span class="n">val2</span><span class="o">);</span>
 </code></pre></div><p><strong>不确定性（Unknown unknowns）</strong>。相比于前两种症状，不确定性的破坏性更大，它通常指一些在开发需求时，你必须注意的，但是又无从得知的点。它常常是因为一些隐晦的依赖导致的，会让你在开发完一个需求之后感觉心里很没谱，隐约觉得自己的代码哪里有问题，但又不清楚问题在哪，只能祈祷在测试阶段能够暴露而不要漏洞商用阶段。</p>
@@ -292,10 +292,10 @@ $$</p>
 <h3 id="对-战术编程-say-no">对 “战术编程” Say No！</h3>
 <p>很多程序员在进行特性开发或bug修复时，关注点往往是如何简单快速让程序跑起来，这就是典型的<em>战术编程</em>（Tactical programming）方法，它追求的是<strong>短期的效益</strong>——节省开发时间。战术编程最普遍的体现就是在编码之前没有进行模块设计，想到哪里就写到哪里。战术编程在系统前期可能会比较方便，一旦系统庞大起来、模块之间的耦合变重之后，添加或修改功能、修复bug都会变得寸步难行。随着系统变得越来越复杂，最后不得不对系统进行重构甚至重写。</p>
 <p>与战术编程相对的就是<em>战略编程</em>（Strategic programming），它追求的是<strong>长期的效益</strong>——增加系统可维护性。仅仅是让程序跑起来还不足以满足，还需要考虑程序的可维护性，让后续在添加或修改功能、修复bug时都能够快速响应。因为考虑的点比较多，也就注定战略编程需要花费一定的时间去进行模块设计，但相比于战术编程后期导致的问题，这一点时间也是完全值得的。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-11-132247.png" alt="战术编程 VS 战略编程"  /></p>
+<p><img src="/images/recovered/2023-10-11-132247.png" alt="战术编程 VS 战略编程"  /></p>
 <h3 id="让模块更深一点">让模块更“深”一点！</h3>
 <p>一个模块由接口（interface）和实现（implementation）两部分组成，如果把一个模块比喻成一个矩形，那么接口就是矩形顶部的边，而实现就是矩形的面积（也可以把实现看成是模块提供的功能）。当一个模块提供的功能一定时，<em>深模块</em>（Deep module）的特点就是矩形顶部的边比较短，整体形状高瘦，也即接口比较简单；<em>浅模块</em>（Shallow module）的特点就是矩形顶部的边比较长，整体形状矮胖，也即接口比较复杂。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-11-132541.png" alt="深模块 VS 浅模块"  /></p>
+<p><img src="/images/recovered/2023-10-11-132541.png" alt="深模块 VS 浅模块"  /></p>
 <p>模块的使用者往往只看到接口，模块越深，模块暴露给调用者的信息就越少，调用者与该模块的耦合性也就越低。因此，把<strong>模块设计得更“深”一点</strong>，有助于降低系统的复杂性。</p>
 <p><em>那么，怎样才能设计出一个深模块呢？</em></p>
 <ul>
@@ -327,14 +327,14 @@ $$</p>
 <table>
 <thead>
 <tr>
-<th><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-11-132636.png" alt="Web三层架构"  /></th>
-<th><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-11-132703.png" alt="DDD四层架构"  /></th>
+<th><img src="/images/recovered/2023-10-11-132636.png" alt="Web三层架构"  /></th>
+<th><img src="/images/recovered/2023-10-11-132703.png" alt="DDD四层架构"  /></th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-11-132742.png" alt="六边形架构"  /></td>
-<td><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-11-132807.png" alt="Clean Architecture"  /></td>
+<td><img src="/images/recovered/2023-10-11-132742.png" alt="六边形架构"  /></td>
+<td><img src="/images/recovered/2023-10-11-132807.png" alt="Clean Architecture"  /></td>
 </tr>
 </tbody>
 </table>

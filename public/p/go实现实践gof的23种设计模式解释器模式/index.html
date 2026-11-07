@@ -248,9 +248,9 @@
 <p>从定义可以看出，解释器模式主要运用于<strong>简单的语法解析</strong>场景，比如简单的领域特定语言（DSL）。举个例子，我们可以使用解析器模式来对“1+2+3-4+1”这样的文本表达式完成解析，并得到最终答案“3”。</p>
 <p><strong>解释器模式的整体思想是分而治之</strong>，每一个语法规则都使用一个类或者结构体（我们称之为 Rule Struct）来定义，它们相互独立，比如前一个例子中，“+” 和 “-” 都各自定义为一个 Rule Struct。因此，解释器模式的可扩展性很好。</p>
 <p>通常，我们还能使用<strong>抽象语法树</strong>（Abstract Syntax Tree，AST）来直观地表示待解释的表达式，比如“1+2+3-4+1”可以表示成这样：</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-03-18-001951.png" alt=""  /></p>
+<p><img src="/images/recovered/2024-03-18-001951.png" alt=""  /></p>
 <h2 id="uml-结构">UML 结构</h2>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-03-17-234132.png" alt=""  /></p>
+<p><img src="/images/recovered/2024-03-17-234132.png" alt=""  /></p>
 <p>解释器模式通常有 4 种角色：</p>
 <ul>
 <li><strong>Context</strong>：解释上下文，包含了解释语法需要的所有信息，它是的生命周期贯穿整个解释过程，是一个全局对象。</li>
@@ -261,9 +261,9 @@
 <h2 id="场景上下文">场景上下文</h2>
 <p>在 <a class="link" href="https://github.com/ruanrunxue/Practice-Design-Pattern--Go-Implementation/blob/main/docs/go_ractice_design_pattern__solid_principle.md"  target="_blank" rel="noopener"
     >简单的分布式应用系统</a>（示例代码工程）中，db 模块用来存储服务注册信息和系统监控数据，它是一个 key-value 数据库。为了更高的易用性，它支持简单的 SQL 查询功能。用户在终端控制台上可以通过 SQL 语句来查询数据库中的数据：</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-12-03-023656.png" alt=""  /></p>
+<p><img src="/images/recovered/2023-12-03-023656.png" alt=""  /></p>
 <p>简单起见，我们实现的 SQL 固定为 <code>select xxx,xxx,xxx from xxx where xxx=xxx;</code>  的形式，为此，我们要实现 3 个 TerminalExpression，即 <code>SelectExpression</code>、<code>FromExpression</code> 和 <code>WhereExpression</code>，分别解释 select 语句、from 语句、where 语句；以及 1 个 NonterminalExpression，即 <code>CompoundExpression</code>，用来解释整个 SQL 语句。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-03-18-234152.png" alt=""  /></p>
+<p><img src="/images/recovered/2024-03-18-234152.png" alt=""  /></p>
 <h2 id="代码实现">代码实现</h2>
 <div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// demo/db/sql.go
 </span><span class="c1"></span><span class="kn">package</span> <span class="nx">db</span>

@@ -258,12 +258,12 @@
 <li><strong>Caretaker</strong>（负责人）：负责对备忘录的保存和恢复，无须知道备忘录中的实现细节。</li>
 </ul>
 <h2 id="uml-结构">UML 结构</h2>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-11-22-232135.png" alt=""  /></p>
+<p><img src="/images/recovered/2023-11-22-232135.png" alt=""  /></p>
 <h2 id="场景上下文">场景上下文</h2>
 <p>在前文 <a class="link" href="https://mp.weixin.qq.com/s/p5ZMohLxt3Niy8VtJH_1_A"  target="_blank" rel="noopener"
     >【Go实现】实践GoF的23种设计模式：命令模式</a> 我们提到，在 <a class="link" href="https://github.com/ruanrunxue/Practice-Design-Pattern--Go-Implementation/blob/main/docs/go_ractice_design_pattern__solid_principle.md"  target="_blank" rel="noopener"
     >简单的分布式应用系统</a>（示例代码工程）中，db 模块用来存储服务注册信息和系统监控数据。其中，服务注册信息拆成了 <code>profiles</code> 和 <code>regions</code> 两个表，在服务发现的业务逻辑中，通常需要同时操作两个表，为了避免两个表数据不一致的问题，<strong>db 模块需要提供事务功能</strong>:</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-11-22-233012.png" alt=""  /></p>
+<p><img src="/images/recovered/2023-11-22-233012.png" alt=""  /></p>
 <p>事务的核心功能之一是，<strong>当其中某个语句执行失败时，之前已执行成功的语句能够回滚</strong>，前文我们已经介绍如何基于 <a class="link" href="https://mp.weixin.qq.com/s/p5ZMohLxt3Niy8VtJH_1_A"  target="_blank" rel="noopener"
     >命令模式</a> 搭建事务框架，下面我们将重点介绍，如何基于备忘录模式实现失败回滚的功能。</p>
 <h2 id="代码实现">代码实现</h2>

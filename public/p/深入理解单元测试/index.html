@@ -236,22 +236,22 @@
     <h2 id="荐语">荐语</h2>
 <p>本文要介绍的是 2020 年 O&rsquo;Reilly 出版的书籍 <a class="link" href="https://learning.oreilly.com/library/view/unit-testing-principles/9781617296277/"  target="_blank" rel="noopener"
     >Unit Testing Principles, Practices, and Patterns</a>，一本在豆瓣评分高达 9.9 的好书。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-08-06-152243.png" alt=""  /></p>
+<p><img src="/images/recovered/2024-08-06-152243.png" alt=""  /></p>
 <p>作为一名软件开发工程师，你应该对单元测试（<em>unit test</em>）很熟悉，但单元测试的目的、Mock 的正确用法、单元测试和集成测试的区别等等，你<strong>真的懂吗</strong>？书中对这些内容都做了深入的介绍，并通过实际案例教你如何写出好的单元测试。<strong>读完这本书，你一定会有醍醐灌顶的感觉，原来单元测试要这么写</strong>！</p>
 <p>书中的另一个重要观点认为，<strong>单元测试和代码架构是息息相关的，写不出好的单元测试，极有可能是代码架构设计得不好</strong>。为了写出好的单元测试，需要不断对代码架构的优化，它们相辅相成，从而让软件能够持续演进。</p>
 <h2 id="为什么要写单元测试">为什么要写单元测试？</h2>
 <h3 id="单元测试的目的">单元测试的目的</h3>
 <p>如今，在软件开发活动中，单元测试已经成为企业级软件不可或缺的一环，是代码门禁的必选项。</p>
 <p>如果突然有人问你，“<em>为什么要写单元测试</em>？”，你很容易会想到这样的答案，1）为了找到代码中已有的 Bug；2）为了防止引入新的 Bug；3）让代码架构变得更好；甚至是 4）满足代码门禁中覆盖率的要求。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-08-10-123937.png" alt=""  /></p>
+<p><img src="/images/recovered/2024-08-10-123937.png" alt=""  /></p>
 <p>但这些都不是我们写单元测试的根本目的，它们只是“写单元测试”这一活动所带来的<strong>副产品</strong>。</p>
 <p>书中认为，<strong>单元测试的目的是实现软件项目的可持续增长</strong>。</p>
 <p>企业级软件应用通常都有着<strong>业务逻辑复杂度高和生命周期长</strong>的特点。随着产品的不断迭代，代码会变得越来越复杂乱，每次修改代码也会变得越来越难，这就是软件的熵增定律。而<strong>单元测试的目的就是降低熵增的加速度，使得重构代码或新增功能变得更加的容易</strong>。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-08-10-132322.png" alt=""  /></p>
+<p><img src="/images/recovered/2024-08-10-132322.png" alt=""  /></p>
 <h3 id="单元测试也分好坏">单元测试也分好坏</h3>
 <p><em><strong>代码并非资产，而是一种负债，单元测试代码也是如此</strong></em>。</p>
 <p>然而，我们往往会将生产代码和测试代码区分对待，忽略了对测试代码的维护，久而久之，测试代码变得冗余、复杂，甚至出现误报的情况。这样的单元测试，只会让系统的演进更加难。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-08-10-141649.png" alt=""  /></p>
+<p><img src="/images/recovered/2024-08-10-141649.png" alt=""  /></p>
 <p>如何评判单元测试的好坏？最常用的方法是代码覆盖率，也即测试用例执行了多少源代码。其中，又可分为<strong>行覆盖率</strong>和<strong>分支覆盖率</strong>。</p>
 <p><strong>行覆盖率计算执行了多少代码行</strong>，比如下面的例子，<code>return true</code> 的代码行无法覆盖，因此代码行覆盖率为 <code>4/5=80%</code>：</p>
 <div class="highlight"><pre class="chroma"><code class="language-c#" data-lang="c#"><span class="c1">// C#
@@ -281,7 +281,7 @@
     <span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="k">false</span><span class="p">,</span> <span class="n">result</span><span class="p">);</span>
 <span class="p">}</span>
 </code></pre></div><p>分支覆盖率情况会好一些，<code>IsStringLong</code>  重构前后的分支覆盖率都是 <code>1/2=50%</code>：</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-08-10-150259.png" alt=""  /></p>
+<p><img src="/images/recovered/2024-08-10-150259.png" alt=""  /></p>
 <p>但是，如果代码中涉及调用第三方库的代码，分支覆盖率也无法反映真实的情况：</p>
 <div class="highlight"><pre class="chroma"><code class="language-c#" data-lang="c#"><span class="k">public</span> <span class="k">static</span> <span class="kt">int</span> <span class="n">Parse</span><span class="p">(</span><span class="kt">string</span> <span class="n">input</span><span class="p">)</span>
 <span class="p">{</span>
@@ -296,7 +296,7 @@
 <span class="p">}</span>
 
 </code></pre></div><p>上述例子中，看似分支覆盖率也 <code>100%</code> 了，但 <code>int.Parse</code> 方法的实现并未考虑到：</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-08-10-151709.png" alt=""  /></p>
+<p><img src="/images/recovered/2024-08-10-151709.png" alt=""  /></p>
 <p>另外，一些代码并未包含核心的业务逻辑，比如枚举类的声明，专门写单元测试来覆盖它们，除了得到更高的代码覆盖率之外，实际并不会带来价值。</p>
 <div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">// C#
 </span><span class="c1">// 稳定、不包含业务逻辑
@@ -317,7 +317,7 @@
 <h2 id="什么是单元测试">什么是单元测试</h2>
 <h3 id="测试金字塔">测试金字塔</h3>
 <p>如果有人问你，“什么是单元测试？”，你可能会想到测试金字塔：</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-08-10-115644.png" alt=""  /></p>
+<p><img src="/images/recovered/2024-08-10-115644.png" alt=""  /></p>
 <p>测试金字塔从下往上分别是单元测试、集成测试和端到端测试，<strong>单元测试通常是面向类或方法级别的测试方法</strong>；集成测试则面向服务或模块级别；端到端测试是从最终用户的角度进行测试，测试对象为整个系统。</p>
 <p>在一个设计良好的系统中，<strong>这三类测试的占比就像它们在金字塔中的面积，越往下越高；测试执行速度越往下越快</strong>。</p>
 <p>测试金字塔所表达的意思是，单元测试的执行效率更高，因此我们应依靠大量的单元测试、辅助以少量的集成测试和端到端测试，来保证系统的功能正确。</p>
@@ -325,7 +325,7 @@
 <h3 id="单元测试中的依赖和测试替身">单元测试中的依赖和测试替身</h3>
 <p>在给单元测试下定义之前，先介绍单元测试中的依赖，它是区分不同学派的单元测试，以及测试金字塔中不同测试类别的关键。</p>
 <p><strong>书中将单元测试的依赖分成两类，共享依赖和私有依赖，其中私有依赖又可分为可变依赖和不可变依赖</strong>。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-08-11-003313.png" alt=""  /></p>
+<p><img src="/images/recovered/2024-08-11-003313.png" alt=""  /></p>
 <ul>
 <li>共享依赖指测试之间共享的依赖项，比如可变的静态全局变量（进程内）和数据库（进程外）。</li>
 <li>私有依赖则是非共享的依赖项：
@@ -335,10 +335,10 @@
 </ul>
 </li>
 </ul>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-08-11-010653.png" alt=""  /></p>
+<p><img src="/images/recovered/2024-08-11-010653.png" alt=""  /></p>
 <p>写单元测试的过程中，总会存在某些依赖项无法在测试环境中集成，这时须要使用测试替身（<em>test double</em>）进行替换。</p>
 <p><strong>测试替身是一个看起来跟实际依赖对象行为一致、实际是简化版实现的对象</strong>，有助于提升单元测试的可测试性。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-08-11-012008.png" alt=""  /></p>
+<p><img src="/images/recovered/2024-08-11-012008.png" alt=""  /></p>
 <p>我们常用到的 Mock 属于测试替身的一种，能够用于校验被测对象和依赖项之间的交互行为。</p>
 <h3 id="单元测试的定义">单元测试的定义</h3>
 <p>单元测试的定义很多，提取关键点可总结出这样的定义，单元测试是<strong>一种自动化测试方法</strong>，它具备如下特点：</p>
@@ -349,7 +349,7 @@
 </ol>
 <h3 id="经典学派和伦敦学派之争">经典学派和伦敦学派之争</h3>
 <p>上述的定义延伸出两种学派的单元测试，<strong>经典学派</strong>（<em>Classical School</em>）和<strong>伦敦学派</strong>（<em>London School</em>）。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-08-11-020837.png" alt=""  /></p>
+<p><img src="/images/recovered/2024-08-11-020837.png" alt=""  /></p>
 <p>它们分歧点主要在定义的第 1 点和第 3 点，以及选择使用测试替身的时机：</p>
 <table>
 <thead>
@@ -375,7 +375,7 @@
 </tr>
 </tbody>
 </table>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-08-11-045535.png" alt=""  /></p>
+<p><img src="/images/recovered/2024-08-11-045535.png" alt=""  /></p>
 <p>支持伦敦学派的人通常持有如下<strong>观点</strong>：</p>
 <ul>
 <li>观点一：伦敦学派拥有更细的测试粒度，一个用例只测试一个类，符合单一职责原则。</li>
@@ -417,7 +417,7 @@
 <li>测试用例需要访问共享数据库，因此无法与其他用例隔离开。</li>
 </ul>
 <p>端到端测试（<em>end-to-end tests</em>）属于集成测试的子集。它们的区别是，集成测试会使用测试替身来替代部分依赖，比如远程 API 服务；而端到端测试则不会，因此结果也更可靠。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-08-11-045956.png" alt=""  /></p>
+<p><img src="/images/recovered/2024-08-11-045956.png" alt=""  /></p>
 <h2 id="单元测试的结构">单元测试的结构</h2>
 <p>前面提到，<strong>好的单元测试应该要以最低的维护成本提供最大的价值</strong>。要降低维护成本，就要为它设计出好的代码结构。</p>
 <h3 id="用例的命名">用例的命名</h3>
@@ -657,7 +657,7 @@
 <li><strong>复杂的代码</strong>。代码越复杂，出现 Bug 的概率越大。</li>
 <li><strong>关键业务代码</strong>。关键业务代码一旦出现 Bug，影响通常会很大，理应花更多的精力进行测试。</li>
 </ul>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-09-08-091246.png" alt=""  /></p>
+<p><img src="/images/recovered/2024-09-08-091246.png" alt=""  /></p>
 <h3 id="标准二避免误报">标准二：避免误报</h3>
 <p>好的单元测试应该尽量避免 Bug 误报。</p>
 <p>随着软件的不断演进，代码重构不可避免。重构就是在<strong>不改变可观测行为</strong>的基础上，对代码的实现进行修改，以降低它的复杂性。修改代码，就意味着可能引入 Bug，而单元测试作为防护网，能够有效阻止 Bug 的发生。</p>
@@ -757,10 +757,10 @@
     <span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="s">&#34;&lt;h1&gt;h&lt;/h1&gt;&lt;b&gt;b&lt;/b&gt;&lt;i&gt;f&lt;/i&gt;&#34;</span><span class="p">,</span> <span class="n">html</span><span class="p">);</span>
 <span class="p">}</span>
 </code></pre></div><p>所以，<strong>防止误报的最有效做法是，针对可观测行为进行测试</strong>！</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-08-11-130401.png" alt=""  /></p>
+<p><img src="/images/recovered/2024-08-11-130401.png" alt=""  /></p>
 <h3 id="漏报和误报的关系">漏报和误报的关系</h3>
 <p>把测试是否成功与功能是否正常放在一起，可得出如下表格：</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-08-11-140546.png" alt=""  /></p>
+<p><img src="/images/recovered/2024-08-11-140546.png" alt=""  /></p>
 <ul>
 <li><em>真阴性</em>。功能正常，且测试成功。正常情况下，单元测试都应该处于该情况。</li>
 <li><em>真阳性</em>。功能异常，且测试失败。这是单元测试存在的意义，当功能异常时，测试能够执行失败，以作提示。</li>
@@ -779,7 +779,7 @@
 </ul>
 <h3 id="理想的单元测试">理想的单元测试</h3>
 <p>能同时做到上述四点的即为理想的单元测试。然而，现实中却不存在这样的单元测试，除可维护性特征之外，<strong>其他三个特征会有所冲突，三者只能取其二，有点像 CAP 理论</strong>。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-08-13-171350.png" alt=""  /></p>
+<p><img src="/images/recovered/2024-08-13-171350.png" alt=""  /></p>
 <ul>
 <li>
 <p>端到端测试能够同时做到避免误报和避免漏报，但无法做到快速反馈。</p>
@@ -817,13 +817,13 @@
 </ul>
 <p>既然无法同时完美做到这四个标准，那么只能退而求其次，<strong>做权衡</strong>。</p>
 <p>通常来说，可维护性相对独立，通过组织良好的测试结构，能够达到很好的可维护性；而<strong>避免误报、消除测试的脆弱性，是构建测试系统/套件首要任务</strong>。因此，我们通常会<strong>在避免漏报和快速反馈之间做权衡</strong>：</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-08-13-171903.png" alt=""  /></p>
+<p><img src="/images/recovered/2024-08-13-171903.png" alt=""  /></p>
 <p>避免漏报和快速反馈之间的权衡，也可以对应到测试金字塔中各类测试的选择，端到端测试能避免漏报，单元测试能快速反馈，而集成测试则是折中选择：</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-08-14-142936.png" alt=""  /></p>
+<p><img src="/images/recovered/2024-08-14-142936.png" alt=""  /></p>
 <h2 id="mock-的正确用法">mock 的正确用法</h2>
 <h3 id="测试替身的分类">测试替身的分类</h3>
 <p>前文提到，mock 是测试替身（test double）的一种，剩余的还有 spy 、stub、dummy 和 fake。实际上，它们又可以归成两类，Mock 和 Stub。其中 mock 和 spy 属于前者，dummy、stub 和 fake 属于后者。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-08-17-081602.png" alt=""  /></p>
+<p><img src="/images/recovered/2024-08-17-081602.png" alt=""  /></p>
 <ul>
 <li>
 <p><strong>Mock 是针对被测系统外发（outcoming）、有副作用的交互进行模拟和校验</strong>，如调用 SMPT 服务进行邮件发送。mock 和 spy 的主要区别在于，前者的替换对象是通过 mock 框架自动生成；而后者则是手动编写而成。</p>
@@ -871,11 +871,11 @@
 <span class="p">}</span>
 </code></pre></div></li>
 </ul>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-09-08-072611.png" alt=""  /></p>
+<p><img src="/images/recovered/2024-09-08-072611.png" alt=""  /></p>
 <h3 id="可观测行为与实现细节">可观测行为与实现细节</h3>
 <p>书中把系统的可观测行为定义为<strong>能够帮助客户端达成其目标的方法或状态</strong>，不满足这个定义的，都是实现细节。我们很容易将 public API 和可观测行为划上等号，但它们并不完全一样。</p>
 <p>在理想的情况下，public API 与可观测行为一致，实现细节都被包含在 private API 中。但大多数人在系统设计时，都会把部分实现细节泄露到 public API 里。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-09-08-074328.png" alt=""  /></p>
+<p><img src="/images/recovered/2024-09-08-074328.png" alt=""  /></p>
 <p>比如，在下面的例子中，客户端主要使用 <code>UserController.RenameUser</code> 方法，用于给用户执行重命名操作：</p>
 <div class="highlight"><pre class="chroma"><code class="language-c#" data-lang="c#"><span class="c1">// C#
 </span><span class="c1"></span><span class="k">public</span> <span class="k">class</span> <span class="nc">User</span>
@@ -936,12 +936,12 @@
         <span class="n">SaveUserToDatabase</span><span class="p">(</span><span class="n">user</span><span class="p">);</span>
     <span class="p">}</span>
 <span class="p">}</span>
-</code></pre></div><p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-09-08-074444.png" alt=""  /></p>
+</code></pre></div><p><img src="/images/recovered/2024-09-08-074444.png" alt=""  /></p>
 <p>理解可观测行为和实现细节的另一个途径是通过<strong>六边形架构</strong>（Hexagonal Architecture），它是领域驱动设计中推荐的架构，分成领域层和应用层，其中<strong>领域层实现业务逻辑</strong>，<strong>应用层负责与外部交互</strong>（比如消息总线、数据库等）。那么，在领域层内部的交互为实现细节，应用层与外部的交互为可观测行为。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-09-08-075744.png" alt=""  /></p>
+<p><img src="/images/recovered/2024-09-08-075744.png" alt=""  /></p>
 <h3 id="mock-可观测行为">mock 可观测行为</h3>
 <p>从前文可知，针对实现细节进行测试往往会导致测试套变得脆弱，这对 mock 同样适用，<strong>mock 的对象应该只有可观测行为</strong>，而非实现细节。所以，<strong>不要尝试寻找对 private API 进行 mock 的方法</strong>！</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-09-08-080011.png" alt=""  /></p>
+<p><img src="/images/recovered/2024-09-08-080011.png" alt=""  /></p>
 <p>当我们回头再次审视单元测试的伦敦学派和经典学派之争时，经典学派应当是获胜的一方。主要的原因是，<strong>伦敦学派鼓励在不可变依赖之外的所有依赖项都使用 mock，而不区分可观察行为和实现细节，这会导致单元测试变得脆弱</strong>！</p>
 <h2 id="单元测试的三种风格">单元测试的三种风格</h2>
 <p>现在，我们从另一个维度来审视单元测试的分类，<strong>基于输出的测试</strong>（output-based testing）、<strong>基于状态的测试</strong>（state-based testing）、<strong>基于通信的测试</strong>（communication-based testing）。</p>
@@ -969,7 +969,7 @@
 
     <span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="m">0.02</span><span class="n">m</span><span class="p">,</span> <span class="n">discount</span><span class="p">);</span>
 <span class="p">}</span>
-</code></pre></div><p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-09-08-081020.png" alt=""  /></p>
+</code></pre></div><p><img src="/images/recovered/2024-09-08-081020.png" alt=""  /></p>
 </li>
 <li>
 <p>基于状态的测试，需要校验系统状态，包含 SUT 本身及其依赖项的状态，比如下面的例子中：</p>
@@ -996,7 +996,7 @@
     <span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="m">1</span><span class="p">,</span> <span class="n">sut</span><span class="p">.</span><span class="n">Products</span><span class="p">.</span><span class="n">Count</span><span class="p">);</span>
     <span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="n">product</span><span class="p">,</span> <span class="n">sut</span><span class="p">.</span><span class="n">Products</span><span class="p">[</span><span class="m">0</span><span class="p">]);</span>
 <span class="p">}</span>
-</code></pre></div><p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-09-08-081512.png" alt=""  /></p>
+</code></pre></div><p><img src="/images/recovered/2024-09-08-081512.png" alt=""  /></p>
 </li>
 <li>
 <p>基于交互的测试，则校验 SUT 与依赖对象的交互行为，其中依赖对象通常会被 mock 替代，比如下面的例子：</p>
@@ -1012,7 +1012,7 @@
         <span class="n">x</span> <span class="p">=&gt;</span> <span class="n">x</span><span class="p">.</span><span class="n">SendGreetingsEmail</span><span class="p">(</span><span class="s">&#34;user@email.com&#34;</span><span class="p">),</span>
         <span class="n">Times</span><span class="p">.</span><span class="n">Once</span><span class="p">);</span>
 <span class="p">}</span>
-</code></pre></div><p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-09-08-082109.png" alt=""  /></p>
+</code></pre></div><p><img src="/images/recovered/2024-09-08-082109.png" alt=""  /></p>
 </li>
 </ul>
 <p>下面，我们使用前文提到的四个标准来评判这三类风格的单元测试：</p>
@@ -1022,15 +1022,15 @@
 <li>快速反馈。只要没有进程外的依赖对象，三种风格的测试都能做到很快。</li>
 <li>可维护性。基于输出的测试只依赖 SUT 本身，可维护性最好，其他两者相当。</li>
 </ul>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-09-08-083026.png" alt=""  /></p>
+<p><img src="/images/recovered/2024-09-08-083026.png" alt=""  /></p>
 <p>所以，我们应当<strong>尽可能地使用基于输出的测试风格来编写单元测试</strong>，但它的适用场景决定了这很不容易，我们可以把系统设计成<strong>函数式架构</strong>（Functional Architecture）来达到这个目的。</p>
 <p>函数式架构与六边形架构类似，也分成两层，<strong>Functional Core 层</strong>和 <strong>Mutable Shell 层</strong>。Functional Core 层使用函数式编程风格来编写业务逻辑，核心是数据的不变性，根据系统输入，计算得出结果，无其他副作用；Mutable Shell 层一方面负责给 Functional Core 层输入，一方面负责将 Functional Core 层的输出转换成副作用，比如系统状态变更。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-09-08-083509.png" alt=""  /></p>
+<p><img src="/images/recovered/2024-09-08-083509.png" alt=""  /></p>
 <p>函数式架构下，我们应该<strong>尽可能地增加 Functional Core 层的代码，而减少 Mutable Shell 层的代码</strong>。书中通过一个实际例子，详细介绍了如何将代码重构成函数式架构，本文不再展开。</p>
 <h2 id="通过重构来更好地完成单元测试">通过重构来更好地完成单元测试</h2>
 <h3 id="代码的分类">代码的分类</h3>
 <p>我们可以从代码的复杂度（业务价值）和外部依赖的数量两个维度，将代码分成 4 类：</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-09-08-084422.png" alt=""  /></p>
+<p><img src="/images/recovered/2024-09-08-084422.png" alt=""  /></p>
 <ul>
 <li><strong>左上角通常为领域层代码</strong>，比如领域模型或核心算法，它们一般具备很高的业务价值和代码复杂度，但只有很少的外部依赖，通过单元测试覆盖。</li>
 <li><strong>右下角通常为应用层代码</strong>，比如控制器，它们一般没有业务逻辑，负责与外部依赖进行交互，通过集成测试覆盖。</li>
@@ -1267,7 +1267,7 @@
 </code></pre></div></li>
 </ul>
 <p>至此，我们成功将“大泥球” <code>User</code> 重构成领域层的 <code>User</code>、<code>Company</code>、<code>UserFactory</code> 和 <code>CompanyFactory</code>，应用层 <code>UserController</code>。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-09-08-085144.png" alt=""  /></p>
+<p><img src="/images/recovered/2024-09-08-085144.png" alt=""  /></p>
 <p>这样，我们就能很方便地对 <code>User</code> 进行单元测试了：</p>
 <div class="highlight"><pre class="chroma"><code class="language-c#" data-lang="c#"><span class="c1">// C#
 </span><span class="c1"></span><span class="na">[Fact]</span>

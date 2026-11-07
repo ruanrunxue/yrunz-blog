@@ -253,7 +253,7 @@
 </ul>
 <p>其中 Aurora-like 和 Socrates-like 属于云原生架构。</p>
 <h3 id="classic-架构">Classic 架构</h3>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-09-14-140522.png" alt=""  /></p>
+<p><img src="/images/recovered/2025-09-14-140522.png" alt=""  /></p>
 <p>Classic 架构是一种单体架构，数据库的计算引擎和存储引擎都在一个进程、部署在一个服务器实例下。</p>
 <p>其中，存储引擎可以分为 2 部分，Log Service 复杂将 WAL 写入本地 SSD，保证数据可靠性；Page Service 负责 page 的管理，包括从 SSD 中读取 page 到内存中，以及将 dirty page 写回到 SSD 中。</p>
 <blockquote>
@@ -263,7 +263,7 @@
 <p>然而，Classic 架构最大的缺点也是所有数据都存储在本地 SSD。在公有云上，我们通常认为弹性服务器实例的本地 SSD 是不可靠的，实例的下线或硬件故障，会导致本地 SSD 数据丢失。</p>
 <p>另外，Classic 架构无法进行水平扩展，随着业务负载的增大，容易成为单点瓶颈。</p>
 <h3 id="hadr-架构">HADR 架构</h3>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-09-14-140456.png" alt=""  /></p>
+<p><img src="/images/recovered/2025-09-14-140456.png" alt=""  /></p>
 <p>HADR 架构是一种主从架构，在 Classic 架构的基础上，引入了多个从节点。</p>
 <p>主节点可同时处理读和写请求，从节点只能处理读请求。主节点通过将 WAL 复制到从节点上，来进行数据同步。从节点通过将 WAL 回放成 page，对外提供数据查询服务。</p>
 <p>HADR 架构拥有多个数据副本，当主节点故障时，系统仍可从剩余的从节点上恢复，对比 Classic 架构，在可用性、可靠性上有了很大的提升。</p>
@@ -271,17 +271,17 @@
 <p>虽然从节点支持水平扩展，但只有主节点能处理写请求，在写密集型负载下容易成为瓶颈。</p>
 <p>另外，全量数据仍在本地 SSD 上，而本地 SSD 容量有限（AWS EC2 最大可支持单盘 1.9TB，最多可配置 8 盘，共 15.2TB），这就导致当业务规模大到一定程度后，HADR 架构无法放下所有数据了。</p>
 <h3 id="rbd-架构">RBD 架构</h3>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-09-14-140854.png" alt=""  /></p>
+<p><img src="/images/recovered/2025-09-14-140854.png" alt=""  /></p>
 <p>RBD 架构将本地 SSD 替换成远端存储，比如 AWS Elastic Block Store（EBS）或者 Azure Managed Disks，提供了更高的可靠性、更低的成本。而且，这使得存储摆脱了单点瓶颈，容量可以无限扩展下去。</p>
 <p>然而，RBD 架构并未实现存算分离，主要原因是块存储不支持同步语义接口，导致 RBD 架构无法像 HADR 架构一样扩展多个只读节点。</p>
 <p>另外，存储拉远后，数据的读写增加了网络开销，对比本地 SSD，在读写带宽和时延上都更差。</p>
 <h3 id="in-memory-架构">In-Memory 架构</h3>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-09-14-142233.png" alt=""  /></p>
+<p><img src="/images/recovered/2025-09-14-142233.png" alt=""  /></p>
 <p>In-Memory 架构也属于单体架构，但与 Classic 架构不同，他把所有数据都加载到内存里，只会将 redo log 写入本地 SSD 保证事务持久性。</p>
 <p>因此，In-Memory 架构只在处理写请求时有少量的磁盘 IO，性能在所有架构里是最强的。</p>
 <p>但 In-Memory 架构的缺点也很明显，相比磁盘，内存的成本更高，而且容量更小（AWS EC2 实例最高只支持 4TB 内存容量）。所以，它只适合那些高读写负载、数据集很小的业务场景。</p>
 <h3 id="aurora-like-架构">Aurora-like 架构</h3>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-09-14-143655.png" alt=""  /></p>
+<p><img src="/images/recovered/2025-09-14-143655.png" alt=""  /></p>
 <p>Aurora-like 架构是云原生架构，真正实现了存算分离。</p>
 <p>计算引擎部署在无状态的计算节点，能够根据业务负载来进行弹性扩缩容。</p>
 <p>存储节点将数据保存在本地 SSD。数据被切分成 10GB 大小的 chunk，每个 chunk 由至少 6 个存储节点组成的集群管理，通过一致性协议来保证数据可靠性。</p>
@@ -290,7 +290,7 @@
 <p>因为 page 和 WAL 都存在多副本，所以 Aurora-like 架构具备较高的可靠性。但数据副本都存储在本地 SSD，成本很高，不适合拥有大量冷数据的场景。</p>
 <p>另外，每次读请求都会涉及存储节点和计算节点间的网络通信，带来了额外的开销。</p>
 <h3 id="socrates-like-架构">Socrates-like 架构</h3>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-09-14-144845.png" alt=""  /></p>
+<p><img src="/images/recovered/2025-09-14-144845.png" alt=""  /></p>
 <p>Socrates-like 架构在 Aurora-like 架构的基础上进一步将存储节点拆分成了 Log Server（XLog）和 Page Server，使得它们具备独立扩展的能力。</p>
 <p>数据写入时，主节点会同步将 WAL 写入远端快存储，保证可靠性。Log Server 负责将 WAL 整合和分发到 Page Server 和只读从节点上，它们会实时回放 WAL 来构建 page。</p>
 <p>Socrates-like 架构在计算节点、Log Server、Page Server 上都设了本地 SSD 缓存，它们共同构成了一个名为 Resilient Buffer Pool Extension（RBPEX）的统一缓存系统。</p>
@@ -299,7 +299,7 @@
 <p>2 个 Page Server 的设计，更多的是基于可用性的考虑，当其中之一故障时，能够快速容灾到另一个。也可配置更多的 Page Server 来提供更高的可用性。</p>
 <h2 id="量化评估方法">量化评估方法</h2>
 <p>因为架构+硬件配置的组合太多，不可能通过实测的方法来确定（成本太高）。所以，论文提出了一个量化评估模型，能够根据给定的目标负载、数据库架构和硬件配置来快速找到最划算的组合。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-09-14-145227.png" alt=""  /></p>
+<p><img src="/images/recovered/2025-09-14-145227.png" alt=""  /></p>
 <p>下面是量化模型的假设：</p>
 <ul>
 <li>假设数据库都使用 B-Tree 索引，page 大小为 4K。</li>
@@ -355,7 +355,7 @@
 <p>硬件配置上，主要是服务器实例和存储，前者选择 AWS EC2 弹性实例，后者选择 AWS EBS 块存储服务，都有多种配置可选。</p>
 <p>要快速找到最划算的组合，关键是能够<strong>评估出指定架构在指定的硬件下能够达到的真实负载水平</strong>。如果可以满足目标负载，则该组合可行，记录对应的成本。这样就能对比所有组合的成本，找到最划算的组合。</p>
 <p>下面以 Classic 架构为例，介绍模型的评估算法。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-09-14-145846.png" alt=""  /></p>
+<p><img src="/images/recovered/2025-09-14-145846.png" alt=""  /></p>
 <p>评估算法可表示为 $S = computeClassicProperties(W, N)$：</p>
 <ul>
 <li>输入 $W$ 表示目标负载，包含数据本身大小 $W_{dbSize}$ (单位：byte)， WAL Record 大小 $W_{ariesRecordSize}$ (单位：byte)，WAL 是否采用 group commit $W_{groupCommit}$ （True/False），目标更新事务率 $W_{reqUpdate}$ (单位：tx/s)，目标读事务率 $W_{reqLookups}$ (单位：tx/s)。</li>
@@ -377,7 +377,7 @@
 <h2 id="量化评估结果">量化评估结果</h2>
 <h3 id="事务处理性能">事务处理性能</h3>
 <p>在不同的目标事务处理速率（tx/s）与数据集大小的配置下，最划算的架构和硬件配置，以及对应成本如下所示：</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-09-14-150031.png" alt=""  /></p>
+<p><img src="/images/recovered/2025-09-14-150031.png" alt=""  /></p>
 <blockquote>
 <p>上图的右侧是不同架构对比在同等配置下最低成本架构的，成本比。<code>1</code> 表示本身为最低成本的架构，<code>1.2</code> 表示该架构的成本是成本最低架构的 <code>1.2</code> 倍。</p>
 </blockquote>
@@ -392,40 +392,40 @@
 <p>比如，论文提到，在 1TB + 100K tx/s 的场景，同等的事务处理性能下，ARM 实例对比 Intel 实例，成本要低 13%。</p>
 <h3 id="可靠性持久化能力">可靠性（持久化）能力</h3>
 <p>在不同的目标事务处理速率（tx/s）、数据集大小的配置下，满足不同可靠性要求的，最划算的架构以及对应成本如下所示：</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-09-14-150218.png" alt=""  /></p>
+<p><img src="/images/recovered/2025-09-14-150218.png" alt=""  /></p>
 <p><strong>结论 6：Aurora-like 架构适合那些需要满足 11x9&rsquo;s 的高可靠性场景。</strong></p>
 <p>主要得益于 Aurora-like 架构的多副本设计。</p>
 <p><strong>结论 7：在不需要高可靠的场景，Classic 架构仍是最划算的一个。</strong></p>
 <h3 id="可用性能力">可用性能力</h3>
 <p>只有 RBD、HADR、Aurora-like、Socrates-like 架构存在多节点，涉及可用性评估。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-09-14-150325.png" alt=""  /></p>
+<p><img src="/images/recovered/2025-09-14-150325.png" alt=""  /></p>
 <p><strong>结论 8：跨 AZ 容灾时，Aurora-like 架构的网络将成为主要成本开销。</strong></p>
 <p>主要因为 Aurora-like 架构内计算节点和存储节点间存在较多的网络通信。</p>
 <p><strong>结论 9：Socrates-like 架构的 Page Server 主要用于增强可用性，而不是可靠性。</strong></p>
 <p>因为有本地 SSD 缓存的原因，即使是跨 AZ 容灾，Socrates-like 架构的网络成本也不高。</p>
 <h3 id="哪种事务成本更高">哪种事务成本更高？</h3>
 <p>观察不同的读和更新事务占比下的成本，结果如下：</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-09-14-150455.png" alt=""  /></p>
+<p><img src="/images/recovered/2025-09-14-150455.png" alt=""  /></p>
 <p><strong>结论 10：更新事务通常比读事务有更高的成本，特别是在高事务处理速率和低数据集的场景。</strong></p>
 <h3 id="事务时延与成本">事务时延与成本</h3>
 <p>下图为在保证不同事务时延（横坐标）的限制下，需要多大的成本曲线图：</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-09-14-150557.png" alt=""  /></p>
+<p><img src="/images/recovered/2025-09-14-150557.png" alt=""  /></p>
 <p><strong>结论 11：云上 OLTP 数据库通过低成本 SSD 实现亚毫秒事务时延，而实现 100us 及更低的时延，需要更多的数据保存在内存里，带来了更高的成本。</strong></p>
 <h3 id="考虑数据倾斜">考虑数据倾斜</h3>
 <p>上述所有分析都认为对数据库中的数据是均匀访问的，而在大多的真实业务中，都会存在数据热点。</p>
 <p>因此，论文基于 Zipf 分布来建立数据访问模型，zipf factor 越大，表示数据热点越明显。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-09-14-150647.png" alt=""  /></p>
+<p><img src="/images/recovered/2025-09-14-150647.png" alt=""  /></p>
 <p><strong>结论 12：除了 In-Memory 架构外，得益于空间局部性，热数据能降低成本。</strong></p>
 <h2 id="最后">最后</h2>
 <p>根据论文分析的结论，云原生架构（Aurora-like/Socrates-like）对比迁移上云的传统架构（Classic/RBD/In-Memory）更具备成本效益，它们能够处理更广泛的工作负载，同时提供高可用性和持久性。</p>
 <p>在存储选择上，虽然 AWS S3 对象存储在存储成本上更低，但 IOPS 成本高出数量级；具备更高持久化能力的 EBS io2 同样面临 IOPS 成本高的问题；而 DRAM 存储成本则是遥遥领先。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-09-14-150743.png" alt=""  /></p>
+<p><img src="/images/recovered/2025-09-14-150743.png" alt=""  /></p>
 <p>所以，<strong>NVMe SSD 是更好的 OLTP 主存选择</strong>。</p>
 <p>另外，Aurora-like 和 Socrates-like 架构也还有改进空间。</p>
 <p>Socrates-like 架构虽然分离了 Page Server 和 Log Server，但依赖远程块存储进行 WAL 持久化，限制了其可靠性和性能；</p>
 <p>Aurora-like 架构将 WAL 实时流式负载到多个存储节点，在可靠性和性能上会更好，但 Page Server 和 Log Server 未拆分，导致灵活性和扩展性稍弱了一点。</p>
 <p>可以把两者的优点结合在一起，Page Server 和 Log Server 分离。page 缓存在 Page Server 的本地 SSD 上；WAL 发送到多个 Log Server 上的本地 SSD 完成持久化；它们都用并用廉价的对象存储作为后端。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-09-14-151206.png" alt=""  /></p>
+<p><img src="/images/recovered/2025-09-14-151206.png" alt=""  /></p>
 <p><em><strong>有点像 Neon 的架构了。</strong></em></p>
 <h3 id="文章配图">文章配图</h3>
 <p>可以在 <a class="link" href="https://mp.weixin.qq.com/s/-sYW-oa6KzTR9LNdMWCSnQ"  target="_blank" rel="noopener"

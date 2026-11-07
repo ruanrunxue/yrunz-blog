@@ -239,12 +239,12 @@
 <p>这是一个系统工程的问题，涉及到多种因素的权衡。本文将结合AMD Zen 5 EPYC 9005系列（下文简称Zen 5）的架构，从CPU制造流程讲起，带读者理解现代CPU架构的同时，解释为什么CPU不能有更多的核。</p>
 <h2 id="从cpu制造流程讲起">从CPU制造流程讲起</h2>
 <p>CPU的制造过程可以简单总结如下：</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-03-02-101718.png" alt=""  /></p>
+<p><img src="/images/recovered/2025-03-02-101718.png" alt=""  /></p>
 <p>晶圆是制作CPU的主要材料，它由圆柱形单晶硅锭（用直拉法从熔融后的高纯度多晶硅中拉出）切片而成，目前主流的晶圆尺寸为12英寸，约7万mm²。</p>
 <p>一片晶圆能够光刻若干个芯片，我们把这种<strong>未经封装的单个功能芯片称为Die</strong>（裸片）。我们很容易想到，如果把Die设计得足够大，一片晶圆只光刻一个Die，那么单Die的核数就能更多了。</p>
 <p>然而，受光刻技术限制，当前光刻掩膜版最大面积约858mm²，一旦超过这一阈值，需通过多次曝光拼接完成光刻，但会导致工艺复杂度增加和良率显著下降。</p>
 <p>另外，即使在最大光刻掩膜版面积内，Die的面积也不是越大越好。通常来说，<strong>晶圆都有一定的缺陷密度</strong>，考虑极限场景，晶圆面积=光刻掩膜版最大面积，如下图所示，<strong>Die的面积越小，良品率就越高</strong>。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-03-02-124022.png" alt=""  /></p>
+<p><img src="/images/recovered/2025-03-02-124022.png" alt=""  /></p>
 <p>所以，出于成本的考虑，<strong>追求更高的良品率会限制芯片的面积，从而限制了芯片核的数量</strong>。</p>
 <p><em>既然单块芯片面积受限，那能不能把多块小芯片组合成一块大芯片呢？</em></p>
 <p>当然可以！</p>
@@ -257,7 +257,7 @@
 <li><strong>IO Die负责资源管控</strong>，集成内存控制器、PCIe总线、SATA接口等，采用成熟的工艺，更好保证信号的完整性。</li>
 </ul>
 <p>AMD Zen 5采用Chiplet架构设计，一块完整的芯片包含多个CPU Die和1个IO Die。其中，CPU Die采用3nm/4nm工艺，IO Die采用6nm工艺。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-03-02-102920.png" alt=""  /></p>
+<p><img src="/images/recovered/2025-03-02-102920.png" alt=""  /></p>
 <p>虽然Chiplet理论上支持，但通常不会为了得到更多的核而无限制地扩展CPU Die。比如，AMD Zen 5一个CPU Die上有8个核，当前最多支持集成16个CPU Die，共计128核。</p>
 <p>其中原因主要受以下几点限制：</p>
 <ol>
@@ -270,7 +270,7 @@
 <h2 id="更小的核">更小的核</h2>
 <p>以AMD Zen 5 EPYC 9005系列为例。</p>
 <p>除了前文提到的8核/Die的Zen 5 core，还有16核/Die的Zen 5C core。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-03-02-103136.png" alt=""  /></p>
+<p><img src="/images/recovered/2025-03-02-103136.png" alt=""  /></p>
 <p>它们之间的一些参数如下：</p>
 <table>
 <thead>
@@ -314,7 +314,7 @@
 </tbody>
 </table>
 <p>从上述对比可以看出，Zen 5C的核数更多，但单核性能更弱。这很好理解，每个核都由各种单元组成，如下展示了Zen 5的微架构图：</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-03-02-103224.png" alt=""  /></p>
+<p><img src="/images/recovered/2025-03-02-103224.png" alt=""  /></p>
 <p>为了把核做得更小，核内各单元的尺寸/电路必然会缩小，性能也就更低了。比如，TAGE分支预测器的BTB容量变小，会导致分支预测准确率下降，从而影响单核性能。</p>
 <p>所以，<strong>单CPU Die的核数也不能太多，否则单核性能太低，也没有意义</strong>。</p>
 <p>另外，GPU之所以能够做到成千上万个核，是因为<strong>GPU的设计理念上是并行性和吞吐量有限</strong>，要求同时处理数千个相似任务，这使得GPU的核极度简化，仅保留基础算术逻辑单元（ALU）和少量高速缓存。所以GPU的核能够做到足够小！</p>
@@ -325,7 +325,7 @@
 <p>如果一块主板上只有1个CPU，通常会把它称为单路（Single-Socket）CPU系统，有2个CPU则称为双路（Two-Socket）CPU系统，以此类推，还有四路CPU、八路CPU等。</p>
 <p>如今，单路和双路都是常见的配置，比如，AMD Zen 5提供了单路和双路两种配置。</p>
 <p>在多路CPU系统中，CPU之间通过IO Die上的高速互联接口完成互联。AMD的高速互联协议为<strong>Infinity Fabric</strong>，如下展示了AMD Zen 5在双路配置下的互联结构图：</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-03-02-103412.png" alt=""  /></p>
+<p><img src="/images/recovered/2025-03-02-103412.png" alt=""  /></p>
 <blockquote>
 <p>AMD Zen 5的IO Die中，Infinity Fabric高速互联接口与PCIe接口用的是同一个物理接口，所以这里存在计算和IO的权衡。多路CPU有着更多的计算算力，但更少的IO扩展接口。</p>
 </blockquote>
@@ -340,7 +340,7 @@
 <p>所以，“<em>为什么CPU不能有更多的核？</em>”这是一个系统工程的问题，要经过多方面因素的综合权衡。</p>
 <p><strong>更好的方法是为用户提供多种选择，让用户能够根据自身的业务需求，选取合适的CPU型号</strong>。</p>
 <p>如下为AMD Zen 5 EPYC 9005系列的全部型号，多达27种：</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-03-02-103710.png" alt=""  /></p>
+<p><img src="/images/recovered/2025-03-02-103710.png" alt=""  /></p>
 <h2 id="总结">总结</h2>
 <p>本文主要针对“<em>为什么CPU不能有更多的核？</em>”进行了讨论，总结起来，主要有以下几个原因：</p>
 <ul>

@@ -239,11 +239,11 @@
 <p>虽然 Lambda 架构是十年前被提出的数据架构，但 Lambda 架构的以不可变数据作为核心、历史和实时数据分层处理的架构思想仍值得我们学习。</p>
 <h2 id="传统数据系统的局限">传统数据系统的局限</h2>
 <p>考虑有这么一个系统，根据用户的浏览记录，统计用户访问网页的次数：</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-07-07-021748.png" alt=""  /></p>
+<p><img src="/images/recovered/2024-07-07-021748.png" alt=""  /></p>
 <p>在上述系统中，每次用户浏览一个 url，应用就会向数据库更新一行数据。随着用户量的不断上升，并发量急剧上涨，数据库最先达到瓶颈，频繁出现更新超时的现象。针对这种情况，我们可以<strong>引入消息队列，将单次写改成批量写，以此降低数据库的并发数</strong>。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-07-07-023715.png" alt=""  /></p>
+<p><img src="/images/recovered/2024-07-07-023715.png" alt=""  /></p>
 <p>但这并不是长久之计，随着用户量的再次上涨，单实例的数据库还是会成为单点瓶颈。为此，可以对数据库进行水平扩展，<strong>分库分表</strong>，将原本集中在单个数据库实例上的请求，负载均衡到多个实例之上。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-07-07-031153.png" alt=""  /></p>
+<p><img src="/images/recovered/2024-07-07-031153.png" alt=""  /></p>
 <p>分库分表虽能消除数据库单点瓶颈，但也会带来其他的一些问题：</p>
 <ul>
 <li><strong>应用逻辑更复杂</strong>。应用层需要根据数据的 key 找到其所在的数据库实例，以便进行数据更新。</li>
@@ -276,7 +276,7 @@
 <h2 id="lambda-架构的解决思路">Lambda 架构的解决思路</h2>
 <p>我们可将数据分成两类，历史数据和实时数据（最近几个小时），用户对两类数据在查询时延、精度等方面的要求各不相同。所以，我们完全可以采取不同的技术方案对它们分别处理。这就是 Lambda 架构的核心思想之一，<strong>分层</strong>。</p>
 <p>Lambda 架构分 3 个层次，每个层次职责分明、使用不同的技术方案，以此来满足大数据系统的各项诉求。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-07-21-055121.png" alt=""  /></p>
+<p><img src="/images/recovered/2024-07-21-055121.png" alt=""  /></p>
 <ul>
 <li><strong>批处理层</strong>（Batch Layer）：负责离线处理历史数据，包含<strong>主数据集</strong>（Master Dataset）。所有的数据都会往主数据集写入。批处理层不会立即处理新数据，而是会在非业务繁忙时段，对全量数据进行批量处理，生成<strong>批视图</strong>（Batch View）。</li>
 <li><strong>服务层</strong>（Serving Layer）：负责存储批处理层生成的批视图，并对外提供批视图的查询接口。通常都会带有索引，以便用户能够快速查询数据。</li>
@@ -286,7 +286,7 @@
 <h3 id="不可变的数据">不可变的数据</h3>
 <p>传统数据系统中，数据是可变的，比如前文所提到的网页访问例子中，<code>pageviews</code> 字段会随着网页访问行为而递增。当出现问题，特别是人为错误时，通常因难以溯源而无法纠错，导致容错性较低。</p>
 <p>为此，Lambda 架构中批处理层采取的策略是<strong>不可变的数据</strong>，通过<strong>存储原始的数据</strong>实现：</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-07-20-144256.png" alt=""  /></p>
+<p><img src="/images/recovered/2024-07-20-144256.png" alt=""  /></p>
 <p>上述例子中，采用可变数据的存储方式后，用户的每一次访问行为都对应一行数据，并通过时间戳来区分。<code>pageviews</code> 不再作为字段存储在数据库里，而是在数据处理时进行计算。</p>
 <p>这种不可变的数据存储能够带来以下一些好处：</p>
 <ul>
@@ -312,10 +312,10 @@
 </ul>
 <h3 id="全量计算-vs-增量计算">全量计算 VS 增量计算</h3>
 <p>批处理的数据计算方式可以分成<strong>全量计算</strong>（Recomputation algorithms）和<strong>增量计算</strong>（Incremental algorithms）。全量计算每次都会对全量数据进行重新计算，得到新的批视图；而增量计算只会对新的数据进行计算，并将计算出来的视图与已有视图进行合并，形成新的批视图。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-07-20-171722.png" alt=""  /></p>
+<p><img src="/images/recovered/2024-07-20-171722.png" alt=""  /></p>
 <p>相比全量计算，增量计算每次计算量更小、有更好的性能，但其代价是更低的容错性，因此，<strong>更推荐使用全量计算</strong>。</p>
 <p>另外，<strong>当算法依赖历史数据时，增量计算显然难以得到正确答案</strong>。考虑一个生日推断算法的例子，系统根据不同时刻抓取的用户信息 <code>[userid, age, timestamp]</code>  来推断用户的生日，比如在 2023/2/21 抓取某用户的年龄为 28，在 2024/3/4 再次抓取他的年龄为 29，那么该用户的生日就在  2023/2/21 和 2024/3/4 之间。显然，每次用于计算的信息越多，生日推断的结果就越准。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-07-21-015545.png" alt=""  /></p>
+<p><img src="/images/recovered/2024-07-21-015545.png" alt=""  /></p>
 <p>另外，我们也可以选择一个折中方案，<strong>部分重计算</strong>（Partial Recomputation algorithms），也即选取必要的历史数据进行重新计算，以生日推断算法为例，假设新数据中只包含用户 A 的数据，那么，我们可以从主数据集中选取用户 A 的历史数据与新数据合并，再进行计算，这样计算的数据量将会大大减少。</p>
 <h2 id="服务层serving-layer">服务层（Serving Layer）</h2>
 <p>服务层属于批处理层的延伸，负责存储批视图，并对外提供查询接口。通常，服务层所使用的数据库须要具备如下属性：</p>
@@ -327,7 +327,7 @@
 </ul>
 <p>在服务层中，我们通常采用<strong>以空间换时间</strong>的策略，适当地增加数据冗余，以此换取更优的查询性能。</p>
 <p>比如，假设用户的报表需要按月、按天、按小时、按分钟等维度的视图，最简单的方法是只保存一份分钟级视图，若用户需要查询小时级粒度的数据，临时汇聚。但因为这需要额外的聚合运算，无法满足低时延的诉求。更好的方法是，在服务层保存多种粒度的视图。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-07-21-033546.png" alt=""  /></p>
+<p><img src="/images/recovered/2024-07-21-033546.png" alt=""  /></p>
 <h2 id="速度层speed-layer">速度层（Speed Layer）</h2>
 <p>批处理层可以很好地处理离线历史数据，但很多场景下，数据是实时产生的，比如 IoT。此时，单靠批处理层显然无法无法满足实时数据的低时延处理。因此，<strong>可以把速度层看成是对批处理层在实时性上的补充</strong>，它负责实时处理源源不断的新数据，并生成实时视图（Realtime View）供用户查询。</p>
 <p>与批处理层相比，速度层具备如下的特点：</p>
@@ -338,7 +338,7 @@
 <p>速度层除了要进行实时数据的增量处理外，还需保存实时视图，提供类似服务层的能力，也即对外提供实时视图的查询接口。</p>
 <h2 id="更好的-lambda-架构实现">更好的 Lambda 架构实现</h2>
 <p>书中所介绍的 Lambda 架构中，服务层只是作为批处理层的延伸，存储批视图。但在介绍速度层时我们提到，速度层也要对外提供实时视图的查询接口。因此，更好的实现方式是，<strong>把批视图和实时视图都存储在服务层，让服务层成为唯一对外提供接口的地方</strong>：</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-07-21-062932.png" alt=""  /></p>
+<p><img src="/images/recovered/2024-07-21-062932.png" alt=""  /></p>
 <h2 id="最后">最后</h2>
 <p><a class="link" href="https://learning.oreilly.com/library/view/big-data/9781617290343/"  target="_blank" rel="noopener"
     >Big Data</a> 书中除了介绍 Lambda 架构的原理，还对如何利用 Hadoop、Cassandra 等大数据技术构建 Lambda 架构进行了详细的说明，并且给出了关键源码，可以通过阅读原书了解更多，本文不再详细介绍。</p>
