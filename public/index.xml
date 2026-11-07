@@ -173,7 +173,7 @@
         <description>&lt;h2 id=&#34;前言&#34;&gt;前言&lt;/h2&gt;
 &lt;p&gt;Claude Code 已经成为 Coding Agent 的事实标准，现今各类 Agent 都多多少少能看到它的影子。
 Claude Code 的设计简洁、优雅：
-&lt;img src=&#34;http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2026-05-05-121230.png&#34; alt=&#34;&#34;  /&gt;&lt;/p&gt;
+&lt;img src=&#34;https://www.yrunz.com/images/recovered/2026-05-05-121230.png&#34; alt=&#34;&#34;  /&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Agent Loop 是大脑、核心，驱动着所有组件的运转。&lt;/li&gt;
 &lt;li&gt;Permission System 提供权限管理。&lt;/li&gt;
@@ -185,7 +185,7 @@ Claude Code 的设计简洁、优雅：
 &lt;h2 id=&#34;为什么是-agent-loop&#34;&gt;为什么是 Agent Loop？&lt;/h2&gt;
 &lt;p&gt;在 Claude Code 横空出世之前，LangChain 是这领域的王者，它走的是 Workflow 的路线。&lt;/p&gt;
 &lt;p&gt;用户定义好 Workflow，流程根据不同的状态在各个节点中流转，比如这样：
-&lt;img src=&#34;http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2026-05-05-122719.png&#34; alt=&#34;&#34;  /&gt;&lt;/p&gt;
+&lt;img src=&#34;https://www.yrunz.com/images/recovered/2026-05-05-122719.png&#34; alt=&#34;&#34;  /&gt;&lt;/p&gt;
 &lt;p&gt;好处是，所有流程都在用户框定的范围内；&lt;/p&gt;
 &lt;p&gt;坏处也是，所有流程都在用户框定的范围内；&lt;/p&gt;
 &lt;p&gt;人都存在思维局限，而且&lt;strong&gt;现在大模型的水平已经远超普通人&lt;/strong&gt;。给模型一个目标，放手让它自由发挥，反而能达到更好的效果。&lt;/p&gt;
