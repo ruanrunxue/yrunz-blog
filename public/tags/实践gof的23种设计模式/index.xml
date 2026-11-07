@@ -6,7 +6,46 @@
     <description>Recent content in 实践GoF的23种设计模式 on 元闰子的邀请</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 10 Dec 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://www.yrunz.com/tags/%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 13 Apr 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://www.yrunz.com/tags/%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>【Go实现】实践GoF的23种设计模式：桥接模式</title>
+      <link>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E6%A1%A5%E6%8E%A5%E6%A8%A1%E5%BC%8F/</link>
+      <pubDate>Sat, 13 Apr 2024 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E6%A1%A5%E6%8E%A5%E6%A8%A1%E5%BC%8F/</guid>
+      <description>上一篇：【Go实现】实践GoF的23种设计模式：解释器模式
+简单的分布式应用系统（示例代码工程）：https://github.com/ruanrunxue/Practice-Design-Pattern&amp;ndash;Go-Implementation
+ 简介 GoF 对桥接模式（Bridge Pattern）的定义如下：
+ Decouple an abstraction from its implementation so that the two can vary independently.
+ 也即，将抽象部分和实现部分进行解耦，使得它们能够各自往独立的方向变化。
+桥接模式解决了在模块有多种变化方向的情况下，用继承所导致的类爆炸问题。
+举个例子，一个产品有形状和颜色两个特征（变化方向），其中形状分为方形和圆形，颜色分为红色和蓝色。如果采用继承的设计方案，那么就需要新增4个产品子类：方形红色、圆形红色、方形蓝色、圆形红色。如果形状总共有 m 种变化，颜色有 n 种变化，那么就需要新增 m * n 个产品子类！
+现在我们使用桥接模式进行优化，将形状和颜色分别设计为抽象接口独立出来，这样需要新增 2 个形状子类：方形和圆形，以及 2 个颜色子类：红色和蓝色。同样，如果形状总共有 m 种变化，颜色有 n 种变化，总共只需要新增 m + n 个子类！
+上述例子中，我们通过将形状和颜色抽象为一个接口，使产品不再依赖于具体的形状和颜色细节，从而达到了解耦的目的。桥接模式本质上就是面向接口编程，可以给系统带来很好的灵活性和可扩展性。如果一个对象存在多个变化的方向，而且每个变化方向都需要扩展，那么使用桥接模式进行设计那是再合适不过了。
+当然，Go 语言从语言特性本身就把继承剔除，但桥接模式中分离变化、面向接口编程的思想仍然值得学习。
+UML 结构 场景上下文 在 简单的分布式应用系统（示例代码工程）中，我们设计了一个 Monitor 监控系统模块，它可以看成是一个简单的 ETL 系统，负责对监控数据进行采集、处理、输出。监控数据来源于在线商场服务集群各个服务，当前通过消息队列模块 Mq 传递到监控系统，经处理后，存储到数据库模块 Db 上。
+我们假设未来要上线一个不支持对接消息队列的服务、结果数据也需要存储到 ClickHouse 以供后续分析，为了应对未来多变的需求，我们有必要将监控系统设计得足够的可扩展。
+于是，整个模块被设计为插件化风格的架构，Pipeline 是数据处理的流水线，其中包含了 Input、Filter 和 Output 三类插件，Input 负责从各类数据源中获取监控数据，Filter 负责数据处理，Output 负责将处理后的数据输出。</description>
+    </item>
+    
+    <item>
+      <title>【Go实现】实践GoF的23种设计模式：解释器模式</title>
+      <link>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E8%A7%A3%E9%87%8A%E5%99%A8%E6%A8%A1%E5%BC%8F/</link>
+      <pubDate>Sat, 23 Mar 2024 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E8%A7%A3%E9%87%8A%E5%99%A8%E6%A8%A1%E5%BC%8F/</guid>
+      <description>上一篇：【Go实现】实践GoF的23种设计模式：适配器模式
+简单的分布式应用系统（示例代码工程）：https://github.com/ruanrunxue/Practice-Design-Pattern&amp;ndash;Go-Implementation
+ 简介 解释器模式（Interpreter Pattern）应该是 GoF 的 23 种设计模式中使用频率最少的一种了，它的应用场景较为局限。
+GoF 对它的定义如下：
+ Given a language, define a represention for its grammar along with an interpreter that uses the representation to interpret sentences in the language.
+ 从定义可以看出，解释器模式主要运用于简单的语法解析场景，比如简单的领域特定语言（DSL）。举个例子，我们可以使用解析器模式来对“1+2+3-4+1”这样的文本表达式完成解析，并得到最终答案“3”。
+解释器模式的整体思想是分而治之，每一个语法规则都使用一个类或者结构体（我们称之为 Rule Struct）来定义，它们相互独立，比如前一个例子中，“+” 和 “-” 都各自定义为一个 Rule Struct。因此，解释器模式的可扩展性很好。
+通常，我们还能使用抽象语法树（Abstract Syntax Tree，AST）来直观地表示待解释的表达式，比如“1+2+3-4+1”可以表示成这样：
+UML 结构 解释器模式通常有 4 种角色：
+ Context：解释上下文，包含了解释语法需要的所有信息，它是的生命周期贯穿整个解释过程，是一个全局对象。 AbstractExpression：声明了解释语法的方法，通常只有 Interpret(*Context) 一个方法。 TerminalExpression：实现了 AbstractExpression 接口，定义了终结表达式的解析逻辑。终结表达式在抽象语法树中作为叶子节点。 NonterminalExpression：实现了 AbstractExpression 接口，定义了非终结表达式的解析逻辑。在抽象语法树中，除了叶子节点，其他节点都是非终结表达式。NonterminalExpression 通常会比 TerminalExpression 更复杂一些。  场景上下文 在 简单的分布式应用系统（示例代码工程）中，db 模块用来存储服务注册信息和系统监控数据，它是一个 key-value 数据库。为了更高的易用性，它支持简单的 SQL 查询功能。用户在终端控制台上可以通过 SQL 语句来查询数据库中的数据：</description>
+    </item>
+    
     <item>
       <title>【Go实现】实践GoF的23种设计模式：适配器模式</title>
       <link>https://www.yrunz.com/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E9%80%82%E9%85%8D%E5%99%A8%E6%A8%A1%E5%BC%8F/</link>

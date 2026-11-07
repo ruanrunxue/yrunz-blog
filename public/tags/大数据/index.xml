@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>大数据 on 元闰子的邀请</title>
+    <link>https://www.yrunz.com/tags/%E5%A4%A7%E6%95%B0%E6%8D%AE/</link>
+    <description>Recent content in 大数据 on 元闰子的邀请</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 12 Apr 2026 00:00:00 +0000</lastBuildDate><atom:link href="https://www.yrunz.com/tags/%E5%A4%A7%E6%95%B0%E6%8D%AE/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>实时多模态数据处理的存储层要怎么设计？· SIGMOD&#39;26</title>
+      <link>https://www.yrunz.com/p/%E5%AE%9E%E6%97%B6%E5%A4%9A%E6%A8%A1%E6%80%81%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86%E7%9A%84%E5%AD%98%E5%82%A8%E5%B1%82%E8%A6%81%E6%80%8E%E4%B9%88%E8%AE%BE%E8%AE%A1-sigmod26/</link>
+      <pubDate>Sun, 12 Apr 2026 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E5%AE%9E%E6%97%B6%E5%A4%9A%E6%A8%A1%E6%80%81%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86%E7%9A%84%E5%AD%98%E5%82%A8%E5%B1%82%E8%A6%81%E6%80%8E%E4%B9%88%E8%AE%BE%E8%AE%A1-sigmod26/</guid>
+      <description>SIGMOD&#39;26 论文《ByteHouse: ByteDance’s Cloud-Native Data Warehouse for Real-Time Multimodal Data Analytics》中，字节团队介绍了实时多模态分析引擎 ByteHouse，本文将讲解 ByteHouse 存储层的设计思路。
+ 前言 在 AI 时代，多模态数据处理有如下 3 种负载：
+ OLAP。传统分析型 SQL 查询，侧重范围扫描，以顺序读 IO 为主。 多模检索。传统 SQL 无法查询图片、视频等多模态数据，须将它们转成向量，通过向量检索进行语义相关性查询。侧重点查，以随机读 IO 为主。 实时 ETL。提供高时效性，逐条写入。  面对不同的负载，传统的解决方案是组合多种引擎。
+OLAP 采用 Spark、ClickHouse 等 OLAP 引擎；
+多模检索采用 Milvus、pgvector 等向量数据库；
+实时 ETL 采用 Kafka、Flink 等流式引擎；
+然而，不同引擎的存储格式通常是不同的，该方案会带来数据同步问题。
+另外，存算分离的云原生架构已经逐渐成为现代数据引擎的标配。相比于结构化数据，多模态数据的存储体积更大，基于低成本的对象存储构建存储层已经是主流。
+然而，对象存储在 IO 带宽和时延上都存在较大的劣势，容易成为整个数据处理管道的瓶颈。
+下面，我们看下实时多模态分析引擎 ByteHouse 的存储层是如何解决这两个问题 。
+Parquet 的问题 在数据分析领域，Parquet 是最流行的开放数据格式。
+但 Parquet 是面向传统 OLAP 负载设计的，不擅长点查，无法高效支撑多模态检索。
+首先，点查路径长，需要 1 + N 次 IO：</description>
+    </item>
+    
+    <item>
+      <title>AI Agent需要什么样的数据库？</title>
+      <link>https://www.yrunz.com/p/ai-agent%E9%9C%80%E8%A6%81%E4%BB%80%E4%B9%88%E6%A0%B7%E7%9A%84%E6%95%B0%E6%8D%AE%E5%BA%93/</link>
+      <pubDate>Mon, 02 Jun 2025 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/ai-agent%E9%9C%80%E8%A6%81%E4%BB%80%E4%B9%88%E6%A0%B7%E7%9A%84%E6%95%B0%E6%8D%AE%E5%BA%93/</guid>
+      <description>前言 Databricks 在 2025 年 5 月 14 日正式宣布以 10 亿美元收购开源数据库初创公司 Neon[1][2]，它的产品是一款兼容 PostgreSQL 的 Serverless 数据库。Neon 的 slogan 是 &amp;ldquo;Ship faster with Postgres&amp;quot;，其最初的目的是为应用开发者提供一个低成本、开发高效的数据库底座。
+回顾 Databricks 近两年的收购策略，Databricks 正围绕其 Data + AI 战略迅速补强 AI 短板，所收购的产品已几乎可组成一条完整的 AI 工作流水线。
+从 Databricks Data Intelligence Platform 架构图[4]来看，Databricks 几乎已具备 Data -&amp;gt; AI Model -&amp;gt; AI Application 的 AI 全栈能力，但 AI Application 所依赖的数据库仍然选择第三方的 Amazon RDS 等。
+所以，对 Databricks 来说，收购一款高度适配 AI 应用的数据库变得势在必行。
+在各类 AI 应用中，AI Agent 无疑是最活跃的发展主线。2025 年被誉为是 AI Agent 元年，相关的框架、协议、应用都得到了快速的发展。据 Gartner预测，到2028年，至少 15% 的日常工作决策将通过 AI Agent 自主做出，33% 的企业软件应用程序也将包含 AI Agent。</description>
+    </item>
+    
+    <item>
+      <title>深入理解Lambda架构</title>
+      <link>https://www.yrunz.com/p/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3lambda%E6%9E%B6%E6%9E%84/</link>
+      <pubDate>Sun, 21 Jul 2024 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3lambda%E6%9E%B6%E6%9E%84/</guid>
+      <description>荐语 本文要介绍的是 2015 年 O&amp;rsquo;Reilly 出版的书籍 Big Data: Principles and best practices of scalable realtime data systems，书中主要介绍一种常见的大数据架构 —— Lambda 架构。Lambda 架构通过批处理和流处理相结合的方法，有效处理了大数据场景下的工作负载。相比以关系型数据库为核心的传统数据系统，它在可扩展性、容错性等方面有了更进一步的提升。
+虽然 Lambda 架构是十年前被提出的数据架构，但 Lambda 架构的以不可变数据作为核心、历史和实时数据分层处理的架构思想仍值得我们学习。
+传统数据系统的局限 考虑有这么一个系统，根据用户的浏览记录，统计用户访问网页的次数：
+在上述系统中，每次用户浏览一个 url，应用就会向数据库更新一行数据。随着用户量的不断上升，并发量急剧上涨，数据库最先达到瓶颈，频繁出现更新超时的现象。针对这种情况，我们可以引入消息队列，将单次写改成批量写，以此降低数据库的并发数。
+但这并不是长久之计，随着用户量的再次上涨，单实例的数据库还是会成为单点瓶颈。为此，可以对数据库进行水平扩展，分库分表，将原本集中在单个数据库实例上的请求，负载均衡到多个实例之上。
+分库分表虽能消除数据库单点瓶颈，但也会带来其他的一些问题：
+ 应用逻辑更复杂。应用层需要根据数据的 key 找到其所在的数据库实例，以便进行数据更新。 维护成本更高。为了避免因数据库实例宕机导致的服务不可用，需要通过增加数据副本、缓冲队列等手段提升可用性。另外，随着数据量的增大，可能因数据库实例间负载不均衡，而产生对数据进行重分区的操作。这些都会导致维护成本的急剧增加。 容错性问题。一旦开发者在更新数据库时出现人为错误，比如在增加 pageviews 字段时多乘了 2，那么数据将难以恢复，因为很难溯源。  上述例子中，从简单的 CURD，到增加消息队列、分库分表、副本、重分区等，系统也越来越复杂。导致这一切的原因是，传统数据库系统并非为分布式而生，它无法很好地适用于大数据场景。
+大数据技术的局限 那么，大数据技术就能解决这些问题吗？答案是，否！
+像 Hadoop、MapReduce、HBase 等这类大数据技术，虽然能够天然就处理海量数据，但它们都有各种局限，比如，MapReduce 是批处理系统，计算时延高；HBase 键值查询快，但无法满足复杂的 SQL 查询场景。
+为了找到解决方法，我们还需从大数据系统的本质入手。
+大数据系统的本质 作者对数据系统进行了如下定义：
+ A data system answers questions based on information that was acquired in the past up to the present.</description>
+    </item>
+    
+  </channel>
+</rss>

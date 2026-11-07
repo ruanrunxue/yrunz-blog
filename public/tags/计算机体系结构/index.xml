@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>计算机体系结构 on 元闰子的邀请</title>
+    <link>https://www.yrunz.com/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84/</link>
+    <description>Recent content in 计算机体系结构 on 元闰子的邀请</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 19 Oct 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://www.yrunz.com/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>怎么让程序更高效地连起来？</title>
+      <link>https://www.yrunz.com/p/%E6%80%8E%E4%B9%88%E8%AE%A9%E7%A8%8B%E5%BA%8F%E6%9B%B4%E9%AB%98%E6%95%88%E5%9C%B0%E8%BF%9E%E8%B5%B7%E6%9D%A5/</link>
+      <pubDate>Sun, 19 Oct 2025 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E6%80%8E%E4%B9%88%E8%AE%A9%E7%A8%8B%E5%BA%8F%E6%9B%B4%E9%AB%98%E6%95%88%E5%9C%B0%E8%BF%9E%E8%B5%B7%E6%9D%A5/</guid>
+      <description>前言  本文将最简单的共享内存开始，讲述共享内存/TCP/DPDK/RDMA/CXL/NVLink/UB 等通信方式的基本原理，探讨如何让程序更高效地连起来。
+ 上图为计算机的简易组成，核（Core）是 CPU 的大脑，执行程序的业务逻辑；
+内存 DRAM 通过 DDR 接口连接到 CPU 内的内存控制器（Memory Controller）中，存放程序运行所需的数据；
+而网卡 NIC、SSD 等高速外围设备则通过 PCIe 接口接入 CPU，由 PCIe Root Complex 进行协议解析、路由等。
+在《探索OS的内存管理原理》里我们提到，每个程序都有独立的内存地址空间，以防止其他程序的篡改。所以，程序 A 保存在内存里的业务数据，程序 B 是无法访问的。
+然而，复杂的业务往往需要多个程序协同合作，比如，数据需要先后经过程序 A 和程序 B 的处理。
+这时，要怎么把程序连起来，让程序 B 可以访问程序 A 的数据呢？
+共享内存 这是一个进程间通信的问题，回忆操作系统原理，我们能想到的最简单的方式就是共享内存。
+POSIX 提供了 shm_open 和 mmap 系统调用，它们配合可实现进程间的通信，简易代码如下：
+// 程序A的代码 int procA(void) { // 1. 双方约定好的共享内存key  const char *key = &amp;#34;/proc_shm&amp;#34;; const size_t sz = sizeof(int); // 2. 创建并打开共享内存对象  int fd = shm_open(key, O_CREAT | O_RDWR, 0666); // 3.</description>
+    </item>
+    
+    <item>
+      <title>为什么CPU不能有更多的核？</title>
+      <link>https://www.yrunz.com/p/%E4%B8%BA%E4%BB%80%E4%B9%88cpu%E4%B8%8D%E8%83%BD%E6%9C%89%E6%9B%B4%E5%A4%9A%E7%9A%84%E6%A0%B8/</link>
+      <pubDate>Sun, 02 Mar 2025 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E4%B8%BA%E4%BB%80%E4%B9%88cpu%E4%B8%8D%E8%83%BD%E6%9C%89%E6%9B%B4%E5%A4%9A%E7%9A%84%E6%A0%B8/</guid>
+      <description>前言 与GPU动辄成千上万个核不同，CPU核数目前仍处于百核级别。AMD基于最新Zen 5架构发布的产品中，核数最多的型号AMD EPYC™ 9965也只有192个核。
+那么，为什么CPU不能有更多的核呢？
+这是一个系统工程的问题，涉及到多种因素的权衡。本文将结合AMD Zen 5 EPYC 9005系列（下文简称Zen 5）的架构，从CPU制造流程讲起，带读者理解现代CPU架构的同时，解释为什么CPU不能有更多的核。
+从CPU制造流程讲起 CPU的制造过程可以简单总结如下：
+晶圆是制作CPU的主要材料，它由圆柱形单晶硅锭（用直拉法从熔融后的高纯度多晶硅中拉出）切片而成，目前主流的晶圆尺寸为12英寸，约7万mm²。
+一片晶圆能够光刻若干个芯片，我们把这种未经封装的单个功能芯片称为Die（裸片）。我们很容易想到，如果把Die设计得足够大，一片晶圆只光刻一个Die，那么单Die的核数就能更多了。
+然而，受光刻技术限制，当前光刻掩膜版最大面积约858mm²，一旦超过这一阈值，需通过多次曝光拼接完成光刻，但会导致工艺复杂度增加和良率显著下降。
+另外，即使在最大光刻掩膜版面积内，Die的面积也不是越大越好。通常来说，晶圆都有一定的缺陷密度，考虑极限场景，晶圆面积=光刻掩膜版最大面积，如下图所示，Die的面积越小，良品率就越高。
+所以，出于成本的考虑，追求更高的良品率会限制芯片的面积，从而限制了芯片核的数量。
+既然单块芯片面积受限，那能不能把多块小芯片组合成一块大芯片呢？
+当然可以！
+Chiplet架构：把小芯片组合起来 Chiplet是一种将传统单片式系统级芯片（SoC）拆分为多个功能模块化小芯片（Die），再通过先进封装技术（如2.5D/3D堆叠）互联集成的设计架构。其核心思想是通过标准化接口将不同工艺节点、不同功能的Die灵活组合，形成高性能异构系统芯片。
+所以，Chiplet既突破了传统单芯片的物理极限（858mm²），也兼顾架构设计的灵活性。
+Chiplet架构下，Die通常会被分成CPU Die（CCD）和IO Die（IOD）两类。
+ CPU Die负责高频计算，集成CPU Core（核）、高速缓存（L2/L3 Cache）等，采用先进的工艺，提供更高的计算密度； IO Die负责资源管控，集成内存控制器、PCIe总线、SATA接口等，采用成熟的工艺，更好保证信号的完整性。  AMD Zen 5采用Chiplet架构设计，一块完整的芯片包含多个CPU Die和1个IO Die。其中，CPU Die采用3nm/4nm工艺，IO Die采用6nm工艺。
+虽然Chiplet理论上支持，但通常不会为了得到更多的核而无限制地扩展CPU Die。比如，AMD Zen 5一个CPU Die上有8个核，当前最多支持集成16个CPU Die，共计128核。
+其中原因主要受以下几点限制：
+ 功耗和散热问题。集成更多的CPU Die意味着更高的功耗，散热可能成为问题，会导致芯片温度过高，影响晶体管的寿命。 内存带宽受限。一块芯片上通常只有1个IO Die，其DDR内存通道数是固定的，比如，AMD Zen 5的内存通道数为12。更多的核意味着内存带宽竞争更大，平均单核内存带宽更低。 缓存一致性机制更复杂。虽然可以通过增加IO Die的数量来提升内存带宽，但这同样受功耗和散热问题限制，而且更多的CPU Die会导致缓存一致性机制过于复杂，得不偿失。  在拥有一定面积的芯片上，既然无法通过扩展更多的CPU Die来增加核数，那么能否提升单个CPU Die的核数呢？
+当然可以！通过把核做得更小，就能让一定面积下的CPU Die拥有更多的核。
+更小的核 以AMD Zen 5 EPYC 9005系列为例。</description>
+    </item>
+    
+    <item>
+      <title>深入理解分支预测原理，揭开AMD Zen5的高性能秘诀</title>
+      <link>https://www.yrunz.com/p/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E5%88%86%E6%94%AF%E9%A2%84%E6%B5%8B%E5%8E%9F%E7%90%86%E6%8F%AD%E5%BC%80amd-zen5%E7%9A%84%E9%AB%98%E6%80%A7%E8%83%BD%E7%A7%98%E8%AF%80/</link>
+      <pubDate>Sun, 10 Nov 2024 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E5%88%86%E6%94%AF%E9%A2%84%E6%B5%8B%E5%8E%9F%E7%90%86%E6%8F%AD%E5%BC%80amd-zen5%E7%9A%84%E9%AB%98%E6%80%A7%E8%83%BD%E7%A7%98%E8%AF%80/</guid>
+      <description>前言 今年，AMD Zen 5架构随着AMD旗下锐龙、霄龙等新一代处理器的发布而亮相。Zen 5对比上一代架构 Zen 4在性能上有了大幅提升，其中，IPC（每时钟周期执行的指令数量）更是提升了16%。
+在Zen 5 高性能的背后，分支预测器的优化功不可没，其中，对2-ahead分支预测的支持尤为重要。
+本文将从CPU分支预测原理讲起，试图带大家理解Zen 5在分支预测上的优化，揭开性能提升的秘密。
+ 分支预测大体可以分成两部分，分支方向的预测和分支目的地址的预测，本文主要介绍前者。
+ 从CPU流水线说起 在现代计算机体系结构下，程序都会被转换成一条条指令，在CPU中执行。
+我们能想到的最简单的指令执行流程是串行执行，比如现有指令A，B，C和D，那么，串行执行流程如下：
+然而，串行执行的效率无疑是低下的。为了充分榨干CPU的性能，指令流水线出现了，它把指令执行的流程划分成多个阶段，每个阶段可以独立执行。比如，下图中为2级流水线的示例图：
+在流水线下，虽然单个指令执行的耗时不变，但指令执行的吞吐量增大了。
+分支指令是众多指令中的一种，它伴随着程序中 if/for/while 等可能出现分支跳转的代码而出现。
+if (x == 0) { // doTingA } else { // doTingB } 上述的代码，可能会转换成如下的汇编代码：
+branch_if_not_equal x, 0, else_label // doTingA goto end_label else_label: // doTingB end_label: // whatever happens later 分支指令的出现使得流水线执行变回了串行，因为在branch_if_not_equal执行完之前，CPU无法不知道下一步应该是doTingA，还是doTingB。
+我们可以加入分支预测的机制，提前“猜测”下一条指令，虽然猜错了会有惩罚代价，但只要我们猜得足够准确，CPU的性能就会得到大幅的提升。
+分支预测的发展 静态分支预测 静态分支预测机制最简单，可认为是工程师根据大多数程序的特征总结出来的规律，常见的有2种机制：
+ Alway taken。每次都执行跳转操作，对循环逻辑效果很好。 BTFNT。如果目的地址为向前，则选择不跳转，向后则选择跳转。  静态分支预测机制实现简单、硬件开销低，但在复杂的程序上预测成功率低。因此，在现代处理器中占主导地位的为动态分支预测。
+动态分支预测 动态分支预测基本都基于分支执行历史进行，这里有个关键前提**，分支行为是重复的，这意味着分支行为是可以学习和预测的**！
+最简单的预测策略是基于最近一次分支执行的结果。在实现上通常使用1 bit来存储最近一次分支执行结果，1表示跳转（taken），0表示不跳转（no taken）。
+上图中，分支执行历史被存放到PHT（Pattern History Table）上，并通过分支指令的地址（PC）进行索引。</description>
+    </item>
+    
+  </channel>
+</rss>

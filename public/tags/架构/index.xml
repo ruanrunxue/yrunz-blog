@@ -6,7 +6,63 @@
     <description>Recent content in 架构 on 元闰子的邀请</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 08 Apr 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://www.yrunz.com/tags/%E6%9E%B6%E6%9E%84/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 03 Aug 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://www.yrunz.com/tags/%E6%9E%B6%E6%9E%84/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>分离还是统一，这是个问题</title>
+      <link>https://www.yrunz.com/p/%E5%88%86%E7%A6%BB%E8%BF%98%E6%98%AF%E7%BB%9F%E4%B8%80%E8%BF%99%E6%98%AF%E4%B8%AA%E9%97%AE%E9%A2%98/</link>
+      <pubDate>Sun, 03 Aug 2025 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E5%88%86%E7%A6%BB%E8%BF%98%E6%98%AF%E7%BB%9F%E4%B8%80%E8%BF%99%E6%98%AF%E4%B8%AA%E9%97%AE%E9%A2%98/</guid>
+      <description>To be, or not to be, that is the question. —— 莎士比亚
+ 前言 “高内聚，低耦合”是软件工程领域广为流传的一个原则，在此原则的驱使下，应用系统逐渐从单体架构演进成微服务架构，甚至进一步按函数粒度拆分成 FaaS（函数即服务），呈分离趋势。
+然而，我们又能看到很多软件系统呈统一的演进趋势，比如数据系统从批处理和流处理分离的 Lambda 架构[1]演进到流批一体架构、从数据仓库和数据湖分离演进到湖仓一体；比如大模型，从文本大模型演进到多模态大模型。
+再往下到硬件基础设施，随着 AI 时代的到来，CPU 已难以招架新的 AI 负载，各类加速芯片纷纷出现，如 GPU、TPU、DPU，整体呈从通用到专用的分离趋势；但包含 36 个 CPU 和 72 个 GPU 的 NVIDIA GB200 NVL72[2]、包含 192 个 CPU 和 384 个 NPU 的 HUAWEI CloudMatrix384[3]等超节点的出现，似乎又呈现统一趋势。
+那么，从顶层业务到底层硬件，整个系统到底是趋于分离，还是统一呢？
+这是个问题。
+本文将从业务、模型、平台、基础设施四个视角出发，探讨各类系统走向分离或者统一的原因，并尝试从中总结出趋势。
+业务视角 大多数业务始于单体架构，它架构和技术栈简单，非常利于初创团队进行原型验证。然而，随着业务的增长，代码量和用户量变得更多，单体架构逐渐显现出它的局限性：
+ 可维护性差。某个模块新增或修改一个特性，就必须重新升级整个系统。 可用性差。某个模块出现一个 BUG 可能会导致整个系统宕机，对外无法提供服务。  这些局限性背后的原因是系统模块间耦合太深，导致牵一发而动全身。
+我们可以根据业务属性，将模块拆分出来成为独立的服务，于是就有了服务化架构。更近一步，再将数据解耦，让每个服务拥有独立的数据库实例，就有了微服务架构[4]。
+ 更详细的从单体架构演进到微服务架构的内容，参考《软件架构，一切尽在权衡[4]》。
+ 虽然微服务架构也有缺点，比如服务间通信导致的性能下降，但人们更倾向于在平台或基础设施层去解决它们，而不是走回单体架构的路。
+AI 时代的应用也是如此，虽然目前 Multi-Agent 系统的失败率普遍在 60% 以上 [5]，存在 Agent 间无效通信等诸多问题，但大多人都不会怀疑从 Single-Agent 到 Multi-Agent 的演进趋势。Multi-Agent 系统下，各个 Agent 各司其职，在复杂任务的执行上对比 Single-Agent 系统有着绝对的优势。</description>
+    </item>
+    
+    <item>
+      <title>深入理解Lambda架构</title>
+      <link>https://www.yrunz.com/p/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3lambda%E6%9E%B6%E6%9E%84/</link>
+      <pubDate>Sun, 21 Jul 2024 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3lambda%E6%9E%B6%E6%9E%84/</guid>
+      <description>荐语 本文要介绍的是 2015 年 O&amp;rsquo;Reilly 出版的书籍 Big Data: Principles and best practices of scalable realtime data systems，书中主要介绍一种常见的大数据架构 —— Lambda 架构。Lambda 架构通过批处理和流处理相结合的方法，有效处理了大数据场景下的工作负载。相比以关系型数据库为核心的传统数据系统，它在可扩展性、容错性等方面有了更进一步的提升。
+虽然 Lambda 架构是十年前被提出的数据架构，但 Lambda 架构的以不可变数据作为核心、历史和实时数据分层处理的架构思想仍值得我们学习。
+传统数据系统的局限 考虑有这么一个系统，根据用户的浏览记录，统计用户访问网页的次数：
+在上述系统中，每次用户浏览一个 url，应用就会向数据库更新一行数据。随着用户量的不断上升，并发量急剧上涨，数据库最先达到瓶颈，频繁出现更新超时的现象。针对这种情况，我们可以引入消息队列，将单次写改成批量写，以此降低数据库的并发数。
+但这并不是长久之计，随着用户量的再次上涨，单实例的数据库还是会成为单点瓶颈。为此，可以对数据库进行水平扩展，分库分表，将原本集中在单个数据库实例上的请求，负载均衡到多个实例之上。
+分库分表虽能消除数据库单点瓶颈，但也会带来其他的一些问题：
+ 应用逻辑更复杂。应用层需要根据数据的 key 找到其所在的数据库实例，以便进行数据更新。 维护成本更高。为了避免因数据库实例宕机导致的服务不可用，需要通过增加数据副本、缓冲队列等手段提升可用性。另外，随着数据量的增大，可能因数据库实例间负载不均衡，而产生对数据进行重分区的操作。这些都会导致维护成本的急剧增加。 容错性问题。一旦开发者在更新数据库时出现人为错误，比如在增加 pageviews 字段时多乘了 2，那么数据将难以恢复，因为很难溯源。  上述例子中，从简单的 CURD，到增加消息队列、分库分表、副本、重分区等，系统也越来越复杂。导致这一切的原因是，传统数据库系统并非为分布式而生，它无法很好地适用于大数据场景。
+大数据技术的局限 那么，大数据技术就能解决这些问题吗？答案是，否！
+像 Hadoop、MapReduce、HBase 等这类大数据技术，虽然能够天然就处理海量数据，但它们都有各种局限，比如，MapReduce 是批处理系统，计算时延高；HBase 键值查询快，但无法满足复杂的 SQL 查询场景。
+为了找到解决方法，我们还需从大数据系统的本质入手。
+大数据系统的本质 作者对数据系统进行了如下定义：
+ A data system answers questions based on information that was acquired in the past up to the present.</description>
+    </item>
+    
+    <item>
+      <title>软件架构，一切尽在权衡</title>
+      <link>https://www.yrunz.com/p/%E8%BD%AF%E4%BB%B6%E6%9E%B6%E6%9E%84%E4%B8%80%E5%88%87%E5%B0%BD%E5%9C%A8%E6%9D%83%E8%A1%A1/</link>
+      <pubDate>Sun, 16 Jun 2024 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E8%BD%AF%E4%BB%B6%E6%9E%B6%E6%9E%84%E4%B8%80%E5%88%87%E5%B0%BD%E5%9C%A8%E6%9D%83%E8%A1%A1/</guid>
+      <description>荐语 本文要介绍的是 2021 年 O&amp;rsquo;Reilly 出版的书籍 Software Architecture: The Hard Parts（后文简称 SAHP），某种程度上，它是 Fundamentals of Software Architecture（后文简称 FSA）的延续，两本书的主要作者相同。FSA 是基础篇，重点介绍了常见的 8 种架构模式；SAHP 是进阶篇，重点介绍了如何从单体架构演进到分布式架构。
+软件架构，特别是分布式架构，是很复杂的。这世上不存在所谓的通用架构模式，针对特定的应用场景，架构师需要在数据一致性、可扩展性、性能等多个因素上进行权衡，这也是本书标题强调的 The Hard Parts。
+FSA 里有一句名言，“Everything in software architecture is a trade-off.”。本书的重点就是要教会你，在单体架构演进到分布式架构的过程中，如何众多因素上进行权衡分析，以此来选择出一个符合实际业务场景的软件架构。
+为什么叫 “The Hard Part”？ 书的名字叫 Software Architecture: The Hard Parts，其中，Hard 有两层含义。
+第一，软件架构很难。设计软件架构需要考虑的因素很多，架构师也必然会遇到各式各样的难题，而且它们往往没有通用的解决方法。软件工程的问题，很多时候可以通过 Google 搜索来解决；而软件架构的问题，只能根据实际的业务场景，在众多的考虑因素上进行权衡。所以，在软件架构上，不要试图找到最好的设计，而是要努力实现最不糟糕的权衡组合。
+ Don’t try to find the best design in software architecture; instead, strive for the least worst combination of trade-offs.
+ 第二，软件架构是稳定的。Hard 取自于硬件的英文单词 Hardware，相比软件 Software，硬件是更稳定的一个，它是软件的基础。同理，软件架构是一款软件的架子、基础，好的架构通常都是稳定的，不轻易随软件的变更而变化。</description>
+    </item>
+    
     <item>
       <title>从分层架构到微服务架构（五）之服务化架构</title>
       <link>https://www.yrunz.com/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E4%BA%94%E4%B9%8B%E6%9C%8D%E5%8A%A1%E5%8C%96%E6%9E%B6%E6%9E%84/</link>

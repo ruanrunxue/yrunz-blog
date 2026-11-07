@@ -1,0 +1,1696 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='本文要介绍的是 2020 年 O&#39;Reilly 出版的书籍 Unit Testing Principles, Practices, and Patterns，一本在豆瓣评分高达 9.9 的好书。'><title>深入理解单元测试</title>
+
+<link rel='canonical' href='https://www.yrunz.com/p/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='深入理解单元测试'>
+<meta property='og:description' content='本文要介绍的是 2020 年 O&#39;Reilly 出版的书籍 Unit Testing Principles, Practices, and Patterns，一本在豆瓣评分高达 9.9 的好书。'>
+<meta property='og:url' content='https://www.yrunz.com/p/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95/'>
+<meta property='og:site_name' content='元闰子的邀请'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='单元测试' /><meta property='article:tag' content='读书笔记' /><meta property='article:tag' content='oreilly' /><meta property='article:published_time' content='2024-09-08T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2024-09-08T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="深入理解单元测试">
+<meta name="twitter:description" content="本文要介绍的是 2020 年 O&#39;Reilly 出版的书籍 Unit Testing Principles, Practices, and Patterns，一本在豆瓣评分高达 9.9 的好书。">
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "light");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/yrz_huab1eef27cf09ceddd85969461c7dd38b_46713_300x0_resize_box_2.png" width="300"
+                            height="306" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://www.yrunz.com">元闰子的邀请</a></h1>
+        <h2 class="site-description">阅读、写作、生活（个人技术分享）</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>首页</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>博客</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%85%B3%E4%BA%8E%E5%85%83%E9%97%B0%E5%AD%90/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>关于元闰子</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%8F%8B%E6%83%85%E9%93%BE%E6%8E%A5/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>友情链接</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>暗色模式</span>
+            </li>
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://www.yrunz.com" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E5%86%99%E5%A5%BD%E4%BB%A3%E7%A0%81/" >
+                写好代码
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95/">深入理解单元测试</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        本文要介绍的是 2020 年 O&#39;Reilly 出版的书籍 Unit Testing Principles, Practices, and Patterns，一本在豆瓣评分高达 9.9 的好书。
+    </h3>
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Sep 08, 2024</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <h2 id="荐语">荐语</h2>
+<p>本文要介绍的是 2020 年 O&rsquo;Reilly 出版的书籍 <a class="link" href="https://learning.oreilly.com/library/view/unit-testing-principles/9781617296277/"  target="_blank" rel="noopener"
+    >Unit Testing Principles, Practices, and Patterns</a>，一本在豆瓣评分高达 9.9 的好书。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-08-06-152243.png" alt=""  /></p>
+<p>作为一名软件开发工程师，你应该对单元测试（<em>unit test</em>）很熟悉，但单元测试的目的、Mock 的正确用法、单元测试和集成测试的区别等等，你<strong>真的懂吗</strong>？书中对这些内容都做了深入的介绍，并通过实际案例教你如何写出好的单元测试。<strong>读完这本书，你一定会有醍醐灌顶的感觉，原来单元测试要这么写</strong>！</p>
+<p>书中的另一个重要观点认为，<strong>单元测试和代码架构是息息相关的，写不出好的单元测试，极有可能是代码架构设计得不好</strong>。为了写出好的单元测试，需要不断对代码架构的优化，它们相辅相成，从而让软件能够持续演进。</p>
+<h2 id="为什么要写单元测试">为什么要写单元测试？</h2>
+<h3 id="单元测试的目的">单元测试的目的</h3>
+<p>如今，在软件开发活动中，单元测试已经成为企业级软件不可或缺的一环，是代码门禁的必选项。</p>
+<p>如果突然有人问你，“<em>为什么要写单元测试</em>？”，你很容易会想到这样的答案，1）为了找到代码中已有的 Bug；2）为了防止引入新的 Bug；3）让代码架构变得更好；甚至是 4）满足代码门禁中覆盖率的要求。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-08-10-123937.png" alt=""  /></p>
+<p>但这些都不是我们写单元测试的根本目的，它们只是“写单元测试”这一活动所带来的<strong>副产品</strong>。</p>
+<p>书中认为，<strong>单元测试的目的是实现软件项目的可持续增长</strong>。</p>
+<p>企业级软件应用通常都有着<strong>业务逻辑复杂度高和生命周期长</strong>的特点。随着产品的不断迭代，代码会变得越来越复杂乱，每次修改代码也会变得越来越难，这就是软件的熵增定律。而<strong>单元测试的目的就是降低熵增的加速度，使得重构代码或新增功能变得更加的容易</strong>。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-08-10-132322.png" alt=""  /></p>
+<h3 id="单元测试也分好坏">单元测试也分好坏</h3>
+<p><em><strong>代码并非资产，而是一种负债，单元测试代码也是如此</strong></em>。</p>
+<p>然而，我们往往会将生产代码和测试代码区分对待，忽略了对测试代码的维护，久而久之，测试代码变得冗余、复杂，甚至出现误报的情况。这样的单元测试，只会让系统的演进更加难。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-08-10-141649.png" alt=""  /></p>
+<p>如何评判单元测试的好坏？最常用的方法是代码覆盖率，也即测试用例执行了多少源代码。其中，又可分为<strong>行覆盖率</strong>和<strong>分支覆盖率</strong>。</p>
+<p><strong>行覆盖率计算执行了多少代码行</strong>，比如下面的例子，<code>return true</code> 的代码行无法覆盖，因此代码行覆盖率为 <code>4/5=80%</code>：</p>
+<div class="highlight"><pre class="chroma"><code class="language-c#" data-lang="c#"><span class="c1">// C#
+</span><span class="c1"></span><span class="k">public</span> <span class="k">static</span> <span class="kt">bool</span> <span class="n">IsStringLong</span><span class="p">(</span><span class="kt">string</span> <span class="n">input</span><span class="p">)</span>
+<span class="p">{</span>
+     <span class="k">if</span> <span class="p">(</span><span class="n">input</span><span class="p">.</span><span class="n">Length</span> <span class="p">&gt;</span> <span class="m">5</span><span class="p">)</span>
+         <span class="c1">// 无法执行
+</span><span class="c1"></span>         <span class="k">return</span> <span class="k">true</span><span class="p">;</span>
+    <span class="k">return</span> <span class="k">false</span><span class="p">;</span>
+ <span class="p">}</span>
+
+<span class="k">public</span> <span class="k">void</span> <span class="n">Test</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="kt">bool</span> <span class="n">result</span> <span class="p">=</span> <span class="n">IsStringLong</span><span class="p">(</span><span class="s">&#34;abc&#34;</span><span class="p">);</span>
+    <span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="k">false</span><span class="p">,</span> <span class="n">result</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div><p>但是，某些时候行覆盖率并不能放映真实的覆盖情况，比如将上述的 <code>IsStringLong</code>  使用三目运算符进行重构，行覆盖率 <code>3/3=100%</code> 了，但实际情况并未改善。</p>
+<div class="highlight"><pre class="chroma"><code class="language-c#" data-lang="c#"><span class="c1">// C#
+</span><span class="c1"></span><span class="k">public</span> <span class="k">static</span> <span class="kt">bool</span> <span class="n">IsStringLong</span><span class="p">(</span><span class="kt">string</span> <span class="n">input</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="n">input</span><span class="p">.</span><span class="n">Length</span> <span class="p">&gt;</span> <span class="m">5</span> <span class="p">?</span> <span class="k">true</span> <span class="p">:</span> <span class="k">false</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">public</span> <span class="k">void</span> <span class="n">Test</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="kt">bool</span> <span class="n">result</span> <span class="p">=</span> <span class="n">IsStringLong</span><span class="p">(</span><span class="s">&#34;abc&#34;</span><span class="p">);</span>
+    <span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="k">false</span><span class="p">,</span> <span class="n">result</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div><p>分支覆盖率情况会好一些，<code>IsStringLong</code>  重构前后的分支覆盖率都是 <code>1/2=50%</code>：</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-08-10-150259.png" alt=""  /></p>
+<p>但是，如果代码中涉及调用第三方库的代码，分支覆盖率也无法反映真实的情况：</p>
+<div class="highlight"><pre class="chroma"><code class="language-c#" data-lang="c#"><span class="k">public</span> <span class="k">static</span> <span class="kt">int</span> <span class="n">Parse</span><span class="p">(</span><span class="kt">string</span> <span class="n">input</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">// int.Parse为第三方库中的方法
+</span><span class="c1"></span>    <span class="k">return</span> <span class="kt">int</span><span class="p">.</span><span class="n">Parse</span><span class="p">(</span><span class="n">input</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">public</span> <span class="k">void</span> <span class="n">Test</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">result</span> <span class="p">=</span> <span class="n">Parse</span><span class="p">(</span><span class="s">&#34;5&#34;</span><span class="p">);</span>
+    <span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="m">5</span><span class="p">,</span> <span class="n">result</span><span class="p">);</span>
+<span class="p">}</span>
+
+</code></pre></div><p>上述例子中，看似分支覆盖率也 <code>100%</code> 了，但 <code>int.Parse</code> 方法的实现并未考虑到：</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-08-10-151709.png" alt=""  /></p>
+<p>另外，一些代码并未包含核心的业务逻辑，比如枚举类的声明，专门写单元测试来覆盖它们，除了得到更高的代码覆盖率之外，实际并不会带来价值。</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">// C#
+</span><span class="c1">// 稳定、不包含业务逻辑
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">enum</span> <span class="n">InputType</span> <span class="o">{</span>
+    <span class="n">SOCKET</span><span class="o">,</span>
+    <span class="n">HTTP</span><span class="o">,</span>
+    <span class="n">HTTPS</span><span class="o">,</span>
+    <span class="n">WEBSOCKET</span>
+<span class="o">}</span>
+</code></pre></div><p>所以，<strong>代码覆盖率低的单元测试，可以认为是不好的；但代码覆盖率高的单元测试，却不见得是好的</strong>。</p>
+<p>那么，怎样的单元测试才是好的呢？</p>
+<p>书中认为，好的单元测试应该包含如下几个特点：</p>
+<ul>
+<li><strong>被集成到开发周期中</strong>。单元测试应该被集成到 CICD 流程，每次代码的更改都能够自动执行。</li>
+<li><strong>仅针对代码中最重要的部分</strong>。单元测试代码也是一种负债，不能为了追求代码覆盖率而写出大量的冗余用例。</li>
+<li><strong>以最低的维护成本提供最大的价值</strong>。这是书中的重点，也是后文要详细介绍的内容。</li>
+</ul>
+<h2 id="什么是单元测试">什么是单元测试</h2>
+<h3 id="测试金字塔">测试金字塔</h3>
+<p>如果有人问你，“什么是单元测试？”，你可能会想到测试金字塔：</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-08-10-115644.png" alt=""  /></p>
+<p>测试金字塔从下往上分别是单元测试、集成测试和端到端测试，<strong>单元测试通常是面向类或方法级别的测试方法</strong>；集成测试则面向服务或模块级别；端到端测试是从最终用户的角度进行测试，测试对象为整个系统。</p>
+<p>在一个设计良好的系统中，<strong>这三类测试的占比就像它们在金字塔中的面积，越往下越高；测试执行速度越往下越快</strong>。</p>
+<p>测试金字塔所表达的意思是，单元测试的执行效率更高，因此我们应依靠大量的单元测试、辅助以少量的集成测试和端到端测试，来保证系统的功能正确。</p>
+<p>那么，怎样的测试才算是单元测试呢？</p>
+<h3 id="单元测试中的依赖和测试替身">单元测试中的依赖和测试替身</h3>
+<p>在给单元测试下定义之前，先介绍单元测试中的依赖，它是区分不同学派的单元测试，以及测试金字塔中不同测试类别的关键。</p>
+<p><strong>书中将单元测试的依赖分成两类，共享依赖和私有依赖，其中私有依赖又可分为可变依赖和不可变依赖</strong>。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-08-11-003313.png" alt=""  /></p>
+<ul>
+<li>共享依赖指测试之间共享的依赖项，比如可变的静态全局变量（进程内）和数据库（进程外）。</li>
+<li>私有依赖则是非共享的依赖项：
+<ul>
+<li>可变依赖，普通对象、无状态的静态方法都属于可变依赖，比如前面例子中 <code>Parse</code> 方法所依赖的 <code>int.Parse</code> 方法。</li>
+<li>不可变依赖，又称值对象，比如前面例子的 <code>InputType</code> 枚举类。</li>
+</ul>
+</li>
+</ul>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-08-11-010653.png" alt=""  /></p>
+<p>写单元测试的过程中，总会存在某些依赖项无法在测试环境中集成，这时须要使用测试替身（<em>test double</em>）进行替换。</p>
+<p><strong>测试替身是一个看起来跟实际依赖对象行为一致、实际是简化版实现的对象</strong>，有助于提升单元测试的可测试性。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-08-11-012008.png" alt=""  /></p>
+<p>我们常用到的 Mock 属于测试替身的一种，能够用于校验被测对象和依赖项之间的交互行为。</p>
+<h3 id="单元测试的定义">单元测试的定义</h3>
+<p>单元测试的定义很多，提取关键点可总结出这样的定义，单元测试是<strong>一种自动化测试方法</strong>，它具备如下特点：</p>
+<ol>
+<li><strong>验证一小段代码</strong>（也即，代码单元）。</li>
+<li><strong>执行速度很快</strong>。</li>
+<li><strong>并以相互隔离的方式来执行</strong>。</li>
+</ol>
+<h3 id="经典学派和伦敦学派之争">经典学派和伦敦学派之争</h3>
+<p>上述的定义延伸出两种学派的单元测试，<strong>经典学派</strong>（<em>Classical School</em>）和<strong>伦敦学派</strong>（<em>London School</em>）。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-08-11-020837.png" alt=""  /></p>
+<p>它们分歧点主要在定义的第 1 点和第 3 点，以及选择使用测试替身的时机：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>被测对象</th>
+<th>隔离对象</th>
+<th>使用测试替身的依赖</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>经典学派</td>
+<td>一个或多个类</td>
+<td>测试用例</td>
+<td>共享依赖</td>
+</tr>
+<tr>
+<td>伦敦学派</td>
+<td>一个类</td>
+<td>被测对象</td>
+<td>除不可变依赖的其他依赖</td>
+</tr>
+</tbody>
+</table>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-08-11-045535.png" alt=""  /></p>
+<p>支持伦敦学派的人通常持有如下<strong>观点</strong>：</p>
+<ul>
+<li>观点一：伦敦学派拥有更细的测试粒度，一个用例只测试一个类，符合单一职责原则。</li>
+<li>观点二：在依赖关系复杂的代码工程里，更易编写单元测试。</li>
+<li>观点三：如果测试失败，很容易找到问题点。</li>
+</ul>
+<p>而作者却更偏好经典学派，认为它能够写出更高质量的单元测试，因此也更能满足单元测试目标的要求。针对上述的几个观点，作者给出如下的<strong>反驳</strong>：</p>
+<ul>
+<li>
+<p>观点一：被测对象不应该是一个类，而应该是一个行为。也即<strong>单元测试应该站在用户的角度去验证系统的行为</strong>，至于该行为需要一个或是多个类来实现，这些都是实现细节，并不重要！</p>
+<p>单元测试应该是讲述一个你的代码如何解决业务问题的故事，书中举了一个很形象的例子，面向行为的单元测试就像下述故事一样，凝练、目标清晰：</p>
+<blockquote>
+<p>当我呼唤我的狗时，它从右边向我走来。</p>
+</blockquote>
+<p>而面向实现细节的单元测试则像这样，冗长、目标不明确：</p>
+<blockquote>
+<p>当我呼唤我的狗时，它首先迈开它的左前腿，然后是有前腿，接着转过头来，并开始摇尾巴&hellip;</p>
+</blockquote>
+</li>
+<li>
+<p>观点二：<strong>代码的依赖关系复杂，通常都是代码架构设计的问题，使用测试替身只是隐藏了问题，并不能从根本上解决</strong>。</p>
+</li>
+<li>
+<p>观点三：单元测试通常会被集成到 CICD 流程上，因此每次修改代码都会触发测试执行，因此，经典学派在问题定位上也不会很难。</p>
+</li>
+</ul>
+<h3 id="更准确的定义">更准确的定义</h3>
+<p>因此，书中认为，单元测试更准确的定义应该是，它是一种自动化测试方法，具备如下特点：</p>
+<ul>
+<li><strong>验证一个行为单元</strong>。</li>
+<li><strong>执行速度很快</strong>。</li>
+<li><strong>执行时与其他测试用例相隔离</strong>。</li>
+</ul>
+<h3 id="集成测试与端到端测试">集成测试与端到端测试</h3>
+<p>书中对<strong>集成测试</strong>（<em>integration test</em>）的定义为<strong>不满足单元测试这三个特点的测试</strong>，比如如下的情形：</p>
+<ul>
+<li>测试用例验证了多个行为（表现为用例中有多个 Assert 断言语句）。</li>
+<li>测试用例中需要调用数据库、远程 API 服务等，考虑网络时延等，用例执行耗时可能来到秒级。</li>
+<li>测试用例需要访问共享数据库，因此无法与其他用例隔离开。</li>
+</ul>
+<p>端到端测试（<em>end-to-end tests</em>）属于集成测试的子集。它们的区别是，集成测试会使用测试替身来替代部分依赖，比如远程 API 服务；而端到端测试则不会，因此结果也更可靠。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-08-11-045956.png" alt=""  /></p>
+<h2 id="单元测试的结构">单元测试的结构</h2>
+<p>前面提到，<strong>好的单元测试应该要以最低的维护成本提供最大的价值</strong>。要降低维护成本，就要为它设计出好的代码结构。</p>
+<h3 id="用例的命名">用例的命名</h3>
+<p>好的命名能够极大提升单元测试代码的可读性，当前，被提及最多的命名方式如下：</p>
+<blockquote>
+<p><strong>[MethodUnderTest]_[Scenario]_[ExpectedResult]</strong></p>
+</blockquote>
+<p>其中：</p>
+<ul>
+<li>MethodUnderTest 表示被测试的方法。</li>
+<li>Scenario 表示测试场景。</li>
+<li>ExpectedResult 表示测试的预期结果。</li>
+</ul>
+<div class="highlight"><pre class="chroma"><code class="language-c#" data-lang="c#"><span class="c1">// C#
+</span><span class="c1">// [Fact]表示该方法为一个单元测试用例
+</span><span class="c1"></span><span class="na">[Fact]</span>
+<span class="k">public</span> <span class="k">void</span> <span class="n">IsDeliveryValid_InvalidDate_ReturnsFalse</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">DeliveryService</span> <span class="n">sut</span> <span class="p">=</span> <span class="k">new</span> <span class="n">DeliveryService</span><span class="p">();</span>
+    <span class="n">DateTime</span> <span class="n">pastDate</span> <span class="p">=</span> <span class="n">DateTime</span><span class="p">.</span><span class="n">Now</span><span class="p">.</span><span class="n">AddDays</span><span class="p">(-</span><span class="m">1</span><span class="p">);</span>
+    <span class="n">Delivery</span> <span class="n">delivery</span> <span class="p">=</span> <span class="k">new</span> <span class="n">Delivery</span>
+    <span class="p">{</span>
+        <span class="n">Date</span> <span class="p">=</span> <span class="n">pastDate</span>
+    <span class="p">};</span>
+
+    <span class="kt">bool</span> <span class="n">isValid</span> <span class="p">=</span> <span class="n">sut</span><span class="p">.</span><span class="n">IsDeliveryValid</span><span class="p">(</span><span class="n">delivery</span><span class="p">);</span>
+
+    <span class="n">Assert</span><span class="p">.</span><span class="n">False</span><span class="p">(</span><span class="n">isValid</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div><p>上述例子中，从用例名 <code>IsDeliveryValid_InvalidDate_ReturnsFalse</code> 可以看出，被测的方法为 <code>IsDeliveryValid</code>，场景是非法日期（Invalid Date），预期结果是方法返回 <code>False</code>。</p>
+<p>前文提到，我们应该**面向代码行为来编写单元测试，**而 <code>IsDeliveryValid_InvalidDate_ReturnsFalse</code> 这种命名方式却暴露了实现细节（被测方法）。</p>
+<p>更好的方法是，站在用户的角度命名测试用例：</p>
+<div class="highlight"><pre class="chroma"><code class="language-c#" data-lang="c#"><span class="k">public</span> <span class="k">void</span> <span class="n">Delivery_with_invalid_date_should_be_considered_invalid</span><span class="p">()</span>
+</code></pre></div><p>在该版本中，被测方法 <code>IsDeliveryValid</code> 从命名中被删除，命名已非常接近于人类语言，这样即使是非开发人员也能看懂。</p>
+<p>我们还能将进一步明确测试场景（delivery with past date）：</p>
+<div class="highlight"><pre class="chroma"><code class="language-c#" data-lang="c#"><span class="k">public</span> <span class="k">void</span> <span class="n">Delivery_with_past_date_should_be_considered_invalid</span><span class="p">()</span>
+</code></pre></div><p>到这里，命名已经很清晰，但还能更简洁，去掉没意义的 <code>considered</code>：</p>
+<div class="highlight"><pre class="chroma"><code class="language-c#" data-lang="c#"><span class="k">public</span> <span class="k">void</span> <span class="n">Delivery_with_past_date_should_be_invalid</span><span class="p">()</span>
+</code></pre></div><p>另外，我们应该在<strong>用例命名中使用肯定的语气</strong>，也即将 <code>should be</code> 替换为 <code>is</code>：</p>
+<div class="highlight"><pre class="chroma"><code class="language-c#" data-lang="c#"><span class="k">public</span> <span class="k">void</span> <span class="n">Delivery_with_past_date_is_invalid</span><span class="p">()</span>
+</code></pre></div><p>最后，我们没必要删减基本的英语语法，它能够让非开放人员更好地看懂用例，将 a 添加到命名中：</p>
+<div class="highlight"><pre class="chroma"><code class="language-c#" data-lang="c#"><span class="k">public</span> <span class="k">void</span> <span class="n">Delivery_with_a_past_date_is_invalid</span><span class="p">()</span>
+</code></pre></div><h3 id="测试代码的组织">测试代码的组织</h3>
+<p>书中推荐按照 AAA 模式组织测试代码，AAA 模式将测试分成 3 部分：<strong>Arrange</strong>、<strong>Act</strong> 和 <strong>Assert</strong>。</p>
+<ul>
+<li>Arrange 部分负责初始化被测系统（System Under Test，SUT）和相关依赖的初始化。</li>
+<li>Act 部分则调用 SUT 的被测方法，向其传递依赖，如果有返回值，则保存它。</li>
+<li>Assert 部分校验 Act 部分的返回值，或系统的某个状态，或相关的交互动作等。</li>
+</ul>
+<blockquote>
+<p>Given-When-Then 模式可能更常见，它跟 AAA 模式类似，Given 对应 Arrange，When 对应 Act，Then 对应 Assert。</p>
+</blockquote>
+<p>前面的 <code>Delivery_with_a_past_date_is_invalid</code> 例子就是按照 AAA 的模式来组织：</p>
+<div class="highlight"><pre class="chroma"><code class="language-c#" data-lang="c#"><span class="c1">// C#
+</span><span class="c1"></span><span class="na">[Fact]</span>
+<span class="k">public</span> <span class="k">void</span> <span class="n">Delivery_with_a_past_date_is_invalid</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="c1">// Arrange
+</span><span class="c1"></span>    <span class="n">DeliveryService</span> <span class="n">sut</span> <span class="p">=</span> <span class="k">new</span> <span class="n">DeliveryService</span><span class="p">();</span>
+    <span class="n">DateTime</span> <span class="n">pastDate</span> <span class="p">=</span> <span class="n">DateTime</span><span class="p">.</span><span class="n">Now</span><span class="p">.</span><span class="n">AddDays</span><span class="p">(-</span><span class="m">1</span><span class="p">);</span>
+    <span class="n">Delivery</span> <span class="n">delivery</span> <span class="p">=</span> <span class="k">new</span> <span class="n">Delivery</span>
+    <span class="p">{</span>
+        <span class="n">Date</span> <span class="p">=</span> <span class="n">pastDate</span>
+    <span class="p">};</span>
+
+    <span class="c1">// Act
+</span><span class="c1"></span>    <span class="kt">bool</span> <span class="n">isValid</span> <span class="p">=</span> <span class="n">sut</span><span class="p">.</span><span class="n">IsDeliveryValid</span><span class="p">(</span><span class="n">delivery</span><span class="p">);</span>
+
+    <span class="c1">// Assert
+</span><span class="c1"></span>    <span class="n">Assert</span><span class="p">.</span><span class="n">False</span><span class="p">(</span><span class="n">isValid</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div><p>按 AAA 模式组织代码时，有以下几个注意点：</p>
+<ul>
+<li>
+<p><strong>应始终将被测对象命名为 <code>sut</code>，这样可读性更高</strong>，比如上述例子中的 <code>DeliveryService</code>。</p>
+</li>
+<li>
+<p><strong>应避免在用例中包含 <code>if</code> 语句</strong>，如果必须，通常表明该用例测试的内容太多，需要拆分。</p>
+</li>
+<li>
+<p><strong>Act 部分应避免有多行</strong>，如果必须，通常表明代码设计不合理，缺少封装，需要重构。比如下述例子中，因缺少封装导致需要两次调用才能完成一次购买业务。更好的方法是将 <code>store.RemoveInventory</code> 封装到 <code>customer.Purchase</code> 里面，否则过度依赖调用方，容易产生数据不一致的问题。</p>
+<div class="highlight"><pre class="chroma"><code class="language-c#" data-lang="c#"><span class="c1">// C#
+</span><span class="c1">// 缺少封装，导致Act需要2行
+</span><span class="c1"></span><span class="na">[Fact]</span>
+<span class="k">public</span> <span class="k">void</span> <span class="n">Purchase_succeeds_when_enough_inventory</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="c1">// Arrange
+</span><span class="c1"></span>    <span class="kt">var</span> <span class="n">store</span> <span class="p">=</span> <span class="k">new</span> <span class="n">Store</span><span class="p">();</span>
+    <span class="n">store</span><span class="p">.</span><span class="n">AddInventory</span><span class="p">(</span><span class="n">Product</span><span class="p">.</span><span class="n">Shampoo</span><span class="p">,</span> <span class="m">10</span><span class="p">);</span>
+    <span class="kt">var</span> <span class="n">customer</span> <span class="p">=</span> <span class="k">new</span> <span class="n">Customer</span><span class="p">();</span>
+
+    <span class="c1">// Act
+</span><span class="c1"></span>    <span class="kt">bool</span> <span class="n">success</span> <span class="p">=</span> <span class="n">customer</span><span class="p">.</span><span class="n">Purchase</span><span class="p">(</span><span class="n">store</span><span class="p">,</span> <span class="n">Product</span><span class="p">.</span><span class="n">Shampoo</span><span class="p">,</span> <span class="m">5</span><span class="p">);</span>
+    <span class="n">store</span><span class="p">.</span><span class="n">RemoveInventory</span><span class="p">(</span><span class="n">success</span><span class="p">,</span> <span class="n">Product</span><span class="p">.</span><span class="n">Shampoo</span><span class="p">,</span> <span class="m">5</span><span class="p">);</span>
+
+    <span class="c1">// Assert
+</span><span class="c1"></span>    <span class="n">Assert</span><span class="p">.</span><span class="n">True</span><span class="p">(</span><span class="n">success</span><span class="p">);</span>
+    <span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="m">5</span><span class="p">,</span> <span class="n">store</span><span class="p">.</span><span class="n">GetInventory</span><span class="p">(</span><span class="n">Product</span><span class="p">.</span><span class="n">Shampoo</span><span class="p">));</span>
+<span class="p">}</span>
+
+<span class="c1">// 合理的封装下，Act只需1行
+</span><span class="c1"></span><span class="na">[Fact]</span>
+<span class="k">public</span> <span class="k">void</span> <span class="n">Purchase_succeeds_when_enough_inventory</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="c1">// Arrange
+</span><span class="c1"></span>    <span class="kt">var</span> <span class="n">store</span> <span class="p">=</span> <span class="k">new</span> <span class="n">Store</span><span class="p">();</span>
+    <span class="n">store</span><span class="p">.</span><span class="n">AddInventory</span><span class="p">(</span><span class="n">Product</span><span class="p">.</span><span class="n">Shampoo</span><span class="p">,</span> <span class="m">10</span><span class="p">);</span>
+    <span class="kt">var</span> <span class="n">customer</span> <span class="p">=</span> <span class="k">new</span> <span class="n">Customer</span><span class="p">();</span>
+
+    <span class="c1">// Act
+</span><span class="c1"></span>    <span class="kt">bool</span> <span class="n">success</span> <span class="p">=</span> <span class="n">customer</span><span class="p">.</span><span class="n">Purchase</span><span class="p">(</span><span class="n">store</span><span class="p">,</span> <span class="n">Product</span><span class="p">.</span><span class="n">Shampoo</span><span class="p">,</span> <span class="m">5</span><span class="p">);</span>
+
+    <span class="c1">// Assert
+</span><span class="c1"></span>    <span class="n">Assert</span><span class="p">.</span><span class="n">True</span><span class="p">(</span><span class="n">success</span><span class="p">);</span>
+    <span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="m">5</span><span class="p">,</span> <span class="n">store</span><span class="p">.</span><span class="n">GetInventory</span><span class="p">(</span><span class="n">Product</span><span class="p">.</span><span class="n">Shampoo</span><span class="p">));</span>
+<span class="p">}</span>
+</code></pre></div></li>
+</ul>
+<h3 id="测试代码的重用">测试代码的重用</h3>
+<p>测试用例之间往往会存在可重用的初始化代码，它们出现在 Arrange 部分。很多人的会选择通过将初始化代码抽取到构造函数中：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">// C#
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">CustomerTests</span>
+<span class="o">{</span>    
+    <span class="c1">// 将被测对象和依赖提取成为成员变量
+</span><span class="c1"></span>    <span class="kd">private</span> <span class="kd">final</span> <span class="n">Store</span> <span class="n">_store</span><span class="o">;</span>                     
+    <span class="kd">private</span> <span class="kd">final</span> <span class="n">Customer</span> <span class="n">_sut</span><span class="o">;</span>
+    
+    <span class="c1">// 在构造函数中进行初始化
+</span><span class="c1"></span>    <span class="kd">public</span> <span class="nf">CustomerTests</span><span class="o">()</span>                          
+    <span class="o">{</span>
+        <span class="n">_store</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Store</span><span class="o">();</span>
+        <span class="n">_store</span><span class="o">.</span><span class="na">AddInventory</span><span class="o">(</span><span class="n">Product</span><span class="o">.</span><span class="na">Shampoo</span><span class="o">,</span> <span class="n">10</span><span class="o">);</span>
+        <span class="n">_sut</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Customer</span><span class="o">();</span>
+    <span class="o">}</span>
+
+    <span class="c1">// 用例1
+</span><span class="c1"></span>    <span class="o">[</span><span class="n">Fact</span><span class="o">]</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">Purchase_succeeds_when_enough_inventory</span><span class="o">()</span>
+    <span class="o">{</span>
+        <span class="n">bool</span> <span class="n">success</span> <span class="o">=</span> <span class="n">_sut</span><span class="o">.</span><span class="na">Purchase</span><span class="o">(</span><span class="n">_store</span><span class="o">,</span> <span class="n">Product</span><span class="o">.</span><span class="na">Shampoo</span><span class="o">,</span> <span class="n">5</span><span class="o">);</span>
+
+        <span class="n">Assert</span><span class="o">.</span><span class="na">True</span><span class="o">(</span><span class="n">success</span><span class="o">);</span>
+        <span class="n">Assert</span><span class="o">.</span><span class="na">Equal</span><span class="o">(</span><span class="n">5</span><span class="o">,</span> <span class="n">_store</span><span class="o">.</span><span class="na">GetInventory</span><span class="o">(</span><span class="n">Product</span><span class="o">.</span><span class="na">Shampoo</span><span class="o">));</span>
+    <span class="o">}</span>
+
+    <span class="c1">// 用例2
+</span><span class="c1"></span>    <span class="o">[</span><span class="n">Fact</span><span class="o">]</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">Purchase_fails_when_not_enough_inventory</span><span class="o">()</span>
+    <span class="o">{</span>
+        <span class="n">bool</span> <span class="n">success</span> <span class="o">=</span> <span class="n">_sut</span><span class="o">.</span><span class="na">Purchase</span><span class="o">(</span><span class="n">_store</span><span class="o">,</span> <span class="n">Product</span><span class="o">.</span><span class="na">Shampoo</span><span class="o">,</span> <span class="n">15</span><span class="o">);</span>
+
+        <span class="n">Assert</span><span class="o">.</span><span class="na">False</span><span class="o">(</span><span class="n">success</span><span class="o">);</span>
+        <span class="n">Assert</span><span class="o">.</span><span class="na">Equal</span><span class="o">(</span><span class="n">10</span><span class="o">,</span> <span class="n">_store</span><span class="o">.</span><span class="na">GetInventory</span><span class="o">(</span><span class="n">Product</span><span class="o">.</span><span class="na">Shampoo</span><span class="o">));</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+</code></pre></div><p>然而这种做法有两个明显的缺点：</p>
+<ul>
+<li><strong>导致测试用例之间耦合加深</strong>。上述例子中，两个用例都依赖了相同的 <code>_sut</code> 和 <code>_store</code> 实例。</li>
+<li><strong>降低了测试代码的可读性</strong>。上述例子中，阅读每个用例时，都必须跳转到构造函数查看 <code>_sut</code> 和 <code>_store</code> 的声明。</li>
+</ul>
+<p>更好的方法是<strong>将初始化代码提取到私有工厂方法中</strong>，一方面消除了用例间的耦合，另一方面可读性也更好：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">// C#
+</span><span class="c1"></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">CustomerTests</span>
+<span class="o">{</span>
+    <span class="c1">// 用例1
+</span><span class="c1"></span>    <span class="o">[</span><span class="n">Fact</span><span class="o">]</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">Purchase_succeeds_when_enough_inventory</span><span class="o">()</span>
+    <span class="o">{</span>
+        <span class="n">Store</span> <span class="n">store</span> <span class="o">=</span> <span class="n">CreateStoreWithInventory</span><span class="o">(</span><span class="n">Product</span><span class="o">.</span><span class="na">Shampoo</span><span class="o">,</span> <span class="n">10</span><span class="o">);</span>
+        <span class="n">Customer</span> <span class="n">sut</span> <span class="o">=</span> <span class="n">CreateCustomer</span><span class="o">();</span>
+
+        <span class="n">bool</span> <span class="n">success</span> <span class="o">=</span> <span class="n">sut</span><span class="o">.</span><span class="na">Purchase</span><span class="o">(</span><span class="n">store</span><span class="o">,</span> <span class="n">Product</span><span class="o">.</span><span class="na">Shampoo</span><span class="o">,</span> <span class="n">5</span><span class="o">);</span>
+
+        <span class="n">Assert</span><span class="o">.</span><span class="na">True</span><span class="o">(</span><span class="n">success</span><span class="o">);</span>
+        <span class="n">Assert</span><span class="o">.</span><span class="na">Equal</span><span class="o">(</span><span class="n">5</span><span class="o">,</span> <span class="n">store</span><span class="o">.</span><span class="na">GetInventory</span><span class="o">(</span><span class="n">Product</span><span class="o">.</span><span class="na">Shampoo</span><span class="o">));</span>
+    <span class="o">}</span>
+
+    <span class="c1">// 用例2
+</span><span class="c1"></span>    <span class="o">[</span><span class="n">Fact</span><span class="o">]</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">Purchase_fails_when_not_enough_inventory</span><span class="o">()</span>
+    <span class="o">{</span>
+        <span class="n">Store</span> <span class="n">store</span> <span class="o">=</span> <span class="n">CreateStoreWithInventory</span><span class="o">(</span><span class="n">Product</span><span class="o">.</span><span class="na">Shampoo</span><span class="o">,</span> <span class="n">10</span><span class="o">);</span>
+        <span class="n">Customer</span> <span class="n">sut</span> <span class="o">=</span> <span class="n">CreateCustomer</span><span class="o">();</span>
+
+        <span class="n">bool</span> <span class="n">success</span> <span class="o">=</span> <span class="n">sut</span><span class="o">.</span><span class="na">Purchase</span><span class="o">(</span><span class="n">store</span><span class="o">,</span> <span class="n">Product</span><span class="o">.</span><span class="na">Shampoo</span><span class="o">,</span> <span class="n">15</span><span class="o">);</span>
+
+        <span class="n">Assert</span><span class="o">.</span><span class="na">False</span><span class="o">(</span><span class="n">success</span><span class="o">);</span>
+        <span class="n">Assert</span><span class="o">.</span><span class="na">Equal</span><span class="o">(</span><span class="n">10</span><span class="o">,</span> <span class="n">store</span><span class="o">.</span><span class="na">GetInventory</span><span class="o">(</span><span class="n">Product</span><span class="o">.</span><span class="na">Shampoo</span><span class="o">));</span>
+    <span class="o">}</span>
+
+    <span class="c1">// 初始化工厂方法1
+</span><span class="c1"></span>    <span class="kd">private</span> <span class="n">Store</span> <span class="nf">CreateStoreWithInventory</span><span class="o">(</span>
+        <span class="n">Product</span> <span class="n">product</span><span class="o">,</span> <span class="kt">int</span> <span class="n">quantity</span><span class="o">)</span>
+    <span class="o">{</span>
+        <span class="n">Store</span> <span class="n">store</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Store</span><span class="o">();</span>
+        <span class="n">store</span><span class="o">.</span><span class="na">AddInventory</span><span class="o">(</span><span class="n">product</span><span class="o">,</span> <span class="n">quantity</span><span class="o">);</span>
+        <span class="k">return</span> <span class="n">store</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="c1">// 初始化工厂方法2
+</span><span class="c1"></span>    <span class="kd">private</span> <span class="kd">static</span> <span class="n">Customer</span> <span class="nf">CreateCustomer</span><span class="o">()</span>
+    <span class="o">{</span>
+        <span class="k">return</span> <span class="k">new</span> <span class="n">Customer</span><span class="o">();</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div><h2 id="评判单元测试的四个标准">评判单元测试的四个标准</h2>
+<p>只有好的结构，还不足以称为好的单元测试，理想的单元测试应该要做到四个标准：</p>
+<ul>
+<li>
+<p>避免漏报。</p>
+</li>
+<li>
+<p>避免误报。</p>
+</li>
+<li>
+<p>快速反馈。</p>
+</li>
+<li>
+<p>可维护性高。</p>
+</li>
+</ul>
+<blockquote>
+<p>书中这四个标准的英文原文如下，本文按照个人理解进行了类似语义的翻译：</p>
+<ul>
+<li>Protection against regressions（避免漏报）</li>
+<li>Resistance to refactoring（避免误报）</li>
+<li>Fast feedback（快速反馈）</li>
+<li>Maintainability（可维护性）</li>
+</ul>
+</blockquote>
+<h3 id="标准一避免漏报">标准一：避免漏报</h3>
+<p>好的单元测试应该尽量避免 Bug 漏报。</p>
+<p>代码是一项负债，代码越多，出错的概率也就越大。所以，<strong>单元测试覆盖的代码量越大，发现代码 Bug 的概率也就越大，漏报率越低</strong>。</p>
+<p>然而，高代码覆盖率只是好的单元测试的必要条件，我们不能一昧追求覆盖所有代码。有些代码的测试价值很低，比如枚举类、getter 和 setter 方法等，它们出错的概率很低，对它们做测试，收益并不大。</p>
+<p>因此，我们更应该关注如下两类代码：</p>
+<ul>
+<li><strong>复杂的代码</strong>。代码越复杂，出现 Bug 的概率越大。</li>
+<li><strong>关键业务代码</strong>。关键业务代码一旦出现 Bug，影响通常会很大，理应花更多的精力进行测试。</li>
+</ul>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-09-08-091246.png" alt=""  /></p>
+<h3 id="标准二避免误报">标准二：避免误报</h3>
+<p>好的单元测试应该尽量避免 Bug 误报。</p>
+<p>随着软件的不断演进，代码重构不可避免。重构就是在<strong>不改变可观测行为</strong>的基础上，对代码的实现进行修改，以降低它的复杂性。修改代码，就意味着可能引入 Bug，而单元测试作为防护网，能够有效阻止 Bug 的发生。</p>
+<p>重构，最怕遇到的就是单元测试的误报，也即测试报错但业务行为正常的情况。<strong>误报会加大重构的代价，久而久之，会影响开发人员重构的积极性</strong>。</p>
+<p>考虑如下代码，<code>MessageRenderer</code> 负责将消息 <code>Message</code> 渲染成 HTML 页面：</p>
+<div class="highlight"><pre class="chroma"><code class="language-c#" data-lang="c#"><span class="c1">// C#
+</span><span class="c1"></span><span class="k">public</span> <span class="k">class</span> <span class="nc">Message</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="kt">string</span> <span class="n">Header</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+    <span class="k">public</span> <span class="kt">string</span> <span class="n">Body</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+    <span class="k">public</span> <span class="kt">string</span> <span class="n">Footer</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+<span class="p">}</span>
+<span class="c1">// 渲染接口
+</span><span class="c1"></span><span class="k">public</span> <span class="k">interface</span> <span class="n">IRenderer</span>
+<span class="p">{</span>
+    <span class="kt">string</span> <span class="n">Render</span><span class="p">(</span><span class="n">Message</span> <span class="n">message</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">public</span> <span class="k">class</span> <span class="nc">MessageRenderer</span> <span class="p">:</span> <span class="n">IRenderer</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="n">IReadOnlyList</span><span class="p">&lt;</span><span class="n">IRenderer</span><span class="p">&gt;</span> <span class="n">SubRenderers</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="p">}</span>
+
+    <span class="k">public</span> <span class="n">MessageRenderer</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="n">SubRenderers</span> <span class="p">=</span> <span class="k">new</span> <span class="n">List</span><span class="p">&lt;</span><span class="n">IRenderer</span><span class="p">&gt;</span>
+        <span class="p">{</span>
+            <span class="k">new</span> <span class="n">HeaderRenderer</span><span class="p">(),</span>
+            <span class="k">new</span> <span class="n">BodyRenderer</span><span class="p">()</span>
+        <span class="p">};</span>
+    <span class="p">}</span>
+
+    <span class="c1">// 将消息渲染成HTML页面，属于可观测的行为
+</span><span class="c1"></span>    <span class="k">public</span> <span class="kt">string</span> <span class="n">Render</span><span class="p">(</span><span class="n">Message</span> <span class="n">message</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="n">SubRenderers</span>
+            <span class="p">.</span><span class="n">Select</span><span class="p">(</span><span class="n">x</span> <span class="p">=&gt;</span> <span class="n">x</span><span class="p">.</span><span class="n">Render</span><span class="p">(</span><span class="n">message</span><span class="p">))</span>
+            <span class="p">.</span><span class="n">Aggregate</span><span class="p">(</span><span class="s">&#34;&#34;</span><span class="p">,</span> <span class="p">(</span><span class="n">str1</span><span class="p">,</span> <span class="n">str2</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="n">str1</span> <span class="p">+</span> <span class="n">str2</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div><p>考虑有如下的单元测试，用于验证 <code>MessageRenderer</code> 具备正确的结构：</p>
+<div class="highlight"><pre class="chroma"><code class="language-C#" data-lang="C#"><span class="c1">// C#
+</span><span class="c1"></span><span class="na">[Fact]</span>
+<span class="k">public</span> <span class="k">void</span> <span class="n">MessageRenderer_uses_correct_sub_renderers</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="kt">var</span> <span class="n">sut</span> <span class="p">=</span> <span class="k">new</span> <span class="n">MessageRenderer</span><span class="p">();</span>
+
+    <span class="n">IReadOnlyList</span><span class="p">&lt;</span><span class="n">IRenderer</span><span class="p">&gt;</span> <span class="n">renderers</span> <span class="p">=</span> <span class="n">sut</span><span class="p">.</span><span class="n">SubRenderers</span><span class="p">;</span>
+
+    <span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="m">2</span><span class="p">,</span> <span class="n">renderers</span><span class="p">.</span><span class="n">Count</span><span class="p">);</span>
+    <span class="n">Assert</span><span class="p">.</span><span class="n">IsAssignableFrom</span><span class="p">&lt;</span><span class="n">HeaderRenderer</span><span class="p">&gt;(</span><span class="n">renderers</span><span class="p">[</span><span class="m">0</span><span class="p">]);</span>
+    <span class="n">Assert</span><span class="p">.</span><span class="n">IsAssignableFrom</span><span class="p">&lt;</span><span class="n">BodyRenderer</span><span class="p">&gt;(</span><span class="n">renderers</span><span class="p">[</span><span class="m">1</span><span class="p">]);</span>
+<span class="p">}</span>
+</code></pre></div><p>但该用例并未针对用户可观测的行为，也即 <code>MessageRenderer.Render</code> 方法，进行测试，而是陷入到具体的实现细节中。一旦我们对<code>MessageRenderer</code> 进行重构，可能就会出现误报。比如，从 <code>BodyRenderer</code> 拆分出 <code>FooterRenderer</code>：</p>
+<div class="highlight"><pre class="chroma"><code class="language-c#" data-lang="c#"><span class="c1">// C#
+</span><span class="c1"></span><span class="k">public</span> <span class="k">class</span> <span class="nc">MessageRenderer</span> <span class="p">:</span> <span class="n">IRenderer</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="n">IReadOnlyList</span><span class="p">&lt;</span><span class="n">IRenderer</span><span class="p">&gt;</span> <span class="n">SubRenderers</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="p">}</span>
+
+    <span class="k">public</span> <span class="n">MessageRenderer</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="n">SubRenderers</span> <span class="p">=</span> <span class="k">new</span> <span class="n">List</span><span class="p">&lt;</span><span class="n">IRenderer</span><span class="p">&gt;</span>
+        <span class="p">{</span>
+            <span class="k">new</span> <span class="n">HeaderRenderer</span><span class="p">(),</span>
+            <span class="k">new</span> <span class="n">BodyRenderer</span><span class="p">(),</span>
+            <span class="c1">// 重构点：拆分出FooterRenderer
+</span><span class="c1"></span>            <span class="k">new</span> <span class="n">FooterRenderer</span><span class="p">()</span>
+        <span class="p">};</span>
+    <span class="p">}</span>
+
+    <span class="c1">// 将消息渲染成HTML页面，属于可观测的行为
+</span><span class="c1"></span>    <span class="k">public</span> <span class="kt">string</span> <span class="n">Render</span><span class="p">(</span><span class="n">Message</span> <span class="n">message</span><span class="p">)</span> <span class="p">{...}</span>
+<span class="p">}</span>
+</code></pre></div><p>那么，原有单元测试将会报错，但实际上，<code>MessageRenderer.Render</code> 的结果并未受影响。</p>
+<div class="highlight"><pre class="chroma"><code class="language-c#" data-lang="c#"><span class="c1">// C#
+</span><span class="c1"></span><span class="na">[Fact]</span>
+<span class="k">public</span> <span class="k">void</span> <span class="n">MessageRenderer_uses_correct_sub_renderers</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="p">...</span>
+    <span class="c1">// 报错，重构后的renderers.Count为3
+</span><span class="c1"></span>    <span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="m">2</span><span class="p">,</span> <span class="n">renderers</span><span class="p">.</span><span class="n">Count</span><span class="p">);</span>
+    <span class="p">...</span>
+<span class="p">}</span>
+</code></pre></div><p>更好的做法是只对可观测行为 <code>MessageRenderer.Render</code> 进行测试：</p>
+<div class="highlight"><pre class="chroma"><code class="language-c#" data-lang="c#"><span class="na">[Fact]</span>
+<span class="k">public</span> <span class="k">void</span> <span class="n">Rendering_a_message</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="kt">var</span> <span class="n">sut</span> <span class="p">=</span> <span class="k">new</span> <span class="n">MessageRenderer</span><span class="p">();</span>
+    <span class="kt">var</span> <span class="n">message</span> <span class="p">=</span> <span class="k">new</span> <span class="n">Message</span>
+    <span class="p">{</span>
+        <span class="n">Header</span> <span class="p">=</span> <span class="s">&#34;h&#34;</span><span class="p">,</span>
+        <span class="n">Body</span> <span class="p">=</span> <span class="s">&#34;b&#34;</span><span class="p">,</span>
+        <span class="n">Footer</span> <span class="p">=</span> <span class="s">&#34;f&#34;</span>
+    <span class="p">};</span>
+
+    <span class="kt">string</span> <span class="n">html</span> <span class="p">=</span> <span class="n">sut</span><span class="p">.</span><span class="n">Render</span><span class="p">(</span><span class="n">message</span><span class="p">);</span>
+
+    <span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="s">&#34;&lt;h1&gt;h&lt;/h1&gt;&lt;b&gt;b&lt;/b&gt;&lt;i&gt;f&lt;/i&gt;&#34;</span><span class="p">,</span> <span class="n">html</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div><p>所以，<strong>防止误报的最有效做法是，针对可观测行为进行测试</strong>！</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-08-11-130401.png" alt=""  /></p>
+<h3 id="漏报和误报的关系">漏报和误报的关系</h3>
+<p>把测试是否成功与功能是否正常放在一起，可得出如下表格：</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-08-11-140546.png" alt=""  /></p>
+<ul>
+<li><em>真阴性</em>。功能正常，且测试成功。正常情况下，单元测试都应该处于该情况。</li>
+<li><em>真阳性</em>。功能异常，且测试失败。这是单元测试存在的意义，当功能异常时，测试能够执行失败，以作提示。</li>
+<li><em>假阴性</em>。功能异常，但测试正常。<strong>测试漏报</strong>，表明	代码中存在未被发现的 Bug。此情况影响最大，可能导致生产问题。<strong>可通过覆盖高价值代码降低该情况出现概率</strong>。</li>
+<li><em>假阳性</em>。功能正常，但测试失败。<strong>测试误报</strong>，<strong>可通过面向行为的测试降低该情况出现概率</strong>。</li>
+</ul>
+<h3 id="标准三快速反馈">标准三：快速反馈</h3>
+<p>好的单元测试应该能够给开发人员快速反馈 Bug。</p>
+<p>快速执行是单元测试的基本属性，测试执行得越快，单位时间内执行的用例数量就越多，也就能缩短 Bug 反馈周期。一旦你引入 Bug，测试用例就能及时提示相关错误信息，避免出现更严重的影响。</p>
+<h3 id="标准四可维护性">标准四：可维护性</h3>
+<p>好的单元测试应该有足够高的可维护性。</p>
+<p>可维护性由以下两方面组成：</p>
+<ul>
+<li><strong>理解测试用例的难度</strong>。测试代码越少，可读性越高，理解的难度越低。</li>
+<li><strong>运行测试用例的难度</strong>。测试依赖越少，运行难度越低。</li>
+</ul>
+<h3 id="理想的单元测试">理想的单元测试</h3>
+<p>能同时做到上述四点的即为理想的单元测试。然而，现实中却不存在这样的单元测试，除可维护性特征之外，<strong>其他三个特征会有所冲突，三者只能取其二，有点像 CAP 理论</strong>。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-08-13-171350.png" alt=""  /></p>
+<ul>
+<li>
+<p>端到端测试能够同时做到避免误报和避免漏报，但无法做到快速反馈。</p>
+</li>
+<li>
+<p>脆弱的测试，也即面向实现细节的测试，能够做到避免漏报和快速反馈，但很难避免误报。最极端的情况是针对源码本身做验证，一旦有修改代码的行为，立即报错，绝不会漏报，但极有可能是误报。比如：</p>
+<div class="highlight"><pre class="chroma"><code class="language-c#" data-lang="c#"><span class="c1">// C#
+</span><span class="c1"></span><span class="na">[Fact]</span>
+<span class="k">public</span> <span class="k">void</span> <span class="n">MessageRenderer_is_implemented_correctly</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="kt">string</span> <span class="n">sourceCode</span> <span class="p">=</span> <span class="n">File</span><span class="p">.</span><span class="n">ReadAllText</span><span class="p">(</span><span class="s">@&#34;[path]\MessageRenderer.cs&#34;</span><span class="p">);</span>
+
+    <span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="s">@&#34;
+</span><span class="s">public class MessageRenderer : IRenderer
+</span><span class="s">{
+</span><span class="s">    public IReadOnlyList&lt;&lt;IRenderer&gt; SubRenderers { get; }
+</span><span class="s">
+</span><span class="s">    public MessageRenderer()
+</span><span class="s">    {
+</span><span class="s">        SubRenderers = new List&lt;&lt;IRenderer&gt;
+</span><span class="s">        {
+</span><span class="s">            new HeaderRenderer(),
+</span><span class="s">            new BodyRenderer(),
+</span><span class="s">            new FooterRenderer()
+</span><span class="s">        };
+</span><span class="s">    }
+</span><span class="s">
+</span><span class="s">    public string Render(Message message) { /* ... */ }
+</span><span class="s">}&#34;</span><span class="p">,</span> <span class="n">sourceCode</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></li>
+<li>
+<p>低价值的测试，比如针对 getter 和 setter 的测试，能够做到避免误报和快速反馈，但很难发现 Bug，导致漏报。</p>
+</li>
+</ul>
+<p>既然无法同时完美做到这四个标准，那么只能退而求其次，<strong>做权衡</strong>。</p>
+<p>通常来说，可维护性相对独立，通过组织良好的测试结构，能够达到很好的可维护性；而<strong>避免误报、消除测试的脆弱性，是构建测试系统/套件首要任务</strong>。因此，我们通常会<strong>在避免漏报和快速反馈之间做权衡</strong>：</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-08-13-171903.png" alt=""  /></p>
+<p>避免漏报和快速反馈之间的权衡，也可以对应到测试金字塔中各类测试的选择，端到端测试能避免漏报，单元测试能快速反馈，而集成测试则是折中选择：</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-08-14-142936.png" alt=""  /></p>
+<h2 id="mock-的正确用法">mock 的正确用法</h2>
+<h3 id="测试替身的分类">测试替身的分类</h3>
+<p>前文提到，mock 是测试替身（test double）的一种，剩余的还有 spy 、stub、dummy 和 fake。实际上，它们又可以归成两类，Mock 和 Stub。其中 mock 和 spy 属于前者，dummy、stub 和 fake 属于后者。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-08-17-081602.png" alt=""  /></p>
+<ul>
+<li>
+<p><strong>Mock 是针对被测系统外发（outcoming）、有副作用的交互进行模拟和校验</strong>，如调用 SMPT 服务进行邮件发送。mock 和 spy 的主要区别在于，前者的替换对象是通过 mock 框架自动生成；而后者则是手动编写而成。</p>
+<div class="highlight"><pre class="chroma"><code class="language-c#" data-lang="c#"><span class="c1">// c#
+</span><span class="c1">// mock和spy的区别
+</span><span class="c1">// 这是mock，使用了Mock框架的能力
+</span><span class="c1"></span><span class="kt">var</span> <span class="n">mock</span> <span class="p">=</span> <span class="k">new</span> <span class="n">Mock</span><span class="p">&lt;</span><span class="n">IEmailGateway</span><span class="p">&gt;();</span>
+<span class="n">mock</span><span class="p">.</span><span class="n">Setup</span><span class="p">(</span><span class="n">x</span> <span class="p">=&gt;</span> <span class="n">x</span><span class="p">.</span><span class="n">SendGreetingsEmail</span><span class="p">(</span><span class="err">“</span><span class="n">user@email</span><span class="p">.</span><span class="n">com</span><span class="err">”</span><span class="p">))</span>
+         <span class="p">.</span><span class="n">Returns</span><span class="p">(</span><span class="k">true</span><span class="p">);</span>
+
+<span class="k">public</span> <span class="k">class</span> <span class="nc">EmailGatewayMock</span> <span class="p">:</span> <span class="n">IEmailGateway</span> <span class="p">{</span>
+    <span class="p">...</span>
+    <span class="k">public</span> <span class="kt">bool</span> <span class="n">SendGreetingsEmail</span><span class="p">(</span><span class="kt">string</span> <span class="n">email</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">email</span> <span class="p">==</span> <span class="err">“</span><span class="n">user@email</span><span class="p">.</span><span class="n">com</span><span class="err">”</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="n">ture</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="p">...</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="c1">// 这是spy，自定义一个测试替身类EmailGatewayMock
+</span><span class="c1"></span><span class="kt">var</span> <span class="n">mock</span> <span class="p">=</span> <span class="k">new</span> <span class="n">EmailGatewayMock</span><span class="p">()</span>
+
+<span class="kt">var</span> <span class="n">sut</span> <span class="p">=</span> <span class="k">new</span> <span class="n">Controller</span><span class="p">(</span><span class="n">mock</span><span class="p">);</span>
+<span class="n">sut</span><span class="p">.</span><span class="n">GreetUser</span><span class="p">(</span><span class="s">&#34;user@email.com&#34;</span><span class="p">);</span>
+<span class="c1">// Mock需要校验交互行为，这里为校验SendGreetingsEmail被调用一次
+</span><span class="c1"></span><span class="n">mock</span><span class="p">.</span><span class="n">Verify</span><span class="p">(</span><span class="n">x</span> <span class="p">=&gt;</span> <span class="n">x</span><span class="p">.</span><span class="n">SendGreetingsEmail</span><span class="p">(</span><span class="s">&#34;user@email.com&#34;</span><span class="p">),</span>
+            <span class="n">Times</span><span class="p">.</span><span class="n">Once</span><span class="p">);</span>
+</code></pre></div></li>
+<li>
+<p><strong>Stub 是针对被测系统传入（incoming）、无副作用的交互进行模拟</strong>，<strong>但无发进行校验</strong>，如调用数据库进行数据查询。其中，dummy 主要是一些简单的硬编码常量，比如 NULL，一般作为占位符用于填充函数参数列表，并不会被使用；stub 则更复杂一些，需要根据不同的测试条件来预设不同的返回值；fake 则是实际依赖的裁剪版实现，它有实际的业务逻辑，但因经过简化而无法用到生产环境上，比如单元测试用的内存数据库。</p>
+<p>用的比较多的是 stub，我们可以通过 mock 框架来生成 stub：</p>
+<div class="highlight"><pre class="chroma"><code class="language-c#" data-lang="c#"><span class="c1">// c#
+</span><span class="c1"></span><span class="na">[Fact]</span>
+<span class="k">public</span> <span class="k">void</span> <span class="n">Creating_a_report</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="c1">// 这是Stub，只模拟传入行为
+</span><span class="c1"></span>    <span class="kt">var</span> <span class="n">stub</span> <span class="p">=</span> <span class="k">new</span> <span class="n">Mock</span><span class="p">&lt;</span><span class="n">IDatabase</span><span class="p">&gt;();</span>
+    <span class="n">stub</span><span class="p">.</span><span class="n">Setup</span><span class="p">(</span><span class="n">x</span> <span class="p">=&gt;</span> <span class="n">x</span><span class="p">.</span><span class="n">GetNumberOfUsers</span><span class="p">())</span>
+        <span class="p">.</span><span class="n">Returns</span><span class="p">(</span><span class="m">10</span><span class="p">);</span>
+    <span class="kt">var</span> <span class="n">sut</span> <span class="p">=</span> <span class="k">new</span> <span class="n">Controller</span><span class="p">(</span><span class="n">stub</span><span class="p">.</span><span class="n">Object</span><span class="p">);</span>
+
+    <span class="n">Report</span> <span class="n">report</span> <span class="p">=</span> <span class="n">sut</span><span class="p">.</span><span class="n">CreateReport</span><span class="p">();</span>
+    <span class="c1">// Stub不需要校验交互行为，校验读取结果即可
+</span><span class="c1"></span>    <span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="m">10</span><span class="p">,</span> <span class="n">report</span><span class="p">.</span><span class="n">NumberOfUsers</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></li>
+</ul>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-09-08-072611.png" alt=""  /></p>
+<h3 id="可观测行为与实现细节">可观测行为与实现细节</h3>
+<p>书中把系统的可观测行为定义为<strong>能够帮助客户端达成其目标的方法或状态</strong>，不满足这个定义的，都是实现细节。我们很容易将 public API 和可观测行为划上等号，但它们并不完全一样。</p>
+<p>在理想的情况下，public API 与可观测行为一致，实现细节都被包含在 private API 中。但大多数人在系统设计时，都会把部分实现细节泄露到 public API 里。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-09-08-074328.png" alt=""  /></p>
+<p>比如，在下面的例子中，客户端主要使用 <code>UserController.RenameUser</code> 方法，用于给用户执行重命名操作：</p>
+<div class="highlight"><pre class="chroma"><code class="language-c#" data-lang="c#"><span class="c1">// C#
+</span><span class="c1"></span><span class="k">public</span> <span class="k">class</span> <span class="nc">User</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="kt">string</span> <span class="n">Name</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+
+    <span class="k">public</span> <span class="kt">string</span> <span class="n">NormalizeName</span><span class="p">(</span><span class="kt">string</span> <span class="n">name</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="kt">string</span> <span class="n">result</span> <span class="p">=</span> <span class="p">(</span><span class="n">name</span> <span class="p">??</span> <span class="s">&#34;&#34;</span><span class="p">).</span><span class="n">Trim</span><span class="p">();</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">result</span><span class="p">.</span><span class="n">Length</span> <span class="p">&gt;</span> <span class="m">50</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">result</span><span class="p">.</span><span class="n">Substring</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">50</span><span class="p">);</span>
+
+        <span class="k">return</span> <span class="n">result</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">public</span> <span class="k">class</span> <span class="nc">UserController</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="k">void</span> <span class="n">RenameUser</span><span class="p">(</span><span class="kt">int</span> <span class="n">userId</span><span class="p">,</span> <span class="kt">string</span> <span class="n">newName</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">User</span> <span class="n">user</span> <span class="p">=</span> <span class="n">GetUserFromDatabase</span><span class="p">(</span><span class="n">userId</span><span class="p">);</span>
+
+        <span class="kt">string</span> <span class="n">normalizedName</span> <span class="p">=</span> <span class="n">user</span><span class="p">.</span><span class="n">NormalizeName</span><span class="p">(</span><span class="n">newName</span><span class="p">);</span>
+        <span class="n">user</span><span class="p">.</span><span class="n">Name</span> <span class="p">=</span> <span class="n">normalizedName</span><span class="p">;</span>
+
+        <span class="n">SaveUserToDatabase</span><span class="p">(</span><span class="n">user</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div><p>User 类提供了 2 个 public API，<code>Name</code> 属性和 <code>NormalizeName</code> 方法，但从“重命名”这个目标来看，<code>NormalizeName</code> 不应该是 <code>UserController</code> 可见的，它存在的意义是为了满足 <code>User</code> 的命名规则，因此，它属于 <code>User</code> 的实现细节。更好的设计是将它改为 private API：</p>
+<div class="highlight"><pre class="chroma"><code class="language-csharp" data-lang="csharp"><span class="c1">// C#
+</span><span class="c1"></span><span class="k">public</span> <span class="k">class</span> <span class="nc">User</span>
+<span class="p">{</span>
+    <span class="k">private</span> <span class="kt">string</span> <span class="m">_</span><span class="n">name</span><span class="p">;</span>
+    <span class="k">public</span> <span class="kt">string</span> <span class="n">Name</span>
+    <span class="p">{</span>
+        <span class="k">get</span> <span class="p">=&gt;</span> <span class="m">_</span><span class="n">name</span><span class="p">;</span>
+        <span class="k">set</span> <span class="p">=&gt;</span> <span class="m">_</span><span class="n">name</span> <span class="p">=</span> <span class="n">NormalizeName</span><span class="p">(</span><span class="k">value</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">private</span> <span class="kt">string</span> <span class="n">NormalizeName</span><span class="p">(</span><span class="kt">string</span> <span class="n">name</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="kt">string</span> <span class="n">result</span> <span class="p">=</span> <span class="p">(</span><span class="n">name</span> <span class="p">??</span> <span class="s">&#34;&#34;</span><span class="p">).</span><span class="n">Trim</span><span class="p">();</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">result</span><span class="p">.</span><span class="n">Length</span> <span class="p">&gt;</span> <span class="m">50</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">result</span><span class="p">.</span><span class="n">Substring</span><span class="p">(</span><span class="m">0</span><span class="p">,</span> <span class="m">50</span><span class="p">);</span>
+
+        <span class="k">return</span> <span class="n">result</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">public</span> <span class="k">class</span> <span class="nc">UserController</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="k">void</span> <span class="n">RenameUser</span><span class="p">(</span><span class="kt">int</span> <span class="n">userId</span><span class="p">,</span> <span class="kt">string</span> <span class="n">newName</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">User</span> <span class="n">user</span> <span class="p">=</span> <span class="n">GetUserFromDatabase</span><span class="p">(</span><span class="n">userId</span><span class="p">);</span>
+        <span class="n">user</span><span class="p">.</span><span class="n">Name</span> <span class="p">=</span> <span class="n">newName</span><span class="p">;</span>
+        <span class="n">SaveUserToDatabase</span><span class="p">(</span><span class="n">user</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div><p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-09-08-074444.png" alt=""  /></p>
+<p>理解可观测行为和实现细节的另一个途径是通过<strong>六边形架构</strong>（Hexagonal Architecture），它是领域驱动设计中推荐的架构，分成领域层和应用层，其中<strong>领域层实现业务逻辑</strong>，<strong>应用层负责与外部交互</strong>（比如消息总线、数据库等）。那么，在领域层内部的交互为实现细节，应用层与外部的交互为可观测行为。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-09-08-075744.png" alt=""  /></p>
+<h3 id="mock-可观测行为">mock 可观测行为</h3>
+<p>从前文可知，针对实现细节进行测试往往会导致测试套变得脆弱，这对 mock 同样适用，<strong>mock 的对象应该只有可观测行为</strong>，而非实现细节。所以，<strong>不要尝试寻找对 private API 进行 mock 的方法</strong>！</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-09-08-080011.png" alt=""  /></p>
+<p>当我们回头再次审视单元测试的伦敦学派和经典学派之争时，经典学派应当是获胜的一方。主要的原因是，<strong>伦敦学派鼓励在不可变依赖之外的所有依赖项都使用 mock，而不区分可观察行为和实现细节，这会导致单元测试变得脆弱</strong>！</p>
+<h2 id="单元测试的三种风格">单元测试的三种风格</h2>
+<p>现在，我们从另一个维度来审视单元测试的分类，<strong>基于输出的测试</strong>（output-based testing）、<strong>基于状态的测试</strong>（state-based testing）、<strong>基于通信的测试</strong>（communication-based testing）。</p>
+<ul>
+<li>
+<p>基于输出的测试，只校验 SUT 的输出结果，只适用于无副作用的方法，比如函数式编程。比如下面的例子：</p>
+<div class="highlight"><pre class="chroma"><code class="language-csharp" data-lang="csharp"><span class="c1">// C#
+</span><span class="c1"></span><span class="k">public</span> <span class="k">class</span> <span class="nc">PriceEngine</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="kt">decimal</span> <span class="n">CalculateDiscount</span><span class="p">(</span><span class="k">params</span> <span class="n">Product</span><span class="p">[]</span> <span class="n">products</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="kt">decimal</span> <span class="n">discount</span> <span class="p">=</span> <span class="n">products</span><span class="p">.</span><span class="n">Length</span> <span class="p">*</span> <span class="m">0.01</span><span class="n">m</span><span class="p">;</span>
+        <span class="k">return</span> <span class="n">Math</span><span class="p">.</span><span class="n">Min</span><span class="p">(</span><span class="n">discount</span><span class="p">,</span> <span class="m">0.2</span><span class="n">m</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="na">
+</span><span class="na">[Fact]</span>
+<span class="k">public</span> <span class="k">void</span> <span class="n">Discount_of_two_products</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="kt">var</span> <span class="n">product1</span> <span class="p">=</span> <span class="k">new</span> <span class="n">Product</span><span class="p">(</span><span class="s">&#34;Hand wash&#34;</span><span class="p">);</span>
+    <span class="kt">var</span> <span class="n">product2</span> <span class="p">=</span> <span class="k">new</span> <span class="n">Product</span><span class="p">(</span><span class="s">&#34;Shampoo&#34;</span><span class="p">);</span>
+    <span class="kt">var</span> <span class="n">sut</span> <span class="p">=</span> <span class="k">new</span> <span class="n">PriceEngine</span><span class="p">();</span>
+
+    <span class="kt">decimal</span> <span class="n">discount</span> <span class="p">=</span> <span class="n">sut</span><span class="p">.</span><span class="n">CalculateDiscount</span><span class="p">(</span><span class="n">product1</span><span class="p">,</span> <span class="n">product2</span><span class="p">);</span>
+
+    <span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="m">0.02</span><span class="n">m</span><span class="p">,</span> <span class="n">discount</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div><p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-09-08-081020.png" alt=""  /></p>
+</li>
+<li>
+<p>基于状态的测试，需要校验系统状态，包含 SUT 本身及其依赖项的状态，比如下面的例子中：</p>
+<div class="highlight"><pre class="chroma"><code class="language-csharp" data-lang="csharp"><span class="c1">// C#
+</span><span class="c1"></span><span class="k">public</span> <span class="k">class</span> <span class="nc">Order</span>
+<span class="p">{</span>
+    <span class="k">private</span> <span class="k">readonly</span> <span class="n">List</span><span class="p">&lt;</span><span class="n">Product</span><span class="p">&gt;</span> <span class="m">_</span><span class="n">products</span> <span class="p">=</span> <span class="k">new</span> <span class="n">List</span><span class="p">&lt;</span><span class="n">Product</span><span class="p">&gt;();</span>
+    <span class="k">public</span> <span class="n">IReadOnlyList</span><span class="p">&lt;</span><span class="n">Product</span><span class="p">&gt;</span> <span class="n">Products</span> <span class="p">=&gt;</span> <span class="m">_</span><span class="n">products</span><span class="p">.</span><span class="n">ToList</span><span class="p">();</span>
+
+    <span class="k">public</span> <span class="k">void</span> <span class="n">AddProduct</span><span class="p">(</span><span class="n">Product</span> <span class="n">product</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="m">_</span><span class="n">products</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">product</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="na">
+</span><span class="na">[Fact]</span>
+<span class="k">public</span> <span class="k">void</span> <span class="n">Adding_a_product_to_an_order</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="kt">var</span> <span class="n">product</span> <span class="p">=</span> <span class="k">new</span> <span class="n">Product</span><span class="p">(</span><span class="s">&#34;Hand wash&#34;</span><span class="p">);</span>
+    <span class="kt">var</span> <span class="n">sut</span> <span class="p">=</span> <span class="k">new</span> <span class="n">Order</span><span class="p">();</span>
+
+    <span class="n">sut</span><span class="p">.</span><span class="n">AddProduct</span><span class="p">(</span><span class="n">product</span><span class="p">);</span>
+
+    <span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="m">1</span><span class="p">,</span> <span class="n">sut</span><span class="p">.</span><span class="n">Products</span><span class="p">.</span><span class="n">Count</span><span class="p">);</span>
+    <span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="n">product</span><span class="p">,</span> <span class="n">sut</span><span class="p">.</span><span class="n">Products</span><span class="p">[</span><span class="m">0</span><span class="p">]);</span>
+<span class="p">}</span>
+</code></pre></div><p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-09-08-081512.png" alt=""  /></p>
+</li>
+<li>
+<p>基于交互的测试，则校验 SUT 与依赖对象的交互行为，其中依赖对象通常会被 mock 替代，比如下面的例子：</p>
+<div class="highlight"><pre class="chroma"><code class="language-c#" data-lang="c#"><span class="na">[Fact]</span>
+<span class="k">public</span> <span class="k">void</span> <span class="n">Sending_a_greetings_email</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="kt">var</span> <span class="n">emailGatewayMock</span> <span class="p">=</span> <span class="k">new</span> <span class="n">Mock</span><span class="p">&lt;</span><span class="n">IEmailGateway</span><span class="p">&gt;();</span>
+    <span class="kt">var</span> <span class="n">sut</span> <span class="p">=</span> <span class="k">new</span> <span class="n">Controller</span><span class="p">(</span><span class="n">emailGatewayMock</span><span class="p">.</span><span class="n">Object</span><span class="p">);</span>
+
+    <span class="n">sut</span><span class="p">.</span><span class="n">GreetUser</span><span class="p">(</span><span class="s">&#34;user@email.com&#34;</span><span class="p">);</span>
+
+    <span class="n">emailGatewayMock</span><span class="p">.</span><span class="n">Verify</span><span class="p">(</span>
+        <span class="n">x</span> <span class="p">=&gt;</span> <span class="n">x</span><span class="p">.</span><span class="n">SendGreetingsEmail</span><span class="p">(</span><span class="s">&#34;user@email.com&#34;</span><span class="p">),</span>
+        <span class="n">Times</span><span class="p">.</span><span class="n">Once</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div><p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-09-08-082109.png" alt=""  /></p>
+</li>
+</ul>
+<p>下面，我们使用前文提到的四个标准来评判这三类风格的单元测试：</p>
+<ul>
+<li>避免漏报。该标准与具体的测试风格相关性不大，主要与测试执行的代码量、代码的复杂性、代码的价值相关。</li>
+<li>避免误报。基于输出的测试表现最好，因为测试用例只依赖 SUT 本身；基于状态的测试表现次之；基于交互的测试最易受到误报的影响，只针对可观测行为进行校验可降低误报影响。</li>
+<li>快速反馈。只要没有进程外的依赖对象，三种风格的测试都能做到很快。</li>
+<li>可维护性。基于输出的测试只依赖 SUT 本身，可维护性最好，其他两者相当。</li>
+</ul>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-09-08-083026.png" alt=""  /></p>
+<p>所以，我们应当<strong>尽可能地使用基于输出的测试风格来编写单元测试</strong>，但它的适用场景决定了这很不容易，我们可以把系统设计成<strong>函数式架构</strong>（Functional Architecture）来达到这个目的。</p>
+<p>函数式架构与六边形架构类似，也分成两层，<strong>Functional Core 层</strong>和 <strong>Mutable Shell 层</strong>。Functional Core 层使用函数式编程风格来编写业务逻辑，核心是数据的不变性，根据系统输入，计算得出结果，无其他副作用；Mutable Shell 层一方面负责给 Functional Core 层输入，一方面负责将 Functional Core 层的输出转换成副作用，比如系统状态变更。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-09-08-083509.png" alt=""  /></p>
+<p>函数式架构下，我们应该<strong>尽可能地增加 Functional Core 层的代码，而减少 Mutable Shell 层的代码</strong>。书中通过一个实际例子，详细介绍了如何将代码重构成函数式架构，本文不再展开。</p>
+<h2 id="通过重构来更好地完成单元测试">通过重构来更好地完成单元测试</h2>
+<h3 id="代码的分类">代码的分类</h3>
+<p>我们可以从代码的复杂度（业务价值）和外部依赖的数量两个维度，将代码分成 4 类：</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-09-08-084422.png" alt=""  /></p>
+<ul>
+<li><strong>左上角通常为领域层代码</strong>，比如领域模型或核心算法，它们一般具备很高的业务价值和代码复杂度，但只有很少的外部依赖，通过单元测试覆盖。</li>
+<li><strong>右下角通常为应用层代码</strong>，比如控制器，它们一般没有业务逻辑，负责与外部依赖进行交互，通过集成测试覆盖。</li>
+<li><strong>左下角为低价值代码</strong>，比如常量定义，它们没有业务逻辑，也没有外部依赖，测试价值很低。</li>
+<li><strong>右上角为“大泥球”代码</strong>，既有复杂的业务逻辑，又有很多的外部依赖，我们很难对它进行单元测试。它是我们重点重构的对象，通常会将它拆分成领域层和应用层。</li>
+</ul>
+<h3 id="重构实战">重构实战</h3>
+<p>考虑一个用户管理模块，当前只有一个业务，更改用户邮件，代码如下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-c#" data-lang="c#"><span class="c1">// C#
+</span><span class="c1">// 用户管理模块
+</span><span class="c1"></span><span class="k">public</span> <span class="k">class</span> <span class="nc">User</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="kt">int</span> <span class="n">UserId</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">private</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+    <span class="k">public</span> <span class="kt">string</span> <span class="n">Email</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">private</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+    <span class="k">public</span> <span class="n">UserType</span> <span class="n">Type</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">private</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+
+    <span class="c1">// 当前只支持用户邮件更改业务
+</span><span class="c1"></span>    <span class="k">public</span> <span class="k">void</span> <span class="n">ChangeEmail</span><span class="p">(</span><span class="kt">int</span> <span class="n">userId</span><span class="p">,</span> <span class="kt">string</span> <span class="n">newEmail</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="c1">// 从数据库中查询用户的邮件和用户类型
+</span><span class="c1"></span>        <span class="kt">object</span><span class="p">[]</span> <span class="n">data</span> <span class="p">=</span> <span class="n">Database</span><span class="p">.</span><span class="n">GetUserById</span><span class="p">(</span><span class="n">userId</span><span class="p">);</span>
+        <span class="n">UserId</span> <span class="p">=</span> <span class="n">userId</span><span class="p">;</span>
+        <span class="n">Email</span> <span class="p">=</span> <span class="p">(</span><span class="kt">string</span><span class="p">)</span><span class="n">data</span><span class="p">[</span><span class="m">1</span><span class="p">];</span>
+        <span class="n">Type</span> <span class="p">=</span> <span class="p">(</span><span class="n">UserType</span><span class="p">)</span><span class="n">data</span><span class="p">[</span><span class="m">2</span><span class="p">];</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">Email</span> <span class="p">==</span> <span class="n">newEmail</span><span class="p">)</span>
+            <span class="k">return</span><span class="p">;</span>
+
+        <span class="c1">// 从数据库中查询公司邮箱域名和员工数量
+</span><span class="c1"></span>        <span class="kt">object</span><span class="p">[]</span> <span class="n">companyData</span> <span class="p">=</span> <span class="n">Database</span><span class="p">.</span><span class="n">GetCompany</span><span class="p">();</span>
+        <span class="kt">string</span> <span class="n">companyDomainName</span> <span class="p">=</span> <span class="p">(</span><span class="kt">string</span><span class="p">)</span><span class="n">companyData</span><span class="p">[</span><span class="m">0</span><span class="p">];</span>
+        <span class="kt">int</span> <span class="n">numberOfEmployees</span> <span class="p">=</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">companyData</span><span class="p">[</span><span class="m">1</span><span class="p">];</span>
+
+        <span class="c1">// 如果用户的新邮箱域名为公司域名，则该用户为员工，否则为客户
+</span><span class="c1"></span>        <span class="kt">string</span> <span class="n">emailDomain</span> <span class="p">=</span> <span class="n">newEmail</span><span class="p">.</span><span class="n">Split</span><span class="p">(</span><span class="sc">&#39;@&#39;</span><span class="p">)[</span><span class="m">1</span><span class="p">];</span>
+        <span class="kt">bool</span> <span class="n">isEmailCorporate</span> <span class="p">=</span> <span class="n">emailDomain</span> <span class="p">==</span> <span class="n">companyDomainName</span><span class="p">;</span>
+        <span class="n">UserType</span> <span class="n">newType</span> <span class="p">=</span> <span class="n">isEmailCorporate</span>
+            <span class="p">?</span> <span class="n">UserType</span><span class="p">.</span><span class="n">Employee</span>
+            <span class="p">:</span> <span class="n">UserType</span><span class="p">.</span><span class="n">Customer</span><span class="p">;</span>
+        <span class="c1">// 若存在用户类型变更，则更新数据库中员工数量
+</span><span class="c1"></span>        <span class="k">if</span> <span class="p">(</span><span class="n">Type</span> <span class="p">!=</span> <span class="n">newType</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="kt">int</span> <span class="n">delta</span> <span class="p">=</span> <span class="n">newType</span> <span class="p">==</span> <span class="n">UserType</span><span class="p">.</span><span class="n">Employee</span> <span class="p">?</span> <span class="m">1</span> <span class="p">:</span> <span class="p">-</span><span class="m">1</span><span class="p">;</span>
+            <span class="kt">int</span> <span class="n">newNumber</span> <span class="p">=</span> <span class="n">numberOfEmployees</span> <span class="p">+</span> <span class="n">delta</span><span class="p">;</span>
+            <span class="n">Database</span><span class="p">.</span><span class="n">SaveCompany</span><span class="p">(</span><span class="n">newNumber</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="n">Email</span> <span class="p">=</span> <span class="n">newEmail</span><span class="p">;</span>
+        <span class="n">Type</span> <span class="p">=</span> <span class="n">newType</span><span class="p">;</span>
+
+        <span class="c1">// 保存当前用户信息，并向消息总线发送消息变更消息
+</span><span class="c1"></span>        <span class="n">Database</span><span class="p">.</span><span class="n">SaveUser</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
+        <span class="n">MessageBus</span><span class="p">.</span><span class="n">SendEmailChangedMessage</span><span class="p">(</span><span class="n">UserId</span><span class="p">,</span> <span class="n">newEmail</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div><p>上述代码中，<code>User.ChangeEmail</code> 既包含了业务逻辑，又与包含了与 <code>Database</code> 和 <code>MessageBus</code> 外部依赖的交互，是个“大泥球”！</p>
+<p>接下来，我们对代码进行重构。</p>
+<ul>
+<li>
+<p><strong>第一步：将外部依赖显式化</strong>。提高可测试性的常用手段是将隐式的依赖显式化，通常会通过依赖注入的方法实现。</p>
+<div class="highlight"><pre class="chroma"><code class="language-c#" data-lang="c#"><span class="c1">// C#
+</span><span class="c1">// 用户管理模块
+</span><span class="c1"></span><span class="k">public</span> <span class="k">class</span> <span class="nc">User</span>
+<span class="p">{</span>
+    <span class="c1">// 显式化外部依赖
+</span><span class="c1"></span>    <span class="k">private</span> <span class="k">readonly</span> <span class="n">Database</span> <span class="m">_d</span><span class="n">atabase</span> <span class="p">=</span> <span class="k">new</span> <span class="n">Database</span><span class="p">();</span>
+    <span class="k">private</span> <span class="k">readonly</span> <span class="n">MessageBus</span> <span class="m">_</span><span class="n">messageBus</span> <span class="p">=</span> <span class="k">new</span> <span class="n">MessageBus</span><span class="p">();</span>
+
+    <span class="k">public</span> <span class="kt">int</span> <span class="n">UserId</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">private</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+    <span class="k">public</span> <span class="kt">string</span> <span class="n">Email</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">private</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+    <span class="k">public</span> <span class="n">UserType</span> <span class="n">Type</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">private</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+
+    <span class="c1">// 当前只支持用户邮件更改业务
+</span><span class="c1"></span>    <span class="k">public</span> <span class="k">void</span> <span class="n">ChangeEmail</span><span class="p">(</span><span class="kt">int</span> <span class="n">userId</span><span class="p">,</span> <span class="kt">string</span> <span class="n">newEmail</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="c1">// 从数据库中查询用户的邮件和用户类型
+</span><span class="c1"></span>        <span class="kt">object</span><span class="p">[]</span> <span class="n">data</span> <span class="p">=</span> <span class="m">_d</span><span class="n">atabase</span><span class="p">.</span><span class="n">GetUserById</span><span class="p">(</span><span class="n">userId</span><span class="p">);</span>
+        <span class="p">...</span>
+        <span class="m">_</span><span class="n">messageBus</span><span class="p">.</span><span class="n">SendEmailChangedMessage</span><span class="p">(</span><span class="n">UserId</span><span class="p">,</span> <span class="n">newEmail</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></li>
+<li>
+<p><strong>第二步：引入应用层</strong>。将与外部依赖交互的逻辑剥离到应用层中，通常会通过 Controller 实现：</p>
+<div class="highlight"><pre class="chroma"><code class="language-c#" data-lang="c#"><span class="c1">// C#
+</span><span class="c1">// 用户管理应用层
+</span><span class="c1"></span><span class="k">public</span> <span class="k">class</span> <span class="nc">UserController</span>
+<span class="p">{</span>
+    <span class="k">private</span> <span class="k">readonly</span> <span class="n">Database</span> <span class="m">_d</span><span class="n">atabase</span> <span class="p">=</span> <span class="k">new</span> <span class="n">Database</span><span class="p">();</span>
+    <span class="k">private</span> <span class="k">readonly</span> <span class="n">MessageBus</span> <span class="m">_</span><span class="n">messageBus</span> <span class="p">=</span> <span class="k">new</span> <span class="n">MessageBus</span><span class="p">();</span>
+
+    <span class="c1">// 与外部依赖交互的逻辑，实际的业务执行调用领域层user.ChangeEmail方法
+</span><span class="c1"></span>    <span class="k">public</span> <span class="k">void</span> <span class="n">ChangeEmail</span><span class="p">(</span><span class="kt">int</span> <span class="n">userId</span><span class="p">,</span> <span class="kt">string</span> <span class="n">newEmail</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="kt">object</span><span class="p">[]</span> <span class="n">data</span> <span class="p">=</span> <span class="m">_d</span><span class="n">atabase</span><span class="p">.</span><span class="n">GetUserById</span><span class="p">(</span><span class="n">userId</span><span class="p">);</span>
+        <span class="kt">string</span> <span class="n">email</span> <span class="p">=</span> <span class="p">(</span><span class="kt">string</span><span class="p">)</span><span class="n">data</span><span class="p">[</span><span class="m">1</span><span class="p">];</span>
+        <span class="n">UserType</span> <span class="n">type</span> <span class="p">=</span> <span class="p">(</span><span class="n">UserType</span><span class="p">)</span><span class="n">data</span><span class="p">[</span><span class="m">2</span><span class="p">];</span>
+        <span class="kt">var</span> <span class="n">user</span> <span class="p">=</span> <span class="k">new</span> <span class="n">User</span><span class="p">(</span><span class="n">userId</span><span class="p">,</span> <span class="n">email</span><span class="p">,</span> <span class="n">type</span><span class="p">);</span>
+
+        <span class="kt">object</span><span class="p">[]</span> <span class="n">companyData</span> <span class="p">=</span> <span class="m">_d</span><span class="n">atabase</span><span class="p">.</span><span class="n">GetCompany</span><span class="p">();</span>
+        <span class="kt">string</span> <span class="n">companyDomainName</span> <span class="p">=</span> <span class="p">(</span><span class="kt">string</span><span class="p">)</span><span class="n">companyData</span><span class="p">[</span><span class="m">0</span><span class="p">];</span>
+        <span class="kt">int</span> <span class="n">numberOfEmployees</span> <span class="p">=</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">companyData</span><span class="p">[</span><span class="m">1</span><span class="p">];</span>
+
+        <span class="kt">int</span> <span class="n">newNumberOfEmployees</span> <span class="p">=</span> <span class="n">user</span><span class="p">.</span><span class="n">ChangeEmail</span><span class="p">(</span>
+            <span class="n">newEmail</span><span class="p">,</span> <span class="n">companyDomainName</span><span class="p">,</span> <span class="n">numberOfEmployees</span><span class="p">);</span>
+
+        <span class="m">_d</span><span class="n">atabase</span><span class="p">.</span><span class="n">SaveCompany</span><span class="p">(</span><span class="n">newNumberOfEmployees</span><span class="p">);</span>
+        <span class="m">_d</span><span class="n">atabase</span><span class="p">.</span><span class="n">SaveUser</span><span class="p">(</span><span class="n">user</span><span class="p">);</span>
+        <span class="m">_</span><span class="n">messageBus</span><span class="p">.</span><span class="n">SendEmailChangedMessage</span><span class="p">(</span><span class="n">userId</span><span class="p">,</span> <span class="n">newEmail</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// 用户管理领域层
+</span><span class="c1"></span><span class="k">public</span> <span class="k">class</span> <span class="nc">User</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="kt">int</span> <span class="n">UserId</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">private</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+    <span class="k">public</span> <span class="kt">string</span> <span class="n">Email</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">private</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+    <span class="k">public</span> <span class="n">UserType</span> <span class="n">Type</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">private</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+
+    <span class="c1">// 函数式的方法，不涉及外部依赖
+</span><span class="c1"></span>    <span class="k">public</span> <span class="kt">int</span> <span class="n">ChangeEmail</span><span class="p">(</span><span class="kt">string</span> <span class="n">newEmail</span><span class="p">,</span> <span class="kt">string</span> <span class="n">companyDomainName</span><span class="p">,</span> <span class="kt">int</span> <span class="n">numberOfEmployees</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">Email</span> <span class="p">==</span> <span class="n">newEmail</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">numberOfEmployees</span><span class="p">;</span>
+
+        <span class="kt">string</span> <span class="n">emailDomain</span> <span class="p">=</span> <span class="n">newEmail</span><span class="p">.</span><span class="n">Split</span><span class="p">(</span><span class="sc">&#39;@&#39;</span><span class="p">)[</span><span class="m">1</span><span class="p">];</span>
+        <span class="kt">bool</span> <span class="n">isEmailCorporate</span> <span class="p">=</span> <span class="n">emailDomain</span> <span class="p">==</span> <span class="n">companyDomainName</span><span class="p">;</span>
+        <span class="n">UserType</span> <span class="n">newType</span> <span class="p">=</span> <span class="n">isEmailCorporate</span>
+            <span class="p">?</span> <span class="n">UserType</span><span class="p">.</span><span class="n">Employee</span>
+            <span class="p">:</span> <span class="n">UserType</span><span class="p">.</span><span class="n">Customer</span><span class="p">;</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">Type</span> <span class="p">!=</span> <span class="n">newType</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="kt">int</span> <span class="n">delta</span> <span class="p">=</span> <span class="n">newType</span> <span class="p">==</span> <span class="n">UserType</span><span class="p">.</span><span class="n">Employee</span> <span class="p">?</span> <span class="m">1</span> <span class="p">:</span> <span class="p">-</span><span class="m">1</span><span class="p">;</span>
+            <span class="kt">int</span> <span class="n">newNumber</span> <span class="p">=</span> <span class="n">numberOfEmployees</span> <span class="p">+</span> <span class="n">delta</span><span class="p">;</span>
+            <span class="n">numberOfEmployees</span> <span class="p">=</span> <span class="n">newNumber</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="n">Email</span> <span class="p">=</span> <span class="n">newEmail</span><span class="p">;</span>
+        <span class="n">Type</span> <span class="p">=</span> <span class="n">newType</span><span class="p">;</span>
+
+        <span class="k">return</span> <span class="n">numberOfEmployees</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></li>
+<li>
+<p><strong>第三步：消除应用层的复杂性</strong>。应用层应该尽可能地简单：</p>
+<div class="highlight"><pre class="chroma"><code class="language-c#" data-lang="c#"><span class="c1">// C#
+</span><span class="c1"></span><span class="k">public</span> <span class="k">class</span> <span class="nc">UserController</span>
+<span class="p">{</span>
+    <span class="k">private</span> <span class="k">readonly</span> <span class="n">Database</span> <span class="m">_d</span><span class="n">atabase</span> <span class="p">=</span> <span class="k">new</span> <span class="n">Database</span><span class="p">();</span>
+    <span class="k">private</span> <span class="k">readonly</span> <span class="n">MessageBus</span> <span class="m">_</span><span class="n">messageBus</span> <span class="p">=</span> <span class="k">new</span> <span class="n">MessageBus</span><span class="p">();</span>
+
+    <span class="k">public</span> <span class="k">void</span> <span class="n">ChangeEmail</span><span class="p">(</span><span class="kt">int</span> <span class="n">userId</span><span class="p">,</span> <span class="kt">string</span> <span class="n">newEmail</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="kt">object</span><span class="p">[]</span> <span class="n">userData</span> <span class="p">=</span> <span class="m">_d</span><span class="n">atabase</span><span class="p">.</span><span class="n">GetUserById</span><span class="p">(</span><span class="n">userId</span><span class="p">);</span>
+        <span class="n">User</span> <span class="n">user</span> <span class="p">=</span> <span class="n">UserFactory</span><span class="p">.</span><span class="n">Create</span><span class="p">(</span><span class="n">userData</span><span class="p">);</span>
+
+        <span class="kt">object</span><span class="p">[]</span> <span class="n">companyData</span> <span class="p">=</span> <span class="m">_d</span><span class="n">atabase</span><span class="p">.</span><span class="n">GetCompany</span><span class="p">();</span>
+        <span class="n">Company</span> <span class="n">company</span> <span class="p">=</span> <span class="n">CompanyFactory</span><span class="p">.</span><span class="n">Create</span><span class="p">(</span><span class="n">companyData</span><span class="p">);</span>
+
+        <span class="n">user</span><span class="p">.</span><span class="n">ChangeEmail</span><span class="p">(</span><span class="n">newEmail</span><span class="p">,</span> <span class="n">company</span><span class="p">);</span>
+
+        <span class="m">_d</span><span class="n">atabase</span><span class="p">.</span><span class="n">SaveCompany</span><span class="p">(</span><span class="n">company</span><span class="p">);</span>
+        <span class="m">_d</span><span class="n">atabase</span><span class="p">.</span><span class="n">SaveUser</span><span class="p">(</span><span class="n">user</span><span class="p">);</span>
+        <span class="m">_</span><span class="n">messageBus</span><span class="p">.</span><span class="n">SendEmailChangedMessage</span><span class="p">(</span><span class="n">userId</span><span class="p">,</span> <span class="n">newEmail</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// UserFactory封装User实例化逻辑
+</span><span class="c1"></span><span class="k">public</span> <span class="k">class</span> <span class="nc">UserFactory</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="k">static</span> <span class="n">User</span> <span class="n">Create</span><span class="p">(</span><span class="kt">object</span><span class="p">[]</span> <span class="n">data</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">Precondition</span><span class="p">.</span><span class="n">Requires</span><span class="p">(</span><span class="n">data</span><span class="p">.</span><span class="n">Length</span> <span class="p">&gt;=</span> <span class="m">3</span><span class="p">);</span>
+
+        <span class="kt">int</span> <span class="n">id</span> <span class="p">=</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">data</span><span class="p">[</span><span class="m">0</span><span class="p">];</span>
+        <span class="kt">string</span> <span class="n">email</span> <span class="p">=</span> <span class="p">(</span><span class="kt">string</span><span class="p">)</span><span class="n">data</span><span class="p">[</span><span class="m">1</span><span class="p">];</span>
+        <span class="n">UserType</span> <span class="n">type</span> <span class="p">=</span> <span class="p">(</span><span class="n">UserType</span><span class="p">)</span><span class="n">data</span><span class="p">[</span><span class="m">2</span><span class="p">];</span>
+
+        <span class="k">return</span> <span class="k">new</span> <span class="n">User</span><span class="p">(</span><span class="n">id</span><span class="p">,</span> <span class="n">email</span><span class="p">,</span> <span class="n">type</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// CompanyFactory封装Company实例化逻辑
+</span><span class="c1"></span><span class="k">public</span> <span class="k">class</span> <span class="nc">CompanyFactory</span> <span class="p">{...}</span>
+
+<span class="c1">// Company封装公司领域逻辑
+</span><span class="c1"></span><span class="k">public</span> <span class="k">class</span> <span class="nc">Company</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="kt">string</span> <span class="n">DomainName</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">private</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+    <span class="k">public</span> <span class="kt">int</span> <span class="n">NumberOfEmployees</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">private</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+
+    <span class="k">public</span> <span class="k">void</span> <span class="n">ChangeNumberOfEmployees</span><span class="p">(</span><span class="kt">int</span> <span class="n">delta</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">Precondition</span><span class="p">.</span><span class="n">Requires</span><span class="p">(</span><span class="n">NumberOfEmployees</span> <span class="p">+</span> <span class="n">delta</span> <span class="p">&gt;=</span> <span class="m">0</span><span class="p">);</span>
+
+        <span class="n">NumberOfEmployees</span> <span class="p">+=</span> <span class="n">delta</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="kt">bool</span> <span class="n">IsEmailCorporate</span><span class="p">(</span><span class="kt">string</span> <span class="n">email</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="kt">string</span> <span class="n">emailDomain</span> <span class="p">=</span> <span class="n">email</span><span class="p">.</span><span class="n">Split</span><span class="p">(</span><span class="sc">&#39;@&#39;</span><span class="p">)[</span><span class="m">1</span><span class="p">];</span>
+        <span class="k">return</span> <span class="n">emailDomain</span> <span class="p">==</span> <span class="n">DomainName</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// User封装用户领域逻辑
+</span><span class="c1"></span><span class="k">public</span> <span class="k">class</span> <span class="nc">User</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="kt">int</span> <span class="n">UserId</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">private</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+    <span class="k">public</span> <span class="kt">string</span> <span class="n">Email</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">private</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+    <span class="k">public</span> <span class="n">UserType</span> <span class="n">Type</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="k">private</span> <span class="k">set</span><span class="p">;</span> <span class="p">}</span>
+
+    <span class="k">public</span> <span class="k">void</span> <span class="n">ChangeEmail</span><span class="p">(</span><span class="kt">string</span> <span class="n">newEmail</span><span class="p">,</span> <span class="n">Company</span> <span class="n">company</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">Email</span> <span class="p">==</span> <span class="n">newEmail</span><span class="p">)</span>
+            <span class="k">return</span><span class="p">;</span>
+
+        <span class="n">UserType</span> <span class="n">newType</span> <span class="p">=</span> <span class="n">company</span><span class="p">.</span><span class="n">IsEmailCorporate</span><span class="p">(</span><span class="n">newEmail</span><span class="p">)</span>
+            <span class="p">?</span> <span class="n">UserType</span><span class="p">.</span><span class="n">Employee</span>
+            <span class="p">:</span> <span class="n">UserType</span><span class="p">.</span><span class="n">Customer</span><span class="p">;</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">Type</span> <span class="p">!=</span> <span class="n">newType</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="kt">int</span> <span class="n">delta</span> <span class="p">=</span> <span class="n">newType</span> <span class="p">==</span> <span class="n">UserType</span><span class="p">.</span><span class="n">Employee</span> <span class="p">?</span> <span class="m">1</span> <span class="p">:</span> <span class="p">-</span><span class="m">1</span><span class="p">;</span>
+            <span class="n">company</span><span class="p">.</span><span class="n">ChangeNumberOfEmployees</span><span class="p">(</span><span class="n">delta</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="n">Email</span> <span class="p">=</span> <span class="n">newEmail</span><span class="p">;</span>
+        <span class="n">Type</span> <span class="p">=</span> <span class="n">newType</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></li>
+</ul>
+<p>至此，我们成功将“大泥球” <code>User</code> 重构成领域层的 <code>User</code>、<code>Company</code>、<code>UserFactory</code> 和 <code>CompanyFactory</code>，应用层 <code>UserController</code>。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-09-08-085144.png" alt=""  /></p>
+<p>这样，我们就能很方便地对 <code>User</code> 进行单元测试了：</p>
+<div class="highlight"><pre class="chroma"><code class="language-c#" data-lang="c#"><span class="c1">// C#
+</span><span class="c1"></span><span class="na">[Fact]</span>
+<span class="k">public</span> <span class="k">void</span> <span class="n">Changing_email_from_non_corporate_to_corporate</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="kt">var</span> <span class="n">company</span> <span class="p">=</span> <span class="k">new</span> <span class="n">Company</span><span class="p">(</span><span class="s">&#34;mycorp.com&#34;</span><span class="p">,</span> <span class="m">1</span><span class="p">);</span>
+    <span class="kt">var</span> <span class="n">sut</span> <span class="p">=</span> <span class="k">new</span> <span class="n">User</span><span class="p">(</span><span class="m">1</span><span class="p">,</span> <span class="s">&#34;user@gmail.com&#34;</span><span class="p">,</span> <span class="n">UserType</span><span class="p">.</span><span class="n">Customer</span><span class="p">);</span>
+
+    <span class="n">sut</span><span class="p">.</span><span class="n">ChangeEmail</span><span class="p">(</span><span class="s">&#34;new@mycorp.com&#34;</span><span class="p">,</span> <span class="n">company</span><span class="p">);</span>
+
+    <span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="m">2</span><span class="p">,</span> <span class="n">company</span><span class="p">.</span><span class="n">NumberOfEmployees</span><span class="p">);</span>
+    <span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="s">&#34;new@mycorp.com&#34;</span><span class="p">,</span> <span class="n">sut</span><span class="p">.</span><span class="n">Email</span><span class="p">);</span>
+    <span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="n">UserType</span><span class="p">.</span><span class="n">Employee</span><span class="p">,</span> <span class="n">sut</span><span class="p">.</span><span class="n">Type</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div><h2 id="单元测试的反模式">单元测试的反模式</h2>
+<h3 id="对私有方法进行测试">对私有方法进行测试</h3>
+<p><strong>对私有方法进行测试，是最常见的单元测试反模式</strong>。由前文可知，私有方法或实现细节往往是不稳定的，对它们进行测试会导致用例变得脆弱，更容易出现误报。</p>
+<p>如果测试用例在覆盖所有的可观测行为之后，仍然存在部分私有方法未覆盖，原因要么是这部分代码是冗余代码，要么是缺少合理的抽象。比如下面的例子中，<code>Order.GetPrice</code> 是一个具有独立且复杂逻辑的私有方法，理应有独立的单元测试对其进行覆盖：</p>
+<div class="highlight"><pre class="chroma"><code class="language-c#" data-lang="c#"><span class="c1">// C#
+</span><span class="c1"></span><span class="k">public</span> <span class="k">class</span> <span class="nc">Order</span>
+<span class="p">{</span>
+    <span class="k">private</span> <span class="n">Customer</span> <span class="m">_</span><span class="n">customer</span><span class="p">;</span>
+    <span class="k">private</span> <span class="n">List</span><span class="p">&lt;</span><span class="n">Product</span><span class="p">&gt;</span> <span class="m">_</span><span class="n">products</span><span class="p">;</span>
+
+    <span class="k">public</span> <span class="kt">string</span> <span class="n">GenerateDescription</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="s">$&#34;Customer name: {_customer.Name}, &#34;</span> <span class="p">+</span>
+            <span class="s">$&#34;total number of products: {_products.Count}, &#34;</span> <span class="p">+</span>
+            <span class="s">$&#34;total price: {GetPrice()}&#34;</span><span class="p">;</span>                       <span class="m">1</span>
+    <span class="p">}</span>
+
+    <span class="k">private</span> <span class="kt">decimal</span> <span class="n">GetPrice</span><span class="p">()</span>                                  <span class="m">2</span>
+    <span class="p">{</span>
+        <span class="kt">decimal</span> <span class="n">basePrice</span> <span class="p">=</span> <span class="cm">/* Calculate based on _products */</span><span class="p">;</span>
+        <span class="kt">decimal</span> <span class="n">discounts</span> <span class="p">=</span> <span class="cm">/* Calculate based on _customer */</span><span class="p">;</span>
+        <span class="kt">decimal</span> <span class="n">taxes</span> <span class="p">=</span> <span class="cm">/* Calculate based on _products */</span><span class="p">;</span>
+        <span class="k">return</span> <span class="n">basePrice</span> <span class="p">-</span> <span class="n">discounts</span> <span class="p">+</span> <span class="n">taxes</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div><p>更好的实现是将 <code>Order.GetPrice</code> 抽象成单独的类 <code>PriceCalculator</code>，提供公开接口 <code>Calculate</code>：</p>
+<div class="highlight"><pre class="chroma"><code class="language-c#" data-lang="c#"><span class="c1">// C#
+</span><span class="c1"></span><span class="k">public</span> <span class="k">class</span> <span class="nc">Order</span>
+<span class="p">{</span>
+    <span class="k">private</span> <span class="n">Customer</span> <span class="m">_</span><span class="n">customer</span><span class="p">;</span>
+    <span class="k">private</span> <span class="n">List</span><span class="p">&lt;</span><span class="n">Product</span><span class="p">&gt;</span> <span class="m">_</span><span class="n">products</span><span class="p">;</span>
+
+    <span class="k">public</span> <span class="kt">string</span> <span class="n">GenerateDescription</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="kt">var</span> <span class="n">calc</span> <span class="p">=</span> <span class="k">new</span> <span class="n">PriceCalculator</span><span class="p">();</span>
+
+        <span class="k">return</span> <span class="s">$&#34;Customer name: {_customer.Name}, &#34;</span> <span class="p">+</span>
+            <span class="s">$&#34;total number of products: {_products.Count}, &#34;</span> <span class="p">+</span>
+            <span class="s">$&#34;total price: {calc.Calculate(_customer, _products)}&#34;</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">public</span> <span class="k">class</span> <span class="nc">PriceCalculator</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="kt">decimal</span> <span class="n">Calculate</span><span class="p">(</span><span class="n">Customer</span> <span class="n">customer</span><span class="p">,</span> <span class="n">List</span><span class="p">&lt;</span><span class="n">Product</span><span class="p">&gt;</span> <span class="n">products</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="kt">decimal</span> <span class="n">basePrice</span> <span class="p">=</span> <span class="cm">/* Calculate based on products */</span><span class="p">;</span>
+        <span class="kt">decimal</span> <span class="n">discounts</span> <span class="p">=</span> <span class="cm">/* Calculate based on customer */</span><span class="p">;</span>
+        <span class="kt">decimal</span> <span class="n">taxes</span> <span class="p">=</span> <span class="cm">/* Calculate based on products */</span><span class="p">;</span>
+        <span class="k">return</span> <span class="n">basePrice</span> <span class="p">-</span> <span class="n">discounts</span> <span class="p">+</span> <span class="n">taxes</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div><h3 id="为了可测试性而扩大-public-api-范围">为了可测试性而扩大 public API 范围</h3>
+<p>为了可测试性而扩大 public API 范围是我们常犯的另一个反模式，考虑下面的例子，<code>Customer._status</code> 是一个私有属性，其中 <code>Promote</code> 方法对其进行了更新：</p>
+<div class="highlight"><pre class="chroma"><code class="language-c#" data-lang="c#"><span class="c1">// C#
+</span><span class="c1"></span><span class="k">public</span> <span class="k">class</span> <span class="nc">Customer</span>
+<span class="p">{</span>
+    <span class="k">private</span> <span class="n">CustomerStatus</span> <span class="m">_</span><span class="n">status</span> <span class="p">=</span>
+        <span class="n">CustomerStatus</span><span class="p">.</span><span class="n">Regular</span><span class="p">;</span>
+
+    <span class="k">public</span> <span class="k">void</span> <span class="n">Promote</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="m">_</span><span class="n">status</span> <span class="p">=</span> <span class="n">CustomerStatus</span><span class="p">.</span><span class="n">Preferred</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="kt">decimal</span> <span class="n">GetDiscount</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="m">_</span><span class="n">status</span> <span class="p">==</span> <span class="n">CustomerStatus</span><span class="p">.</span><span class="n">Preferred</span> <span class="p">?</span> <span class="m">0.05</span><span class="n">m</span> <span class="p">:</span> <span class="m">0</span><span class="n">m</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div><p>为了测试 <code>Promote</code> 方法，很多人可能会将 <code>_status</code>  改成公有属性，便于在测试用例中校验正确性，这也是一种反模式！</p>
+<h3 id="将领域逻辑泄漏到单元测试中">将领域逻辑泄漏到单元测试中</h3>
+<p>我们常常会无意中将领域逻辑泄漏到单元测试中，考虑下面的例子：</p>
+<div class="highlight"><pre class="chroma"><code class="language-c#" data-lang="c#"><span class="c1">// C#
+</span><span class="c1"></span><span class="k">public</span> <span class="k">static</span> <span class="k">class</span> <span class="nc">Calculator</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="k">static</span> <span class="kt">int</span> <span class="n">Add</span><span class="p">(</span><span class="kt">int</span> <span class="n">value1</span><span class="p">,</span> <span class="kt">int</span> <span class="n">value2</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="n">value1</span> <span class="p">+</span> <span class="n">value2</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">public</span> <span class="k">class</span> <span class="nc">CalculatorTests</span>
+<span class="p">{</span>
+<span class="na">    [Fact]</span>
+    <span class="k">public</span> <span class="k">void</span> <span class="n">Adding_two_numbers</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="kt">int</span> <span class="n">value1</span> <span class="p">=</span> <span class="m">1</span><span class="p">;</span>
+        <span class="kt">int</span> <span class="n">value2</span> <span class="p">=</span> <span class="m">3</span><span class="p">;</span>
+        <span class="c1">// 领域逻辑的泄漏！
+</span><span class="c1"></span>        <span class="kt">int</span> <span class="n">expected</span> <span class="p">=</span> <span class="n">value1</span> <span class="p">+</span> <span class="n">value2</span><span class="p">;</span>      <span class="m">1</span>
+
+        <span class="kt">int</span> <span class="n">actual</span> <span class="p">=</span> <span class="n">Calculator</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">value1</span><span class="p">,</span> <span class="n">value2</span><span class="p">);</span>
+
+        <span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">actual</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div><p>上述的测试用例看起来没问题，但 <code>int expected = value1 + value2;</code> 相当于在测试用例中重新实现了一遍领域逻辑，若后续重构，很容易导致误报。更好的方法是，直接针对值进行断言：</p>
+<div class="highlight"><pre class="chroma"><code class="language-c#" data-lang="c#"><span class="k">public</span> <span class="k">class</span> <span class="nc">CalculatorTests</span>
+<span class="p">{</span>
+<span class="na">    [Fact]</span>
+    <span class="k">public</span> <span class="k">void</span> <span class="n">Adding_two_numbers</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="kt">int</span> <span class="n">value1</span> <span class="p">=</span> <span class="m">1</span><span class="p">;</span>
+        <span class="kt">int</span> <span class="n">value2</span> <span class="p">=</span> <span class="m">3</span><span class="p">;</span>
+
+        <span class="kt">int</span> <span class="n">actual</span> <span class="p">=</span> <span class="n">Calculator</span><span class="p">.</span><span class="n">Add</span><span class="p">(</span><span class="n">value1</span><span class="p">,</span> <span class="n">value2</span><span class="p">);</span>
+        <span class="c1">// 直接针对值进行断言
+</span><span class="c1"></span>        <span class="n">Assert</span><span class="p">.</span><span class="n">Equal</span><span class="p">(</span><span class="m">4</span><span class="p">,</span> <span class="n">actual</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div><h3 id="代码污染">代码污染</h3>
+<p><strong>代码污染指的是在业务代码中增加仅用于单元测试的代码</strong>，这也是常见的反模式，比如下面的例子：</p>
+<div class="highlight"><pre class="chroma"><code class="language-c#" data-lang="c#"><span class="c1">// C#
+</span><span class="c1"></span><span class="k">public</span> <span class="k">class</span> <span class="nc">Logger</span>
+<span class="p">{</span>
+    <span class="c1">// 用于判断是否为测试环境
+</span><span class="c1"></span>    <span class="k">private</span> <span class="k">readonly</span> <span class="kt">bool</span> <span class="m">_</span><span class="n">isTestEnvironment</span><span class="p">;</span>
+
+    <span class="k">public</span> <span class="n">Logger</span><span class="p">(</span><span class="kt">bool</span> <span class="n">isTestEnvironment</span><span class="p">)</span>      <span class="m">1</span>
+    <span class="p">{</span>
+        <span class="m">_</span><span class="n">isTestEnvironment</span> <span class="p">=</span> <span class="n">isTestEnvironment</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="k">void</span> <span class="n">Log</span><span class="p">(</span><span class="kt">string</span> <span class="n">text</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="m">_</span><span class="n">isTestEnvironment</span><span class="p">)</span>                <span class="m">1</span>
+            <span class="k">return</span><span class="p">;</span>
+
+        <span class="cm">/* Log the text */</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div><h3 id="对实现类进行-mock">对实现类进行 mock</h3>
+<p>我们一般只对接口进行 mock，mock  具体的实现类是一种反模式！</p>
+<h3 id="与时间耦合">与时间耦合</h3>
+<p>很多程序的实现逻辑需要访问当前时间，也即调用 <code>DateTime.Now()</code> 方法，因为方法与当前时间强耦合，不同的时间执行方法，结果可能会不一样。更好的方法是，将 <code>DateTime</code> 对象作为依赖注入到方法中。</p>
+<h2 id="最后">最后</h2>
+<p>本文花了很长的篇幅把 <a class="link" href="https://learning.oreilly.com/library/view/unit-testing-principles/9781617296277/"  target="_blank" rel="noopener"
+    >Unit Testing Principles, Practices, and Patterns</a> 书中的主要内容列举了出来，书中有着更多的代码示例，能够让读者更深地理解作者的用意，建议大家直接读原书。</p>
+<p>总的来说，这<strong>不仅是一本介绍单元测试的书，更是一本介绍软件设计的书，非常值得一读</strong>！</p>
+<h3 id="文章配图">文章配图</h3>
+<p>可以在 <a class="link" href="https://mp.weixin.qq.com/s/-sYW-oa6KzTR9LNdMWCSnQ"  target="_blank" rel="noopener"
+    >用Keynote画出手绘风格的配图</a> 中找到文章的绘图方法。</p>
+<blockquote>
+<h4 id="参考">参考</h4>
+<p>[1]  <a class="link" href="https://learning.oreilly.com/library/view/unit-testing-principles/9781617296277/"  target="_blank" rel="noopener"
+    >Unit Testing Principles, Practices, and Patterns</a> ,  Vladimir Khorikov</p>
+<p>更多文章请关注微信公众号：<strong>元闰子的邀请</strong></p>
+</blockquote>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95/">单元测试</a>
+        
+            <a href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">读书笔记</a>
+        
+            <a href="/tags/oreilly/">oreilly</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>CC BY 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/%E8%B5%B0%E6%8A%80%E6%9C%AF%E8%B7%AF%E7%BA%BF%E9%9C%80%E8%A6%81%E4%BA%9B%E4%BB%80%E4%B9%88/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">走技术路线需要些什么？</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E5%BF%AB%E9%80%9F%E4%BA%86%E8%A7%A3%E7%94%9F%E6%88%90%E5%BC%8Fai/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">快速了解生成式AI</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3lambda%E6%9E%B6%E6%9E%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">深入理解Lambda架构</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E8%BD%AF%E4%BB%B6%E6%9E%B6%E6%9E%84%E4%B8%80%E5%88%87%E5%B0%BD%E5%9C%A8%E6%9D%83%E8%A1%A1/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">软件架构，一切尽在权衡</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/go%E5%AE%9E%E7%8E%B0%E5%AE%9E%E8%B7%B5gof%E7%9A%8423%E7%A7%8D%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E6%A1%A5%E6%8E%A5%E6%A8%A1%E5%BC%8F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">【Go实现】实践GoF的23种设计模式：桥接模式</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+
+    
+        
+    <script src="https://utteranc.es/client.js" 
+        repo="ruanrunxue/yrunz-comments"
+        issue-term="pathname"
+        
+        label="yrunz"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
+
+<style>
+    .utterances {
+        max-width: unset;
+    }
+</style>
+
+<script>
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
+        }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+        setUtterancesTheme(document.body.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        setUtterancesTheme(e.detail)
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2019 - 
+        
+        2026 元闰子的邀请
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.3.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

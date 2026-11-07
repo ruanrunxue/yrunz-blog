@@ -6,7 +6,28 @@
     <description>Recent content in 单元测试 on 元闰子的邀请</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 10 Jan 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://www.yrunz.com/tags/%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 08 Sep 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://www.yrunz.com/tags/%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>深入理解单元测试</title>
+      <link>https://www.yrunz.com/p/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95/</link>
+      <pubDate>Sun, 08 Sep 2024 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95/</guid>
+      <description>荐语 本文要介绍的是 2020 年 O&amp;rsquo;Reilly 出版的书籍 Unit Testing Principles, Practices, and Patterns，一本在豆瓣评分高达 9.9 的好书。
+作为一名软件开发工程师，你应该对单元测试（unit test）很熟悉，但单元测试的目的、Mock 的正确用法、单元测试和集成测试的区别等等，你真的懂吗？书中对这些内容都做了深入的介绍，并通过实际案例教你如何写出好的单元测试。读完这本书，你一定会有醍醐灌顶的感觉，原来单元测试要这么写！
+书中的另一个重要观点认为，单元测试和代码架构是息息相关的，写不出好的单元测试，极有可能是代码架构设计得不好。为了写出好的单元测试，需要不断对代码架构的优化，它们相辅相成，从而让软件能够持续演进。
+为什么要写单元测试？ 单元测试的目的 如今，在软件开发活动中，单元测试已经成为企业级软件不可或缺的一环，是代码门禁的必选项。
+如果突然有人问你，“为什么要写单元测试？”，你很容易会想到这样的答案，1）为了找到代码中已有的 Bug；2）为了防止引入新的 Bug；3）让代码架构变得更好；甚至是 4）满足代码门禁中覆盖率的要求。
+但这些都不是我们写单元测试的根本目的，它们只是“写单元测试”这一活动所带来的副产品。
+书中认为，单元测试的目的是实现软件项目的可持续增长。
+企业级软件应用通常都有着业务逻辑复杂度高和生命周期长的特点。随着产品的不断迭代，代码会变得越来越复杂乱，每次修改代码也会变得越来越难，这就是软件的熵增定律。而单元测试的目的就是降低熵增的加速度，使得重构代码或新增功能变得更加的容易。
+单元测试也分好坏 代码并非资产，而是一种负债，单元测试代码也是如此。
+然而，我们往往会将生产代码和测试代码区分对待，忽略了对测试代码的维护，久而久之，测试代码变得冗余、复杂，甚至出现误报的情况。这样的单元测试，只会让系统的演进更加难。
+如何评判单元测试的好坏？最常用的方法是代码覆盖率，也即测试用例执行了多少源代码。其中，又可分为行覆盖率和分支覆盖率。
+行覆盖率计算执行了多少代码行，比如下面的例子，return true 的代码行无法覆盖，因此代码行覆盖率为 4/5=80%：
+// C# public static bool IsStringLong(string input) { if (input.Length &amp;gt; 5) // 无法执行  return true; return false; } public void Test() { bool result = IsStringLong(&amp;#34;abc&amp;#34;); Assert.Equal(false, result); } 但是，某些时候行覆盖率并不能放映真实的覆盖情况，比如将上述的 IsStringLong 使用三目运算符进行重构，行覆盖率 3/3=100% 了，但实际情况并未改善。</description>
+    </item>
+    
     <item>
       <title>如何高效编写Go单元测试（二）</title>
       <link>https://www.yrunz.com/p/%E5%A6%82%E4%BD%95%E9%AB%98%E6%95%88%E7%BC%96%E5%86%99go%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E4%BA%8C/</link>

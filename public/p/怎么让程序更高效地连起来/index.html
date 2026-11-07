@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='本文将最简单的共享内存开始，讲述共享内存/TCP/DPDK/RDMA/CXL/NVLink/UB 等通信方式的基本原理，探讨如何让程序更高效地连起来。'><title>怎么让程序更高效地连起来？</title>
+
+<link rel='canonical' href='https://www.yrunz.com/p/%E6%80%8E%E4%B9%88%E8%AE%A9%E7%A8%8B%E5%BA%8F%E6%9B%B4%E9%AB%98%E6%95%88%E5%9C%B0%E8%BF%9E%E8%B5%B7%E6%9D%A5/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='怎么让程序更高效地连起来？'>
+<meta property='og:description' content='本文将最简单的共享内存开始，讲述共享内存/TCP/DPDK/RDMA/CXL/NVLink/UB 等通信方式的基本原理，探讨如何让程序更高效地连起来。'>
+<meta property='og:url' content='https://www.yrunz.com/p/%E6%80%8E%E4%B9%88%E8%AE%A9%E7%A8%8B%E5%BA%8F%E6%9B%B4%E9%AB%98%E6%95%88%E5%9C%B0%E8%BF%9E%E8%B5%B7%E6%9D%A5/'>
+<meta property='og:site_name' content='元闰子的邀请'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='计算机体系结构' /><meta property='article:published_time' content='2025-10-19T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2025-10-19T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="怎么让程序更高效地连起来？">
+<meta name="twitter:description" content="本文将最简单的共享内存开始，讲述共享内存/TCP/DPDK/RDMA/CXL/NVLink/UB 等通信方式的基本原理，探讨如何让程序更高效地连起来。">
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "light");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/yrz_huab1eef27cf09ceddd85969461c7dd38b_46713_300x0_resize_box_2.png" width="300"
+                            height="306" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://www.yrunz.com">元闰子的邀请</a></h1>
+        <h2 class="site-description">阅读、写作、生活（个人技术分享）</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>首页</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>博客</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%85%B3%E4%BA%8E%E5%85%83%E9%97%B0%E5%AD%90/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>关于元闰子</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%8F%8B%E6%83%85%E9%93%BE%E6%8E%A5/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>友情链接</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>暗色模式</span>
+            </li>
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://www.yrunz.com" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E5%9F%BA%E7%A1%80/" >
+                基础
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/%E6%80%8E%E4%B9%88%E8%AE%A9%E7%A8%8B%E5%BA%8F%E6%9B%B4%E9%AB%98%E6%95%88%E5%9C%B0%E8%BF%9E%E8%B5%B7%E6%9D%A5/">怎么让程序更高效地连起来？</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        本文将最简单的共享内存开始，讲述共享内存/TCP/DPDK/RDMA/CXL/NVLink/UB 等通信方式的基本原理，探讨如何让程序更高效地连起来。
+    </h3>
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Oct 19, 2025</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <h2 id="前言">前言</h2>
+<blockquote>
+<p>本文将最简单的共享内存开始，讲述共享内存/TCP/DPDK/RDMA/CXL/NVLink/UB 等通信方式的基本原理，探讨如何让程序更高效地连起来。</p>
+</blockquote>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-10-18-031136.png" alt=""  /></p>
+<p>上图为计算机的简易组成，核（Core）是 CPU 的大脑，执行程序的业务逻辑；</p>
+<p>内存 DRAM 通过 DDR 接口连接到 CPU 内的内存控制器（Memory Controller）中，存放程序运行所需的数据；</p>
+<p>而网卡 NIC、SSD 等高速外围设备则通过 PCIe 接口接入 CPU，由 PCIe Root Complex 进行协议解析、路由等。</p>
+<p>在《<a class="link" href="https://mp.weixin.qq.com/s/54UB2hgi_SAI3uBs6sB9Sw"  target="_blank" rel="noopener"
+    >探索OS的内存管理原理</a>》里我们提到，每个程序都有独立的内存地址空间，以防止其他程序的篡改。所以，程序 A 保存在内存里的业务数据，程序 B 是无法访问的。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-10-18-063527.png" alt=""  /></p>
+<p>然而，复杂的业务往往需要多个程序协同合作，比如，数据需要先后经过程序 A 和程序 B 的处理。</p>
+<p>这时，<em>要怎么把程序连起来，让程序 B 可以访问程序 A 的数据呢</em>？</p>
+<h2 id="共享内存">共享内存</h2>
+<p>这是一个进程间通信的问题，回忆操作系统原理，我们能想到的最简单的方式就是共享内存。</p>
+<p>POSIX 提供了 <code>shm_open</code> 和 <code>mmap</code> 系统调用，它们配合可实现进程间的通信，简易代码如下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="c1">// 程序A的代码
+</span><span class="c1"></span><span class="kt">int</span> <span class="nf">procA</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// 1. 双方约定好的共享内存key
+</span><span class="c1"></span>    <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">key</span> <span class="o">=</span> <span class="s">&#34;/proc_shm&#34;</span><span class="p">;</span>
+    <span class="k">const</span> <span class="n">size_t</span> <span class="n">sz</span>   <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">);</span>
+
+    <span class="c1">// 2. 创建并打开共享内存对象
+</span><span class="c1"></span>    <span class="kt">int</span> <span class="n">fd</span> <span class="o">=</span> <span class="n">shm_open</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">O_CREAT</span> <span class="o">|</span> <span class="n">O_RDWR</span><span class="p">,</span> <span class="mo">0666</span><span class="p">);</span>
+    <span class="c1">// 3. 设置大小
+</span><span class="c1"></span>    <span class="n">ftruncate</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="n">sz</span><span class="p">);</span>
+    <span class="c1">// 4. 映射
+</span><span class="c1"></span>    <span class="kt">int</span> <span class="o">*</span><span class="n">p</span> <span class="o">=</span> <span class="n">mmap</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="n">sz</span><span class="p">,</span> <span class="n">PROT_READ</span> <span class="o">|</span> <span class="n">PROT_WRITE</span><span class="p">,</span> <span class="n">MAP_SHARED</span><span class="p">,</span> <span class="n">fd</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+    <span class="c1">// 5. 写入数据
+</span><span class="c1"></span>    <span class="o">*</span><span class="n">p</span> <span class="o">=</span> <span class="mi">12345</span><span class="p">;</span>
+    <span class="p">...</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// 程序B的代码
+</span><span class="c1"></span><span class="kt">int</span> <span class="nf">procB</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// 1. 双方约定好的共享内存key
+</span><span class="c1"></span>    <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">key</span> <span class="o">=</span> <span class="s">&#34;/proc_shm&#34;</span><span class="p">;</span>
+    <span class="k">const</span> <span class="n">size_t</span> <span class="n">sz</span>   <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">);</span>
+
+    <span class="c1">// 2. 创建并打开共享内存对象
+</span><span class="c1"></span>    <span class="kt">int</span> <span class="n">fd</span> <span class="o">=</span> <span class="n">shm_open</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">O_RDWR</span><span class="p">,</span> <span class="mo">0666</span><span class="p">);</span>
+    <span class="c1">// 3. 映射
+</span><span class="c1"></span>    <span class="kt">int</span> <span class="o">*</span><span class="n">p</span> <span class="o">=</span> <span class="n">mmap</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span> <span class="n">sz</span><span class="p">,</span> <span class="n">PROT_READ</span><span class="p">,</span> <span class="n">MAP_SHARED</span><span class="p">,</span> <span class="n">fd</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+    <span class="c1">// 4. 读取数据，输出12345
+</span><span class="c1"></span>    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;%d&#34;</span><span class="p">,</span> <span class="o">*</span><span class="n">p</span><span class="p">);</span>
+    <span class="p">...</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div><p>只要程序 A 和程序 B 约定好一个 <code>key</code>，就能使用 <code>shm_open</code> 等到一个 <code>fd</code>，再通过 <code>mmap</code> 将它映射到内存里，就能实现数据共享。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-10-18-070310.png" alt=""  /></p>
+<p>共享内存的方式下，以 AMD Zen5 为例，数据访问的带宽理论可达 614GB/s，时延能够做到 &lt;100ns，这对于常见的程序已经足够快。</p>
+<p>然而，使<strong>用共享内存的前提是程序们必须处在同一个物理内存下</strong>。如果程序 A 和程序 B 分布在不同的节点，那么共享内存就无法用了，需要网络通信。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-10-18-081329.png" alt=""  /></p>
+<h2 id="tcp-通信">TCP 通信</h2>
+<p>最常见的网络通信协议是 TCP，它是可靠的传输协议，能够实现跨节点的程序通信。</p>
+<p>TCP 只是协议，要实现网络通信，还需要依赖网卡 NIC 硬件的能力。它的基本原理是，程序 A 将内存中的数据按照 TCP 协议格式打包好，通过 NIC 经过以太网传输到程序 B 所在的节点上。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-10-18-091421.png" alt=""  /></p>
+<p>POSIX 同样提供了 TCP 通信的系统调用，主要为 <code>socket</code>、<code>recv</code>、<code>send</code> 等，简易代码如下：</p>
+<div class="highlight"><pre class="chroma"><code class="language-C" data-lang="C"><span class="c1">// 程序B代码，数据接收方
+</span><span class="c1"></span><span class="kt">int</span> <span class="nf">procB</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// 1. 创建套接字：IPv4、面向连接（SOCK_STREAM）、TCP
+</span><span class="c1"></span>    <span class="kt">int</span> <span class="n">listen_fd</span> <span class="o">=</span> <span class="n">socket</span><span class="p">(</span><span class="n">AF_INET</span><span class="p">,</span> <span class="n">SOCK_STREAM</span><span class="p">,</span> <span class="n">IPPROTO_TCP</span><span class="p">);</span>
+    <span class="c1">// 2. 绑定本地IP:端口
+</span><span class="c1"></span>    <span class="n">bind</span><span class="p">(</span><span class="n">listen_fd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">serv_addr</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">serv_addr</span><span class="p">));</span>
+    <span class="c1">// 3. 开始监听
+</span><span class="c1"></span>    <span class="n">listen</span><span class="p">(</span><span class="n">listen_fd</span><span class="p">)</span>
+    <span class="c1">// 4. 阻塞等待客户端发起连接
+</span><span class="c1"></span>    <span class="kt">int</span> <span class="n">conn_fd</span> <span class="o">=</span> <span class="n">accept</span><span class="p">(</span><span class="n">listen_fd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">cli_addr</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">cli_len</span><span class="p">);</span>
+    <span class="c1">// 5. 建立连接后，接受输入写入本地内存缓冲区buf
+</span><span class="c1"></span>    <span class="kt">char</span> <span class="n">buf</span><span class="p">[</span><span class="n">BUF_SIZE</span><span class="p">];</span>
+    <span class="k">while</span> <span class="p">((</span><span class="n">n</span> <span class="o">=</span> <span class="n">recv</span><span class="p">(</span><span class="n">conn_fd</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">BUF_SIZE</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{...}</span>
+    <span class="p">...</span>
+<span class="p">}</span>
+
+<span class="c1">// 程序A代码，数据发送方
+</span><span class="c1"></span><span class="kt">int</span> <span class="nf">procA</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// 1. 创建套接字：IPv4、面向连接（SOCK_STREAM）、TCP
+</span><span class="c1"></span>    <span class="kt">int</span> <span class="n">sockfd</span> <span class="o">=</span> <span class="n">socket</span><span class="p">(</span><span class="n">AF_INET</span><span class="p">,</span> <span class="n">SOCK_STREAM</span><span class="p">,</span> <span class="n">IPPROTO_TCP</span><span class="p">);</span>
+    <span class="c1">// 2. 向服务端发起TCP连接
+</span><span class="c1"></span>    <span class="n">connect</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">serv_addr</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">serv_addr</span><span class="p">));</span>
+    <span class="c1">// 3. 将内存缓冲区buf的数据发送到服务端
+</span><span class="c1"></span>    <span class="n">send</span><span class="p">(</span><span class="n">sockfd</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">len</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+    <span class="p">...</span>
+<span class="p">}</span>
+</code></pre></div><p>上述代码实际运行时，会涉及到 CPU 与操作系统用户态内存、内核态内存、网卡缓冲区的协同配合，流程如下图所示：</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-10-18-134202.png" alt=""  /></p>
+<p>可以看到，在发送方，数据一共经过了 2 次拷贝和 1 次协议栈处理，而且 CPU 都有参与。这意味着，数据在经过 NIC 发出去之前，CPU 全程都处于忙碌状态。</p>
+<p>然而，<strong>让 CPU 来处理简单的数据传输任务，是一个十分低效的决定</strong>。</p>
+<p>为此，计算机引入了 DMA（Direct Memory Access）来分担 CPU 数据传输的任务。现代计算机体系结构中，DMA 控制器通常在网卡设备上。</p>
+<p>在 TCP 报文从内核态拷贝到 NIC 缓冲区阶段，CPU 只需将 TCP 报文的内存地址映射为 DMA 地址，这样 NIC 就能通过 DMA 将 TCP 报文拷贝到 NIC 缓冲区，拷贝过程无需 CPU 参与。</p>
+<p>NIC 发送数据后，再通过硬件中断唤醒 CPU 继续处理程序 A 接下来的逻辑。接收方也是类似的流程。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-10-18-134238.png" alt=""  /></p>
+<p>然而，每次发送数据都要经历一次从用户态到内核态的数据拷贝，这其中涉及到了 1 次 CPU 上下文切换；而每次发送后产生中断，都需要 CPU 进行上下文切换，并处理中断程序。</p>
+<p>这些流程无疑都增加了 CPU 的负担，对于网络密集型程序，CPU 可能会一直忙于数据拷贝、上下文切换、中断处理！</p>
+<p>TCP 网络通信的带宽与网卡规格相关，比如常见的 100Gb 网卡，双边通信带宽 25GB/s。但在通信时延上，不算网络传播时延，数据从用户态到 NIC 发出的过程，就需要 &gt;100µs。</p>
+<p><strong>这百微妙级的时延，会使得网卡带宽的无法被充分利用起来</strong>，需要进一步的优化。</p>
+<h2 id="dpdk-加速-tcp-通信">DPDK 加速 TCP 通信</h2>
+<p><strong>DPDK</strong>（Data Plane Development Kit）是由 Intel 推出的一个网络加速库，与传统 TCP 通信路径对比如下：</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-10-18-135922.png" alt=""  /></p>
+<p>DPDK 提供了 UIO 网卡驱动，应用程序通过 DPDK lib 可直接将数据从用户态传输到 NIC，完全绕过了内核，数据零拷贝；</p>
+<p>另外，它基于 PMD（Poll Mode Driver）的轮训模式，消除了数据收发路径上的中断。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-10-18-140815.png" alt=""  /></p>
+<p>可以看到，<strong>DPDK 的路径更加短了，时延也从传统 TCP 通信方式的 100µs 降低至 10µs 左右</strong>。</p>
+<p>不过 DPDK 并不提供 TCP 协议栈处理能力，程序需要自己实现，或者引入第三方库。</p>
+<p>DPDK 虽然通过绕过内核的方式缩短了数据收发路径，降低了 TCP 通信时延，但它仍需要 CPU 对 TCP 协议栈进行处理。而且轮训的数据驱动方式也会一直占用 CPU。</p>
+<p>那么，<em>有没有办法能够让整个数据收发链路都绕过 CPU，让 CPU 能够专注业务逻辑处理呢</em>？</p>
+<h2 id="rdma-通信">RDMA 通信</h2>
+<p><strong>RDMA</strong>（Remote Direct Memory Access），远程直接内存访问，是一种能够绕过 CPU 和操作系统内核的通信技术。</p>
+<p>不同于 DPDK 在 TCP 通信上做优化加速，<strong>RDMA 在协议栈、NIC 硬件上都做了优化升级</strong>。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-10-19-060144.png" alt=""  /></p>
+<p>如上图所示，使用 RDMA 需要引入专门的网卡 RNIC，它支持在网卡内直接进行协议栈处理，并能够使用 DMA 将数据从内存传输到网卡上，从而绕过了 CPU。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-10-19-070443.png" alt=""  /></p>
+<p>RDMA 有如下三种实现方式：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>InfiniBand (IB)</th>
+<th>RoCE v2</th>
+<th>iWARP</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>底层协议</strong></td>
+<td>专用 IB 物理/链路层</td>
+<td>以太网+UDP/IP</td>
+<td>以太网+TCP/IP</td>
+</tr>
+<tr>
+<td><strong>时延</strong></td>
+<td>0.5µs ~ 2µs</td>
+<td>1µs ~ 3µs</td>
+<td>10µs ~ 15µs</td>
+</tr>
+<tr>
+<td><strong>硬件依赖</strong></td>
+<td>专用 IB 交换机、光纤、HCAs、网卡</td>
+<td>复用现有以太网基础设施、专用网卡</td>
+<td>完全基于标准以太网+TCP、专用网卡</td>
+</tr>
+</tbody>
+</table>
+<p>InfiniBand 虽然性能最好，但起建成本也最高。RoCE v2 性能较好且成本适中，约为 InfiniBand 的 30~50%，是目前应用最广泛的实现。</p>
+<p>因为 RDMA 时延更低，所以在规格相同的网卡下，比如 100Gb 的 NIC 和 RNIC，<strong>RDMA 比传统 TCP 有更高的带宽利用率</strong>。</p>
+<p>现在 RDMA 已经被广泛应用在 AI、HPC 等依赖高性能通信的场景。</p>
+<p>不过 RDMA 的数据收发链路上仍然存在 1 次数据拷贝和协议栈处理，在编程复杂度、带宽和时延上，对比共享内存的方式，仍有较大的差距。</p>
+<p>在前文分析中，我们注意到，NIC/RNIC 是通过 PCIe 接口接入 CPU，而 DMA 从内存中拷贝数据，也是通过 PCIe 传输。</p>
+<p>那么，<em>能不能在节点间也通过 PCIe 协议通信，这样也许就能做到用 Load/Store 内存语义访问远端节点内存数据，免数据拷贝，也不用复杂的协议栈处理了</em>？</p>
+<h2 id="cxl-通信">CXL 通信</h2>
+<p><strong>CXL</strong>（Compute Express Link），是一种<strong>建立在 PCIe 之上的低时延、高带宽的互联协议</strong>，能够实现 CPU 与内存、IO设备、XPU 加速器的互联。</p>
+<p>从 2019 年发布至今，已经经历了 CXL 1.0/2.0/3.0 三个大版本。CXL 主要有 3 个子协议组成：</p>
+<ul>
+<li><strong>CXL.io</strong>：与 PCIe 的事务层/链路层保持兼容，负责 设备发现、配置、DMA、中断等，为所有 CXL 设备提供统一的 I/O 通道。</li>
+<li><strong>CXL.cache</strong>：让 XPU 加速器和外设能够缓存并直接访问主机（CPU）内存，并保持缓存一致性。</li>
+<li><strong>CXL.mem</strong>：使主机 CPU 能够直接对 CXL 端点上挂载的内存设备进行 Load/Store 内存语义访问，<strong>等同于把外部内存映射到主机的内存地址空间</strong>。</li>
+</ul>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-10-19-090359.png" alt=""  /></p>
+<p>如上图所示，程序 B 可直接远程访问程序 A 的内存数据，且无需经过节点 1 CPU 的处理，直接、高效。</p>
+<p>操作系统可以把外部的 CXL 内存设备看做是 DAX Device，这样程序 B 就能通过 <code>mmap</code> 把节点 1 的内存映射到自己的虚拟内存地址空间上，直接通过指针访问，省去了类似 TCP/DPDK/RDMA 繁琐的编程步骤。而且数据收发均在用户态完成。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-10-19-091901.png" alt=""  /></p>
+<p>目前 CXL 2.0 已经陆续有落地应用，在《<a class="link" href="https://mp.weixin.qq.com/s/xqTAPx4PgUHDjJt_J10mXA"  target="_blank" rel="noopener"
+    >怎么用CXL加速数据库？· SIGMOD'25</a>》里，我们介绍了阿里云 PolarDB 团队基于 CXL 2.0 实现 PolarCXLMem 全局内存池的案例。</p>
+<p>该案例实测数据表明，CXL 2.0 的直连访问时延可以达到 265ns，走 CXL Switch 则可以达到 549ns，是真正的<strong>纳秒级通信</strong>。CXL 3.0 标准更是将 80ns 点对点访问时延作为目标，这已经和当前的本地 DRAM 访问时延相当了。</p>
+<p>CXL 基于 PCIe 实现，这意味着 CXL 的性能受限与 PCIe 的性能，如下为各个版本 PCIe 协议的带宽规格：</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-10-19-093947.png" alt=""  /></p>
+<p>CXL 3.0 基于 PCIe 6 实现，可以做到 16GB/s/lane 的带宽，最高支持 x16 lane，所以理论带宽最大值为 256GB/s。这对大部分程序来说，已经够大了。</p>
+<p>然而，当前 CXL 并未被广泛应用，一个重要的原因是成本过高，它需要引入 CXL 控制器、CXL Switch 等新的硬件，且无法像 RDMA 一样复用现有以太网基础设施。</p>
+<p>对于大多数程序来说，RDMA 的性能已经足够了。而那些需要更高通信性能的应用，比如 LLM 训练和推理，CXL 的带宽又不够用。</p>
+<p>那怎么办呢？</p>
+<p><strong>既然 PCIe 已经无法满足性能要求，那就不要 PCIe 了</strong>。</p>
+<h2 id="nvlink-通信">NVLink 通信</h2>
+<p>AI 应用程序通常会跑在 GPU 上，GPU 通过 PCIe 接口接入 CPU。当程序需要跨 GPU 通信时，最开始的方案是基于 PCIe 的 DMA 完成数据传输。</p>
+<p>然而，随着模型变得越来越大，PCIe 的带宽已难以支撑高效的模型训练和推理，在 LLM 时代更是如此。</p>
+<p>既然 PCIe 性能达到了上限，那就重新为 GPU 设计一个更高带宽的通信方式，于是，NVLink 诞生了。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-10-19-135748.png" alt=""  /></p>
+<p>NVLink 是英伟达在 2014 年推出的用于 GPU 高速互连的协议，<strong>它能够实现 GPU 之间的显存数据直接访问</strong>，完全绕过了 CPU。</p>
+<p><strong>NVLink 依赖专门的硬件</strong>，NVLink 控制器、NVLink Switch 等，最新 NVLink 5.0 的点对点直连带宽可以达到 50GB/s/lane，每个 NVLink 端口 x2 lane，每个 GPU 最多可支持 18 个 NVLink 端口，<strong>总带宽可达 1.8TB/s，通信时延 &lt;500ns</strong>。</p>
+<p>可以看到，NVLink 的带宽比 CXL 要大 7 倍多，但 CXL 的通信时延更低。这体现了两者设计的权衡，NVLink 是专门针对 GPU 强大并行计算能力的高带宽设计；而 CXL/PCIe 则针对 CPU 的低时延设计。</p>
+<p>NVLink 通信带宽很大，但仅限于 NVIDIA 生态，主要是面向 NVIDIA 的 GPU-GPU、GPU-CPU 互联；而 CXL 则更通用，CPU、DRAM、SSD、SmartNIC 等多种设备互联。</p>
+<p><em>那么，能不能设计一个带宽跟 NVLink 相当，而且通用性又能跟 CXL/PCIe 相当的协议或通信方式呢</em>？</p>
+<h2 id="ub-通信">UB 通信</h2>
+<p>华为给出了他们的答案，在今年 9 月份开放了灵衢 UB 2.0 协议。<strong>UB（Unified Bus）是一个面向超节点的互联协议</strong>：</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-10-19-144905.png" alt=""  /></p>
+<p>与 NVLink 的思路类似，UB 不再基于 PCIe 做优化，而是对通信协议进行了重新设计。</p>
+<p>与以 CPU 为中心的 CXL/PCIe 协议不同，UB 采用了对等架构。在 UB 的世界里，CPU/NPU/SSU/GPU/Memory/DPU 等设备都是平等的，<strong>任何设备都可以通过 Load/Store 内存语义直接访问其他设备的数据</strong>。</p>
+<p>这种对等架构的一大好处是，<strong>各种异构的计算资源、存储资源都可以池化，根据应用的需求动态组合，提高资源利用率，同时也能减少不必要的数据搬运</strong>。</p>
+<p>UB 的应用在今年初也已亮相，面向 LLM 推理场景的 <a class="link" href="https://arxiv.org/pdf/2506.12708"  target="_blank" rel="noopener"
+    >CloudMatrix384 超节点</a>，它基于 UB 协议完成 384 个 Ascend 910 NPU 和 192 个 Kunpeng CPU 的高速互联。</p>
+<p>据<a class="link" href="https://www.unifiedbus.com/zh"  target="_blank" rel="noopener"
+    >灵衢社区</a>的宣传资料显示，<strong>UB 的带宽可达 TB/s 级，点对点时延可达 200ns</strong>。</p>
+<p>目前来看，PCIe 经过多年的发展，已具备非常好的生态。而 UB 想要替换 PCIe 成为新的总线，如何发展生态，可能是它所面临的最大难题。</p>
+<h2 id="最后">最后</h2>
+<p>本文从最简单的共享内存开始，回顾了程序通信的各种技术方案：</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-10-19-152706.png" alt=""  /></p>
+<p>整体来看，程序间的通信性能可以优化得很高，但与之伴随的代价是，需要引入新的硬件，需要更高的成本。</p>
+<p>其实，并不是所有的程序都需要很高的通信性能，比如，一个普通社交聊天软件并不需要 TB/s 级的通信带宽，传统的 TCP 通信已经够用了。</p>
+<p>所以，<strong>要选择最合适的，而不是最高性能的通信方式将程序连起来</strong>。</p>
+<h3 id="文章配图">文章配图</h3>
+<p>可以在 <a class="link" href="https://mp.weixin.qq.com/s/-sYW-oa6KzTR9LNdMWCSnQ"  target="_blank" rel="noopener"
+    >用Keynote画出手绘风格的配图</a> 中找到文章的绘图方法。</p>
+<blockquote>
+<h4 id="参考">参考</h4>
+<p>[1] <a class="link" href="https://mp.weixin.qq.com/s/0pn74XJ4W5y9A4vhl7fu1w"  target="_blank" rel="noopener"
+    >优化篇 | 网络时延优化知多少？！</a>, 一森咖记</p>
+<p>[2] <a class="link" href="https://mp.weixin.qq.com/s/BvngJkcXZnKboRdv_rOeiQ"  target="_blank" rel="noopener"
+    >想要了解DPDK,这篇文章就够了</a>, linux高性能网络</p>
+<p>[3] <a class="link" href="https://www.amd.com/content/dam/amd/en/documents/epyc-business-docs/white-papers/5th-gen-amd-epyc-processor-architecture-white-paper.pdf"  target="_blank" rel="noopener"
+    >5th Gen AMD EPYC Processor Architecture</a>, AMD</p>
+<p>[4] <a class="link" href="https://0x10.sh/the-performance-of-cxl-memory-latency-bandwidth"  target="_blank" rel="noopener"
+    >The Performance of CXL Memory</a>, 0x10.sh</p>
+<p>[5] <a class="link" href="https://mp.weixin.qq.com/s/2u47eHAsFX5j5wC5boezjQ"  target="_blank" rel="noopener"
+    >Nvlink的国产替代：华为Unified Bus背后的思考</a>, 半导体行业观察</p>
+<p>[6] <a class="link" href="https://arxiv.org/pdf/2506.12708"  target="_blank" rel="noopener"
+    >Serving Large Language Models on Huawei CloudMatrix384</a>, Huawei</p>
+<p>[7] <a class="link" href="https://www.unifiedbus.com/zh"  target="_blank" rel="noopener"
+    >灵衢社区</a>, Huawei</p>
+</blockquote>
+<p>（完）</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84/">计算机体系结构</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>CC BY 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/%E4%B8%BA%E4%BB%80%E4%B9%88cpu%E4%B8%8D%E8%83%BD%E6%9C%89%E6%9B%B4%E5%A4%9A%E7%9A%84%E6%A0%B8/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">为什么CPU不能有更多的核？</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E5%88%86%E6%94%AF%E9%A2%84%E6%B5%8B%E5%8E%9F%E7%90%86%E6%8F%AD%E5%BC%80amd-zen5%E7%9A%84%E9%AB%98%E6%80%A7%E8%83%BD%E7%A7%98%E8%AF%80/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">深入理解分支预测原理，揭开AMD Zen5的高性能秘诀</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E8%B5%B0%E6%8A%80%E6%9C%AF%E8%B7%AF%E7%BA%BF%E9%9C%80%E8%A6%81%E4%BA%9B%E4%BB%80%E4%B9%88/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">走技术路线需要些什么？</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E7%9A%84%E6%95%B0%E5%80%BC%E7%B1%BB%E5%9E%8B/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">深入理解计算机系统的数值类型</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3-sql-%E4%B8%AD%E7%9A%84-grouping-sets-%E8%AF%AD%E5%8F%A5/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">深入理解 SQL 中的 Grouping Sets 语句</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+
+    
+        
+    <script src="https://utteranc.es/client.js" 
+        repo="ruanrunxue/yrunz-comments"
+        issue-term="pathname"
+        
+        label="yrunz"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
+
+<style>
+    .utterances {
+        max-width: unset;
+    }
+</style>
+
+<script>
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
+        }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+        setUtterancesTheme(document.body.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        setUtterancesTheme(e.detail)
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2019 - 
+        
+        2026 元闰子的邀请
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.3.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

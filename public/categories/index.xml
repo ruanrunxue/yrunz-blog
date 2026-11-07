@@ -6,11 +6,56 @@
     <description>Recent content in Categories on 元闰子的邀请</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 28 Dec 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://www.yrunz.com/categories/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 05 May 2026 00:00:00 +0000</lastBuildDate><atom:link href="https://www.yrunz.com/categories/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>AI</title>
+      <link>https://www.yrunz.com/categories/ai/</link>
+      <pubDate>Tue, 05 May 2026 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/categories/ai/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>论文解读</title>
+      <link>https://www.yrunz.com/categories/%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB/</link>
+      <pubDate>Sun, 12 Apr 2026 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/categories/%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>写字的地方</title>
+      <link>https://www.yrunz.com/categories/%E5%86%99%E5%AD%97%E7%9A%84%E5%9C%B0%E6%96%B9/</link>
+      <pubDate>Sun, 05 Apr 2026 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/categories/%E5%86%99%E5%AD%97%E7%9A%84%E5%9C%B0%E6%96%B9/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>基础</title>
+      <link>https://www.yrunz.com/categories/%E5%9F%BA%E7%A1%80/</link>
+      <pubDate>Sun, 19 Oct 2025 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/categories/%E5%9F%BA%E7%A1%80/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>架构</title>
+      <link>https://www.yrunz.com/categories/%E6%9E%B6%E6%9E%84/</link>
+      <pubDate>Sun, 03 Aug 2025 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/categories/%E6%9E%B6%E6%9E%84/</guid>
+      <description></description>
+    </item>
+    
     <item>
       <title>读书的地方</title>
       <link>https://www.yrunz.com/categories/%E8%AF%BB%E4%B9%A6%E7%9A%84%E5%9C%B0%E6%96%B9/</link>
-      <pubDate>Thu, 28 Dec 2023 00:00:00 +0000</pubDate>
+      <pubDate>Sun, 13 Oct 2024 00:00:00 +0000</pubDate>
       
       <guid>https://www.yrunz.com/categories/%E8%AF%BB%E4%B9%A6%E7%9A%84%E5%9C%B0%E6%96%B9/</guid>
       <description></description>
@@ -19,18 +64,9 @@
     <item>
       <title>写好代码</title>
       <link>https://www.yrunz.com/categories/%E5%86%99%E5%A5%BD%E4%BB%A3%E7%A0%81/</link>
-      <pubDate>Sun, 10 Dec 2023 00:00:00 +0000</pubDate>
+      <pubDate>Sun, 08 Sep 2024 00:00:00 +0000</pubDate>
       
       <guid>https://www.yrunz.com/categories/%E5%86%99%E5%A5%BD%E4%BB%A3%E7%A0%81/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>写字的地方</title>
-      <link>https://www.yrunz.com/categories/%E5%86%99%E5%AD%97%E7%9A%84%E5%9C%B0%E6%96%B9/</link>
-      <pubDate>Mon, 23 Jan 2023 00:00:00 +0000</pubDate>
-      
-      <guid>https://www.yrunz.com/categories/%E5%86%99%E5%AD%97%E7%9A%84%E5%9C%B0%E6%96%B9/</guid>
       <description></description>
     </item>
     
@@ -40,24 +76,6 @@
       <pubDate>Sun, 20 Nov 2022 00:00:00 +0000</pubDate>
       
       <guid>https://www.yrunz.com/categories/%E6%80%9D%E8%80%83%E7%9A%84%E5%9C%B0%E6%96%B9/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>基础</title>
-      <link>https://www.yrunz.com/categories/%E5%9F%BA%E7%A1%80/</link>
-      <pubDate>Thu, 18 Aug 2022 00:00:00 +0000</pubDate>
-      
-      <guid>https://www.yrunz.com/categories/%E5%9F%BA%E7%A1%80/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>架构</title>
-      <link>https://www.yrunz.com/categories/%E6%9E%B6%E6%9E%84/</link>
-      <pubDate>Fri, 08 Apr 2022 00:00:00 +0000</pubDate>
-      
-      <guid>https://www.yrunz.com/categories/%E6%9E%B6%E6%9E%84/</guid>
       <description></description>
     </item>
     

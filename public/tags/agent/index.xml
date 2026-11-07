@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Agent on 元闰子的邀请</title>
+    <link>https://www.yrunz.com/tags/agent/</link>
+    <description>Recent content in Agent on 元闰子的邀请</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 05 May 2026 00:00:00 +0000</lastBuildDate><atom:link href="https://www.yrunz.com/tags/agent/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>为什么 Claude Code 要这样设计？</title>
+      <link>https://www.yrunz.com/p/%E4%B8%BA%E4%BB%80%E4%B9%88-claude-code-%E8%A6%81%E8%BF%99%E6%A0%B7%E8%AE%BE%E8%AE%A1/</link>
+      <pubDate>Tue, 05 May 2026 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E4%B8%BA%E4%BB%80%E4%B9%88-claude-code-%E8%A6%81%E8%BF%99%E6%A0%B7%E8%AE%BE%E8%AE%A1/</guid>
+      <description>前言 Claude Code 已经成为 Coding Agent 的事实标准，现今各类 Agent 都多多少少能看到它的影子。 Claude Code 的设计简洁、优雅：  Agent Loop 是大脑、核心，驱动着所有组件的运转。 Permission System 提供权限管理。 Tools &amp;amp; Execution Environment 是手脚，负责任务执行。 State &amp;amp; Persistence 提供会话和记忆的持久化，保证对话连贯。  那么，为什么 Claude Code 要这样设计呢？
+本文将探讨 Claude Code 的设计哲学，带大家理解主导这些组件设计的背后原因。
+为什么是 Agent Loop？ 在 Claude Code 横空出世之前，LangChain 是这领域的王者，它走的是 Workflow 的路线。
+用户定义好 Workflow，流程根据不同的状态在各个节点中流转，比如这样： 好处是，所有流程都在用户框定的范围内；
+坏处也是，所有流程都在用户框定的范围内；
+人都存在思维局限，而且现在大模型的水平已经远超普通人。给模型一个目标，放手让它自由发挥，反而能达到更好的效果。
+另外，定义 workflow 需要一定的技术门槛，无法实现 Vibe Coding。
+最后，Workflow 本质上是一个状态机，会导致系统变得复杂，不好维护。
+所以，Claude Code 选择了 Agent Loop。
+Agent Loop 遵循 ReAct 模式，本质上是一个 while 循环，反复循环”模型推理-&amp;gt;工具执行“流程，直到任务完成。</description>
+    </item>
+    
+    <item>
+      <title>怎样才算是好的 Agent 记忆系统？</title>
+      <link>https://www.yrunz.com/p/%E6%80%8E%E6%A0%B7%E6%89%8D%E7%AE%97%E6%98%AF%E5%A5%BD%E7%9A%84-agent-%E8%AE%B0%E5%BF%86%E7%B3%BB%E7%BB%9F/</link>
+      <pubDate>Tue, 05 May 2026 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E6%80%8E%E6%A0%B7%E6%89%8D%E7%AE%97%E6%98%AF%E5%A5%BD%E7%9A%84-agent-%E8%AE%B0%E5%BF%86%E7%B3%BB%E7%BB%9F/</guid>
+      <description>前言 记忆系统（Memory System）是 Agent 保持多轮任务连贯性的核心组件，解决了模型上下文窗口有限的问题。它把 Agent 历史交互上下文保存起来，并在必要时召回，让 Agent 具备了人类的记忆能力。
+市面上的记忆系统很多，采用的技术也各不相同。
+它们总说自己是最好的，但真的这样吗？
+对好坏的评价，目前业界更多的把效果，即 Agent 任务成功率，作为唯一的标准，忽略了时延、成本等关键系统因素。
+如果你增加 100% 的成本才换来 5% 的成功率提升，这通常不会被看作是个好的设计。
+本文首先会介绍记忆的生命周期。然后从系统架构、记忆存储、记忆构建、记忆检索、记忆维护等六个维度对比当前主流记忆系统的技术实现。
+通过多维度的综合考虑，尝试探讨到底怎样才算是好的 Agent 记忆系统。
+记忆系统的实现方式 记忆的生命周期 记忆系统中，记忆的生命周期大致是这样的：
+  记忆摄入：Agent 把交互上下文输入给记忆系统。
+  记忆构建：将交互上下文转换记忆单元，可以是简单的分块，也可以基于 LLM 做摘要。
+  记忆存储：把记忆单元存储到存储系统中，并完成索引更新。
+  记忆检索：Agent 调用记忆系统接口，检索出相关记忆，追加到 Prompt 中发给 LLM 做生成。
+  记忆维护：更新记忆，完成不同记忆之间的流转、遗忘。 不同的记忆系统使用不同的技术实现这套流程。
+  系统架构的分类 朴素架构 最朴素的记忆系统实现是，记忆构建时把原始上下文原封不动保存下来，并在此之上建立索引。
+Agent 每次访问 LLM 前都根据用户问题在记忆系统中找到 top-k 个相似记忆，追加到 Prompt 中。
+朴素架构的主要问题是，原始上下文可能有大量的冗余和噪声，导致记忆效果并不好。
+可以引入 LLM 解决这个问题。
+基于 LLM 的架构 在该架构里，LLM 会被用作记忆抽取，比如对原始上下文做摘要、提取事件、提取实体+关系用于构建图索引等。</description>
+    </item>
+    
+  </channel>
+</rss>

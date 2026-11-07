@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>数据库 on 元闰子的邀请</title>
+    <link>https://www.yrunz.com/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/</link>
+    <description>Recent content in 数据库 on 元闰子的邀请</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 12 Apr 2026 00:00:00 +0000</lastBuildDate><atom:link href="https://www.yrunz.com/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>实时多模态数据处理的存储层要怎么设计？· SIGMOD&#39;26</title>
+      <link>https://www.yrunz.com/p/%E5%AE%9E%E6%97%B6%E5%A4%9A%E6%A8%A1%E6%80%81%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86%E7%9A%84%E5%AD%98%E5%82%A8%E5%B1%82%E8%A6%81%E6%80%8E%E4%B9%88%E8%AE%BE%E8%AE%A1-sigmod26/</link>
+      <pubDate>Sun, 12 Apr 2026 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E5%AE%9E%E6%97%B6%E5%A4%9A%E6%A8%A1%E6%80%81%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86%E7%9A%84%E5%AD%98%E5%82%A8%E5%B1%82%E8%A6%81%E6%80%8E%E4%B9%88%E8%AE%BE%E8%AE%A1-sigmod26/</guid>
+      <description>SIGMOD&#39;26 论文《ByteHouse: ByteDance’s Cloud-Native Data Warehouse for Real-Time Multimodal Data Analytics》中，字节团队介绍了实时多模态分析引擎 ByteHouse，本文将讲解 ByteHouse 存储层的设计思路。
+ 前言 在 AI 时代，多模态数据处理有如下 3 种负载：
+ OLAP。传统分析型 SQL 查询，侧重范围扫描，以顺序读 IO 为主。 多模检索。传统 SQL 无法查询图片、视频等多模态数据，须将它们转成向量，通过向量检索进行语义相关性查询。侧重点查，以随机读 IO 为主。 实时 ETL。提供高时效性，逐条写入。  面对不同的负载，传统的解决方案是组合多种引擎。
+OLAP 采用 Spark、ClickHouse 等 OLAP 引擎；
+多模检索采用 Milvus、pgvector 等向量数据库；
+实时 ETL 采用 Kafka、Flink 等流式引擎；
+然而，不同引擎的存储格式通常是不同的，该方案会带来数据同步问题。
+另外，存算分离的云原生架构已经逐渐成为现代数据引擎的标配。相比于结构化数据，多模态数据的存储体积更大，基于低成本的对象存储构建存储层已经是主流。
+然而，对象存储在 IO 带宽和时延上都存在较大的劣势，容易成为整个数据处理管道的瓶颈。
+下面，我们看下实时多模态分析引擎 ByteHouse 的存储层是如何解决这两个问题 。
+Parquet 的问题 在数据分析领域，Parquet 是最流行的开放数据格式。
+但 Parquet 是面向传统 OLAP 负载设计的，不擅长点查，无法高效支撑多模态检索。
+首先，点查路径长，需要 1 + N 次 IO：</description>
+    </item>
+    
+    <item>
+      <title>20亿tpmC刷新记录，PolarDB做了哪些优化？· VLDB&#39;25</title>
+      <link>https://www.yrunz.com/p/20%E4%BA%BFtpmc%E5%88%B7%E6%96%B0%E8%AE%B0%E5%BD%95polardb%E5%81%9A%E4%BA%86%E5%93%AA%E4%BA%9B%E4%BC%98%E5%8C%96-vldb25/</link>
+      <pubDate>Wed, 10 Dec 2025 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/20%E4%BA%BFtpmc%E5%88%B7%E6%96%B0%E8%AE%B0%E5%BD%95polardb%E5%81%9A%E4%BA%86%E5%93%AA%E4%BA%9B%E4%BC%98%E5%8C%96-vldb25/</guid>
+      <description>本文要介绍的是 VLDB&#39;25 论文《From Scale-Up to Scale-Out: PolarDB’s Journey to Achieving 2 Billion tpmC》。阿里云 PolarDB 今年登顶 TPC-C 基准测试，以 20.55 亿 tpmC 的成绩刷新世界记录，该论文主要介绍了 PolarDB 达成这一成绩所做的一些关键优化。
+  前言 在过去十年里，基于高扩展性和低成本的考虑，越来越多的应用选择迁移上云，而作为核心组件的数据库当然也必须跟上（OLTP上云，哪种架构最划算？·VLDB&#39;25）。
+阿里云 PolarDB 就是一款云原生数据库，基于存算分离架构，以 PolarFS 分布式文件系统作为后端存储，计算节点无状态弹性扩缩容，提供高扩展性、低成本的能力。
+最开始，PolarDB 是单主架构，可以扩展多个只读从节点，但只能有一个读写主节点。这能够避免分布式事务，极大简化系统架构。
+然而，对于写密集型业务，主节点很容易成为性能瓶颈。
+我们很容易想到通过 Scale-up 的方式，把主节点部署在 CPU 核数更多的机器上，提升写性能。
+但受限于工艺、散热、成本等原因，CPU 核数无法一直扩展下去（为什么CPU不能有更多的核？）。
+而且，更多的核也并不意味着更高的性能，传统数据库的 B+ Tree、MVCC 等机制实现，并发冲突严重，限制了性能的线性增长。比如 MySQL 在扩展至 64 核后，性能不升反降。
+突破主节点瓶颈的另一种方法是，将数据库改造成多主架构，能够有多个读写节点。
+实现多主架构的主流方法有两种：1）共享内存，走 Shared-Everthing 路线；2）数据分片，走 Shared-Nothing 路线。
+PolarDB-MP 采用共享内存架构，在存算分离的基础上，把内存从计算节点中分离出来，各计算节点共享同一份内存。因此可以避免分布式事务带来的复杂性和网络通信损耗。
+但把本地内存访问变成跨节点的远端内存访问，性能损耗很大。本地访存时延大概在百纳秒级别，而传统 TCP/IP 网络通信，即使不考虑传输，时延也在百微秒级别，足足差了 3 个数量级（怎么让程序更高效地连起来？）。
+为此，PolarDB-MP 采用了性能更好的 RDMA 通信，更近一步的优化，就是不久前在 SIGMOD&#39;25 发表的基于 CXL 实现的 PolarCXLMem 了（怎么用 CXL 加速数据库？· SIGMOD&#39;25）。</description>
+    </item>
+    
+    <item>
+      <title>对 Agent-First 数据库的畅想</title>
+      <link>https://www.yrunz.com/p/%E5%AF%B9-agent-first-%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E7%95%85%E6%83%B3/</link>
+      <pubDate>Wed, 24 Sep 2025 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E5%AF%B9-agent-first-%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E7%95%85%E6%83%B3/</guid>
+      <description>本文要介绍的是 UC Berkeley 2025 年 8 月在 arXiv 上发表的论文《Supporting Our AI Overlords: Redesigning Data Systems to be Agent-First》。论文基于 Benchmark 对 Agent 使用数据库的负载特征进行了量化分析，最终结合这些负载特征，提出了对 Agent-First 数据库的架构以及应具备的能力的畅想。
+ 前言 在《AI Agent 需要什么样的数据库？》一文中，我们总结了 AI Agent 使用数据库的负载特征，以及对应负载下，数据库所应具备的能力：
+   负载特征 能力要求     即时创建 极短的冷启动时长，提供极佳的用户体验。   大量小实例 / 活跃时长不稳定 自动弹性伸缩，降低平台成本。   反复调试 快速 PITR，提供任意时间点的快速数据恢复能力。    其中，即时创建、大量小实例、活跃时长不稳定更多的是数据库实例生命周期维度的负载特征。至于 Agent 使用 SQL 查询的特征是怎样的，文中没做太多分析。
+反复调试与 SQL 查询相关，但文中并没有做定量分析，仍无法回答以下问题：
+“Agent 需要反复调试多少次才能成功？”
+“Agent 查询数据库的 SQL 本身有哪些特征？”</description>
+    </item>
+    
+    <item>
+      <title>OLTP上云，哪种架构最划算？·VLDB&#39;25</title>
+      <link>https://www.yrunz.com/p/oltp%E4%B8%8A%E4%BA%91%E5%93%AA%E7%A7%8D%E6%9E%B6%E6%9E%84%E6%9C%80%E5%88%92%E7%AE%97vldb25/</link>
+      <pubDate>Sun, 14 Sep 2025 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/oltp%E4%B8%8A%E4%BA%91%E5%93%AA%E7%A7%8D%E6%9E%B6%E6%9E%84%E6%9C%80%E5%88%92%E7%AE%97vldb25/</guid>
+      <description>本文介绍的是 VLDB&#39;25 论文《OLTP in the Cloud: Architectures, Tradeoffs, and Cost》，论文系统分析了云上 OLTP 的工作负载，并确定每种负载下成本最优的架构及硬件配置。对于云上 OLTP 数据库选型以及了解数据库量化分析方法具有较好的参考意义。
+ 前言 OLTP 数据库迁移上云已经成为一种趋势，公有云为数据库提供了更好的弹性伸缩、低成本等优势。
+目前，各类云厂商提供了丰富的云上数据库架构选型，比如 AWS Aurora/RDS、Microsoft Socrates/SQL Database、Google AlloyDB/Cloud SQL 等。而每种数据库下，又提供了多种存储选项和服务器实例配置。这形成了巨大的设计空间，使得系统设计者难以做出明确的决策。
+如果你正准备把业务迁移上云，一定会很头疼：
+要选择哪种数据库（架构）、哪种硬件配置，才能满足业务诉求，且成本最低？
+云上 OLTP 数据库架构 论文把现有的云上 OLTP 数据库总结归纳成如下 6 类架构：
+ Classic HADR（High Availability Disaster Recovery） RBD（Remote Block Device） In-Memory Aurora-like Socrates-like  其中 Aurora-like 和 Socrates-like 属于云原生架构。
+Classic 架构 Classic 架构是一种单体架构，数据库的计算引擎和存储引擎都在一个进程、部署在一个服务器实例下。
+其中，存储引擎可以分为 2 部分，Log Service 复杂将 WAL 写入本地 SSD，保证数据可靠性；Page Service 负责 page 的管理，包括从 SSD 中读取 page 到内存中，以及将 dirty page 写回到 SSD 中。</description>
+    </item>
+    
+    <item>
+      <title>怎么用 CXL 加速数据库？· SIGMOD&#39;25</title>
+      <link>https://www.yrunz.com/p/%E6%80%8E%E4%B9%88%E7%94%A8-cxl-%E5%8A%A0%E9%80%9F%E6%95%B0%E6%8D%AE%E5%BA%93-sigmod25/</link>
+      <pubDate>Sun, 07 Sep 2025 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E6%80%8E%E4%B9%88%E7%94%A8-cxl-%E5%8A%A0%E9%80%9F%E6%95%B0%E6%8D%AE%E5%BA%93-sigmod25/</guid>
+      <description>本文要介绍的是 SIGMOD&#39;25 最佳工业论文《Unlocking the Potential of CXL for Disaggregated Memory in Cloud-Native Databases》。阿里云 PolarDB 团队基于 CXL 实现了 PolarDB 共享内存池，对比原有的 RDMA 方案实现了倍级性能提升。
+ 背景 传统数据库是存算一体架构，如果要扩展资源，CPU 核、内存、存储必须一起扩，这带来了资源利用率低、成本高的问题。
+比如，一台配置为 128 个 CPU 核 + 512 GB 内存 + 2 TB 存储的服务器上部署了一个数据库，业务高峰期只使用了 70% 的 CPU、60% 的内存，但存储已经接近 100%，必须再扩容一台服务器。这下，存储容量的问题解决了，但连带着增加了 CPU 和内存的成本，它们本无需扩容。
+业界解决该问题的主要手段为分离和池化，也即云原生架构。
+存储率先完成了分离。目前，存算分离已成为云原生数据库的主流架构，实现了低成本存储扩容。随着软硬件的发展，分离内存也逐渐流行了起来，旨在提升内存利用率。
+数据库中，Buffer Pool 是内存消耗的大头，它将热数据缓存在内存里，能够有效提升数据库的读写性能。但受限于单机内存容量，Buffer Pool 无法做到很大，而且多节点间无法共享，限制了性能的进一步提升。有了内存分离技术，我们就能构建一个更大的全局共享 Buffer Pool，实现多写架构，提供更高的读写吞吐量。
+分离就意味着远程通信，传统的 TCP/IP 通信方式存在用户态和内核态多次上下文切换和数据拷贝。虽然 DPDK 加速 TCP 能够实现内核旁路，但需要 CPU 在用户态轮训处理数据包、解析协议栈，效率仍是不高。
+所以，目前数据库实现内存分离的主流技术方案是基于 RDMA 通信，绕过 CPU 实现远程内存读写。但基于 RDMA 实现共享内存池的方案也有它的局限。</description>
+    </item>
+    
+  </channel>
+</rss>

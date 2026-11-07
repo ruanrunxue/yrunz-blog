@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='计算机系统的发展到底是趋于分离，还是统一？这不是一个非黑即白的选项，整体上看，物理上分离、逻辑上统一的趋势对大部分系统都成立。'><title>分离还是统一，这是个问题</title>
+
+<link rel='canonical' href='https://www.yrunz.com/p/%E5%88%86%E7%A6%BB%E8%BF%98%E6%98%AF%E7%BB%9F%E4%B8%80%E8%BF%99%E6%98%AF%E4%B8%AA%E9%97%AE%E9%A2%98/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='分离还是统一，这是个问题'>
+<meta property='og:description' content='计算机系统的发展到底是趋于分离，还是统一？这不是一个非黑即白的选项，整体上看，物理上分离、逻辑上统一的趋势对大部分系统都成立。'>
+<meta property='og:url' content='https://www.yrunz.com/p/%E5%88%86%E7%A6%BB%E8%BF%98%E6%98%AF%E7%BB%9F%E4%B8%80%E8%BF%99%E6%98%AF%E4%B8%AA%E9%97%AE%E9%A2%98/'>
+<meta property='og:site_name' content='元闰子的邀请'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='架构' /><meta property='article:published_time' content='2025-08-03T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2025-08-03T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="分离还是统一，这是个问题">
+<meta name="twitter:description" content="计算机系统的发展到底是趋于分离，还是统一？这不是一个非黑即白的选项，整体上看，物理上分离、逻辑上统一的趋势对大部分系统都成立。">
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "light");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/yrz_huab1eef27cf09ceddd85969461c7dd38b_46713_300x0_resize_box_2.png" width="300"
+                            height="306" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://www.yrunz.com">元闰子的邀请</a></h1>
+        <h2 class="site-description">阅读、写作、生活（个人技术分享）</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>首页</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>博客</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%85%B3%E4%BA%8E%E5%85%83%E9%97%B0%E5%AD%90/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>关于元闰子</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%8F%8B%E6%83%85%E9%93%BE%E6%8E%A5/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>友情链接</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>暗色模式</span>
+            </li>
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://www.yrunz.com" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E6%9E%B6%E6%9E%84/" >
+                架构
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/%E5%88%86%E7%A6%BB%E8%BF%98%E6%98%AF%E7%BB%9F%E4%B8%80%E8%BF%99%E6%98%AF%E4%B8%AA%E9%97%AE%E9%A2%98/">分离还是统一，这是个问题</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        计算机系统的发展到底是趋于分离，还是统一？这不是一个非黑即白的选项，整体上看，物理上分离、逻辑上统一的趋势对大部分系统都成立。
+    </h3>
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Aug 03, 2025</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <blockquote>
+<p>To be, or not to be, that is the question.  —— 莎士比亚</p>
+</blockquote>
+<h2 id="前言">前言</h2>
+<p>“<strong>高内聚，低耦合</strong>”是软件工程领域广为流传的一个原则，在此原则的驱使下，应用系统逐渐从单体架构演进成微服务架构，甚至进一步按函数粒度拆分成 FaaS（函数即服务），呈分离趋势。</p>
+<p>然而，我们又能看到很多软件系统呈统一的演进趋势，比如数据系统从批处理和流处理分离的 <a class="link" href="https://mp.weixin.qq.com/s/6DjUqzHWS4qaN9NOjZ9HuA"  target="_blank" rel="noopener"
+    >Lambda 架构</a><!-- raw HTML omitted -->[1]<!-- raw HTML omitted -->演进到流批一体架构、从数据仓库和数据湖分离演进到湖仓一体；比如大模型，从文本大模型演进到多模态大模型。</p>
+<p>再往下到硬件基础设施，随着 AI 时代的到来，CPU 已难以招架新的 AI 负载，各类加速芯片纷纷出现，如 GPU、TPU、DPU，整体呈从通用到专用的分离趋势；但包含 36 个 CPU 和 72 个 GPU 的 <a class="link" href="https://www.nvidia.com/en-us/data-center/gb200-nvl72/"  target="_blank" rel="noopener"
+    >NVIDIA GB200 NVL72</a><!-- raw HTML omitted -->[2]<!-- raw HTML omitted -->、包含 192 个 CPU 和 384 个 NPU 的 <a class="link" href="https://arxiv.org/abs/2506.12708"  target="_blank" rel="noopener"
+    >HUAWEI CloudMatrix384</a><!-- raw HTML omitted -->[3]<!-- raw HTML omitted --> 等超节点的出现，似乎又呈现统一趋势。</p>
+<p><em>那么，从顶层业务到底层硬件，整个系统到底是趋于分离，还是统一呢？</em></p>
+<p>这是个问题。</p>
+<p>本文将从业务、模型、平台、基础设施四个视角出发，探讨各类系统走向分离或者统一的原因，并尝试从中总结出趋势。</p>
+<h2 id="业务视角">业务视角</h2>
+<p>大多数业务始于单体架构，它架构和技术栈简单，非常利于初创团队进行原型验证。然而，随着业务的增长，代码量和用户量变得更多，单体架构逐渐显现出它的局限性：</p>
+<ul>
+<li>可维护性差。某个模块新增或修改一个特性，就必须重新升级整个系统。</li>
+<li>可用性差。某个模块出现一个 BUG 可能会导致整个系统宕机，对外无法提供服务。</li>
+</ul>
+<p>这些局限性背后的原因是系统模块间耦合太深，导致牵一发而动全身。</p>
+<p>我们可以根据业务属性，将模块拆分出来成为独立的服务，于是就有了服务化架构。更近一步，再将数据解耦，让每个服务拥有独立的数据库实例，就有了微服务架构<!-- raw HTML omitted -->[4]<!-- raw HTML omitted -->。</p>
+<blockquote>
+<p>更详细的从单体架构演进到微服务架构的内容，参考《<a class="link" href="https://mp.weixin.qq.com/s/8oqzNuHfJVDvTXSZ9zObig"  target="_blank" rel="noopener"
+    >软件架构，一切尽在权衡</a><!-- raw HTML omitted -->[4]<!-- raw HTML omitted -->》。</p>
+</blockquote>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-08-02-114321.png" alt=""  /></p>
+<p>虽然微服务架构也有缺点，比如服务间通信导致的性能下降，但人们更倾向于在平台或基础设施层去解决它们，而不是走回单体架构的路。</p>
+<p>AI 时代的应用也是如此，虽然目前 Multi-Agent 系统的失败率普遍在 60% 以上 <!-- raw HTML omitted -->[5]<!-- raw HTML omitted -->，存在 Agent 间无效通信等诸多问题，但大多人都不会怀疑从 Single-Agent 到 Multi-Agent 的演进趋势。Multi-Agent 系统下，各个 Agent 各司其职，在复杂任务的执行上对比 Single-Agent 系统有着绝对的优势。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-08-02-115329.png" alt=""  /></p>
+<p>到目前为止，从业务应用视角看，分离貌似是个必然的趋势。其背后的逻辑是，<strong>专业的人做专业的事，在各自领域做到最优，尽可能降低相互影响</strong>。</p>
+<p>然而，我们再往上来到用户交互层，又会发现明显的统一趋势。从黄页到搜索框，从复杂的图形交互界面 APP 到简单的自然语言交互 AI Agent，应用趋于将分散的交互入口汇聚成简单易用的统一入口。</p>
+<h2 id="模型视角">模型视角</h2>
+<p>从大模型的视角，我们可以看到很多统一的趋势。</p>
+<p>1、<strong>模型所支持的 token 上下文长度上限变得越来越大，过去需要分多次执行的推理请求，现在执行一次推理即可</strong>。2023 年发布的 GPT-3.5 模型最高支持 4 K 上下文长度（约 4 千个汉字），到今年发布的 Gemini 2.5 Pro 模型已经可以支持 1 M 上下文长度（约 2 百万个汉字）。现假设要为一本 1 百万字的中文书籍生成 1000 字的摘要，那么需要调用 GPT-3.5 约 161 次，生成效率低且不说，还可能会损失部分全局信息导致结果不准确；而 Gemini 2.5 Pro 只需调用  1 次即可，更高效、也更准确。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-08-02-155456.png" alt=""  /></p>
+<p>2、<strong>多模态大模型已经成为主流</strong>，今年发布的豆包 1.6、Gemini 2.5、Grok 4 等都已原生支持多模态理解能力。我们正处于多模态数据融合的时代，一个典型的例子，如今很多文章往往会融入了大量的图表、插图和视频。为了更好地整合和理解文章内容，过去可能使用文本模型 + 图像模型 + 视频模型的组合方案，现在你只需一个多模态模型即可。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-08-02-233355.png" alt=""  /></p>
+<p>3、<strong>模型趋于集成工具调用能力</strong>。我们在利用大模型执行任务时，很多情况下都需要额外的工具调用，比如通过联网搜索或向量数据库来增强输出质量、执行一段代码等。过去最常见的解决方案是借助 LangChain 这类第三方框架搭建一套工作流，模型会先根据用户输入确定要调用哪些工具，再由框架进行工具调用并将结果反馈给模型，最后模型生成答案。</p>
+<p>但这类方案需要人工进行工作流编排，对普通用户来说有一定的使用门槛；而且大模型与外部系统间必然存在中间转换的开销。因此，目前趋势更倾向于将工具调用融入到模型推理的过程中，比如 Claude 4、Kimi K2，毕竟只有模型自己才知道在推理的哪一步需要调用什么样的工具才能生成质量更高的答案。</p>
+<p><strong>长文本、多模态、工具调用，这些能力都是用户可以感知到的，无一例外都趋于 All in one 原生集成到模型中，呈统一趋势</strong>。</p>
+<p>然而，当深入到用户感知不到的模型内部架构，我们又会发现一些分离的趋势，最典型的就是 FFN 层从稠密到稀疏的演进。</p>
+<p>在 Transformer 架构中，Self-Attention 层后面会跟着 Feed-Forward Network 层，为线性的注意力机制加上非线性的能力，使模型能够学习更复杂的模式。在稠密架构下，FFN 层计算时它的所有参数都是激活的，无论与任务是否相关。</p>
+<p>举个例子，假设这些参数中分成数字处理、因果推理、文学创作、实体识别这四大类，现在用户询问 &ldquo;1+1=?&quot;，即使这是一个数字处理相关的问题，但其他三类参数仍会参与计算，导致算力浪费。</p>
+<p>如果模型能够提前识别输入问题的类别，并只激活相关的参数参与计算，那么就能有效减少算力了。</p>
+<p>MoE（Mixture-of-Experts）架构就是这个思路，它将不同类别的参数拆分出来成为一个个 Expert 专家，由 Gating Network（路由） 将 token 路由到对应的 Top-K 个 Expert 上进行计算，未激活的 Expert 不参与计算。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-08-03-052651.png" alt=""  /></p>
+<p>可见，模型也不是一昧的统一。</p>
+<h2 id="平台视角">平台视角</h2>
+<p>回到前文微服务的例子，服务拆分后，最简单的部署方案是把各服务部署在独立的节点上。然而，微服务的工作负载通常都是不稳定的，有波峰波谷，这种部署方案会带来资源利用率低的问题。比如在某个时间点，服务 A 正处于业务高峰期，节点资源已经用满，为保障 SLA 不得不采取限流机制；而服务 B 正处于业务空闲期，有大量的资源空闲。</p>
+<p>更好的方法（也是当前的主流方法）是将所有节点资源池化，通过全局的调度器（比如 K8S）来进行统一调度，这样就可以将原来服务 B 所在节点的资源给服务 A 使用了。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-08-03-072954.png" alt=""  /></p>
+<p>除了微服务，企业通常还会存在大数据、AI 训练和推荐等各类业务，过去，为了避免不同业务之间相互影响，它们通常会部署在不同的集群。随着资源调度和隔离技术的成熟<!-- raw HTML omitted -->[12]<!-- raw HTML omitted -->，不同业务趋于混合部署、统一调度，以追求更高的资源利用率。</p>
+<p>再来看数据系统。</p>
+<p>假设现在要对微服务所产生的数据进行分析，以支持商业决策。最简单的方案是直接读取各微服务的数据库。</p>
+<p>但这个方案有着明显的缺点：数据过于分散。随着数据量的增大，这种跨库的数据查询性能将会变得很差。更好的方法是单独设立一个关系型数据仓库（Rational Data Warehouse, RDW），将各数据库的数据同步到 RDW，由 RDW 对外提供高性能的 SQL 查询服务。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-08-03-073715.png" alt=""  /></p>
+<p>前面我们主要关注结构化的表格数据，但企业还有很多 PDF、图片、视频等非结构化数据，RDW 无法处理。为此，数据湖（Data Lake）被引入，提供非结构化数据的读写能力。</p>
+<p>到目前为止，结构化数据的写入和非结构化数据的写入是分开的，可以让它们都统一入湖 ，再从数据湖中同步数据到 RDW，这就是现代数据仓库架构（Modern Data Warehouse，MDW）。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-08-03-074557.png" alt=""  /></p>
+<p>MDW 架构下结构化数据和非结构化数据的查询是割裂的，可以在此之上构建一个统一的数据治理层，提高数据的可访问性、可发现性、安全性和可用性，这就是 Data Fabric 架构。</p>
+<p>到现在，结构化数据还需从数据湖复制到 RDW，存在两份数据副本，可以在数据湖之上构建一个能够同时支持结构化和非结构化数据的读写格式，比如 Delta Lake、Iceberg，这就是 LakeHouse 湖仓一体架构。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-08-03-075244.png" alt=""  /></p>
+<p>可见，从数据仓库到湖仓一体，数据系统着明显的统一趋势，旨在减少数据副本、为用户提供结构化和非结构化数据的统一查询服务。</p>
+<p>除了大数据系统，数据库系统也在走向统一的路线，特别是 AI 时代到来后，能够同时支持多种工作负载的一体化数据库<!-- raw HTML omitted -->[13]<!-- raw HTML omitted -->也成为了一种演进趋势。<strong>数据库虽然在功能上趋于统一，但在技术实现上却仍是分离的趋势</strong>，一体化数据库里针对 OLAP、OLTP、向量、全文检索等不同的负载，仍是采用不同类型的引擎，只是在查询层做了统一<!-- raw HTML omitted -->[14]<!-- raw HTML omitted -->。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-08-03-075703.png" alt=""  /></p>
+<p>另外，数据库也从最开始的存算一体，到存算分离，再到今年阿里云 PloarDB 的计算、内存、存储三层解耦<!-- raw HTML omitted -->[15]<!-- raw HTML omitted -->，通过分离架构实现极致的资源利用率和可扩展性。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-08-03-080822.png" alt=""  /></p>
+<h2 id="基础设施视角">基础设施视角</h2>
+<p>在最初的冯诺依曼体系架构中，包含控制器和运算器的中央处理器，即 CPU，被设计成能够处理所有业务负载的通用计算芯片。经过多年的优化，CPU 在分支预测、指令乱序执行等流程上都已经过了深度优化，非常善于执行复杂的计算任务。</p>
+<p>然而，并非所有的业务都需要复杂的计算，比如图形渲染和矩阵运算，它们都由大量的简单计算任务组成，所需的是强大的并行计算能力，这促使了专用加速芯片 GPU、NPU、TPU 的诞生。类似的，还有专门针对 IO 密集型负载的 DPU 加速芯片。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-08-03-083921.png" alt=""  /></p>
+<p>这意味着，基础设施趋于用专门的硬件去应对不同的应用负载，与前面提到的数据引擎类似，走的是分离的路线。</p>
+<p>如《<a class="link" href="https://mp.weixin.qq.com/s/fXUrTWIlcsG-a-uld9LNEA"  target="_blank" rel="noopener"
+    >为什么CPU不能有更多的核？</a> 》里所提到的，基于功耗、散热等多方面的考虑，单个芯片的核数（算力）不能无限增加，这也同样适用于单服务器。当业务所需算力超过单机算力时，最常见的做法是通过 TCP/IP 网络将各个服务器连接起来，形成一个分布式的系统。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-08-03-084727.png" alt=""  /></p>
+<p>但 TCP/IP 网络传输，就意味着数据需要经过多层协议栈解析，而且网络带宽通常都在 100 GB/s 以下。随着 AI 时代的到来，面对计算密集型的 AI 负载，通信往往会成为主要瓶颈。</p>
+<p>于是，类似 NVLink 这种支持 GPU 点对点通信的高速互联协议被推出，到 NVLink 5.0 代际，单 GPU 已可支持 18 个 NVLink 连接，总带宽可达 1.8 TB/s，极大改善了通信瓶颈。</p>
+<p>而 CXL 协议（Compute Express Link）则更近一步，它支持远端 Load/Store 内存语义通信，允许程序像访问本地内存一样访问远端节点内存，让真正意义上的超节点成为可能。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-08-03-085436.png" alt=""  /></p>
+<p>所以，基础设施也趋于让各类异构算力互联更高效，形成一个超节点对外提供服务，是典型的统一路线。</p>
+<h2 id="分离还是统一">分离还是统一？</h2>
+<p>如前文分析，从业务、模型、平台、基础设施几个视角上看，整个系统既有分离趋势，也有统一趋势。</p>
+<p><em>那么，这些趋势是否有规律可循呢？</em></p>
+<p>仔细观察可以发现，整体上计算机系统<strong>在物理上趋于分离，在逻辑上趋于统一</strong>。</p>
+<p>不管是微服务的拆分、MoE 模型 Expert 的分离，还是不同的数据引擎、异构算力，都在朝着“<em>专业的人做专业的事</em>”的方向发展。其背后的逻辑源于<strong>系统设计本身是一个权衡的过程，天下没有完美的解决方案</strong>。所以，在物理实现上，是分离的趋势。</p>
+<p>但要想做到整系统的运行效率最高，往往需要把各类资源整合在一起，进行统一的管理和调度，比如资源池化管理、异构算力混合调度等。其背后的逻辑源于<strong>必须有全局的视角才有可能做到全局最优</strong>。所以，在逻辑功能上，是统一的趋势。</p>
+<p>最后，回到最初的问题，<em>计算机系统的发展到底是趋于分离，还是统一</em>？</p>
+<p>这不是一个非黑即白的选项，整体上看，<strong>物理上分离、逻辑上统一</strong>的趋势对大部分系统都成立。</p>
+<h3 id="文章配图">文章配图</h3>
+<p>可以在 <a class="link" href="https://mp.weixin.qq.com/s/-sYW-oa6KzTR9LNdMWCSnQ"  target="_blank" rel="noopener"
+    >用Keynote画出手绘风格的配图</a> 中找到文章的绘图方法。</p>
+<blockquote>
+<h4 id="参考">参考</h4>
+<p>[1] <a class="link" href="https://mp.weixin.qq.com/s/6DjUqzHWS4qaN9NOjZ9HuA"  target="_blank" rel="noopener"
+    >深入理解 Lambda 架构</a>, 元闰子</p>
+<p>[2] <a class="link" href="https://www.nvidia.com/en-us/data-center/gb200-nvl72/"  target="_blank" rel="noopener"
+    >NVIDIA GB200 NVL72</a>, NVIDIA</p>
+<p>[3] <a class="link" href="https://arxiv.org/abs/2506.12708"  target="_blank" rel="noopener"
+    >Serving Large Language Models on Huawei CloudMatrix384</a>, HUAWEI</p>
+<p>[4] <a class="link" href="https://mp.weixin.qq.com/s/8oqzNuHfJVDvTXSZ9zObig"  target="_blank" rel="noopener"
+    >软件架构，一切尽在权衡</a>, 元闰子</p>
+<p>[5] <a class="link" href="https://arxiv.org/abs/2503.13657"  target="_blank" rel="noopener"
+    >Why Do Multi-Agent LLM Systems Fail?</a>, UC Berkeley</p>
+<p>[6] <a class="link" href="https://mp.weixin.qq.com/s/Qot5aZ9qp8i-_avFQIQ43g"  target="_blank" rel="noopener"
+    >快速了解生成式AI</a>, 元闰子</p>
+<p>[7] <a class="link" href="https://www.anthropic.com/news/claude-4"  target="_blank" rel="noopener"
+    >Introducing Claude 4</a>, Anthropic</p>
+<p>[8] <a class="link" href="https://moonshotai.github.io/Kimi-K2/"  target="_blank" rel="noopener"
+    >Kimi K2: Open Agentic Intelligence</a>, Moonshot AI</p>
+<p>[9] <a class="link" href="https://arxiv.org/abs/2408.01319"  target="_blank" rel="noopener"
+    >A Comprehensive Review of Multimodal Large Language Models: Performance and Challenges Across Different Tasks</a>, 中国西北工业大学等</p>
+<p>[10] <a class="link" href="https://topmostads.com/qwen-3-model-family-dense-vs-moe/"  target="_blank" rel="noopener"
+    >Qwen 3 Model Family Explained: Dense vs MoE Architectures</a>,  Topmost Ads</p>
+<p>[11] <a class="link" href="https://learning.oreilly.com/library/view/deciphering-data-architectures/9781098150754/"  target="_blank" rel="noopener"
+    >Deciphering Data Architectures</a>, James Serra</p>
+<p>[12] <a class="link" href="https://volcano.sh/en/"  target="_blank" rel="noopener"
+    >Volcano</a>, CNCF</p>
+<p>[13] <a class="link" href="https://www.oceanbase.com/whitepaper/genai-data-platform"  target="_blank" rel="noopener"
+    >一体化数据库，打造 GenAI 时代数据底</a>, IDC, Oceanbase</p>
+<p>[14] <a class="link" href="https://help.aliyun.com/zh/lindorm/"  target="_blank" rel="noopener"
+    >云原生多模数据库 Lindorm</a>, 阿里云</p>
+<p>[15] <a class="link" href="https://zhuanlan.zhihu.com/p/561739589"  target="_blank" rel="noopener"
+    >我，PolarDB云原生数据库，5年来实现这些重磅技术创新</a>, 阿里云</p>
+</blockquote>
+<p>（完）</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/%E6%9E%B6%E6%9E%84/">架构</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>CC BY 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3lambda%E6%9E%B6%E6%9E%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">深入理解Lambda架构</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E8%BD%AF%E4%BB%B6%E6%9E%B6%E6%9E%84%E4%B8%80%E5%88%87%E5%B0%BD%E5%9C%A8%E6%9D%83%E8%A1%A1/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">软件架构，一切尽在权衡</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E4%BA%94%E4%B9%8B%E6%9C%8D%E5%8A%A1%E5%8C%96%E6%9E%B6%E6%9E%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">从分层架构到微服务架构（五）之服务化架构</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E5%AE%9E%E7%8E%B0dci%E6%9E%B6%E6%9E%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">实现DCI架构</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E5%9B%9B%E4%B9%8B%E5%BE%AE%E5%86%85%E6%A0%B8%E6%9E%B6%E6%9E%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">从分层架构到微服务架构（四）之微内核架构</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+
+    
+        
+    <script src="https://utteranc.es/client.js" 
+        repo="ruanrunxue/yrunz-comments"
+        issue-term="pathname"
+        
+        label="yrunz"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
+
+<style>
+    .utterances {
+        max-width: unset;
+    }
+</style>
+
+<script>
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
+        }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+        setUtterancesTheme(document.body.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        setUtterancesTheme(e.detail)
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2019 - 
+        
+        2026 元闰子的邀请
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.3.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='本文要介绍的是 2015 年 O&#39;Reilly 出版的书籍 Big Data —— Principles and best practices of scalable realtime data systems，书中主要介绍一种常见的大数据架构 —— Lambda 架构。Lambda 架构通过批处理和流处理相结合的方法，有效处理了大数据场景下的工作负载。相比以关系型数据库为核心的传统数据系统，它在可扩展性、容错性等方面有了更进一步的提升。'><title>深入理解Lambda架构</title>
+
+<link rel='canonical' href='https://www.yrunz.com/p/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3lambda%E6%9E%B6%E6%9E%84/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='深入理解Lambda架构'>
+<meta property='og:description' content='本文要介绍的是 2015 年 O&#39;Reilly 出版的书籍 Big Data —— Principles and best practices of scalable realtime data systems，书中主要介绍一种常见的大数据架构 —— Lambda 架构。Lambda 架构通过批处理和流处理相结合的方法，有效处理了大数据场景下的工作负载。相比以关系型数据库为核心的传统数据系统，它在可扩展性、容错性等方面有了更进一步的提升。'>
+<meta property='og:url' content='https://www.yrunz.com/p/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3lambda%E6%9E%B6%E6%9E%84/'>
+<meta property='og:site_name' content='元闰子的邀请'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='架构' /><meta property='article:tag' content='读书笔记' /><meta property='article:tag' content='oreilly' /><meta property='article:tag' content='大数据' /><meta property='article:published_time' content='2024-07-21T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2024-07-21T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="深入理解Lambda架构">
+<meta name="twitter:description" content="本文要介绍的是 2015 年 O&#39;Reilly 出版的书籍 Big Data —— Principles and best practices of scalable realtime data systems，书中主要介绍一种常见的大数据架构 —— Lambda 架构。Lambda 架构通过批处理和流处理相结合的方法，有效处理了大数据场景下的工作负载。相比以关系型数据库为核心的传统数据系统，它在可扩展性、容错性等方面有了更进一步的提升。">
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "light");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/yrz_huab1eef27cf09ceddd85969461c7dd38b_46713_300x0_resize_box_2.png" width="300"
+                            height="306" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://www.yrunz.com">元闰子的邀请</a></h1>
+        <h2 class="site-description">阅读、写作、生活（个人技术分享）</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>首页</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>博客</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%85%B3%E4%BA%8E%E5%85%83%E9%97%B0%E5%AD%90/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>关于元闰子</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%8F%8B%E6%83%85%E9%93%BE%E6%8E%A5/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>友情链接</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>暗色模式</span>
+            </li>
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://www.yrunz.com" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E6%9E%B6%E6%9E%84/" >
+                架构
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3lambda%E6%9E%B6%E6%9E%84/">深入理解Lambda架构</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        本文要介绍的是 2015 年 O&#39;Reilly 出版的书籍 Big Data —— Principles and best practices of scalable realtime data systems，书中主要介绍一种常见的大数据架构 —— Lambda 架构。Lambda 架构通过批处理和流处理相结合的方法，有效处理了大数据场景下的工作负载。相比以关系型数据库为核心的传统数据系统，它在可扩展性、容错性等方面有了更进一步的提升。
+    </h3>
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Jul 21, 2024</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <h2 id="荐语">荐语</h2>
+<p>本文要介绍的是 2015 年 O&rsquo;Reilly 出版的书籍 <a class="link" href="https://learning.oreilly.com/library/view/big-data/9781617290343/"  target="_blank" rel="noopener"
+    >Big Data: Principles and best practices of scalable realtime data systems</a>，书中主要介绍一种常见的大数据架构 —— <strong>Lambda 架构</strong>。Lambda 架构通过批处理和流处理相结合的方法，有效处理了大数据场景下的工作负载。相比以关系型数据库为核心的传统数据系统，它在可扩展性、容错性等方面有了更进一步的提升。</p>
+<p>虽然 Lambda 架构是十年前被提出的数据架构，但 Lambda 架构的以不可变数据作为核心、历史和实时数据分层处理的架构思想仍值得我们学习。</p>
+<h2 id="传统数据系统的局限">传统数据系统的局限</h2>
+<p>考虑有这么一个系统，根据用户的浏览记录，统计用户访问网页的次数：</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-07-07-021748.png" alt=""  /></p>
+<p>在上述系统中，每次用户浏览一个 url，应用就会向数据库更新一行数据。随着用户量的不断上升，并发量急剧上涨，数据库最先达到瓶颈，频繁出现更新超时的现象。针对这种情况，我们可以<strong>引入消息队列，将单次写改成批量写，以此降低数据库的并发数</strong>。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-07-07-023715.png" alt=""  /></p>
+<p>但这并不是长久之计，随着用户量的再次上涨，单实例的数据库还是会成为单点瓶颈。为此，可以对数据库进行水平扩展，<strong>分库分表</strong>，将原本集中在单个数据库实例上的请求，负载均衡到多个实例之上。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-07-07-031153.png" alt=""  /></p>
+<p>分库分表虽能消除数据库单点瓶颈，但也会带来其他的一些问题：</p>
+<ul>
+<li><strong>应用逻辑更复杂</strong>。应用层需要根据数据的 key 找到其所在的数据库实例，以便进行数据更新。</li>
+<li><strong>维护成本更高</strong>。为了避免因数据库实例宕机导致的服务不可用，需要通过增加数据副本、缓冲队列等手段提升可用性。另外，随着数据量的增大，可能因数据库实例间负载不均衡，而产生对数据进行重分区的操作。这些都会导致维护成本的急剧增加。</li>
+<li><strong>容错性问题</strong>。一旦开发者在更新数据库时出现<strong>人为错误</strong>，比如在增加 <code>pageviews</code> 字段时多乘了 2，那么数据将难以恢复，因为很难溯源。</li>
+</ul>
+<p>上述例子中，从简单的 CURD，到增加消息队列、分库分表、副本、重分区等，系统也越来越复杂。导致这一切的原因是，<strong>传统数据库系统并非为分布式而生，它无法很好地适用于大数据场景</strong>。</p>
+<h2 id="大数据技术的局限">大数据技术的局限</h2>
+<p>那么，大数据技术就能解决这些问题吗？答案是，<strong>否</strong>！</p>
+<p>像 Hadoop、MapReduce、HBase 等这类大数据技术，虽然能够天然就处理海量数据，但它们都有各种局限，比如，MapReduce 是批处理系统，计算时延高；HBase 键值查询快，但无法满足复杂的 SQL 查询场景。</p>
+<p>为了找到解决方法，我们还需从大数据系统的本质入手。</p>
+<h2 id="大数据系统的本质">大数据系统的本质</h2>
+<p>作者对数据系统进行了如下定义：</p>
+<blockquote>
+<p>A data system answers questions based on information that was acquired in the past up to the present.</p>
+</blockquote>
+<p>也即，<strong>数据系统的本质是依据全量数据来回答用户提出的问题</strong>，从技术的角度讲，就是处理各类查询请求。因此，可以用一个公式来定义数据系统：</p>
+<blockquote>
+<p>query = function(all data)</p>
+</blockquote>
+<p>对于<strong>大</strong>数据系统来说，在上述的定义之外，还应具备以下的属性：</p>
+<ul>
+<li><strong>健壮性和容错性</strong>。在大型分布式系统中，网络故障、服务器宕机等是必然发生的，大数据系统一方面应能应对这些异常，另一方面还应能为用户屏蔽其中的复杂性，避免高昂的维护成本。除此之外，<strong>大数据系统还须能容忍人为错误</strong>。</li>
+<li><strong>低时延</strong>。很多应用都要求低时延，通常在毫秒级别。</li>
+<li><strong>可扩展性</strong>。要能够支持通过扩展更多的机器来应对不断增加的数据量，保证查询性能不受影响。</li>
+<li><strong>可调试性</strong>。问题出现时，系统要提供必要的信息来辅助问题定位，<strong>关键是能够跟踪系统每一行数据的变更详情</strong>。</li>
+<li><strong>支持即席查询</strong>。用户能够灵活选择自定义的查询条件进行查询。</li>
+</ul>
+<p>从前文可知，以传统关系型数据库为核心的数据系统并不完全具备这些属性，为此，Lambda 架构诞生了。</p>
+<h2 id="lambda-架构的解决思路">Lambda 架构的解决思路</h2>
+<p>我们可将数据分成两类，历史数据和实时数据（最近几个小时），用户对两类数据在查询时延、精度等方面的要求各不相同。所以，我们完全可以采取不同的技术方案对它们分别处理。这就是 Lambda 架构的核心思想之一，<strong>分层</strong>。</p>
+<p>Lambda 架构分 3 个层次，每个层次职责分明、使用不同的技术方案，以此来满足大数据系统的各项诉求。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-07-21-055121.png" alt=""  /></p>
+<ul>
+<li><strong>批处理层</strong>（Batch Layer）：负责离线处理历史数据，包含<strong>主数据集</strong>（Master Dataset）。所有的数据都会往主数据集写入。批处理层不会立即处理新数据，而是会在非业务繁忙时段，对全量数据进行批量处理，生成<strong>批视图</strong>（Batch View）。</li>
+<li><strong>服务层</strong>（Serving Layer）：负责存储批处理层生成的批视图，并对外提供批视图的查询接口。通常都会带有索引，以便用户能够快速查询数据。</li>
+<li><strong>速度层</strong>（Speed Layer）：负责实时处理新数据，生成<strong>实时视图</strong>（Realtime View），提供实时视图的查询接口，。</li>
+</ul>
+<h2 id="批处理层batch-layer">批处理层（Batch Layer）</h2>
+<h3 id="不可变的数据">不可变的数据</h3>
+<p>传统数据系统中，数据是可变的，比如前文所提到的网页访问例子中，<code>pageviews</code> 字段会随着网页访问行为而递增。当出现问题，特别是人为错误时，通常因难以溯源而无法纠错，导致容错性较低。</p>
+<p>为此，Lambda 架构中批处理层采取的策略是<strong>不可变的数据</strong>，通过<strong>存储原始的数据</strong>实现：</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-07-20-144256.png" alt=""  /></p>
+<p>上述例子中，采用可变数据的存储方式后，用户的每一次访问行为都对应一行数据，并通过时间戳来区分。<code>pageviews</code> 不再作为字段存储在数据库里，而是在数据处理时进行计算。</p>
+<p>这种不可变的数据存储能够带来以下一些好处：</p>
+<ul>
+<li><strong>更灵活的查询</strong>，可以对任何一个时间段的数据进行计算。</li>
+<li><strong>更高的容错性</strong>。即使在人为错误发生后，我们仍能够基于原始数据进行重新计算，得到正确的结果。</li>
+<li><strong>更简单的存储</strong>。存储只涉及追加新的数据，不涉及数据更改、索引更新等复杂操作。</li>
+</ul>
+<p>不可变数据存储的缺点也很明显，相比可变存储，数据是持续追加的，因此<strong>需要占用更大的存储空间</strong>。当然，我们也可以制定一些数据过期删除策略，定时清理冗余、低价值的数据，降低存储成本。</p>
+<h3 id="数据存储">数据存储</h3>
+<p>主数据集包含了所有数据，存储它的数据库应具备以下的能力：</p>
+<ul>
+<li>能够支持追加写数据。</li>
+<li>能够保证数据是不可变的。</li>
+<li>数据存储量要足够大。</li>
+<li>能够支持大批量地处理历史数据。</li>
+</ul>
+<p>由此，我们很容易想到用<strong>分布式文件系统</strong>（Distributed File Systems，DFS）来存储主数据集：</p>
+<ul>
+<li>DFS 实现追加写非常简单，只须将文件添加到主数据集所包含的文件夹中即可。</li>
+<li>DFS 通过权限控制可以轻松确保数据不可变。</li>
+<li>DFS 通常有很好的可扩展性，可以轻松增加机器来应对不断增长的数据量。</li>
+<li>DFS 的优点之一是具备很高的读写吞吐量，比如 HDFS，结合 MapReduce 计算引擎，能够实现大批量的离线数据处理。</li>
+</ul>
+<h3 id="全量计算-vs-增量计算">全量计算 VS 增量计算</h3>
+<p>批处理的数据计算方式可以分成<strong>全量计算</strong>（Recomputation algorithms）和<strong>增量计算</strong>（Incremental algorithms）。全量计算每次都会对全量数据进行重新计算，得到新的批视图；而增量计算只会对新的数据进行计算，并将计算出来的视图与已有视图进行合并，形成新的批视图。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-07-20-171722.png" alt=""  /></p>
+<p>相比全量计算，增量计算每次计算量更小、有更好的性能，但其代价是更低的容错性，因此，<strong>更推荐使用全量计算</strong>。</p>
+<p>另外，<strong>当算法依赖历史数据时，增量计算显然难以得到正确答案</strong>。考虑一个生日推断算法的例子，系统根据不同时刻抓取的用户信息 <code>[userid, age, timestamp]</code>  来推断用户的生日，比如在 2023/2/21 抓取某用户的年龄为 28，在 2024/3/4 再次抓取他的年龄为 29，那么该用户的生日就在  2023/2/21 和 2024/3/4 之间。显然，每次用于计算的信息越多，生日推断的结果就越准。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-07-21-015545.png" alt=""  /></p>
+<p>另外，我们也可以选择一个折中方案，<strong>部分重计算</strong>（Partial Recomputation algorithms），也即选取必要的历史数据进行重新计算，以生日推断算法为例，假设新数据中只包含用户 A 的数据，那么，我们可以从主数据集中选取用户 A 的历史数据与新数据合并，再进行计算，这样计算的数据量将会大大减少。</p>
+<h2 id="服务层serving-layer">服务层（Serving Layer）</h2>
+<p>服务层属于批处理层的延伸，负责存储批视图，并对外提供查询接口。通常，服务层所使用的数据库须要具备如下属性：</p>
+<ul>
+<li><strong>支持批量写</strong>。当新的批视图计算完成后，服务层需要支持批量写来完全替换掉旧视图。</li>
+<li><strong>可扩展性好</strong>。随着主数据集的增长，批视图的存储空间可能也会随之增大，因此也要具备良好的可扩展性。</li>
+<li><strong>支持随机读</strong>。服务层必须支持随机读，以及索引查询能力，这样才能做到快速的查询响应。</li>
+<li><strong>容错性好</strong>。服务层通常也是分布式数据库，因此容错性是基础能力。</li>
+</ul>
+<p>在服务层中，我们通常采用<strong>以空间换时间</strong>的策略，适当地增加数据冗余，以此换取更优的查询性能。</p>
+<p>比如，假设用户的报表需要按月、按天、按小时、按分钟等维度的视图，最简单的方法是只保存一份分钟级视图，若用户需要查询小时级粒度的数据，临时汇聚。但因为这需要额外的聚合运算，无法满足低时延的诉求。更好的方法是，在服务层保存多种粒度的视图。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-07-21-033546.png" alt=""  /></p>
+<h2 id="速度层speed-layer">速度层（Speed Layer）</h2>
+<p>批处理层可以很好地处理离线历史数据，但很多场景下，数据是实时产生的，比如 IoT。此时，单靠批处理层显然无法无法满足实时数据的低时延处理。因此，<strong>可以把速度层看成是对批处理层在实时性上的补充</strong>，它负责实时处理源源不断的新数据，并生成实时视图（Realtime View）供用户查询。</p>
+<p>与批处理层相比，速度层具备如下的特点：</p>
+<ul>
+<li><strong>能够处理实时数据</strong>。与批处理层处理全量数据不同，速度层只处理实时数据。在技术上选型上，通常使用流式计算引擎，能够不断处理数据，并实时更新实时视图。</li>
+<li><strong>采用增量计算</strong>。速度层的首要目的是为用户提供实时数据的低时延查询能力，作为代价，计算结果可能存在精度不足、甚至错误的问题，<strong>不过这些错误最终都会被批处理层纠正</strong>。</li>
+</ul>
+<p>速度层除了要进行实时数据的增量处理外，还需保存实时视图，提供类似服务层的能力，也即对外提供实时视图的查询接口。</p>
+<h2 id="更好的-lambda-架构实现">更好的 Lambda 架构实现</h2>
+<p>书中所介绍的 Lambda 架构中，服务层只是作为批处理层的延伸，存储批视图。但在介绍速度层时我们提到，速度层也要对外提供实时视图的查询接口。因此，更好的实现方式是，<strong>把批视图和实时视图都存储在服务层，让服务层成为唯一对外提供接口的地方</strong>：</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-07-21-062932.png" alt=""  /></p>
+<h2 id="最后">最后</h2>
+<p><a class="link" href="https://learning.oreilly.com/library/view/big-data/9781617290343/"  target="_blank" rel="noopener"
+    >Big Data</a> 书中除了介绍 Lambda 架构的原理，还对如何利用 Hadoop、Cassandra 等大数据技术构建 Lambda 架构进行了详细的说明，并且给出了关键源码，可以通过阅读原书了解更多，本文不再详细介绍。</p>
+<p>Lambda 架构将数据处理拆分成批处理层和速度层，前者采用全量计算，保证计算结果的正确性，从而让系统具备了很好的容错性；后者采用增量计算，保证了系统具备了低时延的实时数据查询能力，而数据正确性问题又能在批处理层得到纠正。两者最终的计算结果通过服务层对外提供查询接口，三个层次之间相辅相成。</p>
+<p>如果用公式来定义 Lambda 架构，会是这样的：</p>
+<blockquote>
+<p>query = function(Batch View, Realtime View)</p>
+<p>Batch View = function(all data)</p>
+<p>Realtime View = function(Realtime View, new data)</p>
+</blockquote>
+<p>在技术选型上，批处理层的存储侧通常是分布式文件系统，比如 HDFS 等，而计算侧通常是离线计算引擎，比如 MapReduce、Spark、Hive 等；速度层通常是流式计算引擎，比如 Flink、Spark Stream 等；服务层通常是 NoSQL 数据库，比如 HBase、Cassandra 等。</p>
+<p>Lambda 架构从诞生至今，历经了十多年的发展，它的一些缺点也了暴露出来：</p>
+<ul>
+<li><strong>实时与批处理结果不一致，容易引起的数据口径问题</strong>。速度层和批处理层走了两套不同的计算逻辑，可能存在这样的情况，用户查询某个数据，昨天查询的结果（实时视图）与今天查询的结果（批视图）不一致，让人疑惑。</li>
+<li><strong>批处理在计算窗口内无法完成</strong>。批处理通常发生在晚上业务空闲时段，然而随着数据量的增大，必然会出现在原有的计算窗口内无法完成全量计算，从而影响用户第二天的数据报表生成。</li>
+<li><strong>开发和维护成本大</strong>。批处理层和速度层采用两套不同的技术方案，开发和维护成本都比较大。</li>
+<li><strong>存储成本大</strong>。Lambda 架构为实现不可变的数据需要存储原始数据，数据的不断追加会带来很大的的存储成本。</li>
+</ul>
+<p>针对 Lambda 架构的这些局限，Kappa 架构等大数据架构也应运而生。但 Lambda 架构因其优秀的稳定性和容错性，仍被应用在众多场景中。正如 <a class="link" href="https://mp.weixin.qq.com/s/8oqzNuHfJVDvTXSZ9zObig"  target="_blank" rel="noopener"
+    >软件架构, 一切尽在权衡</a> 里提到的，<strong>这世上没有十全十美的架构，最重要的是根据实际业务情况，选择合适的架构</strong>。</p>
+<h3 id="文章配图">文章配图</h3>
+<p>可以在 <a class="link" href="https://mp.weixin.qq.com/s/-sYW-oa6KzTR9LNdMWCSnQ"  target="_blank" rel="noopener"
+    >用Keynote画出手绘风格的配图</a> 中找到文章的绘图方法。</p>
+<blockquote>
+<h4 id="参考">参考</h4>
+<p>[1] <a class="link" href="https://learning.oreilly.com/library/view/big-data/9781617290343/"  target="_blank" rel="noopener"
+    >Big Data: Principles and best practices of scalable realtime data systems</a>,  Nathan Marz</p>
+<p>[2] <a class="link" href="https://36kr.com/p/2297009125791745"  target="_blank" rel="noopener"
+    >一文读懂Kappa和Lambda架构</a>, 王建峰</p>
+<p>[3] <a class="link" href="https://www.cnblogs.com/cciejh/p/lambda-architecture.html"  target="_blank" rel="noopener"
+    >深入理解大数据架构之——Lambda架构</a>, 博客园</p>
+<p>更多文章请关注微信公众号：<strong>元闰子的邀请</strong></p>
+</blockquote>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/%E6%9E%B6%E6%9E%84/">架构</a>
+        
+            <a href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">读书笔记</a>
+        
+            <a href="/tags/oreilly/">oreilly</a>
+        
+            <a href="/tags/%E5%A4%A7%E6%95%B0%E6%8D%AE/">大数据</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>CC BY 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/%E8%BD%AF%E4%BB%B6%E6%9E%B6%E6%9E%84%E4%B8%80%E5%88%87%E5%B0%BD%E5%9C%A8%E6%9D%83%E8%A1%A1/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">软件架构，一切尽在权衡</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E4%BA%94%E4%B9%8B%E6%9C%8D%E5%8A%A1%E5%8C%96%E6%9E%B6%E6%9E%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">从分层架构到微服务架构（五）之服务化架构</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E5%9B%9B%E4%B9%8B%E5%BE%AE%E5%86%85%E6%A0%B8%E6%9E%B6%E6%9E%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">从分层架构到微服务架构（四）之微内核架构</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E4%B8%89%E4%B9%8B%E7%AE%A1%E9%81%93%E6%9E%B6%E6%9E%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">从分层架构到微服务架构（三）之管道架构</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E4%BA%8C%E4%B9%8B%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">从分层架构到微服务架构（二）之分层架构</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+
+    
+        
+    <script src="https://utteranc.es/client.js" 
+        repo="ruanrunxue/yrunz-comments"
+        issue-term="pathname"
+        
+        label="yrunz"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
+
+<style>
+    .utterances {
+        max-width: unset;
+    }
+</style>
+
+<script>
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
+        }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+        setUtterancesTheme(document.body.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        setUtterancesTheme(e.detail)
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2019 - 
+        
+        2026 元闰子的邀请
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.3.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

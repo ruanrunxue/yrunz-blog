@@ -1,0 +1,1274 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='本文要介绍的是 2021 年 O&#39;Reilly 出版的书籍 Software Architecture-The Hard Parts，书从内容上分成 2 大部分，第一部分讲拆分，如何拆分服务、数据，服务拆分的粒度如何控制等；第二部分讲协作，功能如何复用、工作流如何编排、分布式事务如何实现等。'><title>软件架构，一切尽在权衡</title>
+
+<link rel='canonical' href='https://www.yrunz.com/p/%E8%BD%AF%E4%BB%B6%E6%9E%B6%E6%9E%84%E4%B8%80%E5%88%87%E5%B0%BD%E5%9C%A8%E6%9D%83%E8%A1%A1/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='软件架构，一切尽在权衡'>
+<meta property='og:description' content='本文要介绍的是 2021 年 O&#39;Reilly 出版的书籍 Software Architecture-The Hard Parts，书从内容上分成 2 大部分，第一部分讲拆分，如何拆分服务、数据，服务拆分的粒度如何控制等；第二部分讲协作，功能如何复用、工作流如何编排、分布式事务如何实现等。'>
+<meta property='og:url' content='https://www.yrunz.com/p/%E8%BD%AF%E4%BB%B6%E6%9E%B6%E6%9E%84%E4%B8%80%E5%88%87%E5%B0%BD%E5%9C%A8%E6%9D%83%E8%A1%A1/'>
+<meta property='og:site_name' content='元闰子的邀请'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='架构' /><meta property='article:tag' content='读书笔记' /><meta property='article:tag' content='oreilly' /><meta property='article:published_time' content='2024-06-16T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2024-06-16T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="软件架构，一切尽在权衡">
+<meta name="twitter:description" content="本文要介绍的是 2021 年 O&#39;Reilly 出版的书籍 Software Architecture-The Hard Parts，书从内容上分成 2 大部分，第一部分讲拆分，如何拆分服务、数据，服务拆分的粒度如何控制等；第二部分讲协作，功能如何复用、工作流如何编排、分布式事务如何实现等。">
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "light");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/yrz_huab1eef27cf09ceddd85969461c7dd38b_46713_300x0_resize_box_2.png" width="300"
+                            height="306" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://www.yrunz.com">元闰子的邀请</a></h1>
+        <h2 class="site-description">阅读、写作、生活（个人技术分享）</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>首页</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>博客</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%85%B3%E4%BA%8E%E5%85%83%E9%97%B0%E5%AD%90/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>关于元闰子</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%8F%8B%E6%83%85%E9%93%BE%E6%8E%A5/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>友情链接</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>暗色模式</span>
+            </li>
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://www.yrunz.com" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E6%9E%B6%E6%9E%84/" >
+                架构
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/%E8%BD%AF%E4%BB%B6%E6%9E%B6%E6%9E%84%E4%B8%80%E5%88%87%E5%B0%BD%E5%9C%A8%E6%9D%83%E8%A1%A1/">软件架构，一切尽在权衡</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        本文要介绍的是 2021 年 O&#39;Reilly 出版的书籍 Software Architecture-The Hard Parts，书从内容上分成 2 大部分，第一部分讲拆分，如何拆分服务、数据，服务拆分的粒度如何控制等；第二部分讲协作，功能如何复用、工作流如何编排、分布式事务如何实现等。
+    </h3>
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Jun 16, 2024</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <h2 id="荐语">荐语</h2>
+<p>本文要介绍的是 2021 年 O&rsquo;Reilly 出版的书籍 <a class="link" href="https://learning.oreilly.com/library/view/software-architecture-the/9781492086888/"  target="_blank" rel="noopener"
+    >Software Architecture: The Hard Parts</a>（后文简称 SAHP），某种程度上，它是 <a class="link" href="https://learning.oreilly.com/library/view/fundamentals-of-software/9781492043447/"  target="_blank" rel="noopener"
+    >Fundamentals of Software Architecture</a>（后文简称 FSA）的延续，两本书的主要作者相同。FSA 是基础篇，重点介绍了常见的 8 种架构模式；SAHP 是进阶篇，重点介绍了如何从单体架构演进到分布式架构。</p>
+<p>软件架构，特别是分布式架构，是很复杂的。这世上不存在所谓的通用架构模式，针对特定的应用场景，架构师需要在数据一致性、可扩展性、性能等多个因素上进行权衡，这也是本书标题强调的 <strong>The Hard Parts</strong>。</p>
+<p>FSA 里有一句名言，“Everything in software architecture is a trade-off.”。本书的重点就是要教会你，在单体架构演进到分布式架构的过程中，如何众多因素上进行权衡分析，以此来选择出一个符合实际业务场景的软件架构。</p>
+<h2 id="为什么叫-the-hard-part">为什么叫 “The Hard Part”？</h2>
+<p>书的名字叫 <em>Software Architecture: The Hard Parts</em>，其中，Hard 有两层含义。</p>
+<p>第一，<strong>软件架构很难</strong>。设计软件架构需要考虑的因素很多，架构师也必然会遇到各式各样的难题，而且它们往往没有通用的解决方法。软件工程的问题，很多时候可以通过 Google 搜索来解决；而软件架构的问题，只能根据实际的业务场景，在众多的考虑因素上进行权衡。所以，<strong>在软件架构上，不要试图找到最好的设计，而是要努力实现最不糟糕的权衡组合。</strong></p>
+<blockquote>
+<p>Don’t try to find the <em>best</em> design in software architecture; instead, strive for the <em>least worst</em> combination of trade-offs.</p>
+</blockquote>
+<p>第二，<strong>软件架构是稳定的</strong>。Hard 取自于硬件的英文单词 Hardware，相比软件 Software，硬件是更稳定的一个，它是软件的基础。同理，软件架构是一款软件的架子、基础，好的架构通常都是稳定的，不轻易随软件的变更而变化。</p>
+<p>SAHP 从内容上分成 2 大部分，第一部分讲<strong>拆分</strong>，如何拆分服务、数据，服务拆分的粒度如何控制等；第二部分讲<strong>协作</strong>，功能如何复用、工作流如何编排、分布式事务如何实现等。</p>
+<h2 id="软件架构的utfitness-function">软件架构的“UT”（Fitness Function）</h2>
+<p>我们通常会为程序编写单元测试 UT，防止因代码修改导致不在预期内的功能变化。UT 会集成到 CICD 流水线上，在构建阶段就能够拦截代码 Bug。</p>
+<p>软件架构是易腐化的，特别是多人协作开发时，稍不注意就会向“大泥球”方向演进。因此，软件架构也需要“UT”，书中把它称为 <em>Fitness Function</em>。Fitness Function 也会集成到 CICD 流水线上，因此架构师就能及时清除架构的腐化，并阻止它。</p>
+<p>这里是一个防止循环依赖的 Fitness Function 的例子：</p>
+<div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">CycleTest</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="n">JDepend</span> <span class="n">jdepend</span><span class="o">;</span>
+
+    <span class="nd">@BeforeEach</span>
+    <span class="kt">void</span> <span class="nf">init</span><span class="o">()</span> <span class="o">{</span>
+	  <span class="n">jdepend</span> <span class="o">=</span> <span class="k">new</span> <span class="n">JDepend</span><span class="o">();</span>
+	  <span class="n">jdepend</span><span class="o">.</span><span class="na">addDirectory</span><span class="o">(</span><span class="s">&#34;/path/to/project/persistence/classes&#34;</span><span class="o">);</span>
+	  <span class="n">jdepend</span><span class="o">.</span><span class="na">addDirectory</span><span class="o">(</span><span class="s">&#34;/path/to/project/web/classes&#34;</span><span class="o">);</span>
+	  <span class="n">jdepend</span><span class="o">.</span><span class="na">addDirectory</span><span class="o">(</span><span class="s">&#34;/path/to/project/thirdpartyjars&#34;</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Test</span>
+    <span class="kt">void</span> <span class="nf">testAllPackages</span><span class="o">()</span> <span class="o">{</span>
+	  <span class="n">Collection</span> <span class="n">packages</span> <span class="o">=</span> <span class="n">jdepend</span><span class="o">.</span><span class="na">analyze</span><span class="o">();</span>
+	  <span class="n">assertEquals</span><span class="o">(</span><span class="s">&#34;Cycles exist&#34;</span><span class="o">,</span> <span class="kc">false</span><span class="o">,</span> <span class="n">jdepend</span><span class="o">.</span><span class="na">containsCycles</span><span class="o">());</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+</code></pre></div><h2 id="架构量子architecture-quantum">架构量子（Architecture Quantum）</h2>
+<p>作者提出了架构量子（<em>Architecture Quantum</em>）的概念。量子在物理学中指参与基本相互作用的任何物理实体的最小量；<strong>架构量子则是指在软件架构中能够独立部署的最小集合</strong>。书中定义如下：</p>
+<blockquote>
+<p>An architecture quantum is an independently deployable artifact with high functional cohesion, high static coupling, and synchronous dynamic coupling.</p>
+</blockquote>
+<p>提起独立部署的最小集合，大家可能最先想到的是<strong>服务</strong>，但架构量子还需要把服务所依赖的数据库、UI 等考虑进来。</p>
+<p>最典型的，单体架构的架构量子数量就是 1，如下图所示：</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-05-25-131917.png" alt=""  /></p>
+<p>另一个典型，微服务架构的架构量子数量为 n，其中 n 为微服务数量，如下图所示：</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-05-25-132046.png" alt=""  /></p>
+<p>微服务架构是典型的分布式架构，但<strong>分布式架构的架构量子并不一定都为 n</strong>，比如服务化架构，虽然有多个服务，但它们依赖同一数据库。现假设服务 A 对数据表做了升级，因而重新部署；那么依赖同一张表的服务 B 也因适配新数据表而重新部署。所以，服务 A 和 服务 B 并不具备独立部署的性质，如下图所示：</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-05-25-132322.png" alt=""  /></p>
+<h1 id="拆分">拆分</h1>
+<h2 id="软件中的耦合">软件中的耦合</h2>
+<p>服务拆分一般可以依据以下 3 个步骤：</p>
+<ol>
+<li>找到软件中哪些模块耦合在一起。</li>
+<li>分析清楚它们是如何耦合在一起的。</li>
+<li>评估改变它们的耦合关系对系统的影响，并对影响进行权衡分析，得出最终的拆分方式。</li>
+</ol>
+<p>书中对耦合的定义如下：</p>
+<blockquote>
+<p>Two parts of a software system are coupled if a change in one might cause a change in the other.</p>
+</blockquote>
+<p>也即<strong>如果 A 的变化可能会导致 B 也跟着变，那么 A 和 B 就是耦合的</strong>。作者认为，耦合有两种：</p>
+<ul>
+<li><strong>静态耦合</strong>（Static coupling）。常见于单体架构中，比如软件对操作系统、编程框架、静态库/动态库等的依赖。静态耦合通常发生在编译时，在架构量子的边界之内。</li>
+<li><strong>动态耦合</strong>（Dynamic coupling）。常见于分布式架构中，比如服务间通信、工作流、分布式事务等。</li>
+</ul>
+<p>然而，耦合在软件系统中是必然存在的，它不应该是驱动拆分的主要因素。</p>
+<h2 id="驱动服务拆分的因素">驱动服务拆分的因素</h2>
+<p>清晰的业务述求是拆分的唯一驱动力，好的软件，必然是敏捷的、能够快速响应市场需求、具备竞争力的优势，映射到软件架构语言上，主要是软件的<em>可维护性</em>（Maintainability）、<em>可测试性</em>（Testability）、<em>可部署性</em>（Deployability）、<em>可扩展性</em>（Scalability）和<em>可用性</em>（Availability）。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-05-26-024028.png" alt=""  /></p>
+<h3 id="可维护性">可维护性</h3>
+<p><strong>可维护性（Maintainability）指在软件中新增/改变/删除特性的容易程度，可维护性越高，就越能拥抱变化</strong>。相比于分布式架构，单体架构的可维护性更差，新需求会导致整个系统的变更，这显然无法满足敏捷的要求。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-05-27-001940.png" alt=""  /></p>
+<h3 id="可测试性">可测试性</h3>
+<p><strong>可测试性（Testability）指软件中完成自动化测试的容易程度</strong>。假设应用的测试集是固定的。如果采用单体架构，每次变更上线都必须执行一次全量的测试用例；如果是分布式架构，因为已经按业务领域进行了服务拆分，当某个领域服务变更上线时，只需执行该领域的测试用例即可，测试时长和范围大大减少。</p>
+<p>当然，如果变更内容涉及服务间通信，如 API 接口变更，那么相关的服务的用例都需要重新执行。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-05-27-141244.png" alt=""  /></p>
+<h3 id="可部署性">可部署性</h3>
+<p><strong>可部署性（Deployability）不仅是软件部署的容易程度，还包含部署的频率以及部署对系统的影响</strong>。跟可测试性类似，单体架构下，每次变更都会导致系统的重新部署；分布式架构下，只有实际变更的服务才需重新部署，因而新特性导致系统不可用的风险会更低。同理，如果服务拆分粒度太细，服务间的通信、分布式事务等动态耦合也会使得部署风险的提升。</p>
+<h3 id="可扩展性">可扩展性</h3>
+<p><strong>可扩展性（Scalability）指在用户负载逐步上升时，系统仍然能够快速响应的能力</strong>。另一个容易混淆的性质是可伸缩性（Elasticity），指系统在面临瞬间高峰负载时仍然能够快速响应的能力。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-05-28-000534.png" alt=""  /></p>
+<h3 id="可用性">可用性</h3>
+<p><strong>可用性（Availability）指系统在部分异常时能够保持服务不中断的能力</strong>。单体架构可用性很低，多实例部署并不能应对程序 Bug 导致的可用性问题；分布式架构下，如果服务间动态耦合较深， 可用性一样会很低。</p>
+<h2 id="服务拆分方法论">服务拆分方法论</h2>
+<p>书中介绍了 2 种服务拆分方法，Component-Based Decomposition 和 Tactical Forking。前者基于组件进行拆分，适用于代码结构划分清晰的单体架构；后者则是做减法，不断删除不想要的代码，适用于代码结构模糊的单体架构。</p>
+<h3 id="基于组件的拆分component-based-decomposition">基于组件的拆分（Component-Based Decomposition）</h3>
+<p><strong>组件（Component）被定义为应用中具备特定角色和职责的构建块（building block）</strong>，通常在编程语言中以命名空间或者目录的形式组织。比如，在下图目录结构中，命名空间 <code>penultimate.ss.ticket.assign</code> 就表示 Ticket Assign 组件。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-05-29-234015.png" alt=""  /></p>
+<p>值得注意的是，组件下只包含文件，上图中 assign 为组件，而 ticket 为 子领域（subdomain）。</p>
+<p>基于组件进行服务拆分可以分成 6 步走，书中把每一步总结成一个模式，整体的 roadmap 如下：</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-05-31-003325.png" alt=""  /></p>
+<h4 id="明确组件及其大小模式identify-and-size-components-pattern">明确组件及其大小模式（Identify and Size Components Pattern）</h4>
+<p>第一步，<strong>明确系统中的组件，及其大小</strong>。组件的定义如前文所述，那么组件的大小如何判定呢？ 组件内包含的文件数量？类的数量？代码行数？书中给的建议是<strong>语句</strong>（statement）的数量，在编程语言中，语句通常以特殊的字符结束，比如在 Java 或 C/C++ 中以分号 <code>;</code> 结束。从语句数量的多少，大概就能够看出该组件的职责有多少，以及它的复杂程度。</p>
+<p>在进行这一步的分析时，建议按照如下的表格把当前的组件梳理清楚：</p>
+<table>
+<thead>
+<tr>
+<th>组件名</th>
+<th>组件命名空间</th>
+<th>语句数量占比</th>
+<th>语句数量</th>
+<th>文件数量</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Login</td>
+<td><code>ss.login</code></td>
+<td>2%</td>
+<td>1865</td>
+<td>3</td>
+</tr>
+<tr>
+<td>Billing Payment</td>
+<td><code>ss.billing.payment</code></td>
+<td>5%</td>
+<td>4,312</td>
+<td>23</td>
+</tr>
+<tr>
+<td>Billing History</td>
+<td><code>ss.billing.history</code></td>
+<td>4%</td>
+<td>3,209</td>
+<td>17</td>
+</tr>
+<tr>
+<td><strong>Reporting</strong></td>
+<td><code>ss.reporting</code></td>
+<td><strong>33%</strong></td>
+<td><strong>27,765</strong></td>
+<td><strong>162</strong></td>
+</tr>
+<tr>
+<td>Ticket</td>
+<td><code>ss.ticket</code></td>
+<td>8%</td>
+<td>7,009</td>
+<td>45</td>
+</tr>
+<tr>
+<td>Ticket Assign</td>
+<td><code>ss.ticket.assign</code></td>
+<td>9%</td>
+<td>7,845</td>
+<td>14</td>
+</tr>
+<tr>
+<td>&hellip;</td>
+<td>&hellip;</td>
+<td>&hellip;</td>
+<td>&hellip;</td>
+<td>&hellip;</td>
+</tr>
+</tbody>
+</table>
+<p>这样，我们就能对当前系统组件的情况一目了然，比如上表中 <strong>Reporting</strong> 组件显然是一个大组件，需要重点审视是否需要拆分。</p>
+<h4 id="聚合公共领域组件模式gather-common-domain-components-pattern">聚合公共领域组件模式（Gather Common Domain Components Pattern）</h4>
+<p>第二步，<strong>识别属于公共领域的组件，把它们整合到一起</strong>，方便后面能够快速拆分出公共服务。</p>
+<p>比如下述的例子，Customer Notification、Ticket Notify 和 Survey Notify 三个组件都属于通知领域，那么我们就可以把它们整合到一起。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">组件</th>
+<th style="text-align:left">命名空间</th>
+<th style="text-align:left">职责</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Customer Notification</td>
+<td style="text-align:left"><code>ss.customer.notification</code></td>
+<td style="text-align:left">通用通知</td>
+</tr>
+<tr>
+<td style="text-align:left">Ticket Notify</td>
+<td style="text-align:left"><code>ss.ticket.notify</code></td>
+<td style="text-align:left">票务业务通知</td>
+</tr>
+<tr>
+<td style="text-align:left">Survey Notify</td>
+<td style="text-align:left"><code>ss.survey.notify</code></td>
+<td style="text-align:left">调查问卷业务通知</td>
+</tr>
+</tbody>
+</table>
+<p>整合之后的组件如下，后续就能基于该组件拆分出一个通知服务了。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">组件</th>
+<th style="text-align:left">命名空间</th>
+<th style="text-align:left">职责</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Notification</td>
+<td style="text-align:left"><code>ss.notification</code></td>
+<td style="text-align:left">包含通用通知、票务通知、调查问卷通知等公共通知的能力</td>
+</tr>
+</tbody>
+</table>
+<h4 id="组件扁平化模式flatten-components-pattern">组件扁平化模式（Flatten Components Pattern）</h4>
+<p>第三步，<strong>避免组件与类文件在同一层级下</strong>，比如下图中，<code>.survey</code> 子领域下既有类文件，又有组件 <code>.templates</code>。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-06-01-000426.png" alt=""  /></p>
+<p>针对这种方向，我们有 2 种扁平化解决方案。（1）将 <code>.templates</code> 组件合并到 <code>.survery</code> 组件下；（2）将 <code>.survery</code> 子领域下的类文件抽象成新的组件。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-06-01-001659.png" alt=""  /></p>
+<h4 id="明确组件依赖关系模式determine-component-dependencies-pattern">明确组件依赖关系模式（Determine Component Dependencies Pattern）</h4>
+<p>第四步，<strong>明确组件间的依赖关系</strong>。当组件 A 中引用了组件 B 中的类/接口/方法/变量时，我们称组件 A 依赖组件 B。明确组件间依赖能够让我们清楚拆分的代价。</p>
+<p>比如，在下图 a 中的依赖关系下，拆分是低代价的，可能只须进行简单的代码重构，就能顺利地完成拆分；而在图 b 的依赖关系下，拆分的代价变得高昂，须要对代码进行大规模的重写，才可能完成拆分。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-06-01-140259.png" alt=""  /></p>
+<h4 id="聚合领域组件模式create-component-domains-pattern">聚合领域组件模式（Create Component Domains Pattern）</h4>
+<p>第五步，尽可能地将组件归属到同一领域之下，这样就能够拆分出粒度较大的服务。这样做的原因是，从单体架构演进到分布式架构时，演进的第一步建议是<a class="link" href="https://mp.weixin.qq.com/s/dWed2EG_2SJkxiNqLBNTdA"  target="_blank" rel="noopener"
+    >服务化架构</a>（service-based architecture），然后再到其他架构，如微服务架构。</p>
+<p>在实践该模式前，先了解命名空间的组成，以 <code>ss.customer.billing.payment.MonthlyBilling</code> 为例，它的各层级含义如下：</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-06-01-142600.png" alt=""  /></p>
+<p>假设有如下组件：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">组件</th>
+<th style="text-align:left">命名空间</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Billing Payment</td>
+<td style="text-align:left"><code>ss.billing.payment</code></td>
+</tr>
+<tr>
+<td style="text-align:left">Billing History</td>
+<td style="text-align:left"><code>ss.billing.history</code></td>
+</tr>
+<tr>
+<td style="text-align:left">Customer Profile</td>
+<td style="text-align:left"><code>ss.customer.profile</code></td>
+</tr>
+<tr>
+<td style="text-align:left">Support Contract</td>
+<td style="text-align:left"><code>ss.supportcontract</code></td>
+</tr>
+</tbody>
+</table>
+<p>因为上述组件从业务功能上看都属于 Customer 领域，那么，我们可以把这些组件都归到 <code>customer</code> 命名空间下：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">组件</th>
+<th style="text-align:left">命名空间</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Billing Payment</td>
+<td style="text-align:left"><code>ss.customer.billing.payment</code></td>
+</tr>
+<tr>
+<td style="text-align:left">Billing History</td>
+<td style="text-align:left"><code>ss.customer.billing.history</code></td>
+</tr>
+<tr>
+<td style="text-align:left">Customer Profile</td>
+<td style="text-align:left"><code>ss.customer.profile</code></td>
+</tr>
+<tr>
+<td style="text-align:left">Support Contract</td>
+<td style="text-align:left"><code>ss.customer.supportcontract</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="创建领域服务模式create-domain-services-pattern">创建领域服务模式（Create Domain Services Pattern）</h4>
+<p>经过前 5 步之后，我们可以得到功能内聚的领域了，最后一步就是将这些领域拆分成独立的服务。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-06-01-145652.png" alt=""  /></p>
+<h3 id="tactical-forking">Tactical Forking</h3>
+<p>Component-Based Decomposition 的拆分思路可以看成是抽取（Extraction），而 Tactical Forking 则是删除（Deletion），删除你不想要的代码，直至达成拆分目的。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-05-28-225727.png" alt=""  /></p>
+<p>假设有一应用，包含 3 个模块，现需要对应用拆分成 2 个服务，分别由 2 个团队来负责维护。其中，团队 A 负责正方形和棱形；团队 B 负责三角形。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-05-28-231533.png" alt=""  /></p>
+<p>那么，采用 Tactical Forking 进行服务拆分的步骤如下：</p>
+<ol>
+<li>复制整个应用，这样每个团队都各自拥有一份应用代码。</li>
+<li>各团队分别删除不需要的代码模块，这里，团队 A 逐渐删除三角形代码、团队 B 逐渐删除正方形和棱形代码。</li>
+<li>反复执行删除操作，直至完成拆分。</li>
+</ol>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-05-28-232845.png" alt=""  /></p>
+<p>Tactical Forking 的优势在于落地简单，无须过多的前置分析，且删除代码总比抽取模块要容易得多；缺点也很明显，一方面剩余的代码没经过优化依旧是“大泥球”，另一方面可能会导致两个团队间存在重复的代码。</p>
+<h2 id="驱动数据拆分的因素">驱动数据拆分的因素</h2>
+<p>通过前文所述的服务拆分方法论，我们已经成功将单体架构应用拆分成服务化架构应用，但各服务之间仍然共享一个数据库，数据需要进行拆分吗？</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-06-02-235859.png" alt=""  /></p>
+<p>驱动数据拆分的因素主要有 6 个，分别是变更影响范围、数据库连接数、可扩展性、容错性、架构量子以及数据库类型的选择。</p>
+<h3 id="变更影响范围">变更影响范围</h3>
+<p>服务化架构下，可能会存在多个服务依赖同一数据表的情况，这时如果该数据表做了变更，比如列名修改，那么依赖此表的服务都要进行变更升级。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-06-03-000403.png" alt=""  /></p>
+<p>一种更危险的情况是，数据库变更发生时，服务 E 却忘记同步变更了，那么服务 E 相关的业务将不可用。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-06-03-000428.png" alt=""  /></p>
+<p>为了避免这种情况发生，我们可以根据系统的<em>限界上下文</em>进行数据拆分。限界上下文内的服务访问各自的数据库，变更的影响范围得到了控制；限界上下文间的数据访问通过服务接口进行，即使数据表结构变更了，只要服务接口不变，数据消费端也不会受此影响。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-06-03-001611.png" alt=""  /></p>
+<h3 id="数据库连接数">数据库连接数</h3>
+<p>数据库连接很耗资源，因此我们常用数据库连接池来提升系统性能，一方面可以进行复用，另一方面也能够限制连接数。</p>
+<p>分布式架构下，服务通常会存在多个实例，当系统大到一定规模时，很可能就会出现数据库连接数达到上限的情况，这时，我们就要考虑分库了。</p>
+<h3 id="可扩展性-1">可扩展性</h3>
+<p>服务化架构下，初始阶段我们可以通过增加服务实例来提升系统性能，但最后，数据库一定会成为性能瓶颈，从而影响了系统的可扩展性。这时，我们就要考虑分库了。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-06-03-002635.png" alt=""  /></p>
+<h3 id="容错性">容错性</h3>
+<p>服务化架构下，如果数据库出现故障，那么整个系统都会不可用。分库之后，数据库的故障只会影响相关的服务，容错性大大增强。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-06-04-222825.png" alt=""  /></p>
+<h3 id="架构量子">架构量子</h3>
+<p>假设一个系统中，服务 A 和 B 更关注数据的强一致性，而服务 C、D 和 E 这只需最终一致性节课，但因共享数据库的存在，使得系统的架构量子始终为 1，它们无法根据自己的架构特征来进行对应的设计。分库之后，这个问题也解决了。服务 A 和 B 共享一个数据库，通过数据库的 ACID 保证数据的强一致性；服务 C、D、E 有独立的数据库，架构更解耦。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-06-04-224647.png" alt=""  /></p>
+<h3 id="数据库类型的选择">数据库类型的选择</h3>
+<p>和架构量子类似，一个系统中，服务 A 和 B 提供 OLTP 服务，而服务 C、D、E 提供 OLAP 服务，那么它们的数据库选型可能就完全不一样，前者可能会选择关系型数据库，而后者这可能会选择数据仓库。</p>
+<p>数据库的选型通常会考虑如下几个因素，架构师需要根据实际的业务属性进行权衡：</p>
+<ul>
+<li>学习曲线。</li>
+<li>数据建模的难度。</li>
+<li>可扩展性/吞吐量。</li>
+<li>可用性/分区容错性。</li>
+<li>数据一致性。</li>
+<li>读写优先级。</li>
+<li>编程语言支持、产品成熟度、SQL 支持、社区活跃度等其他因素。</li>
+</ul>
+<h3 id="不建议数据拆分的场景">不建议数据拆分的场景</h3>
+<p>然而，并不是所有场景都需要数据拆分：</p>
+<ul>
+<li>**数据模型中，表与表之间存在较多的依赖的场景，**如外键、触发器、视图、存储过程等。这种情况下，拆分的难度会很大，而且强行拆分后也会使得系统更加复杂。</li>
+<li><strong>业务流程依赖数据库事务来实现的场景</strong>。共享数据库使得事务具备了 ACID 的性质，分库之后，分布式事务将会使得系统变得复杂，而且也很难保证 ACID。</li>
+</ul>
+<h2 id="数据拆分的步骤">数据拆分的步骤</h2>
+<p>书中总结数据拆分的 5 个步骤。</p>
+<h3 id="第一步明确数据领域">第一步：明确数据领域</h3>
+<p>分析数据模型，根据系统的限界上下文，梳理出系统的数据领域。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-06-04-225319.png" alt=""  /></p>
+<h3 id="第二步数据表聚类">第二步：数据表聚类</h3>
+<p>在数据库中针对每个数据领域建立一个 schema，将数据表们分别归属到各自的 schema 之下。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-06-04-225832.png" alt=""  /></p>
+<p>在进行数据表归类时，我们常常会遇到这样的场景，<em>服务 A 和 B 都依赖数据表 T，那么，数据表 T 应该归属到哪个服务上呢</em>？</p>
+<p>书中给出了以下几种归类方法：</p>
+<p>1、<strong>数据表拆分</strong>。针对服务 A 和 B 分别依赖数据表 T 的不同列的场景，我们可以将表 T 一分为二，Ta 和 Tb。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-06-10-154230.png" alt=""  /></p>
+<p>2、<strong>服务接口访问数据</strong>。根据业务优先级将表 T 归属给服务 A，服务 B 通过调用 A 的接口访问相关数据。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-06-10-154643.png" alt=""  /></p>
+<p>3、<strong>合并服务</strong>。如果是在无法归属，说明服务 A 和 B 耦合较深，它们就不应该拆分成独立的服务，应该合并在一起。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-06-10-155817.png" alt=""  /></p>
+<h3 id="第三步隔离数据库连接">第三步：隔离数据库连接</h3>
+<p>对服务的数据库连接配置进行调整，使其连接到对应的 schema 之上。如果业务流程需要 2 个 schema 的数据，则通过服务接口调用来进行数据关联。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-06-04-230036.png" alt=""  /></p>
+<h3 id="第四步备份-schema">第四步：备份 schema</h3>
+<p>将 schema 复制到独立的数据库之中，因为数据的同步需要时间，这一步中，业务流程仍然访问共享数据库。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-06-04-230353.png" alt=""  /></p>
+<h3 id="第五步切换新的数据库">第五步：切换新的数据库</h3>
+<p>schema 同步完成后，下一步就是将业务流程切换到独立数据库中去。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-06-10-150203.png" alt=""  /></p>
+<h3 id="分布式数据的访问">分布式数据的访问</h3>
+<p>数据拆分之后，我们将面临如何访问分布式数据的问题。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-06-10-234658.png" alt=""  /></p>
+<p>书中给出了 3 种常用的方法，服务间接口调用、数据副本、分布式缓存。</p>
+<p>（1）<strong>服务间接口调用</strong></p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-06-10-235349.png" alt=""  /></p>
+<p>这是最常见、最简单的一种方法，优缺点总结如下：</p>
+<table>
+<thead>
+<tr>
+<th>优点</th>
+<th>缺点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>简单。</td>
+<td><strong>数据访问性能低下</strong>，网络时延、数据时延（比如上图例子中服务 B 查询 item_desc 数据的时延）、数据安全等因素都会影响系统性能。</td>
+</tr>
+<tr>
+<td>数据只存一份，不会存在数据容量过大问题。</td>
+<td>系统吞吐量可能存在问题。</td>
+</tr>
+<tr>
+<td></td>
+<td>系统可用性存在问题。直接的服务间接口调用意味着双方服务具有较强的耦合，一旦生产端服务异常宕机，消费端服务也服务对外提供业务。</td>
+</tr>
+<tr>
+<td></td>
+<td>需要通信双方遵循接口契约。</td>
+</tr>
+</tbody>
+</table>
+<p>（2）<strong>数据副本</strong></p>
+<p><strong>可以针对需要跨服务传输的数据建立副本</strong>，比如，在前面的例子中，我们可以在表 Ta 上建立新增一列 <code>item_desc</code>，这样，服务 A 就无须调用服务 B 的接口获取 <code>item_desc</code> 了。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-06-11-142214.png" alt=""  /></p>
+<p>数据副本的优缺点总结如下：</p>
+<table>
+<thead>
+<tr>
+<th>优点</th>
+<th>缺点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>数据访问性能高。</td>
+<td>同一份数据存在于不同的数据库内，<strong>容易产生数据不一致问题</strong>。</td>
+</tr>
+<tr>
+<td>不存在数据访问吞吐量问题。</td>
+<td>存在数据归属问题，这种情况下服务 A 和  B 都能够对 <code>item_desc</code> 进行更新，数据归属边界模糊。</td>
+</tr>
+<tr>
+<td>不存在可用性问题。</td>
+<td>需要在不同数据库间进行数据同步。</td>
+</tr>
+<tr>
+<td>无服务依赖。</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>（3）<strong>数据缓存</strong></p>
+<p>缓存是最常见的提升数据访问性能的一种技术手段，也常用于分布式数据的访问和共享。普通的缓存通常是将数据库里的热点数据在本地内存中缓存一份，以提升数据访问性能，但此类型的缓存不具备分布式数据共享的能力。</p>
+<p>而用于分布式数据访问的缓存大体上可以分成两种类型，中心化缓存和去中心化缓存。</p>
+<p><strong>中心化缓存下，系统有一个独立的缓存服务供所有业务服务共同使用，所有服务都可以对缓存数据进行读取和写入</strong>，常见的如 <a class="link" href="https://redis.io"  target="_blank" rel="noopener"
+    >Redis</a>、<a class="link" href="https://memcached.org"  target="_blank" rel="noopener"
+    >Memcached</a> 等分布式缓存系统。中心化缓存方案简单，服务通过远程调用接口读写缓存数据，但缓存服务容易成为系统单点瓶颈。另外，远程调用存在网络时延，会有一定的性能影响；而且所有服务都具备数据的读写权限，数据归属模糊。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-06-14-221741.png" alt=""  /></p>
+<p>去中心化缓存下，每个服务的本地内存空间里都存有一份全量的缓存数据，而且它们之间会自动进行数据同步，常见如 <a class="link" href="https://hazelcast.com/"  target="_blank" rel="noopener"
+    >Hazelcast</a>、<a class="link" href="https://ignite.apache.org/"  target="_blank" rel="noopener"
+    >Apache Ignit</a> 等内存数据网格。去中心化缓存架构下，缓存数据都在本地内存空间，具备很好的访问性能；且不存在缓存单点瓶颈，容错性、可扩展型都不错。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-06-15-150459.png" alt=""  /></p>
+<p>当然，去中心化缓存也有不少缺点：</p>
+<ul>
+<li><strong>服务存在启动依赖</strong>。比如，在服务 A 异常宕机后，服务 B 再次启动时需要依赖服务 A 恢复正常，以初始化缓存。</li>
+<li><strong>需要庞大的内存空间</strong>。每个服务的缓存都是全量的，如果数据量很大，所需的内存也会很大。</li>
+<li>如果内存数据变更频率很快，<strong>可能存在同步不及时的情况</strong>。</li>
+<li>内存数据的同步依赖 TCP 协议，如果集群庞大，<strong>节点间进行 TCP 建立连接也会很耗时</strong>。</li>
+</ul>
+<h2 id="拆分粒度的权衡">拆分粒度的权衡</h2>
+<p>软件设计里有一项<a class="link" href="https://mp.weixin.qq.com/s/s3aD4mK2Aw4v99tbCIe9HA"  target="_blank" rel="noopener"
+    >单一职责原则</a>，这意味着拆分的服务粒度越细越好吗？其实不然，<strong>影响拆分粒度的因素很多，架构师需要做权衡</strong>。</p>
+<blockquote>
+<p>很多人有这样的一个误区，根据代码行、类的多少来决定服务拆分的粒度。然而，每个开发者的编码风格、技术水平都有所差异，这就导致他们开发出来的代码在代码行、类数量上会存在差异。所以，这并不合适。</p>
+</blockquote>
+<h3 id="驱动细粒度服务的因素">驱动细粒度服务的因素</h3>
+<h4 id="服务职责">服务职责</h4>
+<p>服务的职责是首要考虑因素，在 <a class="link" href="https://mp.weixin.qq.com/s/s3aD4mK2Aw4v99tbCIe9HA"  target="_blank" rel="noopener"
+    >实践GoF的23种设计模式：SOLID原则</a> 里我们提到，单一职责原则强调<strong>要从用户的视角来把握拆分的度，把面向不同用户的功能拆分开</strong>。太过聚合会导致牵一发动全身，拆分过细又会提升复杂性。</p>
+<p>举个例子。下图 a 中，通知服务包含了 SMS 模块、Email 模块和信件模块，从职责上看似可以拆分成 3 个服务，但从业务层面考虑，它们所服务的对象都是一样的，具有强相关性，所以就不必要拆分；下图 b 中，消费者服务包含了用户资料模块、偏好模块和意见模块，它们是弱相关性，用户资料模块服务于后台管理、偏好模块服务于商品推荐、意见模块服务于 XXX，所以拆分就合理了。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-06-08-010345.png" alt=""  /></p>
+<h4 id="代码改动频率">代码改动频率</h4>
+<p><strong>可以根据模块间代码改动的频率进行服务划分</strong>，将改动频率高的模块与改动频率低的模块分开，有利于提升系统的稳定性和可用性。同样考虑通知服务，假设 SMS 模块 和 Email 模块很少改动，而信件模块则改动频繁，那么可以拆分成 2 个服务。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-06-08-022323.png" alt=""  /></p>
+<h4 id="可扩展性和吞吐量">可扩展性和吞吐量</h4>
+<p>将具备不同吞吐量的模块拆分成服务，可以更精确地进行系统扩展，节省资源。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-06-09-003528.png" alt=""  /></p>
+<h4 id="容错性-1">容错性</h4>
+<p>如果某些模块经常异常，从而导致系统不可用，那么可以考虑将它们拆分开。跟前面介绍的代码改动频率相关，通常改动频率越高，模块越不稳定，也就越容易出异常。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-06-09-004051.png" alt=""  /></p>
+<h4 id="安全">安全</h4>
+<p>一个系统中，每个功能模块对安全的要求不一样，因此在进行技术选型时也会有所差异，比如用户资料服务包含基本信息模块和支付信息模块，后者对安全的要求就远大于前者，可以考虑将支付信息模块单独拆分成钱包服务。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-06-09-011027.png" alt=""  /></p>
+<h4 id="可延展性">可延展性</h4>
+<p><strong>可延展性（Extensibility）指系统业务的增长不断扩充功能的能力</strong>，更强调功能，而可扩展性（Scalability）更强调性能。举个例子，当前支付服务包含了储蓄卡、信用卡两种支付方式，在可预见的未来，还会新增如微信、支付宝、华为钱包等支付方式。<strong>如果不拆分，每次新增功能就会导致支付服务的升级部署，而且新功能的异常也会导致旧功能的不可用，从而影响了系统的可用性</strong>。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-06-09-012539.png" alt=""  /></p>
+<h3 id="驱动粗粒度服务的因素">驱动粗粒度服务的因素</h3>
+<h4 id="acid-事务">ACID 事务</h4>
+<p>分布式 ACID 事务是很复杂的，如果两个模块间的业务流需要 ACID 事务来保证，就要考虑将它们保留在一个服务内。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-06-09-054421.png" alt=""  /></p>
+<h4 id="数据依赖">数据依赖</h4>
+<p>如果模块间数据依赖比较多、复杂，强行拆分会到来高昂的服务间通信代价。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-06-09-060434.png" alt=""  /></p>
+<h4 id="工作流">工作流</h4>
+<p>工作流的影响与数据依赖类似，如果系统的工作流需要服务间紧密协作，那么服务间通信的代价会很大，最直接的影响就是性能下降。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-06-09-083238.png" alt=""  /></p>
+<h4 id="共享代码">共享代码</h4>
+<p>如果模块间共享代码具备如下特征，不建议进行更细力度的拆分了：</p>
+<ul>
+<li><strong>共享的代码属于领域层</strong>，带有业务逻辑。这说明模块间具有较深的业务耦合关系。</li>
+<li><strong>共享的代码变更频繁</strong>。这种情况下，各个服务也需要频繁升级适配最新版本，维护成本变大。</li>
+<li><strong>共享的代码无法实现版本控制</strong>。版本控制是当多个服务依赖公共代码库/服务时，避免因功能升级导致相互影响的重要手段。如果不能实现版本控制，系统可维护性将会大幅下降。</li>
+</ul>
+<h1 id="协作">协作</h1>
+<h2 id="服务间的代码复用">服务间的代码复用</h2>
+<p>在分布式系统中，服务间多多少少会存在着代码复用，下面我们将介绍几种常见的代码复用方法。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-06-10-001053.png" alt=""  /></p>
+<h3 id="代码复制">代码复制</h3>
+<p>最简单的代码复用方法是<strong>将同样的代码复制到各个服务上</strong>。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-06-10-000238.png" alt=""  /></p>
+<table>
+<thead>
+<tr>
+<th>优点</th>
+<th>缺点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>真正实现了“零共享架构”。</td>
+<td>功能变更需要在每个服务进行代码修改，工作量大。</td>
+</tr>
+<tr>
+<td></td>
+<td>可能存在因同步不全而导致的代码不一致的问题。</td>
+</tr>
+</tbody>
+</table>
+<p><strong>适用场景</strong>：需要共享的代码是比较简单的静态代码，如属性、简答的工具类等。</p>
+<h3 id="共享库">共享库</h3>
+<p>共享库是最常见的代码复用方法，它将需要复用的代码打包成共享库文件，比如 Java 中的 jar 文件、C++ 中的 so 文件，在编译时集成到服务中去。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-06-10-002530.png" alt=""  /></p>
+<p>根据每个服务依赖的类文件的不同，我们可以将粗粒度的共享库拆分，避免不必要的耦合出现。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-06-10-010800.png" alt=""  /></p>
+<p>另外，我们也可以通过版本管理来控制共享库的影响范围。比如，服务 C 需要类文件 C3 和 C4 升级功能，而服务 A 和 B 并不需要，我们可以给共享库进行版本升级，只需服务 C 更新依赖版本即可。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-06-10-012125.png" alt=""  /></p>
+<table>
+<thead>
+<tr>
+<th>优点</th>
+<th>缺点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>可以实现版本管理。</td>
+<td>依赖管理比较困难。</td>
+</tr>
+<tr>
+<td>共享库在编译器集成，能够减少运行时的错误。</td>
+<td>在存在多种编程语言的系统中，仍然会存在代码重复。</td>
+</tr>
+<tr>
+<td>功能变更只需修改共享库即可，工作量小。</td>
+<td>废弃老旧版本会很困难，某些原本无须升级的也会被迫切换到新版本。</td>
+</tr>
+<tr>
+<td>编译时集成，不影响系统的性能、可扩展性、容错性</td>
+<td>版本变更对某些用户必然存在着信息滞后。</td>
+</tr>
+</tbody>
+</table>
+<p><strong>适用场景</strong>：适用于同构的、编程语言相同的系统下的代码复用。</p>
+<h3 id="共享服务">共享服务</h3>
+<p>如果系统是异构的、有多种编程语言的，那么我们可以使用共享服务来实现代码复用。该方法<strong>将公共的代码抽离出一个服务，通过接口对外开放能力</strong>，因此，只要消费端服务遵循同样的接口协议，就能使用该功能，无论系统异构或者由不同编程语言开发而成。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-06-10-135626.png" alt=""  /></p>
+<p>共享服务的一大好处是，<strong>消费端服务与它的依赖是运行时依赖</strong>，共享服务的改变不会导致消费端服务的重新部署；当然，如果共享服务出现异常宕机，所有服务都会受此影响。</p>
+<table>
+<thead>
+<tr>
+<th>优点</th>
+<th>缺点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>在共享代码变更频繁的场景，无须升级消费端服务。</td>
+<td>版本管理比较困难，与共享库有着类似的缺点。</td>
+</tr>
+<tr>
+<td>完全不存在代码重复。</td>
+<td>功能的使用，从服务内接口调用变成服务间接口调用，网络时延影响系统性能。</td>
+</tr>
+<tr>
+<td>无静态代码依赖。</td>
+<td>共享服务的异常会影响整个系统的可用性</td>
+</tr>
+<tr>
+<td></td>
+<td>共享服务可能成为单点瓶颈，从而影响系统的可扩展性和吞吐量。</td>
+</tr>
+<tr>
+<td></td>
+<td>相比于编译时依赖，运行时依赖存在更多意料之外的异常。</td>
+</tr>
+</tbody>
+</table>
+<p><strong>适用场景</strong>：异构或多编程语言系统、公共功能变化频繁的场景。值得注意的是，如果系统对性能或时延要求很高，这不适合使用该方法。</p>
+<h2 id="分布式事务">分布式事务</h2>
+<p>在单体架构或多个服务共享一个数据库的服务化架构之下，我们可以利用数据库的能力实现 ACID 事务。比如在下图中，在一个 ACID 事务内有三次 Insert，当最后一次失败时，数据库会将两次的 Insert 操作回滚。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-06-16-042620.png" alt=""  /></p>
+<blockquote>
+<p>ACID 指的是数据库为保证事务的正确可靠所必须具备的 4 个特性。</p>
+<ul>
+<li>原子性（<strong>A</strong>tomicity）：一个事务的所有操作要么全部 commit 成功，要么全部失败 rollback。</li>
+<li>一致性（<strong>C</strong>onsistency）：事务执行前后，数据库的完整性约束没有被破坏。比如，A 给 B 转账事务中，转账前后总金额应该保持一致。</li>
+<li>隔离性（<strong>I</strong>solation）：多事务并发访问时，事务之间是隔离的，不会看到中间状态的数据。</li>
+<li>持久性（<strong>D</strong>urability）：事务完成后，所有对数据的更改都不会丢失。</li>
+</ul>
+</blockquote>
+<p>然而，在微服务架构之下，服务间的数据库是隔离的，分布式事务并不会遵循 ACID 性质。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-06-16-043438.png" alt=""  /></p>
+<p>1、每个服务的 Insert 操作都独自 commit，原子性只限于当前服务内，在业务流程上并不具备原子性；</p>
+<p>2、当前服务 C Insert 失败后，服务 A 和 B 并不会自动实现回滚，从而产生了数据不一致，因此不具备一致性。</p>
+<p>3、服务 A 插入数据成功后，其他服务就能通过 服务 A 访问到该数据，此时业务流程可能并未结束，因此不具备隔离性。</p>
+<p>4、持久性只局限于当前服务内，也即服务 A 插入成功，数据持久化了，但并不能保证服务 B 和 C 也如此。</p>
+<p>分布式事务通常会遵循 BASE 性质，也即</p>
+<ul>
+<li><strong>基本可用</strong>（<strong>B</strong>asically <strong>A</strong>vailable），出现故障时系统仍然可用，只会牺牲响应时间或功能降级；</li>
+<li><strong>软状态</strong>（<strong>S</strong>oft State），允许系统中的数据存在中间状态；</li>
+<li><strong>最终一致性</strong>（<strong>E</strong>ventually Consistent），系统不能一直处于软状态之下，经过一定时间后，系统数据要能够达到一个最终一致的状态。</li>
+</ul>
+<p><strong>基本可用通常基于服务间异步通信实现</strong>。如下图所示，在同步通信下，如果服务 C 异常宕机，客户端将得不到响应；在异步通信下，则不会受到影响。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-06-16-044519.png" alt=""  /></p>
+<p>实现最终一致性的方法主要有以下几种：</p>
+<p>1、<strong>后台服务数据同步</strong>。该方法会专门独立出一个后台数据同步服务，通过离线同步达成最终一致性。这里的关键点是后台服务需要知道哪些数据需要同步，可以通过数据库触发器、事件流等技术手段实现。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-06-16-052237.png" alt=""  /></p>
+<p>后台服务数据同步的优缺点如下：</p>
+<table>
+<thead>
+<tr>
+<th>优点</th>
+<th>缺点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>服务间解耦。</td>
+<td>所有的数据都因为后台同步服务而产生了耦合。</td>
+</tr>
+<tr>
+<td>良好的用户响应时间。</td>
+<td>需要新增一个同步服务，实现起来比较复杂。</td>
+</tr>
+<tr>
+<td></td>
+<td>数据同步过程可能涉及业务逻辑，从而导致这部分代码重复于业务服务和同步服务上。</td>
+</tr>
+<tr>
+<td></td>
+<td>数据离线同步通常发生在深夜业务空闲间隙，从而导致实现最终一致性的时间很长</td>
+</tr>
+</tbody>
+</table>
+<p>2、<strong>服务间同步通信</strong>。服务间采用同步通信方式，就能实现在业务流程结束后达成最终一致性。同步通信的最大缺点是，当服务 C 故障时，整个系统将处于不可用状态，表现为用户得不到正常响应。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-06-16-053701.png" alt=""  /></p>
+<p>服务间同步通信的优缺点如下：</p>
+<table>
+<thead>
+<tr>
+<th>优点</th>
+<th>缺点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>服务间解耦。</td>
+<td>糟糕的用户响应时间。</td>
+</tr>
+<tr>
+<td>能够及时达成最终一致性。</td>
+<td>异常处理复杂，因为没有统一的控制中心，需要各个服务自己实现错误回滚逻辑。</td>
+</tr>
+<tr>
+<td>业务流程具备原子性。</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>3、<strong>事件通知</strong>。相当于基于消息队列的异步通信方式，综合了前面两种方式的优点，但错误处理仍然会很复杂。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-06-16-055254.png" alt=""  /></p>
+<p>事件通知的优缺点如下：</p>
+<table>
+<thead>
+<tr>
+<th>优点</th>
+<th>缺点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>服务间解耦。</td>
+<td>异常处理复杂。</td>
+</tr>
+<tr>
+<td>能够及时达成最终一致性。</td>
+<td></td>
+</tr>
+<tr>
+<td>良好的用户响应时间。</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="工作流编排">工作流编排</h2>
+<p><strong>工作流（Workflow）指让各个服务协作起来共同完成的业务流程</strong>。分布式架构之下，工作流的编排通常可以分成两大类，中心化的 Orchestration 和 去中心化的 Choreography。</p>
+<h3 id="orchestration-编排方式">Orchestration 编排方式</h3>
+<p>Orchestration 编排的架构如下，Orchestrator 服务作为控制节点，也是业务流程的起始点，负责整个工作流的编排、任务下发，各个业务服务只须处理 Orchestrator 下发的任务即可。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-06-16-075137.png" alt=""  /></p>
+<p>下面以购物订单流程举例，用户提交订单后，Orchestrator 完成工作流编排，总共需要执行 4 个业务流程，其中订单创建和订单支付为同步流程，执行结束后即可响应用户；商品配送和邮件通知为异步流程。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-06-16-080052.png" alt=""  /></p>
+<p>Orchestration 编排架构方案简单，各业务服务只须处理任务即可，这在在错误处理和状态管理上具有明显的优势，下面是支付失败场景的举例：</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-06-16-081137.png" alt=""  /></p>
+<p>Orchestration 编排架构下，Orchestrator 服务容易成为单点瓶颈，因此<strong>容错性、可扩展性、性能是劣势</strong>。</p>
+<h3 id="choreography-编排方式">Choreography 编排方式</h3>
+<p>Choreography 编排的架构如下，是去中心化的编排方式，各个业务服务需要管理与自身业务相关的工作流，既负责任务执行，也要负责下一步流程的选择与触发。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-06-16-081825.png" alt=""  /></p>
+<p>同样以购物订单流程举例，与Orchestration 编排架构相比，去除了Orchestrator 单点瓶颈，因此在容错性、可扩展性和性能得到了提升。值得注意的是，例子中我们使用了异步流程，这是为了更能发挥 Choreography 编排的性能优势：</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-06-16-082659.png" alt=""  /></p>
+<p>Choreography 编排架构下，错误处理的逻辑遍布在各个业务服务之上，随着业务的不断增长，错误处理将会越来越复杂。以下是支付失败的场景举例：</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-06-16-084110.png" alt=""  /></p>
+<p>Choreography 编排架构在状态管理上也存在劣势，没了统一编排服务，每个业务服务需要维护整个工作流的处理状态，状态同步上会存在不少挑战，稍有不慎可能就出现状态不一致的问题。</p>
+<h2 id="saga-分布式事务">Saga 分布式事务</h2>
+<p>Saga 事务是分布式事务中的一种，也是我们实现分布式事务最常用的模式之一。<strong>Saga 由一系列事务组成，事务间通过消息或事件来触发。 如果某个事务失败，则 Saga 将执行补偿事务，以抵消上一个事务的影响</strong>。</p>
+<p>书中根据<strong>通信</strong>、<strong>一致性</strong>、<strong>编排</strong>三个维度的不同对 Saga 事务模式进行了划分，共有八种类型，名称系作者根据类似的实际生活例子命名，可以不用深究：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Saga 模式名称</th>
+<th style="text-align:left">通信方式</th>
+<th style="text-align:left">一致性</th>
+<th style="text-align:left">工作流编排方式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Epic Saga</td>
+<td style="text-align:left">同步</td>
+<td style="text-align:left">强一致性</td>
+<td style="text-align:left">Orchestration 编排</td>
+</tr>
+<tr>
+<td style="text-align:left">Phone Tag Saga</td>
+<td style="text-align:left">同步</td>
+<td style="text-align:left">强一致性</td>
+<td style="text-align:left">Choreography 编排</td>
+</tr>
+<tr>
+<td style="text-align:left">Fairy Tale Saga</td>
+<td style="text-align:left">同步</td>
+<td style="text-align:left">最终一致性</td>
+<td style="text-align:left">Orchestration 编排</td>
+</tr>
+<tr>
+<td style="text-align:left">Time Travel Saga</td>
+<td style="text-align:left">同步</td>
+<td style="text-align:left">最终一致性</td>
+<td style="text-align:left">Choreography 编排</td>
+</tr>
+<tr>
+<td style="text-align:left">Fantasy Fiction Saga</td>
+<td style="text-align:left">异步</td>
+<td style="text-align:left">强一致性</td>
+<td style="text-align:left">Orchestration 编排</td>
+</tr>
+<tr>
+<td style="text-align:left">Horror Story Saga</td>
+<td style="text-align:left">异步</td>
+<td style="text-align:left">强一致性</td>
+<td style="text-align:left">Choreography 编排</td>
+</tr>
+<tr>
+<td style="text-align:left">Parallel Saga</td>
+<td style="text-align:left">异步</td>
+<td style="text-align:left">最终一致性</td>
+<td style="text-align:left">Orchestration 编排</td>
+</tr>
+<tr>
+<td style="text-align:left">Anthology Saga</td>
+<td style="text-align:left">异步</td>
+<td style="text-align:left">最终一致性</td>
+<td style="text-align:left">Choreography 编排</td>
+</tr>
+</tbody>
+</table>
+<p>每种模式都是在性能、可扩展性、可用性、复杂性等方面的权衡，同步通信 VS 异步通信、强一致性 VS 最终一致性、Orchestration 编排 VS Choreography 编排，它们之间的优缺点在前文中已进行了介绍，我们需要根据实际的业务场景去做出选择。</p>
+<p>不过在这八种模式中，有一种连作者也不推荐使用，那就是 Horror Story Saga，它在通信方式、一致性、工作流编排方式上都选择了相对更复杂的一种，组合起来会使得整个架构变得极其复杂。而且选择异步通信和 Choreography 编排通常是为了提升系统的性能和可用性，但强一致性又限制了它们，所以，这是一个矛盾的模式！</p>
+<h2 id="最后">最后</h2>
+<p>SAHP 书中，作者构造了一个虚拟的设计案例，各个章节都基于该案例串联起来，通过阅读该案例，读者对各个知识点会有更深的理解。</p>
+<p>本文只是介绍了 SAHP 重要的知识点，书中还有关于服务通信协议（JSON、XML等）、如何利用数据分析技术来更好地做权衡等内容，感兴趣的可以直接阅读原书。</p>
+<h3 id="文章配图">文章配图</h3>
+<p>可以在 <a class="link" href="https://mp.weixin.qq.com/s/-sYW-oa6KzTR9LNdMWCSnQ"  target="_blank" rel="noopener"
+    >用Keynote画出手绘风格的配图</a> 中找到文章的绘图方法。</p>
+<blockquote>
+<h4 id="参考">参考</h4>
+<p>[1] <a class="link" href="https://learning.oreilly.com/library/view/software-architecture-the/9781492086888/"  target="_blank" rel="noopener"
+    >Software Architecture: The Hard Parts</a>,  Neal Ford, Mark Richards</p>
+<p>[2] <a class="link" href="https://learn.microsoft.com/zh-cn/azure/architecture/reference-architectures/saga/saga"  target="_blank" rel="noopener"
+    >Saga 分布式事务模式</a>, Microsoft Azure architecture reference</p>
+<p>更多文章请关注微信公众号：<strong>元闰子的邀请</strong></p>
+</blockquote>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/%E6%9E%B6%E6%9E%84/">架构</a>
+        
+            <a href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">读书笔记</a>
+        
+            <a href="/tags/oreilly/">oreilly</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>CC BY 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3lambda%E6%9E%B6%E6%9E%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">深入理解Lambda架构</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E4%BA%94%E4%B9%8B%E6%9C%8D%E5%8A%A1%E5%8C%96%E6%9E%B6%E6%9E%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">从分层架构到微服务架构（五）之服务化架构</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E5%9B%9B%E4%B9%8B%E5%BE%AE%E5%86%85%E6%A0%B8%E6%9E%B6%E6%9E%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">从分层架构到微服务架构（四）之微内核架构</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E4%B8%89%E4%B9%8B%E7%AE%A1%E9%81%93%E6%9E%B6%E6%9E%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">从分层架构到微服务架构（三）之管道架构</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E4%BB%8E%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84%E5%88%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E4%BA%8C%E4%B9%8B%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">从分层架构到微服务架构（二）之分层架构</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+
+    
+        
+    <script src="https://utteranc.es/client.js" 
+        repo="ruanrunxue/yrunz-comments"
+        issue-term="pathname"
+        
+        label="yrunz"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
+
+<style>
+    .utterances {
+        max-width: unset;
+    }
+</style>
+
+<script>
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
+        }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+        setUtterancesTheme(document.body.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        setUtterancesTheme(e.detail)
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2019 - 
+        
+        2026 元闰子的邀请
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.3.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

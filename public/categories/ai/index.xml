@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>AI on 元闰子的邀请</title>
+    <link>https://www.yrunz.com/categories/ai/</link>
+    <description>Recent content in AI on 元闰子的邀请</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 05 May 2026 00:00:00 +0000</lastBuildDate><atom:link href="https://www.yrunz.com/categories/ai/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>为什么 Claude Code 要这样设计？</title>
+      <link>https://www.yrunz.com/p/%E4%B8%BA%E4%BB%80%E4%B9%88-claude-code-%E8%A6%81%E8%BF%99%E6%A0%B7%E8%AE%BE%E8%AE%A1/</link>
+      <pubDate>Tue, 05 May 2026 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E4%B8%BA%E4%BB%80%E4%B9%88-claude-code-%E8%A6%81%E8%BF%99%E6%A0%B7%E8%AE%BE%E8%AE%A1/</guid>
+      <description>前言 Claude Code 已经成为 Coding Agent 的事实标准，现今各类 Agent 都多多少少能看到它的影子。 Claude Code 的设计简洁、优雅：  Agent Loop 是大脑、核心，驱动着所有组件的运转。 Permission System 提供权限管理。 Tools &amp;amp; Execution Environment 是手脚，负责任务执行。 State &amp;amp; Persistence 提供会话和记忆的持久化，保证对话连贯。  那么，为什么 Claude Code 要这样设计呢？
+本文将探讨 Claude Code 的设计哲学，带大家理解主导这些组件设计的背后原因。
+为什么是 Agent Loop？ 在 Claude Code 横空出世之前，LangChain 是这领域的王者，它走的是 Workflow 的路线。
+用户定义好 Workflow，流程根据不同的状态在各个节点中流转，比如这样： 好处是，所有流程都在用户框定的范围内；
+坏处也是，所有流程都在用户框定的范围内；
+人都存在思维局限，而且现在大模型的水平已经远超普通人。给模型一个目标，放手让它自由发挥，反而能达到更好的效果。
+另外，定义 workflow 需要一定的技术门槛，无法实现 Vibe Coding。
+最后，Workflow 本质上是一个状态机，会导致系统变得复杂，不好维护。
+所以，Claude Code 选择了 Agent Loop。
+Agent Loop 遵循 ReAct 模式，本质上是一个 while 循环，反复循环”模型推理-&amp;gt;工具执行“流程，直到任务完成。</description>
+    </item>
+    
+    <item>
+      <title>怎样才算是好的 Agent 记忆系统？</title>
+      <link>https://www.yrunz.com/p/%E6%80%8E%E6%A0%B7%E6%89%8D%E7%AE%97%E6%98%AF%E5%A5%BD%E7%9A%84-agent-%E8%AE%B0%E5%BF%86%E7%B3%BB%E7%BB%9F/</link>
+      <pubDate>Tue, 05 May 2026 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E6%80%8E%E6%A0%B7%E6%89%8D%E7%AE%97%E6%98%AF%E5%A5%BD%E7%9A%84-agent-%E8%AE%B0%E5%BF%86%E7%B3%BB%E7%BB%9F/</guid>
+      <description>前言 记忆系统（Memory System）是 Agent 保持多轮任务连贯性的核心组件，解决了模型上下文窗口有限的问题。它把 Agent 历史交互上下文保存起来，并在必要时召回，让 Agent 具备了人类的记忆能力。
+市面上的记忆系统很多，采用的技术也各不相同。
+它们总说自己是最好的，但真的这样吗？
+对好坏的评价，目前业界更多的把效果，即 Agent 任务成功率，作为唯一的标准，忽略了时延、成本等关键系统因素。
+如果你增加 100% 的成本才换来 5% 的成功率提升，这通常不会被看作是个好的设计。
+本文首先会介绍记忆的生命周期。然后从系统架构、记忆存储、记忆构建、记忆检索、记忆维护等六个维度对比当前主流记忆系统的技术实现。
+通过多维度的综合考虑，尝试探讨到底怎样才算是好的 Agent 记忆系统。
+记忆系统的实现方式 记忆的生命周期 记忆系统中，记忆的生命周期大致是这样的：
+  记忆摄入：Agent 把交互上下文输入给记忆系统。
+  记忆构建：将交互上下文转换记忆单元，可以是简单的分块，也可以基于 LLM 做摘要。
+  记忆存储：把记忆单元存储到存储系统中，并完成索引更新。
+  记忆检索：Agent 调用记忆系统接口，检索出相关记忆，追加到 Prompt 中发给 LLM 做生成。
+  记忆维护：更新记忆，完成不同记忆之间的流转、遗忘。 不同的记忆系统使用不同的技术实现这套流程。
+  系统架构的分类 朴素架构 最朴素的记忆系统实现是，记忆构建时把原始上下文原封不动保存下来，并在此之上建立索引。
+Agent 每次访问 LLM 前都根据用户问题在记忆系统中找到 top-k 个相似记忆，追加到 Prompt 中。
+朴素架构的主要问题是，原始上下文可能有大量的冗余和噪声，导致记忆效果并不好。
+可以引入 LLM 解决这个问题。
+基于 LLM 的架构 在该架构里，LLM 会被用作记忆抽取，比如对原始上下文做摘要、提取事件、提取实体+关系用于构建图索引等。</description>
+    </item>
+    
+    <item>
+      <title>AI Agent需要什么样的数据库？</title>
+      <link>https://www.yrunz.com/p/ai-agent%E9%9C%80%E8%A6%81%E4%BB%80%E4%B9%88%E6%A0%B7%E7%9A%84%E6%95%B0%E6%8D%AE%E5%BA%93/</link>
+      <pubDate>Mon, 02 Jun 2025 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/ai-agent%E9%9C%80%E8%A6%81%E4%BB%80%E4%B9%88%E6%A0%B7%E7%9A%84%E6%95%B0%E6%8D%AE%E5%BA%93/</guid>
+      <description>前言 Databricks 在 2025 年 5 月 14 日正式宣布以 10 亿美元收购开源数据库初创公司 Neon[1][2]，它的产品是一款兼容 PostgreSQL 的 Serverless 数据库。Neon 的 slogan 是 &amp;ldquo;Ship faster with Postgres&amp;quot;，其最初的目的是为应用开发者提供一个低成本、开发高效的数据库底座。
+回顾 Databricks 近两年的收购策略，Databricks 正围绕其 Data + AI 战略迅速补强 AI 短板，所收购的产品已几乎可组成一条完整的 AI 工作流水线。
+从 Databricks Data Intelligence Platform 架构图[4]来看，Databricks 几乎已具备 Data -&amp;gt; AI Model -&amp;gt; AI Application 的 AI 全栈能力，但 AI Application 所依赖的数据库仍然选择第三方的 Amazon RDS 等。
+所以，对 Databricks 来说，收购一款高度适配 AI 应用的数据库变得势在必行。
+在各类 AI 应用中，AI Agent 无疑是最活跃的发展主线。2025 年被誉为是 AI Agent 元年，相关的框架、协议、应用都得到了快速的发展。据 Gartner预测，到2028年，至少 15% 的日常工作决策将通过 AI Agent 自主做出，33% 的企业软件应用程序也将包含 AI Agent。</description>
+    </item>
+    
+    <item>
+      <title>快速了解生成式AI</title>
+      <link>https://www.yrunz.com/p/%E5%BF%AB%E9%80%9F%E4%BA%86%E8%A7%A3%E7%94%9F%E6%88%90%E5%BC%8Fai/</link>
+      <pubDate>Sun, 19 Jan 2025 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yrunz.com/p/%E5%BF%AB%E9%80%9F%E4%BA%86%E8%A7%A3%E7%94%9F%E6%88%90%E5%BC%8Fai/</guid>
+      <description>荐语 本文要介绍的是，O&amp;rsquo;Reilly在2024年出版的书籍，《Generative AI in Action》，作者是来自微软的Amit Bahree。
+书中主要介绍了生成式AI的相关知识，涉及LLM、提示工程、模型微调、RAG、向量数据库等内容，作者给出了大量的代码示例，通过实战的方式带读者入门生成式AI。
+生成式AI领域发展迅速，虽然本书是在2024年11月出版，但现在看来，书中介绍的技术已经算是“老旧”的了。不过，跟着作者的思路，读者能够快速理清整个生成式AI的技术脉络，有助于后续展开更深入的了解。
+生成式AI概述 随着大模型LLM的大热，生成式AI（Generative AI，GenAI）近年来获得了越来越多的关注和普及。如下图所示，生成式AI是AI的一个子领域，演变自深度学习。
+传统的机器学习基于统计学对数据进行预测；
+深度学习基于神经网络模拟人脑行为，去执行复杂的任务；
+而生成式AI则可以从数据中创作，就像我们人类一样。
+如下列出了生成式AI与传统AI的一些区别：
+    传统AI 生成式AI     用途 专注预测和分类任务 从原始数据中创造不存在的内容   硬件 所需算力较少，能够在各种硬件上运行 需要大量算力，通常运行在大规模的计算集群上。   训练数据 较小的标记数据集 大型的原始数据集   模型复杂度 百万级以下的参数数量 亿级以上的参数数量    很多人会错误地把ChatGPT与生成式AI划上等号，实际上，ChatGPT只是生成式AI最简单的应用。生成式AI能做的很多，个人层面，常见的如文字、图像、视频、代码、音乐的生成；企业层面，常见的如个性化营销、消费者服务、风险管控、合同管理等。
+总而言之，生成式AI能够弥补传统AI的局限性，帮助用户和企业构建更加智能的应用。
+在生成式AI领域中，大语言模型（LLM）作为大脑，能够生成出符合用户需求的内容，下文将简单介绍其原理。
+大语言模型 大语言模型（Large Language Models，LLM）是生成式AI的基础，它由基础模型（Foundational model，FM）发展而来，后者在2021年被首次提出。
+过去的AI模型通常只能应用于特定的任务，而FM则在此基础上做了泛化性优化，通过大数据量的训练得到了更强的适应性。
+早期最具代表性的FM为Google开发的BERT模型，它被广泛应用于自然语言理解（NLU）任务，比如文本分类、命名实体识别等。
+LLM是适用于自然语言处理（NLP）和生成（NLG）任务的基础模型，它的模型规模更大，包括参数数量、训练数据集大小、算力资源。
+通常，LLM都会在名称上带上参数规模，比如Meta的Llama 2-70B，其中7B表示参数规模为700亿。
+一般来说，模型参数越多，性能就越好，最近国产大模型DeepSeek V3甚至已经达到了671B规模。
+当然，模型规模越大，就要消耗越多的算力资源，也就意味着更高的经济成本。因此，在一些任务较为简单或明确的场景，用户可能会偏向使用成本效率更优的小语言模型（Small language model，SLM），比如微软最近推出的Phi-4模型，它的参数规模只有14B，但得益于多方面的技术进步，它在数学推理方面超越了同类和更大规模的模型。
+LLM的本质是利用当前上下文去猜测下文，但它并不像人类一样能够直接读懂自然语言。因此，必须把输入文本（Prompt）先分块（token），这样才能得到更好的泛化性，接着把它们转换成能理解的格式（Embedding），最后通过特定的算法（Transformer）去猜测出下文。
+Token序列 当前，几乎所有的LLM都是基于token的架构，它是LLM处理文本的基本单位。
+有多种将文本划分成token序列的方法，常见的如按字划分、按词划分、按句划分等。
+划分的粒度越细，模型的泛化性也会更好，但token数量会更多，所需计算资源更大；
+划分的粒度越粗，token保留的语义和上下文也就更多，数量也会更少，但遇到陌生词或多义词可能无法处理，依赖构建好的词典。</description>
+    </item>
+    
+  </channel>
+</rss>

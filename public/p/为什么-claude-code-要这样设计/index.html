@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='本文将探讨 Claude Code 的设计哲学，带大家理解主导这些组件设计的背后原因。'><title>为什么 Claude Code 要这样设计？</title>
+
+<link rel='canonical' href='https://www.yrunz.com/p/%E4%B8%BA%E4%BB%80%E4%B9%88-claude-code-%E8%A6%81%E8%BF%99%E6%A0%B7%E8%AE%BE%E8%AE%A1/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='为什么 Claude Code 要这样设计？'>
+<meta property='og:description' content='本文将探讨 Claude Code 的设计哲学，带大家理解主导这些组件设计的背后原因。'>
+<meta property='og:url' content='https://www.yrunz.com/p/%E4%B8%BA%E4%BB%80%E4%B9%88-claude-code-%E8%A6%81%E8%BF%99%E6%A0%B7%E8%AE%BE%E8%AE%A1/'>
+<meta property='og:site_name' content='元闰子的邀请'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='AI' /><meta property='article:tag' content='Agent' /><meta property='article:published_time' content='2026-05-05T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2026-05-05T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="为什么 Claude Code 要这样设计？">
+<meta name="twitter:description" content="本文将探讨 Claude Code 的设计哲学，带大家理解主导这些组件设计的背后原因。">
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "light");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/yrz_huab1eef27cf09ceddd85969461c7dd38b_46713_300x0_resize_box_2.png" width="300"
+                            height="306" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://www.yrunz.com">元闰子的邀请</a></h1>
+        <h2 class="site-description">阅读、写作、生活（个人技术分享）</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>首页</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>博客</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%85%B3%E4%BA%8E%E5%85%83%E9%97%B0%E5%AD%90/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>关于元闰子</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%8F%8B%E6%83%85%E9%93%BE%E6%8E%A5/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>友情链接</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>暗色模式</span>
+            </li>
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://www.yrunz.com" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/ai/" >
+                AI
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/%E4%B8%BA%E4%BB%80%E4%B9%88-claude-code-%E8%A6%81%E8%BF%99%E6%A0%B7%E8%AE%BE%E8%AE%A1/">为什么 Claude Code 要这样设计？</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        本文将探讨 Claude Code 的设计哲学，带大家理解主导这些组件设计的背后原因。
+    </h3>
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">May 05, 2026</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <h2 id="前言">前言</h2>
+<p>Claude Code 已经成为 Coding Agent 的事实标准，现今各类 Agent 都多多少少能看到它的影子。
+Claude Code 的设计简洁、优雅：
+<img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2026-05-05-121230.png" alt=""  /></p>
+<ul>
+<li>Agent Loop 是大脑、核心，驱动着所有组件的运转。</li>
+<li>Permission System 提供权限管理。</li>
+<li>Tools &amp; Execution Environment 是手脚，负责任务执行。</li>
+<li>State &amp; Persistence 提供会话和记忆的持久化，保证对话连贯。</li>
+</ul>
+<p>那么，<em>为什么 Claude Code 要这样设计呢？</em></p>
+<p>本文将探讨 Claude Code 的设计哲学，带大家理解主导这些组件设计的背后原因。</p>
+<h2 id="为什么是-agent-loop">为什么是 Agent Loop？</h2>
+<p>在 Claude Code 横空出世之前，LangChain 是这领域的王者，它走的是 Workflow 的路线。</p>
+<p>用户定义好 Workflow，流程根据不同的状态在各个节点中流转，比如这样：
+<img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2026-05-05-122719.png" alt=""  /></p>
+<p>好处是，所有流程都在用户框定的范围内；</p>
+<p>坏处也是，所有流程都在用户框定的范围内；</p>
+<p>人都存在思维局限，而且<strong>现在大模型的水平已经远超普通人</strong>。给模型一个目标，放手让它自由发挥，反而能达到更好的效果。</p>
+<p>另外，定义 workflow 需要一定的技术门槛，无法实现 Vibe Coding。</p>
+<p>最后，<strong>Workflow 本质上是一个状态机，会导致系统变得复杂，不好维护</strong>。</p>
+<p>所以，Claude Code 选择了 Agent Loop。</p>
+<p>Agent Loop 遵循 ReAct 模式，本质上是一个 <code>while</code> 循环，反复循环”<code>模型推理-&gt;工具执行</code>“流程，直到任务完成。</p>
+<p><strong>简单、优雅、高效</strong>。</p>
+<h2 id="为什么要有权限管理">为什么要有权限管理？</h2>
+<p>Agent Loop 突破了 Workflow 的限定，但高自由度会带来安全隐患，<em>万一模型搞错了怎么办</em>？</p>
+<p>为了避免该问题，<strong>Claude Code 将决策与执行分离</strong>。模型只做决策，决定调用哪些工具；工具执行则交给框架本身，并且在执行前引入 Permission System 做权限管理。</p>
+<p>这样设计的好处是，即使模型决策错误，也能在 Permission System 进行防护，判断到底要不要执行工具。</p>
+<p>但 Permission System 毕竟也是一段代码程序，无法在所有场景都判断正确，必要时还是需要人类介入。</p>
+<p>所以，Permission System 设计了 3 层权限，优先级由高到低分别是：<code>Deny/Ask/Allow</code>。</p>
+<p><strong>Deny-Frist 的设计意图是安全第一的同时，避免频繁让用户介入决策</strong>；把握不住时，才 <code>Ask</code> 用户；允许用户设置 <code>Allow</code> 权限，全程交给 Agent。</p>
+<h2 id="为什么要有沙箱">为什么要有沙箱？</h2>
+<p>既然有了用户介入，为什么在工具调用时还需要沙箱这种隔离的执行环境？</p>
+<p>原因很简单，<strong>人也会犯错</strong>。</p>
+<p>另外，Anthropic 统计数据发现，当 Claude Code 询问用户是否执行某项工具调用时，<strong>93% 的回答都是 Allow</strong>！</p>
+<p>这意味着用户不会很仔细地阅读 Claude Code 的反馈，进一步扩大了犯错的概率。</p>
+<p>所以 Claude Code 需要沙箱、worktree 这类技术来保证，<strong>即使用户犯错了，也不会造成无法挽回的后果</strong>。</p>
+<h2 id="会话和记忆为什么要明文存储">会话和记忆为什么要明文存储？</h2>
+<p>会话和记忆能够保证对话的连贯性和实现用户偏好。</p>
+<p>LangChain 的做法是在任务完成后提取相关记忆，并存储在向量数据库、图数据库等第三方组件中。且通常不会单独存储会话内容。</p>
+<p>Claude Code 则采用明文存储的方案：</p>
+<ul>
+<li>把用户记忆以明文文本的方式存储到 CLAUDE.md 等本地文档；</li>
+<li>把会话（用户问题、模型决策、工具调用结果）明文内容原封不动地追加到本地文档。</li>
+</ul>
+<p>这个方案可以看做是对 Agent Loop 的设计延续，<strong>让任务执行流程公开，可追溯，且用户能够非常方便地审阅和修改</strong>。</p>
+<h2 id="claude-code的设计原则">Claude Code的设计原则</h2>
+<p>最后，我们能总结出贯穿 Claude Code 架构的 3 个设计哲学：</p>
+<ul>
+<li><strong>对用户能力的放大</strong>。增加人类单位成本能完成的任务，不是仅仅加速现有工作流，而是充分发挥模型的主观能动性，采取原本想不到、不会尝试的方式。（<em>Agent Loop</em>）</li>
+<li><strong>用户享有最终决策权</strong>。确保用户能够实时看到 Agent 在做什么（<em>Interface 实时反馈</em>），参与关键决策（<em>Permission System</em>），并在事后能审计、回溯（<em>会话/记忆明文存储</em>）</li>
+<li><strong>安全第一</strong>。Deny-First，且用户犯错时也能保证系统免受伤害（<em>Permission System</em>、<em>Execution Environment</em>）</li>
+</ul>
+<blockquote>
+<h4 id="参考">参考</h4>
+<ol>
+<li><a class="link" href="https://arxiv.org/abs/2604.14228"  target="_blank" rel="noopener"
+    >Dive into Claude Code: The Design Space of Today’s and Future AI Agent Systems</a>, Jiacheng Liu 等</li>
+</ol>
+</blockquote>
+<p>（完）</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/ai/">AI</a>
+        
+            <a href="/tags/agent/">Agent</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>CC BY 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/%E6%80%8E%E6%A0%B7%E6%89%8D%E7%AE%97%E6%98%AF%E5%A5%BD%E7%9A%84-agent-%E8%AE%B0%E5%BF%86%E7%B3%BB%E7%BB%9F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">怎样才算是好的 Agent 记忆系统？</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/ai-agent%E9%9C%80%E8%A6%81%E4%BB%80%E4%B9%88%E6%A0%B7%E7%9A%84%E6%95%B0%E6%8D%AE%E5%BA%93/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">AI Agent需要什么样的数据库？</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E5%BF%AB%E9%80%9F%E4%BA%86%E8%A7%A3%E7%94%9F%E6%88%90%E5%BC%8Fai/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">快速了解生成式AI</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+
+    
+        
+    <script src="https://utteranc.es/client.js" 
+        repo="ruanrunxue/yrunz-comments"
+        issue-term="pathname"
+        
+        label="yrunz"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
+
+<style>
+    .utterances {
+        max-width: unset;
+    }
+</style>
+
+<script>
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
+        }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+        setUtterancesTheme(document.body.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        setUtterancesTheme(e.detail)
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2019 - 
+        
+        2026 元闰子的邀请
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.3.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

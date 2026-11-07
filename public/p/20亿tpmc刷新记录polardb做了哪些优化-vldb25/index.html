@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='本文要介绍的是 VLDB&#39;25 论文《From Scale-Up to Scale-OutPolarDB’s Journey to Achieving 2 Billion tpmC》。阿里云 PolarDB 今年登顶 TPC-C 基准测试，以 20.55 亿 tpmC 的成绩刷新世界记录，该论文主要介绍了 PolarDB 达成这一成绩所做的一些关键优化。'><title>20亿tpmC刷新记录，PolarDB做了哪些优化？· VLDB&#39;25</title>
+
+<link rel='canonical' href='https://www.yrunz.com/p/20%E4%BA%BFtpmc%E5%88%B7%E6%96%B0%E8%AE%B0%E5%BD%95polardb%E5%81%9A%E4%BA%86%E5%93%AA%E4%BA%9B%E4%BC%98%E5%8C%96-vldb25/'>
+
+<link rel="stylesheet" href="/scss/style.min.css"><meta property='og:title' content='20亿tpmC刷新记录，PolarDB做了哪些优化？· VLDB&#39;25'>
+<meta property='og:description' content='本文要介绍的是 VLDB&#39;25 论文《From Scale-Up to Scale-OutPolarDB’s Journey to Achieving 2 Billion tpmC》。阿里云 PolarDB 今年登顶 TPC-C 基准测试，以 20.55 亿 tpmC 的成绩刷新世界记录，该论文主要介绍了 PolarDB 达成这一成绩所做的一些关键优化。'>
+<meta property='og:url' content='https://www.yrunz.com/p/20%E4%BA%BFtpmc%E5%88%B7%E6%96%B0%E8%AE%B0%E5%BD%95polardb%E5%81%9A%E4%BA%86%E5%93%AA%E4%BA%9B%E4%BC%98%E5%8C%96-vldb25/'>
+<meta property='og:site_name' content='元闰子的邀请'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='数据库' /><meta property='article:tag' content='论文' /><meta property='article:published_time' content='2025-12-10T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2025-12-10T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="20亿tpmC刷新记录，PolarDB做了哪些优化？· VLDB&#39;25">
+<meta name="twitter:description" content="本文要介绍的是 VLDB&#39;25 论文《From Scale-Up to Scale-OutPolarDB’s Journey to Achieving 2 Billion tpmC》。阿里云 PolarDB 今年登顶 TPC-C 基准测试，以 20.55 亿 tpmC 的成绩刷新世界记录，该论文主要介绍了 PolarDB 达成这一成绩所做的一些关键优化。">
+    </head>
+    <body class="">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "light");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.body.dataset.scheme = 'dark';
+        } else {
+            document.body.dataset.scheme = 'light';
+        }
+    })();
+</script><div class="container main-container flex on-phone--column extended article-page with-toolbar">
+            <aside class="sidebar left-sidebar sticky">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header class="site-info">
+        
+            <figure class="site-avatar">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/yrz_huab1eef27cf09ceddd85969461c7dd38b_46713_300x0_resize_box_2.png" width="300"
+                            height="306" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+
+                
+            </figure>
+        
+        <h1 class="site-name"><a href="https://www.yrunz.com">元闰子的邀请</a></h1>
+        <h2 class="site-description">阅读、写作、生活（个人技术分享）</h2>
+    </header>
+
+    <ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>首页</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>博客</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%85%B3%E4%BA%8E%E5%85%83%E9%97%B0%E5%AD%90/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>关于元闰子</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/%E5%8F%8B%E6%83%85%E9%93%BE%E6%8E%A5/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>友情链接</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/'>
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+
+        
+            <li id="dark-mode-toggle">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                <span>暗色模式</span>
+            </li>
+        
+    </ol>
+</aside>
+
+            <main class="main full-width">
+    <div id="article-toolbar">
+        <a href="https://www.yrunz.com" class="back-home">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="15 6 9 12 15 18" />
+</svg>
+
+
+
+            <span>Back</span>
+        </a>
+    </div>
+
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB/" >
+                论文解读
+            </a>
+        
+    </header>
+    
+
+    <h2 class="article-title">
+        <a href="/p/20%E4%BA%BFtpmc%E5%88%B7%E6%96%B0%E8%AE%B0%E5%BD%95polardb%E5%81%9A%E4%BA%86%E5%93%AA%E4%BA%9B%E4%BC%98%E5%8C%96-vldb25/">20亿tpmC刷新记录，PolarDB做了哪些优化？· VLDB&#39;25</a>
+    </h2>
+
+    
+    <h3 class="article-subtitle">
+        本文要介绍的是 VLDB&#39;25 论文《From Scale-Up to Scale-OutPolarDB’s Journey to Achieving 2 Billion tpmC》。阿里云 PolarDB 今年登顶 TPC-C 基准测试，以 20.55 亿 tpmC 的成绩刷新世界记录，该论文主要介绍了 PolarDB 达成这一成绩所做的一些关键优化。
+    </h3>
+    <footer class="article-time">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <time class="article-time--published">Dec 10, 2025</time>
+    </footer></div>
+</header>
+
+    <section class="article-content">
+    <blockquote>
+<blockquote>
+<p>本文要介绍的是 VLDB'25 论文《<a class="link" href="https://www.vldb.org/pvldb/vol18/p5059-chen.pdf"  target="_blank" rel="noopener"
+    >From Scale-Up to Scale-Out: PolarDB’s Journey to Achieving 2 Billion tpmC</a>》。阿里云 PolarDB 今年登顶 TPC-C 基准测试，以 20.55 亿 tpmC 的成绩刷新世界记录，该论文主要介绍了 PolarDB 达成这一成绩所做的一些关键优化。</p>
+</blockquote>
+</blockquote>
+<h2 id="前言">前言</h2>
+<p>在过去十年里，基于高扩展性和低成本的考虑，越来越多的应用选择迁移上云，而作为核心组件的数据库当然也必须跟上（<a class="link" href="https://mp.weixin.qq.com/s/gv-fxV0NwMnE5eqBAxx5wA?scene=1&amp;click_id=1"  target="_blank" rel="noopener"
+    >OLTP上云，哪种架构最划算？·VLDB'25</a>）。</p>
+<p>阿里云 PolarDB 就是一款云原生数据库，基于存算分离架构，以 PolarFS 分布式文件系统作为后端存储，计算节点无状态弹性扩缩容，提供高扩展性、低成本的能力。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-12-10-141216.png" alt=""  /></p>
+<p>最开始，PolarDB 是单主架构，可以扩展多个只读从节点，但只能有一个读写主节点。这能够避免分布式事务，极大简化系统架构。</p>
+<p>然而，<strong>对于写密集型业务，主节点很容易成为性能瓶颈</strong>。</p>
+<p>我们很容易想到通过 Scale-up 的方式，把主节点部署在 CPU 核数更多的机器上，提升写性能。</p>
+<p>但受限于工艺、散热、成本等原因，CPU 核数无法一直扩展下去（<a class="link" href="https://mp.weixin.qq.com/s/fXUrTWIlcsG-a-uld9LNEA"  target="_blank" rel="noopener"
+    >为什么CPU不能有更多的核？</a>）。</p>
+<p>而且，更多的核也并不意味着更高的性能，传统数据库的 B+ Tree、MVCC 等机制实现，并发冲突严重，限制了性能的线性增长。比如 MySQL 在扩展至 64 核后，性能不升反降。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-12-10-140215.png" alt=""  /></p>
+<p><strong>突破主节点瓶颈的另一种方法是，将数据库改造成多主架构，能够有多个读写节点</strong>。</p>
+<p>实现多主架构的主流方法有两种：1）共享内存，走 Shared-Everthing 路线；2）数据分片，走 Shared-Nothing 路线。</p>
+<p>PolarDB-MP 采用共享内存架构，在存算分离的基础上，把内存从计算节点中分离出来，各计算节点共享同一份内存。因此可以避免分布式事务带来的复杂性和网络通信损耗。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-12-10-141944.png" alt=""  /></p>
+<p>但把本地内存访问变成跨节点的远端内存访问，性能损耗很大。本地访存时延大概在百纳秒级别，而传统 TCP/IP 网络通信，即使不考虑传输，时延也在百微秒级别，足足差了 3 个数量级（<a class="link" href="https://mp.weixin.qq.com/s/CJ0E0P6DlGEjPMC7jpcWqg"  target="_blank" rel="noopener"
+    >怎么让程序更高效地连起来？</a>）。</p>
+<p>为此，PolarDB-MP 采用了性能更好的 RDMA 通信，更近一步的优化，就是不久前在 SIGMOD'25 发表的基于 CXL 实现的 PolarCXLMem 了（<a class="link" href="https://mp.weixin.qq.com/s/xqTAPx4PgUHDjJt_J10mXA"  target="_blank" rel="noopener"
+    >怎么用 CXL 加速数据库？· SIGMOD'25</a>）。</p>
+<p>目前，<strong>受限于分离内存的硬件限制，PolarDB-MP 很难扩展至百节点以上</strong>。</p>
+<p>如果业务需要一个上百、甚至上千节点的超大规模数据库，目前最可行的仍是基于数据分片的分布式数据库架构。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-12-10-142746.png" alt=""  /></p>
+<p>虽然可以优化数据分片方式，让业务尽可能地减少跨分片数据争用，但对分布式数据库来说，分布式事务是绕不开的。</p>
+<p>分布式事务的性能瓶颈，很大程度来源于两阶段提交（2PC）流程，传统基于 TCP/IP 通信的 2PC 协议，无疑雪上加霜。</p>
+<p>针对上述问题，PolarDB 通过 PolarIndex、PolarTrans、Polar2PC 几个关键优化，交出了 20.55 亿 tpmC 的成绩，刷新了 TPC-C 基准测试的世界记录。</p>
+<h2 id="优化一polarindex">优化一：PolarIndex</h2>
+<p>B+ Tree 被广泛应用于数据库索引，比如 MySQL，以及以 MySQL 为基础的 PolarDB。</p>
+<p>B+ Tree 每个节点的 Key 数量是固定的，当插入数据导致节点 Key 的数量超出上限时，就会引发节点分裂，即 <strong>SMO</strong>（Structural Modification Operation）。</p>
+<p>如果不加以保护，SMO 很容易引发并发问题，如下所示：</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-11-22-004639.png" alt=""  /></p>
+<p><code>线程1</code> 要查询 <code>15</code>，<code>线程2</code> 要插入 <code>9</code>，它们都发生在 <code>P1</code> 页中。假设 <code>线程2</code> 先插入，并引发了 SMO，导致 <code>15</code> 被分裂到 <code>P2</code> 页中；线程 1 随后将会在 <code>P1</code> 中查找不到 <code>15</code>。</p>
+<p>防止 SMO 并发问题最简单的方式是，发生 SMO 时：</p>
+<ol>
+<li>先对全局 B+ Tree index 加 X latch 写锁，确保没有其他线程读写。</li>
+<li>从 root page 开始，沿途不加锁的方式遍历到 leaf page。</li>
+<li>对 leaf page 及其左右兄弟节点加 X latch 写锁，对 leaf page 进行分裂。</li>
+<li>对 parent page 加 X latch 写锁，新增指向新 page 的指针。</li>
+<li>释放所有锁，结束 SMO。</li>
+</ol>
+<p>这就是 MySQL 5.6 的做法。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-11-30-121835.png" alt=""  /></p>
+<p>这个方案会使得 SMO 过程，无法对其他 page 进行读写，即使这个 page 不再 SMO 范围内。</p>
+<p>对此，MySQL 5.7 和 8.0 进行了优化，对 index 的加锁从 X latch 改成了 SX latch，SMO 过程允许读线程并发。</p>
+<p>因为读线程在<strong>自顶向下</strong>遍历时，会沿途加 S latch。而 MySQL 5.6 方案中 SMO 线程会<strong>自底向上</strong>加 X latch。<strong>容易形成死锁</strong>。</p>
+<p>所以，还需要让 SMO 线程的加锁顺序改成自顶向下，流程变成这样：</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-11-30-124028.png" alt=""  /></p>
+<p>虽然 MySQL 5.7/8.0 的方案允许了 SMO 线程与读线程并发，但 SMO 之间仍不支持并发，写密集场景锁冲突严重。</p>
+<p>观察上述流程可发现：</p>
+<ol>
+<li>每次 SMO 只会涉及少量 page，原则上没有必要对整个 index 加锁。</li>
+<li>另外，leaf page 分裂过程中，也没有必要对 parent page 加锁。加锁只是为了避免死锁。</li>
+</ol>
+<p><em>那么，有没有更近一步的优化方案呢？</em></p>
+<p>针对上述两个问题，PolarDB 给出了他们的答案：PolarIndex。</p>
+<p>首先，<strong>PolarIndex 取消了 index latch</strong>。</p>
+<p>其次，<strong>PolarIndex 将一个 page 的 SMO 过程拆分成两个阶段</strong>，以 P1 分裂为例：</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-11-30-142302.png" alt=""  /></p>
+<p>阶段一只对叶子节点 <code>P1</code> 和 <code>P3</code> 加锁，分裂结束后释放锁；阶段二只对父节点 <code>P0</code> 加锁，新增指向 <code>P3</code> 的指针后释放锁。</p>
+<p>而在阶段一和阶段二之间的中间状态下，就可能出现并发读，从而导致前文所述数据不一致的问题。</p>
+<p>对此，PolarIndex 参考了 B-Link Tree 的方法，当读线程在 P1 中找不到数据时，说明该节点出现了分裂，只需继续往右再 P3 中查询即可。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-11-30-143044.png" alt=""  /></p>
+<p><strong>PolarIndex 通过设计更细粒度的锁，以及更短的锁持有时间，减缓了 PolarDB 的锁冲突问题，实现吞吐量的提升和时延的降低</strong>。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-11-30-143708.png" alt=""  /></p>
+<h2 id="优化二polartrans">优化二：PolarTrans</h2>
+<p>MySQL 事务管理的核心是 <code>trx_sys_t</code> 数据结构，所有事务的开始、提交、回滚都需要经过它，它是全局唯一的单例。</p>
+<p><code>trx_sys_t</code> 的 3 个重要属性为：</p>
+<ul>
+<li><code>rw_trx_ids</code>: 保存当前活跃的事务 ID，是一个数组。</li>
+<li><code>next_trx_id_or_no</code>: 用于申请事务 ID，是一个原子变量。</li>
+<li><code>mutex</code>: 互斥锁，在事务流程中多处被使用。</li>
+</ul>
+<p>下图为一个简单的事务流程：</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-12-07-023558.png" alt=""  /></p>
+<p>事务启动时会从 <code>next_trx_id_or_no</code> 申请 <code>trx_id</code>，并追加到 <code>rw_trx_ids</code>。</p>
+<p>当需要一致性读时，会在 <code>trx_sys_t-&gt;mutex</code> 的保护下创建一个 MVCC 读快照 <code>read_view_t</code>，关键属性如下：</p>
+<ul>
+<li><code>m_ids</code>: 复制 <code>rw_trx_ids</code> 得到。</li>
+<li><code>m_creator_trx_id</code>: 当前事务的 <code>trx_id</code>。</li>
+<li><code>m_up_limit_id</code>: 当 <code>trx_id</code> 小于该值时，表示是当前事务开始之前创建的事务，而且已经提交，数据修改可见。</li>
+<li><code>m_low_limit_id</code>: 当<code>trx_id</code> 大于等于该值时，表示是当前事务开始之后创建的事务，数据修改不可见。</li>
+</ul>
+<p>当 <code>trx_id</code> 落在 <code>m_up_limit_id</code> 和 <code>m_low_limit_id</code> 之间时，如果 <code>trx_id</code> 仍在 <code>m_ids</code> 里，表示事务活跃，数据修改不可见；否则数据修改可见。</p>
+<p>另外，事务提交结束后，需要在 <code>trx_sys_t-&gt;mutex</code> 的保护下遍历 <code>m_ids</code>，删除当前事务。</p>
+<p>可以看到，<strong><code>trx_sys_t-&gt;mutex</code> 会被频繁调用到，容易成为性能瓶颈点</strong>。</p>
+<p>针对该瓶颈，PolarTrans 做了如下优化：</p>
+<ul>
+<li>使用基于 <strong>RingBuffer</strong> 实现的 TIT（Transaction Information Table）替代数组实现的 <code>rw_trx_ids</code> 用作活跃事务的管理。TIT 的每个槽位 slot 保存指向事务对象的 trx pointer 和事务的提交时间戳 CTS（Commit Timestamp），而且可以做到<strong>无锁更新</strong>。</li>
+<li><code>trx_id</code> 只用作寻找 TIT 中的 slot，比如基于哈希取模的方式。</li>
+<li>使用基于 Lamport timestamp 实现的 CTS 替代 <code>trx_id</code> 用作判断数据修改的可见性。</li>
+<li>read view 不再需要拷贝 <code>rw_trx_ids</code> 数组，仅需拷贝 <code>CTS_max_committed</code> 变量即可。</li>
+<li>使用后台清理线程释放事务资源，避免事务提交后仍需遍历 <code>rw_trx_ids</code>。</li>
+</ul>
+<p>如下为 PolarTrans 一个简单的事务流程：</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-12-07-025825.png" alt=""  /></p>
+<p>事务开启时，申请 <code>trx_id</code>，找到对应的 slot，无锁更新，设置 CTS 为 <code>INIT</code>。</p>
+<p><code>CTS_max</code> 的作用类似于 <code>next_trx_id_or_no</code>，用于分配 CTS，会一直递增；<code>CTS_max_committed</code>  表示最新提交事务的 CTS。</p>
+<p>事务结束后，从 CTS_max 全局变量中申请 CTS，<strong>同时更新 TIT 和 <code>CTS_max_committed</code> ，这一步需要加锁保证原子性</strong>。</p>
+<p>针对某条记录修改可见性的判断，会根据该记录最后修改事务的 <code>trx_id1</code> 在 TIT 中对应的 slot：</p>
+<ol>
+<li>如果该 slot 已经被新的事务覆盖了，表示该事务已提交，可见。</li>
+<li>如果事务人在 slot 中，且 CTS 为 INIT，表示事务仍处于活跃状态，不可见。</li>
+<li>如果 CTS 小于等于读快照中的 <code>CTS_max_committed</code>，表示在本事务开始前已提交，可见；否则，不可见。</li>
+</ol>
+<p>后台清理线程释放事务资源时，会检查当前所有活跃的 read view 中最小的 CTS，假设为 <code>CTS_min</code>，如果 TIT 中的事务 CTS 小于 <code>CTS_min</code>，表示该事务的修改对所有事物均可见，可以被释放了。</p>
+<p>然而，这可能会导致这样的情况，某个事物长时间未结束，导致 TIT slot 无法被回收，新事务被阻塞的问题，如下：</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-12-07-033502.png" alt=""  /></p>
+<p>针对该问题，PolarTrans 会将长事务的 slot 卸载到一个 Hash Table 中，避免阻塞 TIT 的回收。当然，此时可见性判断和后台清理线程都需要遍历 Hash Table，会带来一定的性能影响。</p>
+<p>不过，出现长事务的情况比较少，Hash Table 大部分时间都是空的，所以影响不大。</p>
+<p><strong>通过减少事务锁竞争、简化可见性判断逻辑，PolarTrans 在不同的场景带来了 26.47%–50.0% 的吞吐量提升，21.3%–33.2% 的平均时延降低</strong>。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-12-07-034727.png" alt=""  /></p>
+<h2 id="优化三polar2pc">优化三：Polar2PC</h2>
+<p>PolarIndex 和 PolarTrans 都属于 Scale-up 的优化，下面即将介绍的 Polar2PC 属于 Scale-up 的优化。</p>
+<p>2PC（Two-Phase Commit，两阶段提交协议） 是一种在分布式事务中保证多个参与节点原子提交/回滚的协议。</p>
+<p>它将数据库节点分成了<strong>负责发起和协调整个事务提交过程的协调节点 CN</strong>，和<strong>多个实际执行本地事务的参与节点 PN</strong>。</p>
+<ul>
+<li><strong>Prepare 阶段</strong>：CN 向所有 PN 发起 <code>PREPARE</code> 请求，PN 确认本地满足提交条件后，返回 <code>YES</code>，否则 <code>NO</code>。</li>
+<li><strong>Commit 阶段</strong>：如果 Prepare 阶段所有 PN 返回 <code>YES</code>，则发起 <code>COMMIT</code> 请求，各 PN 执行本地事务提交，并应答 <code>ACK</code>；如果在 Prepare 阶段有 PN 返回 <code>NO</code>，则发起 <code>ROLLBACK</code> 请求，各 PN执行本地事务回滚，并应答 <code>ACK</code>。</li>
+</ul>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-12-08-145614.png" alt=""  />
+2PC 性能开销大，一方面是相比单机事务多了一个 Prepare 阶段；另一方面，<strong>多次的 TCP/IP 往返通信容易成为瓶颈</strong>。</p>
+<p>针对该问题，Polar2PC 基于 RDMA 通信协议重新设计了 2PC 流程。</p>
+<p>RDMA（Remote Direct Memory Access），远程直接内存访问，是一种能够绕过 CPU 和操作系统内核的通信技术。<strong>它支持单边内存读写操作，也就是在不需要远端节点 CPU 参与的情况下，完成对远端节点内存的读写</strong>。RDMA 可以达到微妙级的时延，对比 TCP/IP 的百微秒级时延性能提升巨大。</p>
+<p>Polar2PC 的流程如下：</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-12-08-153635.png" alt=""  /></p>
+<p>在执行 SQL 阶段，PN 节点会返回 <code>&lt;trx_id, LSN&gt;</code> 给 CN 节点，后者在本地维护一份全局的 <code>&lt;node_id, trx_id, LSN&gt;</code> 数据，在后面事务提交时会有用到。</p>
+<p>Polar2PC 也分成 Prepare 阶段和 Commit 阶段，但有所不同。</p>
+<p>① <strong>Prepare 阶段，Polar2PC 会默认 PN 已经具备提交事务的条件，所以只需等待 PN 完成 WAL 日志持久化后，即可进入 Commit 阶段</strong>。PN 本地内存中 <code>LSN_flush</code> 变量表示当前已持久化的最大 <code>LSN</code> 值，CN 通过单边 RDMA 读取 PN 的 <code>LSN_flush</code>，并与本地保存的 <code>&lt;node_id, trx_id, LSN&gt;</code> 中 <code>LSN</code> 对比。当 <code>LSN_flush &gt; LSN</code> 时，表示 WAL 日志已完成持久化。</p>
+<p>接下来，进入 Commit 阶段。</p>
+<p>② 准备更新 TIT，因为 CN 无法保证在同一时刻更新所有 PN 的 TIT 的 CTS 值，为避免出现数据不一致的情况，CN 会先将 <code>CTS_COMMITTING</code>  写入 PN 的 TIT 表。如果 PN 发现 TIT 中某个事务的 CTS 值为 <code>CTS_COMMITTING</code>，会重复读取，直到 CTS 刷新。</p>
+<p>③ 申请 CTS，会有一个专门的 TSO（timestamp oracle）节点用于生成 CTS，CN 节点从 TSO 得到 CTS 值。</p>
+<p>④ CN 通过 RDMA 单边操作更新 PN 的 TIT 的 CTS 值。</p>
+<p>⑤ 到这里，可以认为事务已完成，CN 通知应用。</p>
+<p>⑥ 最后再通知 PN 节点事务已完成，让它们释放资源。</p>
+<p><strong>Polar2PC 充分发挥了 RDMA 单边操作的优势，PN 节点在 Prepare 和 Commit 阶段大部分时间都不需要 CPU 介入，只在最后释放资源消耗了 CPU</strong>。</p>
+<p>可以看到，RDMA 不仅时延更低，而且降低了 PN 节点的 CPU 开销，从而带来了吞吐量的提升。</p>
+<h2 id="最后">最后</h2>
+<p>通过 Scale-up 和 Scale-out 的优化，PolarDB 扩展了 2340 个节点（48vCPU512GB），最终达成了 20.55 亿 tpmC 的 TPC-C 打榜第一的成绩，并且在性价比上也取得了 37% 以上的领先。</p>
+<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2025-12-09-151826.png" alt=""  /></p>
+<p>不过，分布式 PolarDB 不见得在真实业务场景能达到如此高的性能。</p>
+<p>论文里提到，TPC-C 数据集已经过良好的数据分片，所以跨分片事务很少，这无疑放大了分布式架构的优势。</p>
+<p>另外，2340 节点这种超大规模的数据库集群，真实业务中，很少见。</p>
+<p>所以，<strong>在大部分场景下，内存分离共享的多主架构可能是更好的选择</strong>。</p>
+<p>这可能也是 PolarDB 在今年大力推广基于 CXL 实现的共享内存架构的原因？</p>
+<h3 id="文章配图">文章配图</h3>
+<p>可以在 <a class="link" href="https://mp.weixin.qq.com/s/-sYW-oa6KzTR9LNdMWCSnQ"  target="_blank" rel="noopener"
+    >用Keynote画出手绘风格的配图</a> 中找到文章的绘图方法。</p>
+<blockquote>
+<h4 id="参考">参考</h4>
+<p>[1] <a class="link" href="https://www.vldb.org/pvldb/vol18/p5059-chen.pdf"  target="_blank" rel="noopener"
+    >From Scale-Up to Scale-Out: PolarDB’s Journey to Achieving 2 Billion tpmC</a>, PolarDB</p>
+<p>[2] <a class="link" href="https://zhuanlan.zhihu.com/p/374000358"  target="_blank" rel="noopener"
+    >路在脚下, 从BTree 到Polar Index</a>, 陈宗志</p>
+<p>[3] <a class="link" href="https://zhuanlan.zhihu.com/p/151397269"  target="_blank" rel="noopener"
+    >InnoDB btree latch 优化历程</a>,  陈宗志</p>
+<p>[4] <a class="link" href="http://mysql.taobao.org/monthly/2022/09/04/"  target="_blank" rel="noopener"
+    >PolarDB MySQL · PolarTrans事务系统介绍(一)</a>, 华洛</p>
+<p>[5] <a class="link" href="http://mysql.taobao.org/monthly/2018/11/04/"  target="_blank" rel="noopener"
+    >MySQL · 引擎特性 · InnoDB MVCC 相关实现</a>, mianren</p>
+</blockquote>
+<p>（完）</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a>
+        
+            <a href="/tags/%E8%AE%BA%E6%96%87/">论文</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>CC BY 4.0</span>
+    </section>
+    </footer>
+
+    
+</article>
+
+    <aside class="related-contents--wrapper">
+    
+    
+        <h2 class="section-title">相关文章</h2>
+        <div class="related-contents">
+            <div class="flex article-list--tile">
+                
+                    
+<article class="">
+    <a href="/p/%E5%AE%9E%E6%97%B6%E5%A4%9A%E6%A8%A1%E6%80%81%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86%E7%9A%84%E5%AD%98%E5%82%A8%E5%B1%82%E8%A6%81%E6%80%8E%E4%B9%88%E8%AE%BE%E8%AE%A1-sigmod26/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">实时多模态数据处理的存储层要怎么设计？· SIGMOD&#39;26</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E5%AF%B9-agent-first-%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E7%95%85%E6%83%B3/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">对 Agent-First 数据库的畅想</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/oltp%E4%B8%8A%E4%BA%91%E5%93%AA%E7%A7%8D%E6%9E%B6%E6%9E%84%E6%9C%80%E5%88%92%E7%AE%97vldb25/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">OLTP上云，哪种架构最划算？·VLDB&#39;25</h2>
+        </div>
+    </a>
+</article>
+                
+                    
+<article class="">
+    <a href="/p/%E6%80%8E%E4%B9%88%E7%94%A8-cxl-%E5%8A%A0%E9%80%9F%E6%95%B0%E6%8D%AE%E5%BA%93-sigmod25/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">怎么用 CXL 加速数据库？· SIGMOD&#39;25</h2>
+        </div>
+    </a>
+</article>
+                
+            </div>
+        </div>
+    
+</aside>
+
+
+    
+        
+    <script src="https://utteranc.es/client.js" 
+        repo="ruanrunxue/yrunz-comments"
+        issue-term="pathname"
+        
+        label="yrunz"
+        
+        crossorigin="anonymous"
+        async
+        >
+</script>
+
+<style>
+    .utterances {
+        max-width: unset;
+    }
+</style>
+
+<script>
+    function setUtterancesTheme(theme) {
+        let utterances = document.querySelector('.utterances iframe');
+        if (utterances) {
+            utterances.contentWindow.postMessage(
+                {
+                    type: 'set-theme',
+                    theme: `github-${theme}`
+                },
+                'https://utteranc.es'
+            );
+        }
+    }
+
+    addEventListener('message', event => {
+        if (event.origin !== 'https://utteranc.es') return;
+        setUtterancesTheme(document.body.dataset.scheme)
+    });
+
+    window.addEventListener('onColorSchemeChange', (e) => {
+        setUtterancesTheme(e.detail)
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2019 - 
+        
+        2026 元闰子的邀请
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="2.3.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer="true"
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.css"integrity="sha256-c0uckgykQ9v5k&#43;IqViZOZKc47Jn7KQil4/MP3ySA3F8="crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.css"integrity="sha256-SBLU4vv6CA6lHsZ1XyTdhyjJxCjPif/TRkjnsyGAGnE="crossorigin="anonymous"
+            >
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.5/dist/vibrant.min.js"integrity="sha256-5NovOZc4iwiAWTYIFiIM7DxKUXKWvpVEuMEPLzcm5/g="crossorigin="anonymous"
+                defer="false"
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>
