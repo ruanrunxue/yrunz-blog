@@ -13,7 +13,7 @@
 				{{- $big := $image.Resize "1024x" -}}
 				{{- $Srcset = printf "%s 480w, %s 1024w" $small.RelPermalink $big.RelPermalink -}}
 			{{- end -}}
-			
+
 			<img src="{{ $Permalink }}"
 				{{ with $Srcset }}srcset="{{ . }}"{{ end }}
 				width="{{ $Width }}"
@@ -29,6 +29,10 @@
 	{{- $src := .Destination -}}
 	{{- if strings.HasPrefix $src "https://tva1.sinaimg.cn/large/" -}}
 		{{- $local := replace $src "https://tva1.sinaimg.cn/large/" "/images/weibo/" -}}
+		{{- if fileExists (printf "static%s" $local) }}{{ $src = $local }}{{ end -}}
+	{{- end -}}
+	{{- if or (strings.HasPrefix $src "http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/") (strings.HasPrefix $src "https://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/") -}}
+		{{- $local := printf "/images/recovered/%s" (path.Base $src) -}}
 		{{- if fileExists (printf "static%s" $local) }}{{ $src = $local }}{{ end -}}
 	{{- end -}}
 	<img src="{{ $src | relURL | safeURL }}" alt="{{ .Text }}" {{ with .Title }} title="{{ . }}"{{ end }} />
