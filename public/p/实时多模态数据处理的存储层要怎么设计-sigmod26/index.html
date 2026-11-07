@@ -253,7 +253,7 @@
 <p>下面，我们看下实时多模态分析引擎 ByteHouse 的存储层是如何解决这两个问题 。</p>
 <h2 id="parquet-的问题">Parquet 的问题</h2>
 <p>在数据分析领域，Parquet 是最流行的开放数据格式。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2026-04-11-040429.png" alt=""  /></p>
+<p><img src="https://www.yrunz.com/images/recovered/2026-04-11-040429.png" alt=""  /></p>
 <p>但 Parquet 是面向传统 OLAP 负载设计的，不擅长点查，无法高效支撑多模态检索。</p>
 <p>首先，<strong>点查路径长，需要 1 + N 次 IO</strong>：</p>
 <ol>
@@ -264,19 +264,19 @@
 <li>遍历数据，找到所需的那条数据。</li>
 </ol>
 <p>针对这个问题，Parquet 2.x 做了些优化，将 Page Header 中 max, min 等统计信息，集中存储到 Column Index 和 Offset Index 中：</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2026-04-11-042115.png" alt=""  /></p>
+<p><img src="https://www.yrunz.com/images/recovered/2026-04-11-042115.png" alt=""  /></p>
 <p>这样只需 1 + 2 次 IO 就能完成点查。</p>
 <p>但只有 max、min 无法进行二分查找，遍历仍不可避免，点查路径还是很长。</p>
 <p>常见的解决方案是，<strong>在 Parquet 文件之外使用辅助索引</strong>。但因为是不同的文件，<strong>代价是增加额外的 IO 次数</strong>。</p>
 <p>向量不是 Parquet 的“一等公民”，采用嵌套数组的存储布局。同一列所有向量在物理上紧挨平铺，通过 offset 来索引。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2026-04-11-102807.png" alt=""  /></p>
+<p><img src="https://www.yrunz.com/images/recovered/2026-04-11-102807.png" alt=""  /></p>
 <p>由于没有向量的元数据，比如向量范数，所以在检索时无法进行快速剪枝。对稀疏向量存储也没有优化。</p>
 <p>总结来说就是，<strong>Parquet 不适合向量的存储</strong>。</p>
 <p>另外，<strong>Parquet 没有版本管理</strong>，需要配合 Iceberg 等开放表格才能应对实时 ETL 的负载。</p>
 <p>针对这些问题，ByteHouse 提出了一个新的数据格式，Sniffer。</p>
 <h2 id="sniffer-数据格式">Sniffer 数据格式</h2>
 <p>论文把 Sniffer 称为自描述的文件格式。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2026-04-11-130840.png" alt=""  /></p>
+<p><img src="https://www.yrunz.com/images/recovered/2026-04-11-130840.png" alt=""  /></p>
 <p>从布局上看，Sniffer 分成 3 部分：</p>
 <ul>
 <li><strong>Data</strong>：存储实际数据，布局跟 Parquet 很像，DataBlock 是数据压缩的最小单位。</li>
@@ -319,12 +319,12 @@
 <h2 id="表模型设计">表模型设计</h2>
 <p>ByteHouse 仍保留了表模型的设计，并针对多模态数据做了优化。</p>
 <p>我们很容易通过 Table 来表征传统结构化数据，<strong>每个数据存储为一个数据单元</strong>，检索时用该数据单元作匹配即可。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2026-04-12-023220.png" alt=""  /></p>
+<p><img src="https://www.yrunz.com/images/recovered/2026-04-12-023220.png" alt=""  /></p>
 <p>但对多模态数据，我们常常需要进行向量语义检索，这时该模型就不灵了。</p>
 <p>以文档为例。虽然可以把文档全部内容都塞进一个数据单元，但对整个文档作向量 Embedding 后，会因为向量表征的文档太大，导致关键信息丢失。语义检索失效。</p>
 <p>常见的做法是对文档进行切片，以切片为 Embedding 粒度，保留更多的语义信息。</p>
 <p>视频、音频、图片也是类似的。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2026-04-12-032459.png" alt=""  /></p>
+<p><img src="https://www.yrunz.com/images/recovered/2026-04-12-032459.png" alt=""  /></p>
 <p>ByteHouse 就是采用 <strong>&lt;document_id, chunk_id&gt;</strong> 的表模型设计。</p>
 <p>另外，在物理存储时，每个 Table 都包含 <strong>stable segments</strong> 和 <strong>delta segments</strong> 两部分。</p>
 <ul>
@@ -342,7 +342,7 @@
 <p>Sniffer 虽然降低了读数据的 IO 次数，但对象存储的带宽和时延硬伤，仍可能导致数据读写成为系统瓶颈。</p>
 <p>ByteHouse 的生产数据表明，<strong>在处理小 IO、随机 IO 时，对象存储的读取时延可占端到端的 70%</strong>！</p>
 <p>为此，ByteHouse 在存储层引入了 SSD 缓存，<strong>Cluster-Scale Caching</strong>。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2026-04-12-034249.png" alt=""  /></p>
+<p><img src="https://www.yrunz.com/images/recovered/2026-04-12-034249.png" alt=""  /></p>
 <p>Cluster-Scale Caching 是一个分布式的缓存系统，包含 2 种角色：</p>
 <ul>
 <li><strong>Cache Coordinators</strong> (CCs) ：管理全局 namespace 和 metadata。</li>
@@ -351,7 +351,7 @@
 <h2 id="文件系统抽象">文件系统抽象</h2>
 <p>到这里，存储层已经准备好，还需要能被计算节点访问的 API。</p>
 <p>ByteHouse 把它抽象成 <strong>NexusFS</strong>，提供文件访问接口，集成在计算节点，是连接存储层和计算层的桥梁。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2026-04-12-075241.png" alt=""  /></p>
+<p><img src="https://www.yrunz.com/images/recovered/2026-04-12-075241.png" alt=""  /></p>
 <p>NexusFS 在计算侧也有本地 SSD 缓存，包含 3 个组件：</p>
 <ul>
 <li><strong>Region Manager</strong>：将本地 SSD 划分成 1MB 大小的 region 进行管理，region 会被进一步划分成更小的 data segments，后者是 IO 调度和缓存的单位。</li>

@@ -248,21 +248,21 @@
 <p>桥接模式解决了在模块有多种变化方向的情况下，用继承所导致的类爆炸问题。</p>
 <p>举个例子，一个产品有形状和颜色两个特征（变化方向），其中形状分为方形和圆形，颜色分为红色和蓝色。如果采用继承的设计方案，那么就需要新增4个产品子类：方形红色、圆形红色、方形蓝色、圆形红色。如果形状总共有 m 种变化，颜色有 n 种变化，那么就需要新增 m * n 个产品子类！</p>
 <p>现在我们使用桥接模式进行优化，将形状和颜色分别设计为抽象接口独立出来，这样需要新增 2 个形状子类：方形和圆形，以及 2 个颜色子类：红色和蓝色。同样，如果形状总共有 m 种变化，颜色有 n 种变化，总共只需要新增 m + n 个子类！</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-04-01-235051.png" alt=""  /></p>
+<p><img src="https://www.yrunz.com/images/recovered/2024-04-01-235051.png" alt=""  /></p>
 <p>上述例子中，我们通过将形状和颜色抽象为一个接口，使产品不再依赖于具体的形状和颜色细节，从而达到了解耦的目的。<strong>桥接模式本质上就是面向接口编程，可以给系统带来很好的灵活性和可扩展性</strong>。如果一个对象存在多个变化的方向，而且每个变化方向都需要扩展，那么使用桥接模式进行设计那是再合适不过了。</p>
 <p>当然，Go 语言从语言特性本身就把继承剔除，但桥接模式中<strong>分离变化、面向接口编程的思想</strong>仍然值得学习。</p>
 <h2 id="uml-结构">UML 结构</h2>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-04-06-010127.png" alt=""  /></p>
+<p><img src="https://www.yrunz.com/images/recovered/2024-04-06-010127.png" alt=""  /></p>
 <h2 id="场景上下文">场景上下文</h2>
 <p>在 <a class="link" href="https://github.com/ruanrunxue/Practice-Design-Pattern--Go-Implementation/blob/main/docs/go_ractice_design_pattern__solid_principle.md"  target="_blank" rel="noopener"
     >简单的分布式应用系统</a>（示例代码工程）中，我们设计了一个 Monitor 监控系统模块，它可以看成是一个简单的 ETL 系统，负责对监控数据进行采集、处理、输出。监控数据来源于在线商场服务集群各个服务，当前通过消息队列模块 Mq 传递到监控系统，经处理后，存储到数据库模块 Db 上。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-04-05-083019.jpg" alt=""  /></p>
+<p><img src="https://www.yrunz.com/images/recovered/2024-04-05-083019.jpg" alt=""  /></p>
 <p>我们假设未来要上线一个不支持对接消息队列的服务、结果数据也需要存储到 ClickHouse 以供后续分析，为了应对未来多变的需求，我们有必要将监控系统设计得足够的可扩展。</p>
 <p>于是，整个模块被设计为<a class="link" href="https://mp.weixin.qq.com/s/4vofgxx-vasf-957Y_dcww"  target="_blank" rel="noopener"
     >插件化风格的架构</a>，<code>Pipeline</code> 是数据处理的流水线，其中包含了 <code>Input</code>、<code>Filter</code> 和 <code>Output</code> 三类插件，<code>Input</code> 负责从各类数据源中获取监控数据，<code>Filter</code> 负责数据处理，<code>Output</code> 负责将处理后的数据输出。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-04-05-074731.png" alt=""  /></p>
+<p><img src="https://www.yrunz.com/images/recovered/2024-04-05-074731.png" alt=""  /></p>
 <p>上述设计中，我们抽象出 <code>Input</code>、<code>Filter</code> 和 <code>Output</code> 三类插件，它们各种往独立的方向变化，最后在 <code>Pipeline</code> 上进行灵活组合，这使用桥接模式正合适。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-04-06-010221.png" alt=""  /></p>
+<p><img src="https://www.yrunz.com/images/recovered/2024-04-06-010221.png" alt=""  /></p>
 <h2 id="代码实现">代码实现</h2>
 <div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// 关键点1：明确产品的变化点，这里是input、filter和output三类插件，它们各自变化
 </span><span class="c1"></span>
@@ -393,7 +393,7 @@
 <h3 id="tidb-中的桥接模式">TiDB 中的桥接模式</h3>
 <p><a class="link" href="https://docs.pingcap.com/zh/tidb/stable/overview"  target="_blank" rel="noopener"
     >TiDB</a> 是一款出色的分布式关系型数据库，它对外提供了一套插件框架，方便用户进行功能扩展。TiDB 的插件框架的设计，也运用到了桥接模式的思想。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2024-04-13-014221.png" alt=""  /></p>
+<p><img src="https://www.yrunz.com/images/recovered/2024-04-13-014221.png" alt=""  /></p>
 <p>如上图所示，每个 <code>Plugin</code> 都包含 <code>Validate</code>、<code>OnInit</code>、<code>OnShutdown</code>、<code>OnFlush</code> 四个待用户实现的接口，它们可以按照各自的方向去变化，然后灵活组合在 <code>Plugin</code> 中。</p>
 <div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="c1">// Plugin presents a TiDB plugin.
 </span><span class="c1"></span><span class="kd">type</span> <span class="nx">Plugin</span> <span class="kd">struct</span> <span class="p">{</span>
