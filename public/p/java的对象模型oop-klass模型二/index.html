@@ -301,7 +301,7 @@ class A { void callMe() { System.out.println(&amp;#34;This is A.&amp;#34;); } } 
 </code></pre></div><p>考虑上述例子，基类<code>A</code>有两个子类，分别为<code>B</code>和<code>C</code>。在<code>main</code>函数中，<code>b</code>和<code>c</code>的静态类型都是<code>A</code>，但是在调用<code>callMe()</code>方法时，JVM会将它们绑定到正确的实现上。这其中奥秘就是JVM的虚分派机制，而该机制的实现用到了Klass中的<strong>虚函数表</strong>。</p>
 <h2 id="klass的继承体系">Klass的继承体系</h2>
 <p>跟Oop一样，Klass也有一个继承体系，如下图所示：</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-12-154716.jpg" alt="Klass继承体系"  /></p>
+<p><img src="https://www.yrunz.com/images/recovered/2023-10-12-154716.jpg" alt="Klass继承体系"  /></p>
 <div class="highlight"><pre class="chroma"><code class="language-C++" data-lang="C++"><span class="c1">// hotspot/src/share/vm/oops/oopsHierarchy.hpp
 </span><span class="c1"></span><span class="p">...</span>
 <span class="k">class</span> <span class="nc">Klass</span><span class="p">;</span>  <span class="c1">// Klass继承体系的最高父类
@@ -420,11 +420,11 @@ class A { void callMe() { System.out.println(&amp;#34;This is A.&amp;#34;); } } 
   <span class="k">return</span> <span class="n">ve</span><span class="p">[</span><span class="n">index</span><span class="p">].</span><span class="n">method</span><span class="p">();</span>
 <span class="p">}</span>
 </code></pre></div><p>一个<code>klassVtable</code>可看成是由多个<code>vtableEntry</code>组成的数组，其中每个元素<code>vtableEntry</code>里面都包含了一个方法的地址。在进行虚分派时，JVM会根据方法在<code>klassVtable</code>中的索引，找到对应的<code>vtableEntry</code>，进而得到方法的实际地址，最后根据该地址找到方法的字节码并执行。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-12-154741.jpg" alt="vtalbe结构"  /></p>
+<p><img src="https://www.yrunz.com/images/recovered/2023-10-12-154741.jpg" alt="vtalbe结构"  /></p>
 <h2 id="总结">总结</h2>
 <p>这两篇文章我们探讨了HotSpot的Oop-Klass对象模型，其中<strong>Oop表示对象的实例，存储在堆中；Klass表示对象的类型，存储在方法区中</strong>。但这也只是讲述了Oop-Klass对象模型中最基础的部分，该模型所包含的内容还远不止这些，如果想要更加全面而深入地了解Oop-Klass对象模型，最好的方法是阅读HotSpot的源码。</p>
 <p>最后，我们通过一张图来总结这两篇文章所讲述的内容：</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-12-154800.jpg" alt="Oop-Klass对象模型在内存中的分布"  /></p>
+<p><img src="https://www.yrunz.com/images/recovered/2023-10-12-154800.jpg" alt="Oop-Klass对象模型在内存中的分布"  /></p>
 
 </section>
 

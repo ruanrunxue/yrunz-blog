@@ -258,7 +258,7 @@ Before &amp;lt;&amp;lt; , i&#39;s value is -1 i&#39;s binary string is 111111111
     <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;i&#39;s binary string is &#34;</span> <span class="o">+</span> <span class="n">Integer</span><span class="o">.</span><span class="na">toBinaryString</span><span class="o">(</span><span class="n">i</span><span class="o">));</span>
 <span class="o">}</span>
 </code></pre></div><p>Java的<code>int</code>占32位，因此对<code>i = -1</code>转换成二进制数，然后左移10位，其结果是左边高10位丢弃，右边低10位补<code>0</code>，再转换为十进制，得到<code>i = -1024</code>的结果。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-11-133027.png" alt="int -1 &amp;laquo; 10 = -1024"  /></p>
+<p><img src="https://www.yrunz.com/images/recovered/2023-10-11-133027.png" alt="int -1 &amp;laquo; 10 = -1024"  /></p>
 <p>因此，上述例子的输出结果为：</p>
 <pre><code>Before &lt;&lt; , i's value is -1
 i's binary string is 11111111111111111111111111111111
@@ -283,7 +283,7 @@ i's binary string is 11111111111111111111110000000000
     <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;i2&#39;s binary string is &#34;</span> <span class="o">+</span> <span class="n">Integer</span><span class="o">.</span><span class="na">toBinaryString</span><span class="o">(</span><span class="n">i2</span><span class="o">));</span>
 <span class="o">}</span>
 </code></pre></div><p>例子中，<code>i1 = 4992</code>转换成二进制数，右移10位，其结果是左边高10位补<code>0</code>，右边低10位丢弃，再转换为十进制，得到<code>i1 = 4</code>的结果。同理，<code>i2 = -4992</code>，右移10位，左边高10位补<code>1</code>，右边低10位丢弃，得到<code>i2 = -5</code>的结果。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-11-133103.png" alt="int 4992 &amp;raquo; 10 = 4 和 int -4992 &amp;raquo; 10 = -5"  /></p>
+<p><img src="https://www.yrunz.com/images/recovered/2023-10-11-133103.png" alt="int 4992 &amp;raquo; 10 = 4 和 int -4992 &amp;raquo; 10 = -5"  /></p>
 <p>因此，上述例子的输出结果为：</p>
 <pre><code>Before &gt;&gt; , i1's value is 4992
 i1's binary string is 1001110000000
@@ -304,7 +304,7 @@ i2's binary string is 11111111111111111111111111111011
     <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;i3&#39;s binary string is &#34;</span> <span class="o">+</span> <span class="n">Integer</span><span class="o">.</span><span class="na">toBinaryString</span><span class="o">(</span><span class="n">i3</span><span class="o">));</span>
 <span class="o">}</span>
 </code></pre></div><p>同样对<code>i3 = -4992</code>进行操作，转换成二进制数后，右移10位，其结果为左边高10位补<code>0</code>，右边低10位丢弃，再转换成十进制，得到<code>i3 = 4194299</code>的结果。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-11-133131.png" alt="int -4992 &amp;raquo;&amp;gt; 10 = 4194299"  /></p>
+<p><img src="https://www.yrunz.com/images/recovered/2023-10-11-133131.png" alt="int -4992 &amp;raquo;&amp;gt; 10 = 4194299"  /></p>
 <p>因此，上述例子的输出结果为：</p>
 <pre><code>Before &gt;&gt;&gt; , i3's value is -4992
 i3's binary string is 11111111111111111110110010000000
@@ -322,7 +322,7 @@ i3's binary string is 1111111111111111111011
     <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;b&#39;s binary string is &#34;</span> <span class="o">+</span> <span class="n">Integer</span><span class="o">.</span><span class="na">toBinaryString</span><span class="o">(</span><span class="n">b</span><span class="o">));</span>
 <span class="o">}</span>
 </code></pre></div><p>Java的<code>byte</code>占8位，按照前面讲述的原理，对<code>b = -1</code>转换为二进制数后，右移6位，左边高6位补<code>0</code>，右边低位丢弃，其结果应该是<code>b = 3</code>。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-11-133204.png" alt="int -1 &amp;raquo;&amp;gt; 6 = 3 ?"  /></p>
+<p><img src="https://www.yrunz.com/images/recovered/2023-10-11-133204.png" alt="int -1 &amp;raquo;&amp;gt; 6 = 3 ?"  /></p>
 <p>真的这样吗？我们看一下例子运行的结果：</p>
 <pre><code>Before &gt;&gt; , b's value is -1
 b's binary string is 11111111111111111111111111111111
@@ -343,7 +343,7 @@ b's binary string is 11111111111111111111111111111111
 After &gt;&gt; , b's value is 67108863
 b's binary string is 11111111111111111111111111
 </code></pre><p>因此，第一个例子中实际的运算过程应该是这样：</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-11-133229.png" alt="byte -1 &amp;raquo;&amp;gt; 6 = -1"  /></p>
+<p><img src="https://www.yrunz.com/images/recovered/2023-10-11-133229.png" alt="byte -1 &amp;raquo;&amp;gt; 6 = -1"  /></p>
 <p>对于<code>short</code>和<code>char</code>的移位操作原理也一样，读者可以自行进行实验验证。</p>
 <h3 id="如果移位的位数超过数值所占有的位数会怎样">如果移位的位数超过数值所占有的位数会怎样？</h3>
 <p>到目前为止的所有的例子中，移位的位数都在数值所占有的位数之内，比如对<code>int</code>类型的移位都没有超过32。那么如果对<code>int</code>类型移位超过32位会怎样？且看如下例子：</p>
@@ -359,12 +359,12 @@ b's binary string is 11111111111111111111111111
     <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;i4&#39;s binary string is &#34;</span> <span class="o">+</span> <span class="n">Integer</span><span class="o">.</span><span class="na">toBinaryString</span><span class="o">(</span><span class="n">i4</span> <span class="o">&gt;&gt;&gt;</span> <span class="n">33</span><span class="o">));</span>
 <span class="o">}</span>
 </code></pre></div><p>根据前面讲述的原理，对于<code>i4 &gt;&gt;&gt; 31</code>我们很容易得出结果为<code>1</code>。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-11-133251.png" alt="int -1 &amp;raquo;&amp;gt; 31 = 1"  /></p>
+<p><img src="https://www.yrunz.com/images/recovered/2023-10-11-133251.png" alt="int -1 &amp;raquo;&amp;gt; 31 = 1"  /></p>
 <p><em>那么，<code>i4 &gt;&gt;&gt; 32</code>的结果会是<code>0</code>吗？</em></p>
 <p><strong>NO</strong>！Java对移位操作符的右操作数<code>rhs</code>有特别的处理，对于<code>int</code>类型，只取其低5位，也就是取<code>rhs % 32</code>的结果；对于long类型，只取其低6位，也即是取<code>rhs % 64</code>的结果。因此，对于<code>i4 &gt;&gt;&gt; 32</code>，实际上是<code>i4 &gt;&gt;&gt; (32 % 32) </code>，也即<code>i4 &gt;&gt;&gt; 0 </code>，结果仍然是<code>-1</code>。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-11-133323.png" alt="int -1 &amp;raquo;&amp;gt; 32 = -1"  /></p>
+<p><img src="https://www.yrunz.com/images/recovered/2023-10-11-133323.png" alt="int -1 &amp;raquo;&amp;gt; 32 = -1"  /></p>
 <p>同理，对于<code>i4 &gt;&gt;&gt; 33</code>等同于<code>i4 &gt;&gt;&gt; 1</code>，其结果为<code>2147483647</code>。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-11-133342.png" alt="int -1 &amp;raquo;&amp;gt; 33 = 2147483647"  /></p>
+<p><img src="https://www.yrunz.com/images/recovered/2023-10-11-133342.png" alt="int -1 &amp;raquo;&amp;gt; 33 = 2147483647"  /></p>
 <p>因此，上述例子的输出结果如下：</p>
 <pre><code>Before &gt;&gt;&gt; , i4's value is -1
 i4's binary string is 11111111111111111111111111111111

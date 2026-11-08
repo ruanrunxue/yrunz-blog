@@ -274,7 +274,7 @@ $ db_set <span class="m">42</span> <span class="s1">&#39;{&#34;name&#34;:&#34;Sa
 $ db_get <span class="m">42</span>
 <span class="o">{</span><span class="s2">&#34;name&#34;</span>:<span class="s2">&#34;San Francisco&#34;</span>,<span class="s2">&#34;attractions&#34;</span>:<span class="o">[</span><span class="s2">&#34;Golden Gate Bridge&#34;</span><span class="o">]}</span>
 </code></pre></div><p>透过<code>db_set</code>的实现我们发现，该数据库每次写都是直接往<code>database</code>文件中追加记录，鉴于文件系统顺序写的高效，因此该数据库的数据写入具有较高的性能。但是追加写也意味着，对同一个key进行更新时，其对应的旧的value并不会被覆盖，这也使得每次调用<code>db_get</code>获取某个key的value时，总是需要遍历所有记录，找到所有符合条件的value，并取其中最新的一个。因此，该数据库的读性能是非常低的。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-12-155006.jpg" alt="最简单的数据库读写操作"  /></p>
+<p><img src="https://www.yrunz.com/images/recovered/2023-10-12-155006.jpg" alt="最简单的数据库读写操作"  /></p>
 <p>下面我们采用Java对这个最简单的数据库进行重写：</p>
 <div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="cm">/**
 </span><span class="cm"> * SimpleKvDb.java
@@ -322,7 +322,7 @@ $ db_get <span class="m">42</span>
 <h2 id="给数据库加上hash索引">给数据库加上Hash索引</h2>
 <p>考虑到Key-Value数据库本身就类似于Hash表的这个特点，我们很容易想到如下的索引策略：<strong>在内存中维护一个Hash表，记录每个key对应的记录在数据文件（如前文所说的<code>database</code>文件）中的字节位移（byte offset）</strong>。</p>
 <p>对于写操作，在往数据文件追加记录后，还需要更新Hash表；对于读操作，首先通过Hash表确定该key对应记录在数据文件中的位移，然后通过字节位移快速找到value在数据文件中的位置并读取，从而避免了全文遍历这样的低效行为。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-12-155036.jpg" alt="加上索引之后的读写操作"  /></p>
+<p><img src="https://www.yrunz.com/images/recovered/2023-10-12-155036.jpg" alt="加上索引之后的读写操作"  /></p>
 <p>给<code>SimpleKvDb</code>加上Hash索引，对应的代码实现为：</p>
 <div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="cm">/**
 </span><span class="cm"> * HashIdxKvDb.java
@@ -402,18 +402,18 @@ $ db_get <span class="m">42</span>
 <p>append-only log的一个显著特点是旧的记录不会被覆盖删除，但是这些数据往往是无用的，因为读取某个key的value时，数据库都是取其最新的值。因此，解决该问题的一个思路是把这些无用的记录清除掉：</p>
 <p>（1）当往append-only log追加数据到达一定大小后，另外创建一个新的append-only log进行追加。在这种机制下，数据分散到多个append-only log文件中存储，我们称这些log文件为<strong>segment file</strong>。</p>
 <p>（2）保证只有当前的current segment file是可读可写，old segment file只读不写。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-12-155109.jpg" alt="segment file机制"  /></p>
+<p><img src="https://www.yrunz.com/images/recovered/2023-10-12-155109.jpg" alt="segment file机制"  /></p>
 <p>（3）对old segment file进行compact操作——只保留每个key对应的最新记录，把的老记录删除。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-12-155144.jpg" alt="单文件compact操作"  /></p>
+<p><img src="https://www.yrunz.com/images/recovered/2023-10-12-155144.jpg" alt="单文件compact操作"  /></p>
 <p>compact操作往往是在后台线程中执行，数据库会将合并的结果写到一个新的compacted segment file中，这样在执行compact操作时，就不会影响从old segment file中读数据的逻辑。等到compact操作完成之后，再把old segment file删除，后续的读操作迁移到compacted segment file上。</p>
 <p>现在，单个compacted segment file中的key都是唯一的，但是多个compacted segment file之间还是有可能存在重复的key，我们还能够更近一步，对多个compacted segment file再一次进行compact操作，这样数据量会再次减少。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-12-155233.jpg" alt="多文件compact操作"  /></p>
+<p><img src="https://www.yrunz.com/images/recovered/2023-10-12-155233.jpg" alt="多文件compact操作"  /></p>
 <blockquote>
 <p>类似的compact操作可以一层层执行下去，比如，可以对level2 compacted segment file进行compact，生成level3 compacted segment file。但是并不是compact的层次越多越好,具体的compact策略需要结合实际的应用场景进行设计。</p>
 </blockquote>
 <h2 id="给hashidxkvdb加上compact机制">给HashIdxKvDb加上compact机制</h2>
 <p>下面，我们试着给<code>HashIdxKvDb</code>加上compact机制。由于在compact机制下，数据会分散在多个segment file中存储，因此之前的Hash索引机制不再适用，我们需要给<strong>每个segment file都单独维护一份Hash索引</strong>。当然，这样也比较容易实现，只需要维护一个Hash表，key为segment file，value为该segment file对应的Hash索引。</p>
-<p><img src="http://yrunz-1300638001.cos.ap-guangzhou.myqcloud.com/2023-10-12-155247.jpg" alt="多segment file下的hash索引"  /></p>
+<p><img src="https://www.yrunz.com/images/recovered/2023-10-12-155247.jpg" alt="多segment file下的hash索引"  /></p>
 <p>对应的代码实现如下：</p>
 <div class="highlight"><pre class="chroma"><code class="language-java" data-lang="java"><span class="c1">// 多文件哈希索引实现
 </span><span class="c1"></span><span class="kd">class</span> <span class="nc">MultiHashIdx</span> <span class="o">{</span>
