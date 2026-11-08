@@ -30,7 +30,7 @@ jobs:
           sudo mv hugo /usr/local/bin/hugo
       - uses: actions/configure-pages@v5
       - name: Build
-        run: hugo --baseURL 'https://ruanrunxue.github.io/yrunz-blog/' --destination "$RUNNER_TEMP/site"
+        run: hugo --destination "$RUNNER_TEMP/site"
       - uses: actions/upload-pages-artifact@v3
         with:
           path: ${{ runner.temp }}/site

@@ -1,4 +1,4 @@
-baseurl: https://www.yrunz.com
+baseurl: https://yrunz.com/
 languageCode: en-us
 theme: hugo-theme-stack
 paginate: 10
